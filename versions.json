@@ -6,7 +6,12 @@
       "id": "eaglercraft",
       "name": "Eaglercraft",
       "developer": "lax1dude",
-      "tags": ["Sandbox", "Survival", "Multiplayer", "Open World"],
+      "tags": [
+        "Sandbox",
+        "Survival",
+        "Multiplayer",
+        "Open World"
+      ],
       "art": "terrain",
       "description": "Minecraft-style building and survival that runs right in your browser. Build, explore and play with friends.",
       "about": "Pick a version from the dropdown in your Library. Worlds sync to your account when you're signed in, so you can keep playing from any site.",
@@ -17,7 +22,9 @@
           "type": "release",
           "file": "eaglercraft1-8.html",
           "description": "EaglercraftX 1.8.8, the most complete build, with multiplayer and shared worlds.",
-          "notes": ["The most complete build, with multiplayer and shared worlds."]
+          "notes": [
+            "The most complete build, with multiplayer and shared worlds."
+          ]
         },
         {
           "id": "1.12",
@@ -25,7 +32,9 @@
           "type": "release",
           "file": "eaglercraft1-12.html",
           "description": "EaglercraftX 1.12, the more modern build with more features.",
-          "notes": ["The more modern build with more features."]
+          "notes": [
+            "The more modern build with more features."
+          ]
         },
         {
           "id": "1.5.2",
@@ -33,7 +42,9 @@
           "type": "release",
           "file": "eaglercraft1-5-2.html",
           "description": "Eaglercraft 1.5.2, the first version. Lighter, runs well on low-end devices.",
-          "notes": ["The first version, with fewer features but lighter."]
+          "notes": [
+            "The first version, with fewer features but lighter."
+          ]
         },
         {
           "id": "26.2",
@@ -41,21 +52,45 @@
           "type": "release",
           "file": "eaglercraft-26-2.html",
           "description": "Eaglercraft 26.2, the most modern build. Some bugs.",
-          "notes": ["The most modern build. Some bugs."]
-        },
+          "notes": [
+            "The most modern build. Some bugs."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "happy-wheels",
+      "name": "Happy Wheels",
+      "tags": [
+        "Physics",
+        "Action",
+        "Ragdoll"
+      ],
+      "description": "Happy Wheels, the most fun physics engine",
+      "versions": [
         {
-          "id": "HappyWheels",
+          "id": "1.0",
           "name": "Happy Wheels",
           "type": "release",
-          "file": "happywheels.html",
-          "description": "Happy Wheels, the most fun physics engine"
+          "file": "happywheels.html"
         }
+      ]
+    },
+    {
+      "id": "polytrack",
+      "name": "Polytrack",
+      "tags": [
+        "Racing",
+        "Driving",
+        "Time Trial"
+      ],
+      "description": "Polytrack, greatest racing game oat",
+      "versions": [
         {
-          "id": "Polytrack",
+          "id": "1.0",
           "name": "Polytrack",
           "type": "release",
-          "file": "polytrack.html",
-          "description": "Polytrack, greatest racing game oat"
+          "file": "polytrack.html"
         }
       ]
     }
