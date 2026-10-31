@@ -6,7 +6,7 @@
  * >>> EDIT THIS: point REPO at your own GitHub repository. <<<
  */
 (function () {
-  var REPO = { user: 'th3nu8', repo: 'eaglercraft-launcher', branch: 'main' };
+  var REPO = { user: 'th3nu8', repo: 'EaglercraftLauncher', branch: 'main' };
 
   // raw.githubusercontent.com sends CORS headers, has no 20 MB file cap
   // (unlike jsDelivr) and refreshes within minutes of a push.
