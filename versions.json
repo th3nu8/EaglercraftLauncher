@@ -1,14 +1,44 @@
 {
-  "syncServer": "http://134.195.88.52:3100",
+  "syncServer": "https://134.195.88.52:3100",
   "versions": [
     {
       "id": "1.8.8",
       "name": "Eaglercraft 1.8.8",
       "type": "release",
-      "file": "eaglercraft-1.8.8.html",
+      "file": "eaglercraft1-8.html",
       "description": "EaglercraftX 1.8.8 \u2014 the most complete build, with multiplayer and shared worlds.",
       "notes": [
         "Add the offline single-file build to versions/eaglercraft-1.8.8.html."
+      ]
+    },
+    {
+      "id": "1.12",
+      "name": "Eaglercraft 1.12",
+      "type": "release",
+      "file": "eaglercraft1-12.html",
+      "description": "EaglercraftX 1.12 \u2017 the more modern build with more features",
+      "notes": [
+        "Add the offline single-file build to versions/eaglercraft-1.12.html."
+      ]
+    },
+    {
+      "id": "1.5.2",
+      "name": "Eaglercraft 1.5.2",
+      "type": "release",
+      "file": "eaglercraft1-5-2.html",
+      "description": "EaglercraftX 1.5.2 \u2012 the first version, less stuff",
+      "notes": [
+        "Add the offline single-file build to versions/eaglercraft-1.5.2.html."
+      ]
+    },
+    {
+      "id": "26.2",
+      "name": "Eaglercraft 26.2",
+      "type": "release",
+      "file": "eaglercraft-26-2.html",
+      "description": "EaglercraftX 26.2 \u2025 the most modern build, some bugs",
+      "notes": [
+        "Add the offline single-file build to versions/eaglercraft-26.2.html."
       ]
     }
   ]
