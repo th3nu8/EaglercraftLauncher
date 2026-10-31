@@ -29,7 +29,12 @@
   function gameById(id) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].id === id) return GAMES[i]; return null; }
   function verById(g, id) { for (var i = 0; i < g.versions.length; i++) if (g.versions[i].id === id) return g.versions[i]; return null; }
   function typeLabel(v) { return TYPE_LABEL[v.type] || v.type || 'Release'; }
-  function resolveUrl(u) { return /^https?:\/\//.test(u) ? u : CFG.base + u.replace(/^\.?\//, ''); }
+  // "cover.png" -> images/cover.png in the repo; "art/x.png" -> art/x.png; full URLs as-is.
+  function resolveUrl(u) {
+    if (/^(https?:|data:)/.test(u)) return u;
+    u = u.replace(/^\.?\//, '');
+    return CFG.base + (u.indexOf('/') < 0 ? 'images/' + u : u);
+  }
   function versionUrl(v) { return /^https?:\/\//.test(v.file) ? v.file : CFG.base + 'versions/' + v.file; }
   function fmtMB(b) { return b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : (b / 1048576).toFixed(1) + ' MB'; }
   function ago(t) {
@@ -299,18 +304,37 @@
     return s.join('');
   }
   /* kind: 'hero' (wide), 'capsule' (460x215), 'portrait' (2:3), 'icon' */
+  /* kind: 'hero' (wide banner), 'capsule' (store tile), 'portrait' (library cover), 'icon'.
+   * Specific fields (hero/capsule/portrait/icon) win; "image" is the fallback for all of them. */
+  function artUrl(g, kind) {
+    if (g[kind]) return { url: g[kind], specific: true };
+    var alt = kind === 'icon' ? (g.capsule || g.portrait) : kind === 'portrait' ? g.capsule : kind === 'capsule' ? g.hero : null;
+    if (alt) return { url: alt, specific: true };
+    if (g.image) return { url: g.image, specific: false };
+    return null;
+  }
   function artInto(box, g, kind, withTitle) {
-    var url = g[kind] || (kind === 'portrait' || kind === 'icon' ? g.capsule : null) || (kind === 'capsule' ? g.hero : null);
-    if (url) {
-      var img = el('img', 'art'); img.src = resolveUrl(url); img.alt = ''; img.loading = 'lazy'; box.appendChild(img);
-    } else if (g.art === 'terrain') {
-      var dims = kind === 'portrait' ? [24, 36] : kind === 'icon' ? [12, 12] : kind === 'hero' ? [96, 40] : [64, 30];
-      box.insertAdjacentHTML('beforeend', terrainSVG(g.seed + kind.length, dims[0], dims[1]));
-    } else {
-      var d2 = kind === 'portrait' ? [40, 60] : kind === 'icon' ? [12, 12] : [92, 43];
-      box.insertAdjacentHTML('beforeend', genArt(g, d2[0], d2[1]));
+    var a = artUrl(g, kind);
+    function fallback() {
+      if (g.art === 'terrain') {
+        var dims = kind === 'portrait' ? [24, 36] : kind === 'icon' ? [12, 12] : kind === 'hero' ? [96, 40] : [64, 30];
+        box.insertAdjacentHTML('afterbegin', terrainSVG(g.seed + kind.length, dims[0], dims[1]));
+      } else {
+        var d2 = kind === 'portrait' ? [40, 60] : kind === 'icon' ? [12, 12] : [92, 43];
+        box.insertAdjacentHTML('afterbegin', genArt(g, d2[0], d2[1]));
+      }
     }
-    if (withTitle && !url) box.appendChild(el('div', 'art-title' + (kind === 'hero' ? ' big' : kind === 'portrait' ? ' tall' : ''), g.name));
+    if (a) {
+      var img = el('img', 'art'); img.alt = ''; img.loading = 'lazy';
+      img.onerror = function () { img.remove(); fallback(); if (!title && withTitle) addTitle(); };
+      img.src = resolveUrl(a.url);
+      box.appendChild(img);
+    } else fallback();
+    // Titles go on generated art and on the shared "image" (usually a screenshot).
+    // Dedicated capsule/hero/portrait art is assumed to have its own logo; set "showTitle": true to force one.
+    var title = null;
+    function addTitle() { title = el('div', 'art-title' + (kind === 'hero' ? ' big' : kind === 'portrait' ? ' tall' : ''), g.name); box.appendChild(title); }
+    if (withTitle && kind !== 'icon' && (!a || !a.specific || g.showTitle === true) && g.showTitle !== false) addTitle();
   }
   function tagsEl(g, n) { var t = el('div', 'tags'); g.tags.slice(0, n || 4).forEach(function (x) { t.appendChild(el('span', 'tag', x)); }); return t; }
   function priceEl(lg) { var p = el('div', 'price' + (lg ? ' lg' : '')); p.appendChild(el('span', null, 'Free')); return p; }
