@@ -40,6 +40,20 @@
       "notes": [
         "Add the offline single-file build to versions/eaglercraft-26.2.html."
       ]
+    },
+    {
+      "id": "HappyWheels",
+      "name": "Happy Wheels",
+      "type": "release",
+      "file": "happywheels.html",
+      "description": "Happy Wheels \uBack to the classics"
+    },
+    {
+      "id": "PolyTrack",
+      "name": "Polytrack",
+      "type": "release",
+      "file": "polytrack.html",
+      "description": "Polytrack \uBest racing game oat"
     }
   ]
 }
