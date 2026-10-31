@@ -1,14 +1,46 @@
-/* Eaglercraft Launcher — UI logic (runs inside the about:blank window) */
+/* Launcher — UI logic (runs inside the about:blank window) */
 (function () {
   'use strict';
-  var CFG = window.__EL_CFG || { base: './', versions: { versions: [] } };
-  var VERSIONS = (CFG.versions && CFG.versions.versions) || CFG.versions || [];
+  var CFG = window.__EL_CFG || { base: './', versions: {} };
+  var RAW = CFG.versions || {};
   var CACHE_NAME = 'eagler-launcher-v1';
+  var MIN_GAME_BYTES = 200;
   var TYPE_LABEL = { release: 'Release', snapshot: 'Snapshot', old_beta: 'Beta', old_alpha: 'Alpha', modded: 'Modded' };
+
+  /* ---------- games (versions.json "games", or legacy top-level "versions") ---------- */
+  var GAMES = (RAW.games || []).slice();
+  var legacyVersions = Array.isArray(RAW) ? RAW : RAW.versions;
+  if (!GAMES.length && legacyVersions && legacyVersions.length) {
+    GAMES.push({ id: 'eaglercraft', name: 'Eaglercraft', developer: 'lax1dude', art: 'terrain',
+      tags: ['Sandbox', 'Survival', 'Multiplayer'], description: 'Minecraft-style building and survival in your browser.',
+      versions: legacyVersions });
+  }
+  GAMES.forEach(function (g, i) {
+    g.versions = (g.versions && g.versions.length) ? g.versions : (g.file ? [{ id: 'default', name: g.name, file: g.file, type: 'release' }] : []);
+    g.tags = g.tags || [];
+    g.seed = 7 + i * 131;
+    if (g.cloudSaves === undefined) g.cloudSaves = /eagler/i.test(g.id + ' ' + g.name);
+  });
+  var LAUNCHER_NAME = RAW.launcherName || 'Eagler Launcher';
 
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function gameById(id) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].id === id) return GAMES[i]; return null; }
+  function verById(g, id) { for (var i = 0; i < g.versions.length; i++) if (g.versions[i].id === id) return g.versions[i]; return null; }
+  function typeLabel(v) { return TYPE_LABEL[v.type] || v.type || 'Release'; }
+  function resolveUrl(u) { return /^https?:\/\//.test(u) ? u : CFG.base + u.replace(/^\.?\//, ''); }
+  function versionUrl(v) { return /^https?:\/\//.test(v.file) ? v.file : CFG.base + 'versions/' + v.file; }
+  function fmtMB(b) { return b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : (b / 1048576).toFixed(1) + ' MB'; }
+  function ago(t) {
+    if (!t) return 'Never';
+    var s = Math.round((Date.now() - t) / 1000);
+    if (s < 45) return 'Just now';
+    if (s < 3600) return Math.round(s / 60) + ' min ago';
+    if (s < 86400) return Math.round(s / 3600) + ' h ago';
+    if (s < 86400 * 2) return 'Yesterday';
+    return new Date(t).toLocaleDateString();
+  }
 
   /* ---------- storage ---------- */
   var store = {
@@ -17,50 +49,62 @@
   };
   var settings = {
     mode: store.get('mode', 'iframe'),
-    title: store.get('title', 'Eaglercraft Launcher')
+    title: store.get('title', LAUNCHER_NAME),
+    server: store.get('syncServer', '')
   };
-  var selectedId = store.get('selected', VERSIONS[0] && VERSIONS[0].id);
-  if (!byId(selectedId) && VERSIONS[0]) selectedId = VERSIONS[0].id;
-  var cachedIds = {};
+  var library = store.get('library', null);
+  var sizes = store.get('sizes', {});           // cacheKey -> bytes
+  var installed = {};                             // cacheKey -> true
+  var view = { page: 'store', game: null, libGame: store.get('libGame', null), feat: 0 };
 
-  function byId(id) { for (var i = 0; i < VERSIONS.length; i++) if (VERSIONS[i].id === id) return VERSIONS[i]; return null; }
-  function typeLabel(v) { return TYPE_LABEL[v.type] || v.type || 'Release'; }
-  function versionUrl(v) { return /^https?:\/\//.test(v.file) ? v.file : CFG.base + 'versions/' + v.file; }
-  function cacheKey(v) { return 'https://eagler-launcher.invalid/' + encodeURIComponent(v.id) + '?f=' + encodeURIComponent(v.file) + '&r=' + encodeURIComponent(v.rev || ''); }
-  function fmtMB(b) { return (b / 1048576).toFixed(1) + ' MB'; }
+  function inLibrary(g) { return library.indexOf(g.id) >= 0; }
+  function addToLibrary(g) { if (!inLibrary(g)) { library.push(g.id); store.set('library', library); } }
+  function removeFromLibrary(g) { library = library.filter(function (id) { return id !== g.id; }); store.set('library', library); }
+  function selVersion(g) { return verById(g, store.get('ver:' + g.id, '')) || g.versions[0] || null; }
+  function setSelVersion(g, v) { store.set('ver:' + g.id, v.id); }
+  function isInstalled(g, v) { return !!installed[cacheKey(g, v)]; }
+  function anyInstalled(g) { return g.versions.some(function (v) { return isInstalled(g, v); }); }
+  function installedSize(g) { return g.versions.reduce(function (a, v) { return a + (isInstalled(g, v) ? (sizes[cacheKey(g, v)] || 0) : 0); }, 0); }
 
-  /* ---------- cache (Cache API, falls back to no caching) ---------- */
+  /* ---------- cache (Cache API) ---------- */
+  function cacheKey(g, v) {
+    // Eaglercraft keeps the old key so downloads from the previous launcher still count as installed.
+    var id = g.id === 'eaglercraft' ? v.id : g.id + ':' + v.id;
+    return 'https://eagler-launcher.invalid/' + encodeURIComponent(id) + '?f=' + encodeURIComponent(v.file) + '&r=' + encodeURIComponent(v.rev || '');
+  }
   function cacheOpen() { return (window.caches && caches.open) ? caches.open(CACHE_NAME) : Promise.reject(new Error('no cache')); }
-  function cacheGet(v) {
-    return cacheOpen().then(function (c) { return c.match(cacheKey(v)); })
+  function cacheGet(g, v) {
+    return cacheOpen().then(function (c) { return c.match(cacheKey(g, v)); })
       .then(function (r) { return r ? r.text() : null; }).catch(function () { return null; });
   }
-  function cachePut(v, html) {
+  function cachePut(g, v, html) {
+    var k = cacheKey(g, v);
     return cacheOpen().then(function (c) {
-      return c.put(cacheKey(v), new Response(html, { headers: { 'content-type': 'text/html' } }));
-    }).then(function () { cachedIds[v.id] = true; }).catch(function () {});
+      return c.put(k, new Response(html, { headers: { 'content-type': 'text/html' } }));
+    }).then(function () { installed[k] = true; sizes[k] = html.length; store.set('sizes', sizes); }).catch(function () {});
   }
-  function cacheDelete(v) {
-    return cacheOpen().then(function (c) {
-      return c.keys().then(function (keys) {
-        var pre = 'https://eagler-launcher.invalid/' + encodeURIComponent(v.id) + '?';
-        return Promise.all(keys.filter(function (k) { return k.url.indexOf(pre) === 0; }).map(function (k) { return c.delete(k); }));
-      });
-    }).then(function () { delete cachedIds[v.id]; }).catch(function () {});
+  function uninstall(g, v) {
+    var k = cacheKey(g, v);
+    return cacheOpen().then(function (c) { return c.delete(k); }).catch(function () {})
+      .then(function () { delete installed[k]; delete sizes[k]; store.set('sizes', sizes); });
   }
-  function refreshCacheState() {
+  function refreshInstalled() {
     return cacheOpen().then(function (c) { return c.keys(); }).then(function (keys) {
       var urls = {}; keys.forEach(function (k) { urls[k.url] = 1; });
-      cachedIds = {};
-      VERSIONS.forEach(function (v) { if (urls[cacheKey(v)]) cachedIds[v.id] = true; });
-    }).catch(function () {}).then(renderAll);
+      installed = {};
+      GAMES.forEach(function (g) { g.versions.forEach(function (v) { if (urls[cacheKey(g, v)]) installed[cacheKey(g, v)] = true; }); });
+    }).catch(function () {}).then(function () {
+      if (!library) {
+        library = GAMES.filter(function (g, i) { return i === 0 || anyInstalled(g); }).map(function (g) { return g.id; });
+        store.set('library', library);
+      }
+      renderAll();
+    });
   }
 
-  /* ---------- download with progress ---------- */
-  var currentAbort = null;
-  function download(v, onProgress) {
-    var ctrl = window.AbortController ? new AbortController() : null;
-    currentAbort = ctrl;
+  /* ---------- downloads ---------- */
+  var dl = null; // {g, v, got, total, ctrl, promise}
+  function fetchGame(g, v, onProgress, ctrl) {
     return fetch(versionUrl(v), { cache: 'no-store', signal: ctrl && ctrl.signal }).then(function (r) {
       if (r.status === 404) throw new Error('versions/' + v.file + ' was not found in the repo.');
       if (!r.ok) throw new Error('Download failed (HTTP ' + r.status + ').');
@@ -78,47 +122,72 @@
       return pump();
     }).then(function (html) {
       if (/^version https:\/\/git-lfs/.test(html)) throw new Error('This file is stored with Git LFS. Commit it as a normal file instead.');
+      if (html.length < MIN_GAME_BYTES || html.indexOf('<') < 0) throw new Error(v.file + ' is empty or not a game file (' + html.length + ' bytes). Re-upload the full .html.');
       return html;
     });
+  }
+  function install(g, v) {
+    if (dl) {
+      if (dl.g === g && dl.v === v) return dl.promise;
+      toast('Wait for ' + dl.v.name + ' to finish downloading'); return Promise.reject(new Error('busy'));
+    }
+    addToLibrary(g);
+    var ctrl = window.AbortController ? new AbortController() : null;
+    dl = { g: g, v: v, got: 0, total: 0, ctrl: ctrl };
+    renderDownloads(); renderLibrary();
+    dl.promise = fetchGame(g, v, function (got, total) {
+      dl.got = got; dl.total = total; renderDownloads(); renderBigButton();
+    }, ctrl).then(function (html) {
+      return cachePut(g, v, html).then(function () { return html; });
+    }).then(function (html) {
+      dl = null; renderAll(); toast(v.name + ' is ready to play'); return html;
+    }, function (e) {
+      dl = null; renderAll();
+      if (e && e.name === 'AbortError') { toast('Download cancelled'); throw e; }
+      showError('Couldn’t install ' + v.name, e.message || String(e)); throw e;
+    });
+    return dl.promise;
+  }
+  function renderDownloads() {
+    var bar = $('#dlbar');
+    if (!dl) { bar.classList.remove('active'); $('#dlText').textContent = 'Downloads: nothing in progress'; $('#dlProg').style.width = '0'; return; }
+    bar.classList.add('active');
+    var pct = dl.total ? Math.min(99, Math.round(dl.got / dl.total * 100)) : 0;
+    $('#dlText').textContent = 'Downloading ' + dl.v.name + ' · ' + fmtMB(dl.got) + (dl.total ? ' / ' + fmtMB(Math.max(dl.got, dl.total)) + ' · ' + pct + '%' : '');
+    $('#dlProg').style.width = (dl.total ? pct : 15) + '%';
   }
 
   /* ---------- launching ---------- */
   var gameFrame = null, gameUrl = null;
-  function launch(v) {
-    if (!v) return;
-    selectedId = v.id; store.set('selected', v.id); renderPlay();
-    showOverlay('Preparing ' + v.name, cachedIds[v.id] ? 'Loading from downloads…' : 'Checking downloads…', true);
-    cacheGet(v).then(function (html) {
-      if (html) return html;
-      setOverlay('Downloading ' + v.name, 'Connecting…', true);
-      return download(v, function (got, total) {
-        if (total) {
-          var pct = Math.min(99, Math.round(got / total * 100));
-          setOverlay(null, fmtMB(got) + ' / ' + fmtMB(Math.max(got, total)) + ' · ' + pct + '%', false, pct);
-        } else setOverlay(null, fmtMB(got) + ' downloaded', true);
-      }).then(function (h) {
-        setOverlay('Saving ' + v.name, 'Storing for instant launches next time…', true);
-        return cachePut(v, h).then(function () { return h; });
-      });
+  function play(g, v) {
+    if (!g || !v) return;
+    addToLibrary(g); setSelVersion(g, v);
+    store.set('played:' + g.id, Date.now());
+    showOverlay('Launching ' + v.name, 'Loading game files…', true);
+    cacheGet(g, v).then(function (html) {
+      if (html && html.length >= MIN_GAME_BYTES) return html;
+      hideOverlay();
+      return install(g, v).then(function (h) { showOverlay('Launching ' + v.name, '', true); return h; });
     }).then(function (html) {
-      return preLaunchSync().then(function () { return html; });
+      return (g.cloudSaves ? preLaunchSync() : Promise.resolve()).then(function () { return html; });
     }).then(function (html) {
-      showOverlay('Starting ' + v.name, '', false);
-      setOverlay(null, null, false, 100);
-      setTimeout(function () { hideOverlay(); renderAll(); startGame(html, v.name); }, 120);
+      showOverlay('Launching ' + v.name, '', false); setOverlay(null, null, false, 100);
+      setTimeout(function () { hideOverlay(); renderAll(); startGame(html, v.name, g); }, 120);
     }).catch(function (e) {
-      if (e && e.name === 'AbortError') { hideOverlay(); return; }
-      showError('Could not launch ' + v.name, e.message || String(e));
+      if (e && (e.name === 'AbortError' || e.message === 'busy')) { hideOverlay(); return; }
+      if (!$('#overlay').classList.contains('open') || ovMode === 'cancel') showError('Couldn’t launch ' + v.name, e.message || String(e));
     });
   }
 
-  function startGame(html, name) {
+  var runningGame = null;
+  function startGame(html, name, g) {
     if (settings.mode === 'replace') {
       stopAutosave();
       document.open(); document.write(html); document.close();
       return;
     }
     closeGame(true);
+    runningGame = g || null;
     gameUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
     gameFrame = document.createElement('iframe');
     gameFrame.id = 'game';
@@ -129,33 +198,33 @@
     document.body.classList.add('in-game');
     document.title = name + ' · ' + settings.title;
     setTimeout(function () { try { gameFrame.focus(); } catch (e) {} }, 300);
-    startAutosave();
+    if (!g || g.cloudSaves) startAutosave();
     var b = $('#backBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 2500);
   }
-
   function closeGame(silent) {
     if (!gameFrame) return;
-    if (!silent && !confirm('Return to the launcher? Unsaved progress in the running game will be lost.')) return;
-    gameFrame.remove(); gameFrame = null;
+    if (!silent && !confirm('Return to the library? Unsaved progress in the running game will be lost.')) return;
+    var hadSaves = !runningGame || runningGame.cloudSaves;
+    gameFrame.remove(); gameFrame = null; runningGame = null;
     if (gameUrl) { URL.revokeObjectURL(gameUrl); gameUrl = null; }
     document.body.classList.remove('in-game');
     document.title = settings.title;
     stopAutosave();
-    if (!silent && engine && engine.signedIn()) setTimeout(function () { backgroundSync(); }, 600);
+    if (!silent && hadSaves && engine && engine.signedIn()) setTimeout(backgroundSync, 600);
+    renderAll();
   }
-
   function launchLocalFile(file) {
     var r = new FileReader();
     showOverlay('Opening ' + file.name, 'Reading file…', true);
-    r.onload = function () { hideOverlay(); startGame(String(r.result), file.name.replace(/\.html?$/i, '')); };
-    r.onerror = function () { showError('Could not read file', String(r.error)); };
+    r.onload = function () { hideOverlay(); startGame(String(r.result), file.name.replace(/\.html?$/i, ''), null); };
+    r.onerror = function () { showError('Couldn’t read file', String(r.error)); };
     r.readAsText(file);
   }
 
-  /* ---------- overlay / toast ---------- */
+  /* ---------- overlay / toast / menus ---------- */
   var ovMode = 'cancel';
   function showOverlay(title, sub, indet) {
-    ovMode = 'cancel'; $('#ovBtn').textContent = 'Cancel';
+    ovMode = 'cancel'; $('#ovBtn').textContent = 'Cancel'; $('#ovBtn').style.display = 'none';
     $('#overlay').classList.add('open'); setOverlay(title, sub, indet, 0);
   }
   function setOverlay(title, sub, indet, pct) {
@@ -164,193 +233,380 @@
     $('.bar').classList.toggle('indet', !!indet);
     if (pct != null) $('#ovBar').style.width = pct + '%';
   }
-  function hideOverlay() { $('#overlay').classList.remove('open'); currentAbort = null; }
+  function hideOverlay() { $('#overlay').classList.remove('open'); }
   function showError(title, msg) {
     $('#overlay').classList.add('open');
     setOverlay(title, msg, false, 0);
-    ovMode = 'close'; $('#ovBtn').textContent = 'OK';
+    ovMode = 'close'; $('#ovBtn').textContent = 'OK'; $('#ovBtn').style.display = '';
   }
   var toastT;
   function toast(msg) {
     var t = $('#toast'); t.textContent = msg; t.classList.add('show');
-    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, 2600);
   }
-
-  /* ---------- views ---------- */
-  function setView(name) {
-    $$('.view').forEach(function (v) { v.classList.toggle('active', v.id === 'view-' + name); });
-    $$('.tab').forEach(function (t) { t.classList.toggle('active', t.dataset.view === name); });
-    $$('.side-link[data-view]').forEach(function (t) { t.classList.toggle('active', t.dataset.view === name); });
-    $('.game').classList.toggle('active', name !== 'settings');
-    closeMenu();
+  function popMenu(anchor, items) {
+    var m = $('#menuPop'); m.textContent = '';
+    items.forEach(function (it) { var b = el('button', null, it[0]); b.onclick = function () { closeMenu(); it[1](); }; m.appendChild(b); });
+    var r = anchor.getBoundingClientRect();
+    m.classList.add('open');
+    m.style.left = Math.min(window.innerWidth - m.offsetWidth - 8, r.right - m.offsetWidth) + 'px';
+    m.style.top = (r.bottom + 4) + 'px';
   }
+  function closeMenu() { $('#menuPop').classList.remove('open'); }
 
-  function renderPlay() {
-    var v = byId(selectedId);
-    $('#heroTitle').textContent = v ? v.name : 'No versions yet';
-    $('#heroDesc').textContent = v ? (v.description || '') : 'Add versions to versions.json in your repo.';
-    $('#vselName').textContent = v ? v.name : 'No versions';
-    $('#vselSub').textContent = v ? typeLabel(v) + ' · ' + v.id : '';
-    $('#playBtn').disabled = !v;
-    var cs = $('#cacheState'); cs.textContent = '';
-    if (v) {
-      cs.appendChild(el('b', null, cachedIds[v.id] ? 'Ready to play' : 'Download required'));
-      cs.appendChild(document.createTextNode(cachedIds[v.id] ? 'Opens instantly' : (v.sizeMB ? '~' + v.sizeMB + ' MB on first launch' : 'Downloads on first launch')));
-    }
-    var m = $('#vmenu'); m.textContent = '';
-    VERSIONS.forEach(function (ver) {
-      var b = el('button', 'vitem' + (ver.id === selectedId ? ' sel' : ''));
-      b.appendChild(el('span', 'vicon'));
-      var t = el('span', 'vtext'); t.appendChild(el('b', null, ver.name)); t.appendChild(el('small', null, typeLabel(ver) + ' · ' + ver.id + (cachedIds[ver.id] ? ' · downloaded' : '')));
-      b.appendChild(t);
-      b.onclick = function () { selectedId = ver.id; store.set('selected', ver.id); closeMenu(); renderPlay(); };
-      m.appendChild(b);
-    });
-  }
-
-  function renderInstalls() {
-    var q = $('#search').value.trim().toLowerCase(), showBeta = $('#showBeta').checked;
-    var list = $('#installList'); list.textContent = '';
-    var shown = VERSIONS.filter(function (v) {
-      if (!showBeta && (v.type === 'old_beta' || v.type === 'old_alpha' || v.type === 'snapshot')) return false;
-      return !q || (v.name + ' ' + v.id).toLowerCase().indexOf(q) >= 0;
-    });
-    if (!shown.length) { list.appendChild(el('div', 'empty', VERSIONS.length ? 'No installations match.' : 'No versions in versions.json yet.')); return; }
-    shown.forEach(function (v) {
-      var row = el('div', 'irow');
-      row.appendChild(el('span', 'vicon'));
-      var info = el('div', 'iinfo'), name = el('b', null, v.name);
-      name.appendChild(el('span', 'badge', typeLabel(v)));
-      if (cachedIds[v.id]) name.appendChild(el('span', 'badge ok', 'Downloaded'));
-      info.appendChild(name); info.appendChild(el('small', null, v.description || v.id));
-      row.appendChild(info);
-      if (cachedIds[v.id]) {
-        var del = el('button', 'btn ghost', 'Remove download');
-        del.onclick = function () { cacheDelete(v).then(function () { toast('Removed ' + v.name); renderAll(); }); };
-        row.appendChild(del);
-      }
-      var play = el('button', 'btn green', 'Play');
-      play.onclick = function () { setView('play'); launch(v); };
-      row.appendChild(play);
-      list.appendChild(row);
-    });
-  }
-
-  function renderNotes() {
-    var box = $('#notesList'); box.textContent = '';
-    if (!VERSIONS.length) { box.appendChild(el('div', 'empty', 'Nothing here yet.')); return; }
-    VERSIONS.forEach(function (v, i) {
-      var c = el('div', 'ncard'), art = el('div', 'nart');
-      art.innerHTML = terrainSVG(900 + i * 77, 48, 18);
-      c.appendChild(art);
-      var b = el('div', 'nbody');
-      b.appendChild(el('h3', null, v.name));
-      b.appendChild(el('small', null, typeLabel(v) + ' · ' + v.id));
-      var notes = v.notes && v.notes.length ? v.notes : [v.description || 'No notes for this version.'];
-      var ul = el('ul'); notes.forEach(function (n) { ul.appendChild(el('li', null, n)); });
-      b.appendChild(ul); c.appendChild(b); box.appendChild(c);
-    });
-  }
-
-  function renderSettings() {
-    $('#setMode').value = settings.mode;
-    $('#setTitle').value = settings.title;
-    $('#srcInfo').textContent = CFG.base;
-    $('#setServer').value = settings.server;
-    $('#setServer').placeholder = defaultServer() || 'https://saves.example.com';
-    var n = Object.keys(cachedIds).length;
-    $('#cacheInfo').textContent = n ? n + ' version' + (n > 1 ? 's' : '') + ' downloaded. Clearing frees space; they re-download on next launch.'
-      : 'Versions are cached after the first launch so they open instantly.';
-    if (navigator.storage && navigator.storage.estimate) {
-      navigator.storage.estimate().then(function (e) {
-        if (n && e.usage) $('#cacheInfo').textContent += ' (' + fmtMB(e.usage) + ' used)';
-      }).catch(function () {});
-    }
-  }
-
-  function renderAll() { renderPlay(); renderInstalls(); renderNotes(); renderSettings(); }
-
-  /* ---------- menu ---------- */
-  function closeMenu() { $('#vmenu').classList.remove('open'); $('#vselBtn').classList.remove('open'); }
-
-  /* ---------- procedural blocky landscape (original art) ---------- */
+  /* ---------- art ---------- */
   function rng(seed) { return function () { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; }
+  var svgUid = 0;
   function terrainSVG(seed, cols, rows) {
-    var r = rng(seed), W = cols, H = rows, s = [];
-    s.push('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges" style="width:100%;height:100%;display:block">');
-    s.push('<defs><linearGradient id="sky' + seed + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d9de0"/><stop offset="1" stop-color="#bfe0ff"/></linearGradient></defs>');
-    s.push('<rect width="' + W + '" height="' + H + '" fill="url(#sky' + seed + ')"/>');
+    var r = rng(seed), W = cols, H = rows, s = [], gid = 'sky' + (++svgUid);
+    s.push('<svg class="art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMax slice" shape-rendering="crispEdges">');
+    s.push('<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d9de0"/><stop offset="1" stop-color="#bfe0ff"/></linearGradient></defs>');
+    s.push('<rect width="' + W + '" height="' + H + '" fill="url(#' + gid + ')"/>');
     var sx = Math.floor(W * (0.65 + r() * 0.2)); s.push('<rect x="' + sx + '" y="2" width="3" height="3" fill="#fff6c8"/><rect x="' + (sx - 1) + '" y="1" width="5" height="5" fill="#fff6c8" opacity=".35"/>');
     for (var c = 0; c < Math.max(3, W / 12); c++) {
       var cx = Math.floor(W * 0.42 + r() * W * 0.55), cy = 1 + Math.floor(r() * H * 0.25), cw = 4 + Math.floor(r() * 7);
       s.push('<rect x="' + cx + '" y="' + cy + '" width="' + cw + '" height="1" fill="#fff" opacity=".9"/><rect x="' + (cx + 1) + '" y="' + (cy - 1) + '" width="' + Math.max(1, cw - 3) + '" height="1" fill="#fff" opacity=".9"/>');
     }
-    // far hills
-    var h = H * 0.55;
-    for (var x = 0; x < W; x++) {
-      h += Math.round((r() - 0.5) * 2); h = Math.max(H * 0.35, Math.min(H * 0.7, h));
-      s.push('<rect x="' + x + '" y="' + Math.round(h) + '" width="1" height="' + H + '" fill="#6f9fb8"/>');
-    }
-    // near terrain
+    var h = H * 0.55, x;
+    for (x = 0; x < W; x++) { h += Math.round((r() - 0.5) * 2); h = Math.max(H * 0.35, Math.min(H * 0.7, h)); s.push('<rect x="' + x + '" y="' + Math.round(h) + '" width="1" height="' + H + '" fill="#6f9fb8"/>'); }
     h = H * 0.68; var water = Math.round(H * 0.8);
     for (x = 0; x < W; x++) {
       if (r() < 0.45) h += Math.round((r() - 0.5) * 3);
       h = Math.max(H * 0.55, Math.min(H * 0.9, h));
       var y = Math.round(h);
       if (y > water) {
-        s.push('<rect x="' + x + '" y="' + water + '" width="1" height="' + (y - water) + '" fill="#3f76e4" opacity=".85"/>');
-        s.push('<rect x="' + x + '" y="' + y + '" width="1" height="2" fill="#dbcf8e"/>');
+        s.push('<rect x="' + x + '" y="' + water + '" width="1" height="' + (y - water) + '" fill="#3f76e4" opacity=".85"/><rect x="' + x + '" y="' + y + '" width="1" height="2" fill="#dbcf8e"/>');
       } else {
         s.push('<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + (r() < 0.5 ? '#5fa83b' : '#6db744') + '"/>');
-        if (r() < 0.07 && y > 6) { // tree
-          s.push('<rect x="' + x + '" y="' + (y - 3) + '" width="1" height="3" fill="#6b4a2b"/>');
-          s.push('<rect x="' + (x - 1) + '" y="' + (y - 6) + '" width="3" height="3" fill="#3f7d2a"/>');
-        }
+        if (r() < 0.07 && y > 6) s.push('<rect x="' + x + '" y="' + (y - 3) + '" width="1" height="3" fill="#6b4a2b"/><rect x="' + (x - 1) + '" y="' + (y - 6) + '" width="3" height="3" fill="#3f7d2a"/>');
       }
-      s.push('<rect x="' + x + '" y="' + (y + (y > water ? 2 : 1)) + '" width="1" height="3" fill="#86603f"/>');
-      s.push('<rect x="' + x + '" y="' + (y + 4) + '" width="1" height="' + H + '" fill="#7c7c7c"/>');
+      s.push('<rect x="' + x + '" y="' + (y + (y > water ? 2 : 1)) + '" width="1" height="3" fill="#86603f"/><rect x="' + x + '" y="' + (y + 4) + '" width="1" height="' + H + '" fill="#7c7c7c"/>');
       if (r() < 0.25) s.push('<rect x="' + x + '" y="' + (y + 6 + Math.floor(r() * (H - y))) + '" width="1" height="1" fill="' + (r() < 0.2 ? '#3a3a3a' : '#6a6a6a') + '"/>');
     }
     s.push('</svg>');
     return s.join('');
   }
+  function hashHue(str) { var h = 0; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h % 360; }
+  function genArt(g, w, h) {
+    var hue = hashHue(g.id), r = rng(g.seed), s = [];
+    s.push('<svg class="art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">');
+    s.push('<rect width="' + w + '" height="' + h + '" fill="hsl(' + hue + ',45%,18%)"/>');
+    for (var i = 0; i < 26; i++) {
+      var sz = 2 + Math.floor(r() * 6);
+      s.push('<rect x="' + Math.floor(r() * w) + '" y="' + Math.floor(r() * h) + '" width="' + sz + '" height="' + sz + '" fill="hsl(' + ((hue + r() * 60) % 360) + ',60%,' + (30 + r() * 30) + '%)" opacity="' + (0.3 + r() * 0.5).toFixed(2) + '"/>');
+    }
+    s.push('</svg>');
+    return s.join('');
+  }
+  /* kind: 'hero' (wide), 'capsule' (460x215), 'portrait' (2:3), 'icon' */
+  function artInto(box, g, kind, withTitle) {
+    var url = g[kind] || (kind === 'portrait' || kind === 'icon' ? g.capsule : null) || (kind === 'capsule' ? g.hero : null);
+    if (url) {
+      var img = el('img', 'art'); img.src = resolveUrl(url); img.alt = ''; img.loading = 'lazy'; box.appendChild(img);
+    } else if (g.art === 'terrain') {
+      var dims = kind === 'portrait' ? [24, 36] : kind === 'icon' ? [12, 12] : kind === 'hero' ? [96, 40] : [64, 30];
+      box.insertAdjacentHTML('beforeend', terrainSVG(g.seed + kind.length, dims[0], dims[1]));
+    } else {
+      var d2 = kind === 'portrait' ? [40, 60] : kind === 'icon' ? [12, 12] : [92, 43];
+      box.insertAdjacentHTML('beforeend', genArt(g, d2[0], d2[1]));
+    }
+    if (withTitle && !url) box.appendChild(el('div', 'art-title' + (kind === 'hero' ? ' big' : kind === 'portrait' ? ' tall' : ''), g.name));
+  }
+  function tagsEl(g, n) { var t = el('div', 'tags'); g.tags.slice(0, n || 4).forEach(function (x) { t.appendChild(el('span', 'tag', x)); }); return t; }
+  function priceEl(lg) { var p = el('div', 'price' + (lg ? ' lg' : '')); p.appendChild(el('span', null, 'Free')); return p; }
+
+  /* ---------- navigation ---------- */
+  function go(page, game) {
+    view.page = page;
+    if (page === 'game') view.game = game;
+    if (page === 'library' && game !== undefined) { view.libGame = game ? game.id : null; store.set('libGame', view.libGame); }
+    $$('.page').forEach(function (p) { p.classList.toggle('active', p.id === 'page-' + page); });
+    $$('.nav').forEach(function (n) { n.classList.toggle('active', n.dataset.page === page || (page === 'game' && n.dataset.page === 'store')); });
+    $('#settingsBtn').classList.toggle('on', page === 'settings');
+    closeMenu();
+    renderPage();
+    var p = $('#page-' + page); if (p) p.scrollTop = 0;
+    var lm = $('#libMain'); if (page === 'library' && lm) lm.scrollTop = 0;
+  }
+  function renderPage() {
+    if (view.page === 'store') renderStore();
+    else if (view.page === 'game') renderGamePage();
+    else if (view.page === 'library') renderLibrary();
+    else if (view.page === 'settings') renderSettings();
+  }
+  function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
+
+  /* ---------- STORE ---------- */
+  function storeGames() {
+    var q = $('#storeSearch').value.trim().toLowerCase();
+    return GAMES.filter(function (g) { return !q || (g.name + ' ' + g.tags.join(' ') + ' ' + (g.developer || '')).toLowerCase().indexOf(q) >= 0; });
+  }
+  function renderStore() {
+    var list = storeGames();
+    var f = $('#featured'); f.textContent = '';
+    var dots = $('#featDots'); dots.textContent = '';
+    if (!GAMES.length) { f.appendChild(el('div', 'empty', 'No games in versions.json yet.')); }
+    else {
+      view.feat = view.feat % GAMES.length;
+      var g = GAMES[view.feat];
+      var art = el('div', 'f-art'); artInto(art, g, 'hero', true);
+      var side = el('div', 'f-side');
+      side.appendChild(el('h3', null, g.name));
+      side.appendChild(el('p', null, g.description || ''));
+      side.appendChild(tagsEl(g));
+      var av = el('div', 'avail'); av.appendChild(el('div', null, inLibrary(g) ? 'In your library' : 'Now available'));
+      av.appendChild(priceEl()); side.appendChild(av);
+      f.appendChild(art); f.appendChild(side);
+      f.onclick = function () { go('game', g); };
+      if (GAMES.length > 1) GAMES.forEach(function (x, i) {
+        var d = el('button', i === view.feat ? 'on' : ''); d.onclick = function () { view.feat = i; renderStore(); }; dots.appendChild(d);
+      });
+    }
+    var grid = $('#storeGrid'); grid.textContent = '';
+    if (!list.length) { grid.appendChild(el('div', 'empty', 'No games match your search.')); return; }
+    list.forEach(function (g) {
+      var c = el('div', 'cap'), a = el('div', 'c-art'); artInto(a, g, 'capsule', true); c.appendChild(a);
+      var b = el('div', 'c-body'); b.appendChild(el('div', 'c-name', g.name)); b.appendChild(tagsEl(g, 3));
+      var foot = el('div', 'c-foot');
+      foot.appendChild(inLibrary(g) ? el('span', 'in-lib', 'In library') : el('span'));
+      foot.appendChild(priceEl()); b.appendChild(foot); c.appendChild(b);
+      c.onclick = function () { go('game', g); };
+      grid.appendChild(c);
+    });
+  }
+
+  function renderGamePage() {
+    var g = view.game, box = $('#gamePage'); box.textContent = '';
+    if (!g) return;
+    var crumb = el('div', 'crumb'); var a1 = el('a', null, 'All Games'); a1.onclick = function () { go('store'); };
+    crumb.appendChild(a1); crumb.appendChild(document.createTextNode(' > Free to Play > ' + g.name)); box.appendChild(crumb);
+    box.appendChild(el('h1', 'gp-title', g.name));
+    var top = el('div', 'gp-top');
+    var hero = el('div', 'gp-hero'); artInto(hero, g, 'hero', false); top.appendChild(hero);
+    var info = el('div', 'gp-info');
+    var cap = el('div', 'gp-cap'); artInto(cap, g, 'capsule', true); info.appendChild(cap);
+    info.appendChild(el('p', null, g.description || ''));
+    var meta = el('div', 'gp-meta');
+    [['Developer', g.developer || 'Unknown'], ['Versions', String(g.versions.length)], ['Price', 'Free']].forEach(function (m) {
+      meta.appendChild(el('b', null, m[0])); meta.appendChild(el('span', null, m[1]));
+    });
+    info.appendChild(meta);
+    info.appendChild(tagsEl(g, 6));
+    top.appendChild(info); box.appendChild(top);
+
+    var buy = el('div', 'buybox');
+    buy.appendChild(el('h4', null, (inLibrary(g) ? '' : 'Play ') + g.name + (inLibrary(g) ? ' is in your library' : '')));
+    buy.appendChild(el('div', 'sub', inLibrary(g) ? 'Go to your Library to install and play it.' : 'Free to Play'));
+    var act = el('div', 'buy-action');
+    if (inLibrary(g)) {
+      var openLib = el('button', 'btn green', anyInstalled(g) ? 'Play Now' : 'Install');
+      openLib.onclick = function () {
+        go('library', g);
+        if (anyInstalled(g)) { var v = selVersion(g); play(g, isInstalled(g, v) ? v : g.versions.filter(function (x) { return isInstalled(g, x); })[0]); }
+        else { var v2 = selVersion(g); if (v2) install(g, v2).catch(function () {}); }
+      };
+      act.appendChild(openLib);
+    } else {
+      act.appendChild(priceEl(true));
+      var add = el('button', 'btn green', 'Add to Library');
+      add.onclick = function () { addToLibrary(g); toast(g.name + ' was added to your library'); renderGamePage(); };
+      act.appendChild(add);
+    }
+    buy.appendChild(act); box.appendChild(buy);
+
+    var cols = el('div', 'gp-cols'), left = el('div', 'gp-sec');
+    left.appendChild(el('h5', null, 'About this game'));
+    left.appendChild(el('p', null, g.about || g.description || ''));
+    left.appendChild(el('h5', null, 'Versions'));
+    var ul = el('ul');
+    g.versions.forEach(function (v) { ul.appendChild(el('li', null, v.name + ' · ' + typeLabel(v) + (v.description ? ' · ' + v.description : ''))); });
+    left.appendChild(ul);
+    cols.appendChild(left);
+    var right = el('div');
+    var sb = el('div', 'side-box');
+    sb.appendChild(el('div', null, g.cloudSaves ? '☁ Cloud saves supported' : 'Saves stay in this browser'));
+    sb.appendChild(el('div', null, '🌐 Runs in your browser'));
+    sb.appendChild(el('div', null, '⬇ Downloads once, then plays offline'));
+    right.appendChild(sb); cols.appendChild(right);
+    box.appendChild(cols);
+  }
+
+  /* ---------- LIBRARY ---------- */
+  function libGames() {
+    var q = $('#libSearch').value.trim().toLowerCase(), instOnly = $('#libInstalled').checked;
+    return GAMES.filter(function (g) {
+      return inLibrary(g) && (!instOnly || anyInstalled(g)) && (!q || g.name.toLowerCase().indexOf(q) >= 0);
+    }).sort(function (a, b) { return a.name.localeCompare(b.name); });
+  }
+  function renderLibrary() {
+    if (!library) return;
+    var list = $('#libList'); list.textContent = '';
+    var games = libGames();
+    $('#libCount').textContent = '(' + games.length + ')';
+    var cur = view.libGame && gameById(view.libGame);
+    if (cur && !inLibrary(cur)) cur = null;
+    $('#libHome').classList.toggle('on', !cur);
+    games.forEach(function (g) {
+      var b = el('button', 'lib-item' + (anyInstalled(g) ? ' inst' : '') + (cur === g ? ' sel' : ''));
+      var ico = el('span', 'li-ico'); artInto(ico, g, 'icon', false); b.appendChild(ico);
+      b.appendChild(el('span', null, g.name));
+      if (dl && dl.g === g) b.appendChild(el('span', 'li-state', dl.total ? Math.round(dl.got / dl.total * 100) + '%' : '…'));
+      else if (runningGame === g) b.appendChild(el('span', 'li-state', 'Running'));
+      b.onclick = function () { go('library', g); };
+      list.appendChild(b);
+    });
+    if (cur) renderLibGame(cur); else renderLibHome();
+  }
+
+  function portrait(g) {
+    var p = el('div', 'portrait'), a = el('div', 'p-art' + (anyInstalled(g) ? '' : ' dim'));
+    artInto(a, g, 'portrait', true); p.appendChild(a);
+    p.appendChild(el('div', 'p-name', g.name));
+    p.appendChild(el('div', 'p-sub', anyInstalled(g) ? 'Last played: ' + ago(store.get('played:' + g.id, 0)) : 'Not installed'));
+    p.onclick = function () { go('library', g); };
+    return p;
+  }
+  function renderLibHome() {
+    var m = $('#libMain'); m.textContent = '';
+    var pg = el('div', 'lib-homepg');
+    var owned = GAMES.filter(inLibrary);
+    if (!owned.length) {
+      var e = el('div', 'empty'); e.appendChild(el('div', null, 'Your library is empty.'));
+      var b = el('button', 'btn green', 'Browse the Store'); b.onclick = function () { go('store'); };
+      e.appendChild(b); pg.appendChild(e); m.appendChild(pg); return;
+    }
+    var recent = owned.filter(function (g) { return store.get('played:' + g.id, 0); })
+      .sort(function (a, b) { return store.get('played:' + b.id, 0) - store.get('played:' + a.id, 0); }).slice(0, 6);
+    if (recent.length) {
+      pg.appendChild(el('h4', null, 'Recent Games'));
+      var s1 = el('div', 'shelf'); recent.forEach(function (g) { s1.appendChild(portrait(g)); }); pg.appendChild(s1);
+    }
+    pg.appendChild(el('h4', null, 'All Games (' + owned.length + ')'));
+    var s2 = el('div', 'shelf'); owned.forEach(function (g) { s2.appendChild(portrait(g)); }); pg.appendChild(s2);
+    m.appendChild(pg);
+  }
+
+  function renderBigButton() {
+    var host = $('#bigBtnHost'); if (!host) return;
+    var g = gameById(view.libGame); if (!g) return;
+    var v = selVersion(g); host.textContent = '';
+    var btn;
+    if (dl && dl.g === g && dl.v === v) {
+      btn = el('button', 'bigbtn busy');
+      var pct = dl.total ? Math.min(99, Math.round(dl.got / dl.total * 100)) : 0;
+      btn.appendChild(document.createTextNode(dl.total ? 'Downloading ' + pct + '%' : 'Downloading…'));
+      var bar = el('i'); bar.style.width = (dl.total ? pct : 10) + '%'; btn.appendChild(bar);
+    } else if (runningGame === g) {
+      btn = el('button', 'bigbtn busy', 'Running');
+    } else if (v && isInstalled(g, v)) {
+      btn = el('button', 'bigbtn play'); btn.appendChild(el('span', 'tri')); btn.appendChild(document.createTextNode('PLAY'));
+      btn.onclick = function () { play(g, v); };
+    } else {
+      btn = el('button', 'bigbtn install', '⬇ INSTALL');
+      btn.disabled = !v;
+      btn.onclick = function () { install(g, v).catch(function () {}); };
+    }
+    host.appendChild(btn);
+  }
+
+  function renderLibGame(g) {
+    var m = $('#libMain'); m.textContent = '';
+    var hero = el('div', 'lib-hero'); artInto(hero, g, 'hero', true); m.appendChild(hero);
+    var v = selVersion(g);
+    var ab = el('div', 'actionbar');
+    var host = el('div'); host.id = 'bigBtnHost'; ab.appendChild(host);
+    if (g.versions.length > 1) {
+      var sel = el('select', 'vselect');
+      g.versions.forEach(function (x) {
+        var o = el('option', null, x.name + (isInstalled(g, x) ? '  ✓' : '')); o.value = x.id; if (v && x.id === v.id) o.selected = true; sel.appendChild(o);
+      });
+      sel.onchange = function () { setSelVersion(g, verById(g, sel.value)); renderLibGame(g); };
+      var vs = el('div', 'ab-stat'); vs.appendChild(document.createTextNode('Version')); vs.appendChild(sel); ab.appendChild(vs);
+    }
+    function stat(label, val) { var s = el('div', 'ab-stat'); s.appendChild(document.createTextNode(label)); s.appendChild(el('b', null, val)); ab.appendChild(s); }
+    stat('Last played', ago(store.get('played:' + g.id, 0)));
+    var size = installedSize(g); stat('Size on disk', size ? fmtMB(size) : 'Not installed');
+    if (g.cloudSaves) stat('Cloud status', !engine ? 'Not set up' : !engine.signedIn() ? 'Signed out' :
+      engine.status.state === 'conflict' ? 'Needs attention' : engine.status.state === 'error' ? 'Sync failed' : 'Up to date');
+    var right = el('div', 'ab-right');
+    var gear = el('button', 'iconbtn', '⚙'); gear.title = 'Manage';
+    gear.onclick = function (e) {
+      e.stopPropagation();
+      var items = [];
+      if (v && isInstalled(g, v)) items.push(['Uninstall ' + v.name, function () {
+        if (confirm('Uninstall ' + v.name + '? Your saves are kept.')) uninstall(g, v).then(function () { toast(v.name + ' uninstalled'); renderAll(); });
+      }]);
+      if (anyInstalled(g) && g.versions.length > 1) items.push(['Uninstall all versions', function () {
+        if (confirm('Uninstall every version of ' + g.name + '? Your saves are kept.')) Promise.all(g.versions.map(function (x) { return uninstall(g, x); })).then(function () { toast(g.name + ' uninstalled'); renderAll(); });
+      }]);
+      items.push(['View store page', function () { go('game', g); }]);
+      items.push(['Remove from library', function () {
+        if (!confirm('Remove ' + g.name + ' from your library? Installed files are deleted, saves are kept.')) return;
+        Promise.all(g.versions.map(function (x) { return uninstall(g, x); })).then(function () { removeFromLibrary(g); go('library', null); toast(g.name + ' removed'); });
+      }]);
+      popMenu(gear, items);
+    };
+    right.appendChild(gear); ab.appendChild(right);
+    m.appendChild(ab);
+    renderBigButton();
+
+    var body = el('div', 'lib-body'), left = el('div');
+    var news = el('div', 'lcard'); news.appendChild(el('h5', null, 'What’s new'));
+    g.versions.forEach(function (x) {
+      var n = el('div', 'note'); n.appendChild(el('b', null, x.name));
+      (x.notes && x.notes.length ? x.notes : [x.description || typeLabel(x)]).forEach(function (t) { n.appendChild(el('p', null, t)); });
+      news.appendChild(n);
+    });
+    left.appendChild(news);
+    var side = el('div');
+    var about = el('div', 'lcard'); about.appendChild(el('h5', null, 'About'));
+    about.appendChild(el('p', null, g.description || ''));
+    if (g.developer) { var dv = el('p', null, 'Developer: ' + g.developer); dv.style.marginTop = '8px'; dv.style.color = '#8f98a0'; about.appendChild(dv); }
+    side.appendChild(about);
+    if (g.cloudSaves) {
+      var cloud = el('div', 'lcard'); cloud.appendChild(el('h5', null, 'Cloud saves'));
+      cloud.appendChild(el('p', null, !engine ? 'Set a save server in Settings to sync worlds between sites.' :
+        engine.signedIn() ? 'Signed in as ' + engine.user + '. Worlds sync when you play.' : 'Sign in (top right) to keep worlds on every site.'));
+      side.appendChild(cloud);
+    }
+    body.appendChild(left); body.appendChild(side); m.appendChild(body);
+  }
+
+  /* ---------- SETTINGS ---------- */
+  function renderSettings() {
+    $('#setMode').value = settings.mode;
+    $('#setTitle').value = settings.title;
+    $('#srcInfo').textContent = CFG.base;
+    $('#setServer').value = settings.server;
+    $('#setServer').placeholder = defaultServer() || 'https://saves.example.com';
+    var n = Object.keys(installed).length, total = 0;
+    Object.keys(installed).forEach(function (k) { total += sizes[k] || 0; });
+    $('#cacheInfo').textContent = n ? n + ' version' + (n > 1 ? 's' : '') + ' installed (' + fmtMB(total) + '). Uninstalling frees space; saves are kept.'
+      : 'Nothing installed yet.';
+  }
 
   /* ---------- cloud saves ---------- */
   var KNOWN_DBS = [];
-  VERSIONS.forEach(function (v) { (v.databases || []).forEach(function (n) { if (KNOWN_DBS.indexOf(n) < 0) KNOWN_DBS.push(n); }); });
-  settings.server = store.get('syncServer', '');
+  GAMES.forEach(function (g) { g.versions.forEach(function (v) { (v.databases || []).forEach(function (n) { if (KNOWN_DBS.indexOf(n) < 0) KNOWN_DBS.push(n); }); }); });
   var engine = null, autosaveTimer = null;
-
-  function defaultServer() { return (CFG.versions && CFG.versions.syncServer) || ''; }
+  function defaultServer() { return RAW.syncServer || ''; }
   function makeEngine() {
     var srv = settings.server || defaultServer();
-    engine = (srv && window.EaglerSync) ? new EaglerSync.Engine({ server: srv, store: store, knownDbs: KNOWN_DBS, onChange: renderAccount }) : null;
+    engine = (srv && window.EaglerSync) ? new EaglerSync.Engine({ server: srv, store: store, knownDbs: KNOWN_DBS, onChange: function () { renderAccount(); if (view.page === 'library') renderLibrary(); } }) : null;
     renderAccount();
-  }
-  function ago(t) {
-    if (!t) return 'never';
-    var s = Math.round((Date.now() - t) / 1000);
-    if (s < 45) return 'just now';
-    if (s < 3600) return Math.round(s / 60) + ' min ago';
-    if (s < 86400) return Math.round(s / 3600) + ' h ago';
-    return new Date(t).toLocaleDateString();
   }
   function renderAccount() {
     var dot = $('#syncDot'); dot.className = 'sync-dot';
     if (!engine) { $('#pname').textContent = 'Offline'; $('#psub').textContent = 'Saves stay on this site'; return; }
-    if (!engine.signedIn()) { $('#pname').textContent = 'Not signed in'; $('#psub').textContent = 'Sign in to sync worlds'; return; }
+    if (!engine.signedIn()) { $('#pname').textContent = 'Sign in'; $('#psub').textContent = 'Sync saves across sites'; return; }
     var st = engine.status;
     $('#pname').textContent = engine.user;
     dot.classList.add(st.state === 'idle' ? 'synced' : st.state);
-    $('#psub').textContent =
-      st.state === 'syncing' ? (st.message || 'Syncing…') :
-      st.state === 'conflict' ? 'Saves need attention' :
-      st.state === 'error' ? 'Sync failed, will retry' :
-      'Synced ' + ago(st.lastSync);
+    $('#psub').textContent = st.state === 'syncing' ? (st.message || 'Syncing…') : st.state === 'conflict' ? 'Saves need attention' :
+      st.state === 'error' ? 'Sync failed, will retry' : 'Synced ' + ago(st.lastSync).toLowerCase();
   }
   setInterval(function () { if (engine && engine.signedIn() && engine.status.state === 'synced') renderAccount(); }, 30000);
 
-  /* modal helpers */
   function openModal(build) {
     var box = $('#mBox'); box.textContent = '';
     build(box);
@@ -359,16 +615,13 @@
   }
   function closeModal() { $('#modal').classList.remove('open'); }
   function button(cls, label, sub, onclick) {
-    var b = el('button', 'btn ' + cls, label);
-    if (sub) b.appendChild(el('small', null, sub));
-    b.onclick = onclick; return b;
+    var b = el('button', 'btn ' + cls, label); if (sub) b.appendChild(el('small', null, sub)); b.onclick = onclick; return b;
   }
   function field(label, type, name, auto) {
     var l = el('label', 'field'); l.appendChild(el('span', null, label));
     var i = el('input'); i.type = type; i.name = name; i.autocomplete = auto || 'off'; i.spellcheck = false;
     l.appendChild(i); return l;
   }
-
   function openAccount() {
     if (!engine) {
       return openModal(function (box) {
@@ -376,7 +629,7 @@
         box.appendChild(el('p', null, 'Add your save server’s address in Settings (or as "syncServer" in versions.json) to sign in and sync worlds between sites.'));
         var a = el('div', 'm-actions');
         a.appendChild(button('ghost', 'Close', null, closeModal));
-        a.appendChild(button('green', 'Open settings', null, function () { closeModal(); setView('settings'); }));
+        a.appendChild(button('green', 'Open settings', null, function () { closeModal(); go('settings'); }));
         box.appendChild(a);
       });
     }
@@ -384,57 +637,44 @@
     openModal(function (box) {
       var st = engine.status;
       box.appendChild(el('h3', null, engine.user));
-      box.appendChild(el('p', null, st.state === 'conflict' ? st.message :
-        st.state === 'error' ? 'Last sync failed: ' + st.message :
-        'Last synced ' + ago(st.lastSync) + '. Worlds sync when you press Play, every few minutes while you play, and when you come back to the launcher.'));
+      box.appendChild(el('p', null, st.state === 'conflict' ? st.message : st.state === 'error' ? 'Last sync failed: ' + st.message :
+        'Last synced ' + ago(st.lastSync).toLowerCase() + '. Worlds sync when you press Play, every few minutes while you play, and when you come back to the library.'));
       var stack = el('div', 'm-stack');
       if (st.state === 'conflict') stack.appendChild(button('green', 'Fix save conflict', null, function () { closeModal(); runSync(true); }));
-      stack.appendChild(button('', 'Sync now', null, function () {
-        if (gameFrame) { toast('Return to the launcher first'); return; }
-        closeModal(); runSync(true);
-      }));
+      stack.appendChild(button('', 'Sync now', null, function () { if (gameFrame) { toast('Return to the library first'); return; } closeModal(); runSync(true); }));
       stack.appendChild(button('', 'Change password', null, openChangePassword));
-      stack.appendChild(button('', 'Sign out', 'Worlds already on this site stay here.', function () {
-        engine.signOut().then(function () { closeModal(); toast('Signed out'); });
-      }));
+      stack.appendChild(button('', 'Sign out', 'Worlds already on this site stay here.', function () { engine.signOut().then(function () { closeModal(); toast('Signed out'); }); }));
       box.appendChild(stack);
       var a = el('div', 'm-actions'); a.appendChild(button('ghost', 'Close', null, closeModal)); box.appendChild(a);
     });
   }
-
   function openAuth(mode) {
     openModal(function (box) {
       var tabs = el('div', 'm-tabs');
-      var tIn = el('button', mode === 'login' ? 'active' : '', 'Sign in');
-      var tUp = el('button', mode === 'register' ? 'active' : '', 'Create account');
+      var tIn = el('button', mode === 'login' ? 'active' : '', 'Sign in'), tUp = el('button', mode === 'register' ? 'active' : '', 'Create account');
       tIn.onclick = function () { openAuth('login'); }; tUp.onclick = function () { openAuth('register'); };
       tabs.appendChild(tIn); tabs.appendChild(tUp); box.appendChild(tabs);
-      box.appendChild(el('p', null, mode === 'login'
-        ? 'Sign in to bring your worlds to any site you open the launcher from.'
-        : 'Pick a username and password. Your worlds will sync to this account.'));
+      box.appendChild(el('p', null, mode === 'login' ? 'Sign in to bring your worlds to any site you open the launcher from.' : 'Pick a username and password. Your worlds will sync to this account.'));
       var form = el('form');
-      form.appendChild(field('Username', 'text', 'u', 'username'));
+      form.appendChild(field('Account name', 'text', 'u', 'username'));
       form.appendChild(field('Password', 'password', 'p', mode === 'login' ? 'current-password' : 'new-password'));
       if (mode === 'register') form.appendChild(field('Confirm password', 'password', 'p2', 'new-password'));
       var err = el('div', 'm-err'); form.appendChild(err);
       var a = el('div', 'm-actions');
       var cancel = button('ghost', 'Cancel', null, closeModal); cancel.type = 'button';
-      var go = el('button', 'btn green', mode === 'login' ? 'Sign in' : 'Create account'); go.type = 'submit';
-      a.appendChild(cancel); a.appendChild(go); form.appendChild(a);
+      var goBtn = el('button', 'btn green', mode === 'login' ? 'Sign in' : 'Create account'); goBtn.type = 'submit';
+      a.appendChild(cancel); a.appendChild(goBtn); form.appendChild(a);
       form.onsubmit = function (e) {
         e.preventDefault();
         var u = form.u.value.trim(), p = form.p.value;
         if (mode === 'register' && p !== form.p2.value) { err.textContent = 'Passwords don’t match.'; return; }
-        go.disabled = true; err.textContent = '';
-        engine.auth(mode, u, p).then(function () {
-          closeModal(); toast('Signed in as ' + engine.user);
-          if (!gameFrame) runSync(true);
-        }, function (e2) { err.textContent = e2.message; go.disabled = false; });
+        goBtn.disabled = true; err.textContent = '';
+        engine.auth(mode, u, p).then(function () { closeModal(); toast('Signed in as ' + engine.user); if (!gameFrame) runSync(true); },
+          function (e2) { err.textContent = e2.message; goBtn.disabled = false; });
       };
       box.appendChild(form);
     });
   }
-
   function openChangePassword() {
     openModal(function (box) {
       box.appendChild(el('h3', null, 'Change password'));
@@ -445,45 +685,38 @@
       var err = el('div', 'm-err'); form.appendChild(err);
       var a = el('div', 'm-actions');
       var cancel = button('ghost', 'Cancel', null, closeModal); cancel.type = 'button';
-      var go = el('button', 'btn green', 'Change password'); go.type = 'submit';
-      a.appendChild(cancel); a.appendChild(go); form.appendChild(a);
+      var goBtn = el('button', 'btn green', 'Change password'); goBtn.type = 'submit';
+      a.appendChild(cancel); a.appendChild(goBtn); form.appendChild(a);
       form.onsubmit = function (e) {
-        e.preventDefault(); go.disabled = true; err.textContent = '';
+        e.preventDefault(); goBtn.disabled = true; err.textContent = '';
         engine.changePassword(form.c.value, form.n.value).then(function () { closeModal(); toast('Password changed'); },
-          function (e2) { err.textContent = e2.message; go.disabled = false; });
+          function (e2) { err.textContent = e2.message; goBtn.disabled = false; });
       };
       box.appendChild(form);
     });
   }
-
-  /* Ask which copy wins. Resolves when the user has picked (or chose "later"). */
   function askConflict(remote) {
     return new Promise(function (done) {
       openModal(function (box) {
         box.appendChild(el('h3', null, 'Your saves don’t match'));
         box.appendChild(el('p', null, 'This site has worlds that aren’t in your cloud saves, and your cloud saves ' +
-          (remote && remote.updatedAt ? 'were last updated ' + ago(remote.updatedAt) + ' on another site.' : 'are different.') +
+          (remote && remote.updatedAt ? 'were last updated ' + ago(remote.updatedAt).toLowerCase() + ' on another site.' : 'are different.') +
           ' Pick which copy to keep. The other one gets replaced.'));
         var stack = el('div', 'm-stack');
         function pick(choice) {
           closeModal();
           showOverlay(choice === 'cloud' ? 'Downloading cloud saves' : 'Uploading this site’s saves', 'This can take a moment for big worlds…', true);
-          engine.resolve(choice).then(function () {
-            hideOverlay(); toast(choice === 'cloud' ? 'Cloud saves loaded' : 'Cloud saves updated'); done(true);
-          }, function (e) { hideOverlay(); toast('Sync failed: ' + e.message); done(false); });
+          engine.resolve(choice).then(function () { hideOverlay(); toast(choice === 'cloud' ? 'Cloud saves loaded' : 'Cloud saves updated'); done(true); },
+            function (e) { hideOverlay(); toast('Sync failed: ' + e.message); done(false); });
         }
         stack.appendChild(button('green', 'Use cloud saves', 'Replace this site’s worlds with the ones from your account.', function () { pick('cloud'); }));
         stack.appendChild(button('', 'Keep this site’s saves', 'Upload this site’s worlds and replace your cloud saves.', function () { pick('local'); }));
-        stack.appendChild(button('', 'Export this site’s saves first', 'Download a backup file, then choose.', function () { exportSaves(); }));
+        stack.appendChild(button('', 'Export this site’s saves first', 'Download a backup file, then choose.', exportSaves));
         box.appendChild(stack);
-        var a = el('div', 'm-actions');
-        a.appendChild(button('ghost', 'Decide later', null, function () { closeModal(); done(false); }));
-        box.appendChild(a);
+        var a = el('div', 'm-actions'); a.appendChild(button('ghost', 'Decide later', null, function () { closeModal(); done(false); })); box.appendChild(a);
       });
     });
   }
-
-  /* Full two-way sync (launcher only, never while a game is open). */
   function runSync(interactive) {
     if (!engine || !engine.signedIn() || gameFrame) return Promise.resolve();
     return engine.sync().then(function (r) {
@@ -494,31 +727,19 @@
     }, function (e) { if (interactive) toast('Sync failed: ' + e.message); });
   }
   function backgroundSync() { return runSync(false); }
-
   function preLaunchSync() {
     if (!engine || !engine.signedIn()) return Promise.resolve();
     setOverlay('Syncing saves', 'Checking your cloud saves…', true);
     return engine.sync().then(function (r) {
       if (r.action === 'pulled') toast('Got your latest worlds from the cloud');
       if (r.action === 'conflict') { hideOverlay(); return askConflict(r.remote); }
-    }, function (e) {
-      toast('Cloud saves unavailable (' + e.message + '). Playing with this site’s saves.');
-    });
+    }, function (e) { toast('Cloud saves unavailable (' + e.message + '). Playing with this site’s saves.'); });
   }
-
-  /* While a game runs: upload changes every few minutes (never download). */
-  function backupNow() {
-    if (!engine || !engine.signedIn() || !gameFrame) return;
-    engine.sync({ allowPull: false }).catch(function () {});
-  }
-  function startAutosave() {
-    stopAutosave();
-    if (engine && engine.signedIn()) autosaveTimer = setInterval(backupNow, 3 * 60 * 1000);
-  }
+  function backupNow() { if (engine && engine.signedIn() && gameFrame) engine.sync({ allowPull: false }).catch(function () {}); }
+  function startAutosave() { stopAutosave(); if (engine && engine.signedIn()) autosaveTimer = setInterval(backupNow, 3 * 60 * 1000); }
   function stopAutosave() { if (autosaveTimer) { clearInterval(autosaveTimer); autosaveTimer = null; } }
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') backupNow(); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && (!runningGame || runningGame.cloudSaves)) backupNow(); });
 
-  /* Backup files */
   function exportSaves() {
     EaglerSync.exportFile(KNOWN_DBS).then(function (r) {
       var a = document.createElement('a');
@@ -530,54 +751,42 @@
     }, function (e) { toast('Export failed: ' + e.message); });
   }
   function importSaves(file) {
-    if (gameFrame) { toast('Return to the launcher first'); return; }
+    if (gameFrame) { toast('Return to the library first'); return; }
     if (!confirm('Replace this site’s worlds with "' + file.name + '"?')) return;
     showOverlay('Importing saves', file.name, true);
     file.arrayBuffer().then(function (b) { return EaglerSync.restore(new Uint8Array(b), KNOWN_DBS); }).then(function () {
-      hideOverlay(); toast('Saves imported');
-      backgroundSync();
+      hideOverlay(); toast('Saves imported'); backgroundSync();
     }, function (e) { showError('Import failed', e.message); });
   }
 
   /* ---------- wire up ---------- */
   document.title = settings.title;
-  $('#terrain').outerHTML = terrainSVG(1337, 96, 40).replace('<svg ', '<svg id="terrain" ');
-
-  $$('[data-view]').forEach(function (b) { b.addEventListener('click', function () { setView(b.dataset.view); }); });
-  $('#playBtn').onclick = function () { launch(byId(selectedId)); };
-  $('#vselBtn').onclick = function (e) {
-    e.stopPropagation();
-    var open = !$('#vmenu').classList.contains('open');
-    $('#vmenu').classList.toggle('open', open); $('#vselBtn').classList.toggle('open', open);
-  };
-  document.addEventListener('click', function (e) { if (!e.target.closest('.vsel')) closeMenu(); });
-  $('#search').oninput = renderInstalls;
-  $('#showBeta').onchange = renderInstalls;
-  $('#ovBtn').onclick = function () {
-    if (ovMode === 'cancel' && currentAbort) currentAbort.abort();
-    hideOverlay();
-  };
+  $('#brandName').textContent = LAUNCHER_NAME;
+  $$('.nav').forEach(function (n) { n.onclick = function () { go(n.dataset.page); }; });
+  $('#settingsBtn').onclick = function () { go(view.page === 'settings' ? 'library' : 'settings'); };
+  $('#profileBtn').onclick = openAccount;
+  $('#libHome').onclick = function () { go('library', null); };
+  $('#storeSearch').oninput = renderStore;
+  $('#libSearch').oninput = renderLibrary;
+  $('#libInstalled').onchange = renderLibrary;
   $('#openLocal').onclick = function () { $('#fileIn').click(); };
   $('#fileIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) launchLocalFile(f); };
+  $('#dlCancel').onclick = function () { if (dl && dl.ctrl) dl.ctrl.abort(); };
+  $('#ovBtn').onclick = hideOverlay;
   $('#backBtn').onclick = function () { closeGame(false); };
+  $('#modal').addEventListener('mousedown', function (e) { if (e.target.id === 'modal') closeModal(); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('#menuPop')) closeMenu(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMenu(); closeModal(); } });
+  document.addEventListener('mousemove', function (e) { $('#backBtn').classList.toggle('peek', e.clientY < 8); });
   $('#setMode').onchange = function () { settings.mode = this.value; store.set('mode', settings.mode); toast('Saved'); };
   $('#setTitle').onchange = function () {
-    settings.title = this.value.trim() || 'Eaglercraft Launcher'; store.set('title', settings.title);
+    settings.title = this.value.trim() || LAUNCHER_NAME; store.set('title', settings.title);
     if (!gameFrame) document.title = settings.title; toast('Saved');
   };
   $('#clearCache').onclick = function () {
-    if (!confirm('Delete all downloaded versions? Your worlds and settings are not affected.')) return;
-    (window.caches ? caches.delete(CACHE_NAME) : Promise.resolve()).then(function () { cachedIds = {}; renderAll(); toast('Downloads cleared'); });
+    if (!confirm('Uninstall every game? Your saves are kept.')) return;
+    (window.caches ? caches.delete(CACHE_NAME) : Promise.resolve()).then(function () { installed = {}; sizes = {}; store.set('sizes', sizes); renderAll(); toast('All games uninstalled'); });
   };
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { closeMenu(); closeModal(); }
-    if (!gameFrame && e.key === 'Enter' && document.activeElement === document.body && !$('#overlay').classList.contains('open') && !$('#modal').classList.contains('open')) launch(byId(selectedId));
-  });
-  // Peek the "◀ Launcher" tab when the mouse touches the top edge (pointer must be unlocked: press Esc in-game).
-  document.addEventListener('mousemove', function (e) { $('#backBtn').classList.toggle('peek', e.clientY < 8); });
-
-  $('#profileBtn').onclick = openAccount;
-  $('#modal').addEventListener('mousedown', function (e) { if (e.target.id === 'modal') closeModal(); });
   $('#setServer').onchange = function () {
     var v = this.value.trim().replace(/\/+$/, '');
     if (v && !/^https?:\/\//.test(v)) { toast('The address must start with https://'); return; }
@@ -587,9 +796,13 @@
   $('#exportSaves').onclick = exportSaves;
   $('#importSaves').onclick = function () { $('#saveIn').click(); };
   $('#saveIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) importSaves(f); };
+  setInterval(function () { if (GAMES.length > 1 && view.page === 'store' && !$('#featured').matches(':hover')) { view.feat = (view.feat + 1) % GAMES.length; renderStore(); } }, 8000);
 
   makeEngine();
-  renderAll();
-  refreshCacheState();
-  backgroundSync();
+  library = library || null;
+  refreshInstalled().then(function () {
+    // First visit lands on the Store; after that, open straight to the Library.
+    if (store.get('visited', false)) go('library'); else { store.set('visited', true); go('store'); }
+    backgroundSync();
+  });
 })();
