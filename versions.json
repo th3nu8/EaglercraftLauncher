@@ -6,13 +6,13 @@
       "id": "eaglercraft",
       "name": "Eaglercraft",
       "developer": "lax1dude",
+      "image": "minecraft.jpg",
       "tags": [
         "Sandbox",
         "Survival",
         "Multiplayer",
         "Open World"
       ],
-      "art": "terrain",
       "description": "Minecraft-style building and survival that runs right in your browser. Build, explore and play with friends.",
       "about": "Pick a version from the dropdown in your Library. Worlds sync to your account when you're signed in, so you can keep playing from any site.",
       "versions": [
@@ -61,6 +61,7 @@
     {
       "id": "happy-wheels",
       "name": "Happy Wheels",
+      "image": "happywheels.jpg",
       "tags": [
         "Physics",
         "Action",
@@ -79,6 +80,7 @@
     {
       "id": "polytrack",
       "name": "Polytrack",
+      "image": "polytrack.jpg",
       "tags": [
         "Racing",
         "Driving",
