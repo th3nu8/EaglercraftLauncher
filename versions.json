@@ -1,5 +1,5 @@
 {
-  "syncServer": "https://134.195.88.52:3100",
+  "syncServer": "https://134.195.88.52",
   "versions": [
     {
       "id": "1.8.8",
