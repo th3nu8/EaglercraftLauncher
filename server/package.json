@@ -1,0 +1,9 @@
+{
+  "name": "eaglercraft-save-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloud save server for the Eaglercraft bookmarklet launcher",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

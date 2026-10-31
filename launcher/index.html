@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eaglercraft Launcher</title>
+<style>/*EL_FILE:launcher/style.css*/</style>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <button class="profile" id="profileBtn" title="Account">
+      <div class="avatar"></div>
+      <div class="pinfo">
+        <div class="pname" id="pname">Not signed in</div>
+        <div class="psub" id="psub">Sign in to sync worlds</div>
+      </div>
+      <span class="sync-dot" id="syncDot"></span>
+    </button>
+    <nav class="games">
+      <button class="game active" data-view="play"><span class="gicon"></span><span>Eaglercraft</span></button>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="side-link" id="openLocal"><span class="ico">⇪</span>Open local .html</button>
+      <button class="side-link" data-view="settings"><span class="ico">⚙</span>Settings</button>
+      <div class="lver">Launcher 1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="title">EAGLERCRAFT</div>
+      <nav class="tabs">
+        <button class="tab active" data-view="play">Play</button>
+        <button class="tab" data-view="installs">Installations</button>
+        <button class="tab" data-view="notes">Patch Notes</button>
+      </nav>
+    </header>
+
+    <section class="view active" id="view-play">
+      <div class="hero">
+        <svg id="terrain" preserveAspectRatio="xMidYMax slice"></svg>
+        <div class="hero-shade"></div>
+        <div class="hero-text">
+          <h1 id="heroTitle"></h1>
+          <p id="heroDesc"></p>
+        </div>
+      </div>
+      <div class="playbar">
+        <div class="vsel">
+          <button id="vselBtn" class="vsel-btn">
+            <span class="vicon"></span>
+            <span class="vtext"><b id="vselName"></b><small id="vselSub"></small></span>
+            <span class="caret">▾</span>
+          </button>
+          <div class="vmenu" id="vmenu"></div>
+        </div>
+        <button class="play" id="playBtn">PLAY</button>
+        <div class="playbar-right" id="cacheState"></div>
+      </div>
+    </section>
+
+    <section class="view scroll" id="view-installs">
+      <div class="page">
+        <div class="page-head">
+          <input id="search" class="search" placeholder="Search installations" autocomplete="off">
+          <label class="chk"><input type="checkbox" id="showBeta" checked> Show betas</label>
+        </div>
+        <div id="installList" class="ilist"></div>
+      </div>
+    </section>
+
+    <section class="view scroll" id="view-notes">
+      <div class="page"><div id="notesList" class="notes"></div></div>
+    </section>
+
+    <section class="view scroll" id="view-settings">
+      <div class="page settings">
+        <h2>Launcher settings</h2>
+        <div class="srow">
+          <div><b>Launch mode</b><small>“Inside launcher” keeps a button to get back here. “Replace page” uses the whole tab and can be faster.</small></div>
+          <select id="setMode">
+            <option value="iframe">Inside launcher</option>
+            <option value="replace">Replace page</option>
+          </select>
+        </div>
+        <div class="srow">
+          <div><b>Window title</b><small>The text shown on this tab.</small></div>
+          <input id="setTitle" class="txt" maxlength="60">
+        </div>
+        <div class="srow">
+          <div><b>Downloaded versions</b><small id="cacheInfo">Versions are cached after the first launch so they open instantly.</small></div>
+          <button class="btn danger" id="clearCache">Clear downloads</button>
+        </div>
+        <h2 class="h2gap">Cloud saves</h2>
+        <div class="srow">
+          <div><b>Save server</b><small>Address of your save server. Leave blank to use the one set in versions.json.</small></div>
+          <input id="setServer" class="txt" placeholder="https://saves.example.com" spellcheck="false">
+        </div>
+        <div class="srow">
+          <div><b>Backup file</b><small>Export this site's worlds to a file, or import a backup. Importing replaces this site's worlds.</small></div>
+          <div class="btns"><button class="btn" id="exportSaves">Export</button><button class="btn" id="importSaves">Import</button></div>
+        </div>
+        <div class="srow">
+          <div><b>Source</b><small id="srcInfo"></small></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="ov-box">
+    <div class="ov-title" id="ovTitle">Preparing</div>
+    <div class="bar"><i id="ovBar"></i></div>
+    <div class="ov-sub" id="ovSub"></div>
+    <button class="btn" id="ovBtn">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<button id="backBtn" class="back-btn">◀ Launcher</button>
+<input type="file" id="fileIn" accept=".html,.htm,text/html" hidden>
+<input type="file" id="saveIn" accept=".eglsave" hidden>
+
+<div class="modal" id="modal"><div class="m-box" id="mBox"></div></div>
+
+<script>/*EL_CONFIG*/</script>
+<script>/*EL_FILE:launcher/sync.js*/</script>
+<script>/*EL_FILE:launcher/app.js*/</script>
+</body>
+</html>

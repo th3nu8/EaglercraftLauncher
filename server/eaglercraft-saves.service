@@ -1,0 +1,21 @@
+# systemd unit: copy to /etc/systemd/system/eaglercraft-saves.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now eaglercraft-saves
+[Unit]
+Description=Eaglercraft Launcher cloud save server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/eaglercraft-saves
+ExecStart=/usr/bin/node /opt/eaglercraft-saves/server.js
+Environment=PORT=3100
+Environment=HOST=127.0.0.1
+Environment=DATA_DIR=/opt/eaglercraft-saves/data
+Environment=MAX_SAVE_MB=256
+Environment=ALLOW_SIGNUPS=true
+Restart=on-failure
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target
