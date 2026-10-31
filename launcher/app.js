@@ -1,4 +1,4 @@
-/* Launcher — UI logic (runs inside the about:blank window) */
+/* Mist — UI logic (runs inside the about:blank window) */
 (function () {
   'use strict';
   var CFG = window.__EL_CFG || { base: './', versions: {} };
@@ -21,7 +21,7 @@
     g.seed = 7 + i * 131;
     if (g.cloudSaves === undefined) g.cloudSaves = /eagler/i.test(g.id + ' ' + g.name);
   });
-  var LAUNCHER_NAME = RAW.launcherName || 'Eagler Launcher';
+  var LAUNCHER_NAME = RAW.launcherName || 'Mist';
 
   var $ = function (s) { return document.querySelector(s); };
   var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
@@ -188,6 +188,7 @@
   function startGame(html, name, g) {
     if (settings.mode === 'replace') {
       stopAutosave();
+      if (social) social.setPlaying(g ? g.name : name);
       document.open(); document.write(html); document.close();
       return;
     }
@@ -204,6 +205,7 @@
     document.title = name + ' · ' + settings.title;
     setTimeout(function () { try { gameFrame.focus(); } catch (e) {} }, 300);
     if (!g || g.cloudSaves) startAutosave();
+    if (social) social.setPlaying(g ? g.name : name);
     var b = $('#backBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 2500);
   }
   function closeGame(silent) {
@@ -211,6 +213,7 @@
     if (!silent && !confirm('Return to the library? Unsaved progress in the running game will be lost.')) return;
     var hadSaves = !runningGame || runningGame.cloudSaves;
     gameFrame.remove(); gameFrame = null; runningGame = null;
+    if (social) social.setPlaying(null);
     if (gameUrl) { URL.revokeObjectURL(gameUrl); gameUrl = null; }
     document.body.classList.remove('in-game');
     document.title = settings.title;
@@ -451,7 +454,9 @@
     sb.appendChild(el('div', null, g.cloudSaves ? '☁ Cloud saves supported' : 'Saves stay in this browser'));
     sb.appendChild(el('div', null, '🌐 Runs in your browser'));
     sb.appendChild(el('div', null, '⬇ Downloads once, then plays offline'));
-    right.appendChild(sb); cols.appendChild(right);
+    right.appendChild(sb);
+    var fw = friendsBox(g); if (fw) right.appendChild(fw);
+    cols.appendChild(right);
     box.appendChild(cols);
   }
 
@@ -593,6 +598,7 @@
         engine.signedIn() ? 'Signed in as ' + engine.user + '. Worlds sync when you play.' : 'Sign in (top right) to keep worlds on every site.'));
       side.appendChild(cloud);
     }
+    var fw2 = friendsBox(g, 'lcard'); if (fw2) side.appendChild(fw2);
     body.appendChild(left); body.appendChild(side); m.appendChild(body);
   }
 
@@ -616,15 +622,18 @@
   function defaultServer() { return RAW.syncServer || ''; }
   function makeEngine() {
     var srv = settings.server || defaultServer();
-    engine = (srv && window.EaglerSync) ? new EaglerSync.Engine({ server: srv, store: store, knownDbs: KNOWN_DBS, onChange: function () { renderAccount(); if (view.page === 'library') renderLibrary(); } }) : null;
+    engine = (srv && window.EaglerSync) ? new EaglerSync.Engine({ server: srv, store: store, knownDbs: KNOWN_DBS, onChange: function () { renderAccount(); if (view.page === 'library') renderLibrary(); authChanged(); } }) : null;
     renderAccount();
   }
   function renderAccount() {
     var dot = $('#syncDot'); dot.className = 'sync-dot';
+    var av = $('#profileBtn .avatar');
+    if (!engine || !engine.signedIn()) { av.innerHTML = ''; av.dataset.user = ''; av.classList.remove('has-id'); }
     if (!engine) { $('#pname').textContent = 'Offline'; $('#psub').textContent = 'Saves stay on this site'; return; }
     if (!engine.signedIn()) { $('#pname').textContent = 'Sign in'; $('#psub').textContent = 'Sync saves across sites'; return; }
     var st = engine.status;
     $('#pname').textContent = engine.user;
+    if (social && av.dataset.user !== engine.user) { av.dataset.user = engine.user; av.innerHTML = social.avatar(engine.user, 32).innerHTML; av.classList.add('has-id'); }
     dot.classList.add(st.state === 'idle' ? 'synced' : st.state);
     $('#psub').textContent = st.state === 'syncing' ? (st.message || 'Syncing…') : st.state === 'conflict' ? 'Saves need attention' :
       st.state === 'error' ? 'Sync failed, will retry' : 'Synced ' + ago(st.lastSync).toLowerCase();
@@ -632,7 +641,7 @@
   setInterval(function () { if (engine && engine.signedIn() && engine.status.state === 'synced') renderAccount(); }, 30000);
 
   function openModal(build) {
-    var box = $('#mBox'); box.textContent = '';
+    var box = $('#mBox'); box.textContent = ''; box.className = 'm-box';
     build(box);
     $('#modal').classList.add('open');
     var f = box.querySelector('input'); if (f) setTimeout(function () { f.focus(); }, 30);
@@ -665,6 +674,8 @@
         'Last synced ' + ago(st.lastSync).toLowerCase() + '. Worlds sync when you press Play, every few minutes while you play, and when you come back to the library.'));
       var stack = el('div', 'm-stack');
       if (st.state === 'conflict') stack.appendChild(button('green', 'Fix save conflict', null, function () { closeModal(); runSync(true); }));
+      stack.appendChild(button('', 'View my profile', null, function () { closeModal(); social.openProfile(engine.user); }));
+      stack.appendChild(button('', 'Friends & chat', null, function () { closeModal(); social.togglePanel(true); }));
       stack.appendChild(button('', 'Sync now', null, function () { if (gameFrame) { toast('Return to the library first'); return; } closeModal(); runSync(true); }));
       stack.appendChild(button('', 'Change password', null, openChangePassword));
       stack.appendChild(button('', 'Sign out', 'Worlds already on this site stay here.', function () { engine.signOut().then(function () { closeModal(); toast('Signed out'); }); }));
@@ -822,7 +833,44 @@
   $('#saveIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) importSaves(f); };
   setInterval(function () { if (GAMES.length > 1 && view.page === 'store' && !$('#featured').matches(':hover')) { view.feat = (view.feat + 1) % GAMES.length; renderStore(); } }, 8000);
 
+  var social = null, lastUser;
+  function authChanged() {
+    var u = engine && engine.signedIn() ? engine.user : null;
+    if (u !== lastUser) { lastUser = u; if (social) social.onAuthChange(); }
+  }
+  function friendsBox(g, cls) {
+    if (!social) return null;
+    var fs = social.friendsWhoPlay(g.name); if (!fs.length) return null;
+    var box = el('div', (cls || 'side-box') + ' fw');
+    box.appendChild(el(cls ? 'h5' : 'div', cls ? null : 'fw-h', fs.length + ' friend' + (fs.length > 1 ? 's' : '') + ' play' + (fs.length > 1 ? '' : 's') + ' this'));
+    fs.slice(0, 6).forEach(function (f) {
+      var r = el('button', 'fw-row'); r.appendChild(social.avatar(f.name, 24, f.state));
+      var t = el('span', 'fp-t'); t.appendChild(el('b', null, f.name)); t.appendChild(el('small', 'st-' + f.state, social.stateText(f))); r.appendChild(t);
+      r.onclick = function () { social.openProfile(f.name); };
+      box.appendChild(r);
+    });
+    return box;
+  }
+  function gameByName(n) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].name === n) return GAMES[i]; return null; }
+
   makeEngine();
+  lastUser = engine && engine.signedIn() ? engine.user : null;
+  social = window.MistSocial ? MistSocial({
+    getEngine: function () { return engine; }, el: el, toast: toast, ago: ago, popMenu: popMenu,
+    openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
+    gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); }
+  }) : null;
+  renderAccount();
+  if (social) {
+    $('#friendsBtn').onclick = function () { social.togglePanel(); };
+    $('#navFriends').onclick = function () { social.togglePanel(); };
+    social.start();
+    var lastFriendsKey = '';
+    setInterval(function () { // re-render "friends who play" boxes when friend data changes
+      var d = social.data(), k = d ? JSON.stringify(d.friends.map(function (f) { return [f.name, f.state, f.game]; })) : '';
+      if (k !== lastFriendsKey) { lastFriendsKey = k; if (view.page === 'game' || view.page === 'library') renderPage(); }
+    }, 5000);
+  }
   library = library || null;
   refreshInstalled().then(function () {
     // First visit lands on the Store; after that, open straight to the Library.

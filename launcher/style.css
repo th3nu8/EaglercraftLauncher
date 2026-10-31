@@ -17,10 +17,12 @@ input,select{font:inherit}
 /* ---------- top nav ---------- */
 .topnav{flex:none;height:64px;background:var(--nav);display:flex;align-items:center;gap:36px;padding:0 22px;user-select:none}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:#dcdedf;font-size:15px;letter-spacing:.02em}
-.brand-ico{width:28px;height:28px;border-radius:6px;background:
-  radial-gradient(circle at 34% 38%,#fff 0 3px,transparent 4px),
-  radial-gradient(circle at 66% 62%,#fff 0 3px,transparent 4px),
-  linear-gradient(135deg,#66c0f4,#2a6fdb)}
+.brand-ico{width:30px;height:30px;border-radius:50%;background:
+  radial-gradient(ellipse 60% 22% at 50% 38%,rgba(255,255,255,.95) 0 60%,transparent 62%),
+  radial-gradient(ellipse 52% 18% at 40% 58%,rgba(255,255,255,.75) 0 60%,transparent 62%),
+  radial-gradient(ellipse 44% 15% at 60% 75%,rgba(255,255,255,.55) 0 60%,transparent 62%),
+  linear-gradient(160deg,#8fd3ff,#3a6fb0 70%,#27466e)}
+.brand span:last-child{font-size:20px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
 .mainnav{display:flex;gap:6px;height:100%}
 .nav{padding:0 14px;font-size:19px;font-weight:700;letter-spacing:.06em;color:#dcdedf;border-bottom:3px solid transparent;height:100%;text-transform:uppercase}
 .nav:hover{color:#fff}
@@ -33,6 +35,7 @@ input,select{font:inherit}
 .avatar{width:32px;height:32px;flex:none;border-radius:2px;border:1px solid #66c0f4;background:
   linear-gradient(#6b4a2b 0 0) 25% 30%/16% 16% no-repeat,linear-gradient(#6b4a2b 0 0) 75% 30%/16% 16% no-repeat,
   linear-gradient(#8a5a3c 0 0) 50% 75%/40% 12% no-repeat,linear-gradient(#c49a74,#b3876a)}
+.avatar.has-id{background:#111;overflow:hidden}.avatar.has-id svg{width:100%;height:100%;display:block}
 .acct-text{display:flex;flex-direction:column;min-width:0}
 .acct-text b{color:var(--blue);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .acct-text small{color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -233,6 +236,83 @@ input,select{font:inherit}
 .ov-sub{color:var(--muted);font-size:13px;min-height:18px;margin-bottom:14px;word-break:break-word}
 .toast{position:fixed;right:18px;bottom:50px;background:linear-gradient(135deg,#2a475e,#1b2838);border-left:3px solid var(--blue);padding:12px 16px;border-radius:2px;opacity:0;pointer-events:none;transition:.2s;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.5);color:#dcdedf;max-width:360px;transform:translateY(10px)}
 .toast.show{opacity:1;transform:none}
+
+/* ---------- friends & chat ---------- */
+.nav-x{padding:0 14px;font-size:19px;font-weight:700;letter-spacing:.06em;color:#dcdedf;height:100%;border-bottom:3px solid transparent}
+.nav-x:hover{color:#fff}
+.fr-btn{margin-left:16px;display:flex;align-items:center;gap:8px;height:26px;padding:0 12px;border-radius:2px;background:#2a2e36;color:#dcdedf;font-size:12px;white-space:nowrap}
+.dlbar:not(.active) .fr-btn{margin-left:auto}
+.fr-btn:hover,.fr-btn.on{background:#3d4450;color:#fff}
+.fb-count{color:#57cbde}
+.fb-badge{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#e05a4a;color:#fff;font-size:11px;font-weight:700;display:inline-grid;place-items:center}
+.av{display:inline-block;flex:none;border-radius:2px;overflow:hidden;border:2px solid transparent;box-sizing:border-box;background:#111}
+.av svg{width:100%;height:100%;display:block}
+.av.st-online{border-color:#57cbde}.av.st-ingame{border-color:#90ba3c}.av.st-offline{border-color:#555;filter:saturate(.4) brightness(.8)}
+.st-online{color:#57cbde!important}.st-ingame{color:#90ba3c!important}.st-offline{color:#898989!important}
+.friends{position:fixed;right:0;bottom:34px;width:310px;height:min(600px,calc(100vh - 110px));background:#1e2329;box-shadow:-4px -4px 24px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:15;border:1px solid #101216;border-bottom:0}
+.friends.open{display:flex}
+.fp-head{display:flex;align-items:center;gap:6px;padding:10px;background:linear-gradient(180deg,#2c313a,#23272e);border-bottom:1px solid #101216}
+.fp-head>b{flex:1;color:#fff;padding-left:4px}
+.fp-me{flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-width:0;padding:2px;border-radius:2px}
+.fp-me:hover{background:rgba(255,255,255,.05)}
+.fp-me-t{display:flex;flex-direction:column;min-width:0}
+.fp-me-t b{color:#fff;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-me-t small{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-add,.fp-x{width:30px;height:30px;border-radius:2px;color:#b8bcbf;font-size:16px;flex:none}
+.fp-add:hover,.fp-x:hover{background:#3d4450;color:#fff}
+.fp-list{flex:1;overflow:auto;padding-bottom:10px}
+.fp-group{padding:12px 12px 4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8f98a0}
+.fp-row{display:flex;align-items:center;gap:10px;width:100%;padding:5px 12px;text-align:left}
+button.fp-row:hover,.fp-row.sel{background:#3d4450}
+.fp-t{display:flex;flex-direction:column;min-width:0;flex:1}
+.fp-t b{font-weight:400;color:#dcdedf;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fp-row.st-offline .fp-t b{color:#898989}
+.fp-t small{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#8f98a0}
+.fp-row.req{background:rgba(103,193,245,.08)}
+.mini{width:26px;height:26px;border-radius:2px;color:#b8bcbf;display:inline-grid;place-items:center;flex:none;cursor:pointer}
+.mini:hover{background:#4c5563;color:#fff}
+.mini.ok{color:#90ba3c}.mini.ok:hover{background:#4c6b22;color:#fff}
+.mini.more{opacity:0}.fp-row:hover .mini.more{opacity:1}
+.fp-empty{padding:30px 20px;text-align:center;color:#8f98a0}
+.fp-empty p{margin:0 0 14px}
+.chatwin{position:fixed;right:320px;bottom:34px;width:360px;height:min(460px,calc(100vh - 110px));background:#1e2329;box-shadow:0 -4px 24px rgba(0,0,0,.5);display:none;flex-direction:column;z-index:15;border:1px solid #101216;border-bottom:0}
+.friends:not(.open)~.chatwin{right:10px}
+.chatwin.open{display:flex}
+.cw-head{display:flex;align-items:center;gap:6px;padding:8px;background:linear-gradient(180deg,#2c313a,#23272e);border-bottom:1px solid #101216}
+.cw-who{flex:1;display:flex;align-items:center;gap:8px;text-align:left;min-width:0;padding:2px;border-radius:2px}
+.cw-who:hover{background:rgba(255,255,255,.05)}
+.cw-msgs{flex:1;overflow:auto;padding:10px 12px;user-select:text}
+.cw-hint{color:#626a73;font-size:12px;text-align:center;margin:6px 0 14px}
+.cw-msg{margin-top:10px}
+.cw-msg.grouped{margin-top:2px}
+.cw-mh{display:flex;align-items:baseline;gap:8px}
+.cw-mh b{font-weight:600;color:#57cbde;font-size:13px}
+.cw-msg.mine .cw-mh b{color:#dcdedf}
+.cw-mh small{color:#626a73;font-size:11px}
+.cw-text{color:#c4c8cc;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.cw-form{display:flex;gap:6px;padding:8px;border-top:1px solid #101216;background:#23272e}
+.cw-form input{flex:1;height:34px;border:0;border-radius:2px;background:#32353c;color:#fff;padding:0 10px;outline:none}
+.cw-form input:focus{background:#393c44}
+.cw-send{width:38px;border-radius:2px;background:#3d4450;color:#dcdedf}
+.cw-send:hover{background:#57cbde;color:#000}
+.profile-box{width:min(460px,92vw)}
+.pf-top{display:flex;gap:16px;align-items:center;margin-bottom:14px}
+.pf-t h3{margin:0;font-size:24px}
+.pf-state{font-size:14px;margin:2px 0 4px}
+.pf-t small{color:#8f98a0;font-size:12px}
+.pf-h{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8f98a0;margin:10px 0 6px}
+.pf-recent{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
+.pf-game{display:flex;align-items:center;gap:10px;padding:6px 8px;background:rgba(0,0,0,.2);border-radius:2px}
+.pf-game.link{cursor:pointer}.pf-game.link:hover{background:rgba(103,193,245,.12)}
+.pf-game b{flex:1;font-weight:400;color:#dcdedf;font-size:13px}
+.pf-game small{color:#8f98a0;font-size:12px}
+.pf-ico{width:32px;height:32px;position:relative;overflow:hidden;border-radius:2px;flex:none;background:#000}
+.fw{margin-top:12px}
+.fw-h{color:#fff;font-size:12px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.fw-row{display:flex;align-items:center;gap:8px;width:100%;padding:4px;text-align:left;border-radius:2px}
+.fw-row:hover{background:rgba(255,255,255,.06)}
+body.in-game .friends,body.in-game .chatwin{display:none!important}
+@media (max-width:860px){.chatwin{right:0;width:100%}.friends{width:100%}.nav-x{font-size:15px;padding:0 8px}}
 
 /* ---------- in-game ---------- */
 #game{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000;z-index:10}

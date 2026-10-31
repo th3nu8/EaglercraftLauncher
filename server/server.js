@@ -1,6 +1,6 @@
 'use strict';
 /*
- * Eaglercraft Launcher — cloud save server
+ * Mist — account, cloud save and friends server
  * Node 18+, no dependencies. Stores accounts in data/db.json and one save
  * snapshot per account in data/saves/. Put it behind HTTPS (e.g. a Cloudflare Tunnel).
  */
@@ -113,13 +113,49 @@ function readJson(req, limit = 16384) {
 const saveFile = uid => path.join(SAVES_DIR, uid + '.bin');
 const publicMeta = m => m ? { rev: m.rev, hash: m.hash, size: m.size, updatedAt: m.updatedAt } : null;
 
+/* ---------------- social: friends, presence, chat ---------------- */
+db.social = db.social || {};   // uid -> { friends:[uid], incoming:[uid], outgoing:[uid], recent:[{game,at}], lastSeen }
+db.messages = db.messages || {}; // "uidA:uidB" (sorted) -> [{ id, from, text, at }]
+db.reads = db.reads || {};       // uid -> { otherUid: lastReadMessageId }
+db.msgSeq = db.msgSeq || 0;
+const ONLINE_MS = 90e3, MAX_MSGS_PER_CHAT = 300, MAX_FRIENDS = 300;
+const presence = new Map();      // uid -> { state: 'online'|'ingame', game, at }  (memory only)
+const msgHits = new Map();
+const soc = uid => db.social[uid] || (db.social[uid] = { friends: [], incoming: [], outgoing: [], recent: [], lastSeen: 0 });
+const userByName = name => db.users[String(name || '').trim().toLowerCase()] || null;
+function userById(id) { for (const u of Object.values(db.users)) if (u.id === id) return u; return null; }
+const pairKey = (a, b) => (a < b ? a + ':' + b : b + ':' + a);
+const pull = (arr, v) => { const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); };
+function presenceOf(uid) {
+  const p = presence.get(uid);
+  if (p && Date.now() - p.at < ONLINE_MS) return { state: p.state, game: p.game || null, lastSeen: p.at };
+  return { state: 'offline', game: null, lastSeen: soc(uid).lastSeen || 0 };
+}
+function unreadFrom(me, other) {
+  const list = db.messages[pairKey(me, other)] || [];
+  const read = (db.reads[me] || {})[other] || 0;
+  let n = 0; for (let i = list.length - 1; i >= 0 && list[i].id > read; i--) if (list[i].from !== me) n++;
+  return n;
+}
+function friendView(me, uid) {
+  const u = userById(uid); if (!u) return null;
+  const pr = presenceOf(uid);
+  return { name: u.name, state: pr.state, game: pr.game, lastSeen: pr.lastSeen,
+    unread: unreadFrom(me, uid), recent: soc(uid).recent.slice(0, 5).map(r => r.game) };
+}
+function messageRateLimited(uid) {
+  const now = Date.now(); let h = msgHits.get(uid);
+  if (!h || now - h.t > 60e3) { h = { t: now, n: 0 }; msgHits.set(uid, h); }
+  return ++h.n > 30;
+}
+
 /* ---------------- routes ---------------- */
 async function handle(req, res) {
   const url = new URL(req.url, 'http://x');
   const p = url.pathname;
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
-  if (p === '/' || p === '/api/health') return send(res, 200, { ok: true, service: 'eaglercraft-saves', signups: ALLOW_SIGNUPS });
+  if (p === '/' || p === '/api/health') return send(res, 200, { ok: true, service: 'eaglercraft-saves', social: true, signups: ALLOW_SIGNUPS });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -220,6 +256,102 @@ async function handle(req, res) {
       await saveDb();
       return send(res, 200, { save: publicMeta(db.saves[user.id]) });
     });
+  }
+
+  /* ----- social ----- */
+  if (req.method === 'GET' && p === '/api/social') {
+    const me = soc(user.id);
+    const order = { ingame: 0, online: 1, offline: 2 };
+    const friends = me.friends.map(id => friendView(user.id, id)).filter(Boolean)
+      .sort((a, b) => order[a.state] - order[b.state] || (b.state === 'offline' ? b.lastSeen - a.lastSeen : 0) || a.name.localeCompare(b.name));
+    const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
+    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing) });
+  }
+
+  if (req.method === 'POST' && p === '/api/presence') {
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const state = body.state === 'ingame' ? 'ingame' : body.state === 'offline' ? 'offline' : 'online';
+    const game = state === 'ingame' ? String(body.game || '').slice(0, 60) : null;
+    const me = soc(user.id), now = Date.now();
+    if (state === 'offline') presence.delete(user.id); else presence.set(user.id, { state, game, at: now });
+    let dirty = false;
+    if (game && (!me.recent[0] || me.recent[0].game !== game)) {
+      me.recent = [{ game, at: now }].concat(me.recent.filter(r => r.game !== game)).slice(0, 8); dirty = true;
+    }
+    if (now - (me.lastSeen || 0) > 5 * 60e3 || state === 'offline') { me.lastSeen = now; dirty = true; }
+    if (dirty) saveDb();
+    return send(res, 200, { ok: true });
+  }
+
+  if (req.method === 'POST' && p.startsWith('/api/friends/')) {
+    const action = p.slice('/api/friends/'.length);
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const other = userByName(body.username);
+    if (!other) return fail(res, 404, 'No player with that name.');
+    if (other.id === user.id) return fail(res, 400, 'That’s you!');
+    const me = soc(user.id), them = soc(other.id);
+    if (action === 'request') {
+      if (me.friends.includes(other.id)) return fail(res, 409, 'You’re already friends.');
+      if (me.incoming.includes(other.id)) { // they already asked: accept
+        pull(me.incoming, other.id); pull(them.outgoing, user.id);
+        me.friends.push(other.id); them.friends.push(user.id); await saveDb();
+        return send(res, 200, { ok: true, accepted: true });
+      }
+      if (me.outgoing.includes(other.id)) return fail(res, 409, 'Request already sent.');
+      if (me.friends.length >= MAX_FRIENDS) return fail(res, 400, 'Friend list is full.');
+      if (them.incoming.length >= 100) return fail(res, 400, 'They have too many pending requests.');
+      me.outgoing.push(other.id); them.incoming.push(user.id); await saveDb();
+      return send(res, 200, { ok: true });
+    }
+    if (action === 'accept') {
+      if (!me.incoming.includes(other.id)) return fail(res, 404, 'No request from that player.');
+      pull(me.incoming, other.id); pull(them.outgoing, user.id);
+      if (!me.friends.includes(other.id)) me.friends.push(other.id);
+      if (!them.friends.includes(user.id)) them.friends.push(user.id);
+      await saveDb(); return send(res, 200, { ok: true });
+    }
+    if (action === 'decline' || action === 'cancel' || action === 'remove') {
+      pull(me.incoming, other.id); pull(them.outgoing, user.id);
+      pull(me.outgoing, other.id); pull(them.incoming, user.id);
+      if (action === 'remove') { pull(me.friends, other.id); pull(them.friends, user.id); }
+      await saveDb(); return send(res, 200, { ok: true });
+    }
+    return fail(res, 404, 'Not found.');
+  }
+
+  if (req.method === 'GET' && p === '/api/profile') {
+    const other = userByName(url.searchParams.get('name')) || user;
+    const isMe = other.id === user.id, isFriend = soc(user.id).friends.includes(other.id);
+    const out = { name: other.name, created: other.created, friendCount: soc(other.id).friends.length, isMe, isFriend,
+      requested: soc(user.id).outgoing.includes(other.id), requestedYou: soc(user.id).incoming.includes(other.id) };
+    if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
+    return send(res, 200, out);
+  }
+
+  if (p === '/api/messages') {
+    if (req.method === 'GET') {
+      const other = userByName(url.searchParams.get('with'));
+      if (!other || !soc(user.id).friends.includes(other.id)) return fail(res, 403, 'You can only chat with friends.');
+      const after = +url.searchParams.get('after') || 0;
+      const list = (db.messages[pairKey(user.id, other.id)] || []).filter(m => m.id > after).slice(-100);
+      const last = list.length ? list[list.length - 1].id : 0;
+      if (last) { db.reads[user.id] = db.reads[user.id] || {}; if ((db.reads[user.id][other.id] || 0) < last) { db.reads[user.id][other.id] = last; saveDb(); } }
+      return send(res, 200, { messages: list.map(m => ({ id: m.id, from: m.from === user.id ? user.name : other.name, mine: m.from === user.id, text: m.text, at: m.at })) });
+    }
+    if (req.method === 'POST') {
+      if (messageRateLimited(user.id)) return fail(res, 429, 'Slow down a little.');
+      let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+      const other = userByName(body.to);
+      if (!other || !soc(user.id).friends.includes(other.id)) return fail(res, 403, 'You can only chat with friends.');
+      const text = String(body.text || '').replace(/\s+$/, '').slice(0, 500);
+      if (!text.trim()) return fail(res, 400, 'Empty message.');
+      const key = pairKey(user.id, other.id), list = db.messages[key] || (db.messages[key] = []);
+      const msg = { id: ++db.msgSeq, from: user.id, text, at: Date.now() };
+      list.push(msg); if (list.length > MAX_MSGS_PER_CHAT) list.splice(0, list.length - MAX_MSGS_PER_CHAT);
+      db.reads[user.id] = db.reads[user.id] || {}; db.reads[user.id][other.id] = msg.id;
+      await saveDb();
+      return send(res, 200, { message: { id: msg.id, from: user.name, mine: true, text, at: msg.at } });
+    }
   }
 
   return fail(res, 404, 'Not found.');

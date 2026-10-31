@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Launcher</title>
+<title>Mist</title>
 <style>/*EL_FILE:launcher/style.css*/</style>
 </head>
 <body>
@@ -13,6 +13,7 @@
     <nav class="mainnav">
       <button class="nav active" data-page="store">STORE</button>
       <button class="nav" data-page="library">LIBRARY</button>
+      <button class="nav-x" id="navFriends">FRIENDS</button>
     </nav>
     <div class="nav-right">
       <button class="iconbtn" id="settingsBtn" title="Settings">⚙</button>
@@ -93,6 +94,7 @@
     <span class="dl-text" id="dlText">Downloads</span>
     <div class="dl-prog"><i id="dlProg"></i></div>
     <button class="dl-cancel" id="dlCancel" title="Cancel download">✕</button>
+    <button class="fr-btn" id="friendsBtn"></button>
   </footer>
 </div>
 
@@ -104,6 +106,8 @@
     <button class="btn" id="ovBtn">Cancel</button>
   </div>
 </div>
+<div class="friends" id="friendsPanel"></div>
+<div class="chatwin" id="chatWin"></div>
 <div class="modal" id="modal"><div class="m-box" id="mBox"></div></div>
 <div class="menu-pop" id="menuPop"></div>
 <div class="toast" id="toast"></div>
@@ -113,6 +117,7 @@
 
 <script>/*EL_CONFIG*/</script>
 <script>/*EL_FILE:launcher/sync.js*/</script>
+<script>/*EL_FILE:launcher/social.js*/</script>
 <script>/*EL_FILE:launcher/app.js*/</script>
 </body>
 </html>

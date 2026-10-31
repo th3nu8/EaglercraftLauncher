@@ -1,5 +1,5 @@
 /*!
- * Eaglercraft Launcher — loader
+ * Mist — loader
  * The bookmarklet loads this file. It fetches the launcher UI + versions.json
  * from your GitHub repo and writes them into an about:blank window.
  *
@@ -15,7 +15,7 @@
 
   function splash(doc, msg, isError) {
     doc.open();
-    doc.write('<!doctype html><meta charset="utf-8"><title>Eaglercraft Launcher</title>' +
+    doc.write('<!doctype html><meta charset="utf-8"><title>Mist</title>' +
       '<body style="margin:0;height:100vh;display:grid;place-items:center;background:#1b1b1b;' +
       'color:' + (isError ? '#ff8a80' : '#cfcfcf') + ';font:15px system-ui,Segoe UI,sans-serif;text-align:center;padding:0 24px">' +
       '<div id="m"></div></body>');

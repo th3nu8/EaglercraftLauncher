@@ -89,6 +89,19 @@ Set `"syncServer"` at the top of `versions.json`:
 
 (Players can also override it in **Settings → Save server**.)
 
+### Friends & chat
+
+Friends use the same server and accounts as cloud saves, so there's nothing extra to set up,
+just run the updated `server/server.js`.
+
+- **Add a friend:** Friends & Chat → ＋ → their account name. They get a request with ✓ / ✕.
+- **Status:** friends show as *In-game* ("Playing Polytrack"), *Online* (launcher open) or
+  *Offline* ("Last online 2 h ago"). Status is only visible to friends.
+- **Chat:** click a friend. Messages are friends-only, up to 500 characters, and the last 300
+  per conversation are kept. New messages and requests pop up a notification and a red badge.
+- **Profiles:** click any name or your own to see member-since, friend count and recently played games.
+- Limits: 300 friends, 100 pending requests, 30 messages a minute per person.
+
 ### How syncing works
 
 - Click the profile box at the top of the sidebar to **create an account or sign in**.
