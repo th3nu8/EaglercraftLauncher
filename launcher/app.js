@@ -36,7 +36,7 @@
     return CFG.base + (u.indexOf('/') < 0 ? 'images/' + u : u);
   }
   function versionUrl(v) { return /^https?:\/\//.test(v.file) ? v.file : CFG.base + 'versions/' + v.file; }
-  function fmtMB(b) { return b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : (b / 1048576).toFixed(1) + ' MB'; }
+  function fmtMB(b) { if (b < 1048576) return Math.max(1, Math.round(b / 1024)) + ' KB'; return b >= 1073741824 ? (b / 1073741824).toFixed(2) + ' GB' : (b / 1048576).toFixed(1) + ' MB'; }
   function ago(t) {
     if (!t) return 'Never';
     var s = Math.round((Date.now() - t) / 1000);
@@ -364,34 +364,60 @@
   function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
 
   /* ---------- STORE ---------- */
+  var PAGE = 48;
+  var storeState = { tag: null, shown: PAGE };
+  function featuredGames() {
+    var f = GAMES.filter(function (g) { return g.featured; });
+    return f.length ? f : GAMES.slice(0, 8);
+  }
   function storeGames() {
     var q = $('#storeSearch').value.trim().toLowerCase();
-    return GAMES.filter(function (g) { return !q || (g.name + ' ' + g.tags.join(' ') + ' ' + (g.developer || '')).toLowerCase().indexOf(q) >= 0; });
+    return GAMES.filter(function (g) {
+      if (storeState.tag && g.tags.indexOf(storeState.tag) < 0) return false;
+      return !q || (g.name + ' ' + g.tags.join(' ') + ' ' + (g.developer || '')).toLowerCase().indexOf(q) >= 0;
+    });
   }
-  function renderStore() {
-    var list = storeGames();
+  var TOP_TAGS = (function () {
+    var n = {}; GAMES.forEach(function (g) { g.tags.forEach(function (t) { n[t] = (n[t] || 0) + 1; }); });
+    return Object.keys(n).filter(function (t) { return n[t] >= 3; }).sort(function (a, b) { return n[b] - n[a]; }).slice(0, 18);
+  })();
+  function renderStore() { renderFeatured(); renderTagBar(); renderGrid(); }
+  function renderFeatured() {
+    var F = featuredGames();
     var f = $('#featured'); f.textContent = '';
     var dots = $('#featDots'); dots.textContent = '';
-    if (!GAMES.length) { f.appendChild(el('div', 'empty', 'No games in versions.json yet.')); }
-    else {
-      view.feat = view.feat % GAMES.length;
-      var g = GAMES[view.feat];
-      var art = el('div', 'f-art'); artInto(art, g, 'hero', true);
-      var side = el('div', 'f-side');
-      side.appendChild(el('h3', null, g.name));
-      side.appendChild(el('p', null, g.description || ''));
-      side.appendChild(tagsEl(g));
-      var av = el('div', 'avail'); av.appendChild(el('div', null, inLibrary(g) ? 'In your library' : 'Now available'));
-      av.appendChild(priceEl()); side.appendChild(av);
-      f.appendChild(art); f.appendChild(side);
-      f.onclick = function () { go('game', g); };
-      if (GAMES.length > 1) GAMES.forEach(function (x, i) {
-        var d = el('button', i === view.feat ? 'on' : ''); d.onclick = function () { view.feat = i; renderStore(); }; dots.appendChild(d);
-      });
-    }
+    if (!F.length) { f.appendChild(el('div', 'empty', 'No games in versions.json yet.')); return; }
+    view.feat = view.feat % F.length;
+    var g = F[view.feat];
+    var art = el('div', 'f-art'); artInto(art, g, 'hero', true);
+    var side = el('div', 'f-side');
+    side.appendChild(el('h3', null, g.name));
+    side.appendChild(el('p', null, g.description || ''));
+    side.appendChild(tagsEl(g));
+    var av = el('div', 'avail'); av.appendChild(el('div', null, inLibrary(g) ? 'In your library' : 'Now available'));
+    av.appendChild(priceEl()); side.appendChild(av);
+    f.appendChild(art); f.appendChild(side);
+    f.onclick = function () { go('game', g); };
+    if (F.length > 1) F.forEach(function (x, i) {
+      var d = el('button', i === view.feat ? 'on' : ''); d.onclick = function (e) { e.stopPropagation(); view.feat = i; renderFeatured(); }; dots.appendChild(d);
+    });
+  }
+  function renderTagBar() {
+    var bar = $('#tagBar'); if (!bar) return; bar.textContent = '';
+    if (TOP_TAGS.length < 2) return;
+    [null].concat(TOP_TAGS).forEach(function (t) {
+      var b = el('button', 'tagchip' + (storeState.tag === t ? ' on' : ''), t || 'All');
+      b.onclick = function () { storeState.tag = t; storeState.shown = PAGE; renderTagBar(); renderGrid(); };
+      bar.appendChild(b);
+    });
+  }
+  function renderGrid() {
+    var list = storeGames();
+    var q = $('#storeSearch').value.trim();
+    $('#gridTitle').textContent = (storeState.tag || (q ? 'Results' : 'Free to Play')) + ' (' + list.length + ')';
     var grid = $('#storeGrid'); grid.textContent = '';
-    if (!list.length) { grid.appendChild(el('div', 'empty', 'No games match your search.')); return; }
-    list.forEach(function (g) {
+    if (!list.length) { grid.appendChild(el('div', 'empty', 'No games match your search.')); $('#moreBtn').style.display = 'none'; return; }
+    list.slice(0, storeState.shown).forEach(function (g) {
       var c = el('div', 'cap'), a = el('div', 'c-art'); artInto(a, g, 'capsule', true); c.appendChild(a);
       var b = el('div', 'c-body'); b.appendChild(el('div', 'c-name', g.name)); b.appendChild(tagsEl(g, 3));
       var foot = el('div', 'c-foot');
@@ -400,6 +426,9 @@
       c.onclick = function () { go('game', g); };
       grid.appendChild(c);
     });
+    var more = $('#moreBtn');
+    more.style.display = list.length > storeState.shown ? '' : 'none';
+    more.textContent = 'Show more (' + (list.length - storeState.shown) + ' left)';
   }
 
   function renderGamePage() {
@@ -414,7 +443,7 @@
     var cap = el('div', 'gp-cap'); artInto(cap, g, 'capsule', true); info.appendChild(cap);
     info.appendChild(el('p', null, g.description || ''));
     var meta = el('div', 'gp-meta');
-    [['Developer', g.developer || 'Unknown'], ['Versions', String(g.versions.length)], ['Price', 'Free']].forEach(function (m) {
+    [g.developer ? ['Developer', g.developer] : null, g.versions.length > 1 ? ['Versions', String(g.versions.length)] : null, ['Genre', g.tags.slice(0, 2).join(', ') || 'Game'], ['Price', 'Free']].filter(Boolean).forEach(function (m) {
       meta.appendChild(el('b', null, m[0])); meta.appendChild(el('span', null, m[1]));
     });
     info.appendChild(meta);
@@ -801,7 +830,8 @@
   $('#settingsBtn').onclick = function () { go(view.page === 'settings' ? 'library' : 'settings'); };
   $('#profileBtn').onclick = openAccount;
   $('#libHome').onclick = function () { go('library', null); };
-  $('#storeSearch').oninput = renderStore;
+  $('#storeSearch').oninput = function () { storeState.shown = PAGE; renderGrid(); };
+  $('#moreBtn').onclick = function () { storeState.shown += PAGE; renderGrid(); };
   $('#libSearch').oninput = renderLibrary;
   $('#libInstalled').onchange = renderLibrary;
   $('#openLocal').onclick = function () { $('#fileIn').click(); };
@@ -831,7 +861,7 @@
   $('#exportSaves').onclick = exportSaves;
   $('#importSaves').onclick = function () { $('#saveIn').click(); };
   $('#saveIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) importSaves(f); };
-  setInterval(function () { if (GAMES.length > 1 && view.page === 'store' && !$('#featured').matches(':hover')) { view.feat = (view.feat + 1) % GAMES.length; renderStore(); } }, 8000);
+  setInterval(function () { if (view.page === 'store' && featuredGames().length > 1 && !$('#featured').matches(':hover')) { view.feat = (view.feat + 1) % featuredGames().length; renderFeatured(); } }, 8000);
 
   var social = null, lastUser;
   function authChanged() {

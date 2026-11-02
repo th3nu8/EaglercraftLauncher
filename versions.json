@@ -56,26 +56,8 @@
             "The most modern build. Some bugs."
           ]
         }
-      ]
-    },
-    {
-      "id": "happy-wheels",
-      "name": "Happy Wheels",
-      "image": "happywheels.jpg",
-      "tags": [
-        "Physics",
-        "Action",
-        "Ragdoll"
       ],
-      "description": "Happy Wheels, the most fun physics engine",
-      "versions": [
-        {
-          "id": "1.0",
-          "name": "Happy Wheels",
-          "type": "release",
-          "file": "happywheels.html"
-        }
-      ]
+      "featured": true
     },
     {
       "id": "polytrack",
@@ -93,6 +75,6529 @@
           "name": "Polytrack",
           "type": "release",
           "file": "polytrack.html"
+        }
+      ]
+    },
+    {
+      "id": "1-on-1-soccer",
+      "name": "1 on 1 Soccer",
+      "image": "1-on-1-soccer.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "2 Player"
+      ],
+      "description": "Square off against one opponent on a tiny pitch where every touch counts and goals come fast.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "1 on 1 Soccer",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1-on-1-soccer.html"
+        }
+      ]
+    },
+    {
+      "id": "1-on-1-tennis",
+      "name": "1 on 1 Tennis",
+      "image": "1-on-1-tennis.jpg",
+      "tags": [
+        "Sports",
+        "Tennis",
+        "2 Player"
+      ],
+      "description": "Serve, volley and smash your way through quick head-to-head tennis matches with simple controls.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "1 on 1 Tennis",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1-on-1-tennis.html"
+        }
+      ]
+    },
+    {
+      "id": "10-minutes-till-dawn",
+      "name": "10 Minutes Till Dawn",
+      "image": "10-minutes-till-dawn.jpg",
+      "tags": [
+        "Action",
+        "Shooter",
+        "Survival",
+        "Roguelike"
+      ],
+      "description": "Hold out against endless waves of eldritch horrors until sunrise, picking upgrades that turn your gun into a storm.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "10 Minutes Till Dawn",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/10-minutes-till-dawn.html"
+        }
+      ]
+    },
+    {
+      "id": "12-mini-battles",
+      "name": "12 MiniBattles",
+      "image": "12-mini-battles.jpg",
+      "tags": [
+        "Action",
+        "2 Player",
+        "Party"
+      ],
+      "description": "A dozen tiny one-button duels, from sumo to archery, made for settling arguments with a friend on one keyboard.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "12 MiniBattles",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/12-mini-battles.html"
+        }
+      ]
+    },
+    {
+      "id": "1v1.lol",
+      "name": "1v1.LOL",
+      "image": "1v1.lol.jpg",
+      "tags": [
+        "Shooter",
+        "Building",
+        "Multiplayer"
+      ],
+      "description": "A fast third-person shooter where you build walls and ramps on the fly to outplay your opponent.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "1v1.LOL",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1v1.lol.html"
+        }
+      ]
+    },
+    {
+      "id": "2048",
+      "name": "2048",
+      "image": "2048.jpg",
+      "tags": [
+        "Puzzle",
+        "Casual",
+        "Merge"
+      ],
+      "description": "Slide numbered tiles and combine matching pairs, aiming to reach the 2048 tile before the board fills up.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "2048",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048.html"
+        }
+      ]
+    },
+    {
+      "id": "2048-cupcakes",
+      "name": "2048 Cupcakes",
+      "image": "2048-cupcakes.jpg",
+      "tags": [
+        "Puzzle",
+        "Casual",
+        "Merge"
+      ],
+      "description": "The classic sliding-tile puzzle, but every merge bakes a sweeter, fancier cupcake.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "2048 Cupcakes",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048-cupcakes.html"
+        }
+      ]
+    },
+    {
+      "id": "3d-flight-simulator",
+      "name": "3D Flight Simulator",
+      "image": "3D-flight-simulator.jpg",
+      "tags": [
+        "Simulation",
+        "Flying",
+        "3D"
+      ],
+      "description": "Take off, cruise over open terrain and try to stick the landing in a free-roam flight sim.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "3D Flight Simulator",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3D-flight-simulator.html"
+        }
+      ]
+    },
+    {
+      "id": "3d-free-kick",
+      "name": "3D Free Kick",
+      "image": "3d-free-kick.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "3D"
+      ],
+      "description": "Curl free kicks around the wall and past the keeper, picking your spot with swerve and power.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "3D Free Kick",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3d-free-kick.html"
+        }
+      ]
+    },
+    {
+      "id": "8-ball-classic",
+      "name": "8 Ball Classic",
+      "image": "8-ball-classic.jpg",
+      "tags": [
+        "Sports",
+        "Pool",
+        "Casual"
+      ],
+      "description": "Line up your cue, call your pocket and clear your balls before sinking the 8 in classic pool.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "8 Ball Classic",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/8-ball-classic.html"
+        }
+      ]
+    },
+    {
+      "id": "9007199254740992",
+      "name": "9007199254740992",
+      "image": "9007199254740992.jpg",
+      "tags": [
+        "Puzzle",
+        "Merge",
+        "Challenge"
+      ],
+      "description": "A 2048-style merge puzzle that doesn't stop at 2048, pushing toward the biggest number JavaScript can count to.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "9007199254740992",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/9007199254740992.html"
+        }
+      ]
+    },
+    {
+      "id": "agar-io-lite",
+      "name": "Agar.io Lite",
+      "image": "agar-io-lite.jpg",
+      "tags": [
+        "Arcade",
+        ".io",
+        "Casual"
+      ],
+      "description": "Drift around a petri dish eating smaller cells to grow, while dodging anything bigger than you.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Agar.io Lite",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agar-io-lite.html"
+        }
+      ]
+    },
+    {
+      "id": "age-of-war",
+      "name": "Age of War",
+      "image": "age-of-war.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense",
+        "War"
+      ],
+      "description": "Train units, build turrets and evolve through five eras of history in a tug-of-war battle for survival.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Age of War",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/age-of-war.html"
+        }
+      ]
+    },
+    {
+      "id": "age-of-war-2",
+      "name": "Age of War 2",
+      "image": "age-of-war-2.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense",
+        "War"
+      ],
+      "description": "Lead your army through the ages, from cavemen to future soldiers, while defending your base and destroying the enemy's.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Age of War 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/age-of-war-2.html"
+        }
+      ]
+    },
+    {
+      "id": "ages-of-conflict",
+      "name": "Ages of Conflict",
+      "image": "ages-of-conflict.jpg",
+      "tags": [
+        "Strategy",
+        "Simulation",
+        "Sandbox"
+      ],
+      "description": "Set up nations on a map and watch them form alliances, wage wars and redraw the borders over centuries.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ages of Conflict",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ages-of-conflict.html"
+        }
+      ]
+    },
+    {
+      "id": "among-us",
+      "name": "Among Us",
+      "image": "among-us.jpg",
+      "tags": [
+        "Party",
+        "Social Deduction",
+        "Casual"
+      ],
+      "description": "Finish tasks aboard the ship and figure out which crewmate is secretly the impostor before it's too late.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Among Us",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/among-us.html"
+        }
+      ]
+    },
+    {
+      "id": "angry-birds",
+      "name": "Angry Birds",
+      "image": "angry-birds.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Casual"
+      ],
+      "description": "The slingshot classic: launch birds with unique powers to topple towers and pop every pig.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Angry Birds",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds.html"
+        }
+      ]
+    },
+    {
+      "id": "angry-birds-showdown",
+      "name": "Angry Birds Showdown",
+      "image": "angry-birds-showdown.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Casual"
+      ],
+      "description": "Fling birds at piggy fortresses in head-to-head slingshot battles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Angry Birds Showdown",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds-showdown.html"
+        }
+      ]
+    },
+    {
+      "id": "angry-birds-space",
+      "name": "Angry Birds Space",
+      "image": "angry-birds-space.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Space"
+      ],
+      "description": "Slingshot birds through zero gravity and around planets, using each orbit to curve your shot into the pigs.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Angry Birds Space",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds-space.html"
+        }
+      ]
+    },
+    {
+      "id": "awesome-tanks",
+      "name": "Awesome Tanks",
+      "image": "awesome-tanks.jpg",
+      "tags": [
+        "Action",
+        "Shooter",
+        "Top-Down"
+      ],
+      "description": "Pilot a small tank through enemy bases, upgrading armor and guns with the cash you collect.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Awesome Tanks",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesome-tanks.html"
+        }
+      ]
+    },
+    {
+      "id": "awesome-tanks-2",
+      "name": "Awesome Tanks 2",
+      "image": "awesome-tanks-2.jpg",
+      "tags": [
+        "Action",
+        "Shooter",
+        "Upgrades"
+      ],
+      "description": "Roll through bigger maze-like arenas, blasting enemy tanks and buying stronger weapons between levels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Awesome Tanks 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesome-tanks-2.html"
+        }
+      ]
+    },
+    {
+      "id": "backrooms",
+      "name": "Backrooms",
+      "image": "backrooms.jpg",
+      "tags": [
+        "Horror",
+        "Exploration",
+        "3D"
+      ],
+      "description": "Wander endless yellow office halls buzzing with fluorescent light, and hope nothing finds you first.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Backrooms",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/backrooms.html"
+        }
+      ]
+    },
+    {
+      "id": "bacon-may-die",
+      "name": "Bacon May Die",
+      "image": "bacon-may-die.jpg",
+      "tags": [
+        "Fighting",
+        "Action",
+        "Brawler"
+      ],
+      "description": "Brawl as a tough little pig against waves of weird enemies with combos, guns and a whole lot of bacon.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bacon May Die",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bacon-may-die.html"
+        }
+      ]
+    },
+    {
+      "id": "bad-ice-cream",
+      "name": "Bad Ice Cream",
+      "image": "bad-ice-cream.jpg",
+      "tags": [
+        "Puzzle",
+        "Arcade",
+        "2 Player"
+      ],
+      "description": "Play as a scoop of ice cream, freezing paths to trap enemies and collect every piece of fruit.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bad Ice Cream",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream.html"
+        }
+      ]
+    },
+    {
+      "id": "bad-ice-cream-2",
+      "name": "Bad Ice Cream 2",
+      "image": "bad-ice-cream-2.jpg",
+      "tags": [
+        "Puzzle",
+        "Arcade",
+        "2 Player"
+      ],
+      "description": "Build and break ice walls to grab all the fruit while dodging trickier monsters in this sequel.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bad Ice Cream 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream-2.html"
+        }
+      ]
+    },
+    {
+      "id": "bad-ice-cream-3",
+      "name": "Bad Ice Cream 3",
+      "image": "bad-ice-cream-3.jpg",
+      "tags": [
+        "Puzzle",
+        "Arcade",
+        "2 Player"
+      ],
+      "description": "More flavors, nastier enemies and cleverer mazes as the ice cream crew hunts fruit once again.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bad Ice Cream 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream-3.html"
+        }
+      ]
+    },
+    {
+      "id": "bad-parenting",
+      "name": "Bad Parenting",
+      "image": "bad-parenting.jpg",
+      "tags": [
+        "Horror",
+        "Story",
+        "Pixel Art"
+      ],
+      "description": "A short, unsettling story game about a child's nightmares and the strange red-faced man in the house.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bad Parenting",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-parenting.html"
+        }
+      ]
+    },
+    {
+      "id": "bad-piggies",
+      "name": "Bad Piggies",
+      "image": "bad-piggies.jpg",
+      "tags": [
+        "Puzzle",
+        "Building",
+        "Physics"
+      ],
+      "description": "Build wobbly contraptions from wheels, fans and rockets to get the pigs safely to the finish.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bad Piggies",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-piggies.html"
+        }
+      ]
+    },
+    {
+      "id": "bad-time-simulator",
+      "name": "Bad Time Simulator",
+      "image": "bad-time-simulator.jpg",
+      "tags": [
+        "Action",
+        "Bullet Hell",
+        "Fan Game"
+      ],
+      "description": "Dodge relentless bone and laser attacks in a punishing recreation of a famous boss fight.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bad Time Simulator",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-time-simulator.html"
+        }
+      ]
+    },
+    {
+      "id": "baldis-basics",
+      "name": "Baldi's Basics",
+      "image": "baldis-basics.jpg",
+      "tags": [
+        "Horror",
+        "Comedy",
+        "3D"
+      ],
+      "description": "Collect notebooks in a deliberately janky schoolhouse while a ruler-slapping teacher chases you down.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Baldi's Basics",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baldis-basics.html"
+        }
+      ]
+    },
+    {
+      "id": "bank-robbery-2",
+      "name": "Bank Robbery 2",
+      "image": "bank-robbery-2.jpg",
+      "tags": [
+        "Shooter",
+        "Action",
+        "Upgrades"
+      ],
+      "description": "Fight off security guards and grab the cash in a bigger, louder sequel heist.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bank Robbery 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bank-robbery-2.html"
+        }
+      ]
+    },
+    {
+      "id": "bank-robbery-3",
+      "name": "Bank Robbery 3",
+      "image": "bank-robbery-3.jpg",
+      "tags": [
+        "Shooter",
+        "Action",
+        "Upgrades"
+      ],
+      "description": "Gear up and blast your way through more vaults in the third bank robbery shootout.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bank Robbery 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bank-robbery-3.html"
+        }
+      ]
+    },
+    {
+      "id": "baseball-bros",
+      "name": "Baseball Bros",
+      "image": "baseball-bros.jpg",
+      "tags": [
+        "Sports",
+        "Baseball",
+        "2 Player"
+      ],
+      "description": "Pitch, swing and run the bases in quick arcade baseball with over-the-top players.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Baseball Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baseball-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "basket-bros",
+      "name": "Basket Bros",
+      "image": "basket-bros.jpg",
+      "tags": [
+        "Sports",
+        "Basketball",
+        "2 Player"
+      ],
+      "description": "Arcade hoops with huge dunks, crazy jumps and power-ups, solo or against a friend.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Basket Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basket-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "basket-random",
+      "name": "Basket Random",
+      "image": "basket-random.jpg",
+      "tags": [
+        "Sports",
+        "Basketball",
+        "2 Player"
+      ],
+      "description": "Floppy one-button basketball where the court, ball and players change every round.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Basket Random",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basket-random.html"
+        }
+      ]
+    },
+    {
+      "id": "basketball-legends",
+      "name": "Basketball Legends",
+      "image": "basketball-legends.jpg",
+      "tags": [
+        "Sports",
+        "Basketball",
+        "2 Player"
+      ],
+      "description": "Pick a big-headed star and play two-on-two with special shots, blocks and slams.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Basketball Legends",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketball-legends.html"
+        }
+      ]
+    },
+    {
+      "id": "basketball-stars",
+      "name": "Basketball Stars",
+      "image": "basketball-stars.jpg",
+      "tags": [
+        "Sports",
+        "Basketball",
+        "2 Player"
+      ],
+      "description": "Fast one-on-one streetball with fakes, crossovers and fire shots.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Basketball Stars",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketball-stars.html"
+        }
+      ]
+    },
+    {
+      "id": "big-ice-tower-tiny-square",
+      "name": "Big ICE Tower Tiny Square",
+      "image": "big-ice-tower-tiny-square.jpg",
+      "tags": [
+        "Platformer",
+        "Skill",
+        "Precision"
+      ],
+      "description": "Climb a frozen tower where every surface is slippery and every jump has to be perfect.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Big ICE Tower Tiny Square",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-ice-tower-tiny-square.html"
+        }
+      ]
+    },
+    {
+      "id": "big-neon-tower-tiny-square",
+      "name": "Big NEON Tower Tiny Square",
+      "image": "big-neon-tower-tiny-square.jpg",
+      "tags": [
+        "Platformer",
+        "Skill",
+        "Precision"
+      ],
+      "description": "A glowing neon tower full of lasers and traps for the tiny square to climb.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Big NEON Tower Tiny Square",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-neon-tower-tiny-square.html"
+        }
+      ]
+    },
+    {
+      "id": "big-tower-tiny-square",
+      "name": "Big Tower Tiny Square",
+      "image": "big-tower-tiny-square.jpg",
+      "tags": [
+        "Platformer",
+        "Skill",
+        "Precision"
+      ],
+      "description": "Climb a giant tower one pixel-perfect jump at a time to rescue your pineapple.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Big Tower Tiny Square",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-tower-tiny-square.html"
+        }
+      ]
+    },
+    {
+      "id": "big-tower-tiny-square-2",
+      "name": "Big Tower Tiny Square 2",
+      "image": "big-tower-tiny-square-2.jpg",
+      "tags": [
+        "Platformer",
+        "Skill",
+        "Precision"
+      ],
+      "description": "The tiny square is back with a taller tower, new traps and even tighter jumps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Big Tower Tiny Square 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-tower-tiny-square-2.html"
+        }
+      ]
+    },
+    {
+      "id": "bit-planes",
+      "name": "Bit Planes",
+      "image": "bit-planes.jpg",
+      "tags": [
+        "Arcade",
+        "Flying",
+        "2 Player"
+      ],
+      "description": "Tiny pixel planes dogfight in quick one-button rounds, solo or with a friend.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bit Planes",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bit-planes.htm"
+        }
+      ]
+    },
+    {
+      "id": "bitlife",
+      "name": "BitLife",
+      "image": "bitlife.jpg",
+      "tags": [
+        "Simulation",
+        "Life Sim",
+        "Text"
+      ],
+      "description": "Live a whole life one year at a time, making choices about school, jobs, love and mischief.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "BitLife",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitlife.html"
+        }
+      ]
+    },
+    {
+      "id": "blocky-snakes",
+      "name": "Blocky Snakes",
+      "image": "blocky-snakes.jpg",
+      "tags": [
+        "Arcade",
+        "Snake",
+        ".io"
+      ],
+      "description": "Grow your blocky snake by eating pellets and trap rivals into crashing into you.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Blocky Snakes",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blocky-snakes.html"
+        }
+      ]
+    },
+    {
+      "id": "bloons-td",
+      "name": "Bloons TD",
+      "image": "bloons-TD.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense",
+        "Retro"
+      ],
+      "description": "The original monkey tower defense: pop bloons with darts before they reach the end of the path.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bloons TD",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD.html"
+        }
+      ]
+    },
+    {
+      "id": "bloons-td-2",
+      "name": "Bloons TD 2",
+      "image": "bloons-TD-2.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense"
+      ],
+      "description": "Place dart monkeys and cannons along the track to pop every bloon before it gets through.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bloons TD 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-2.html"
+        }
+      ]
+    },
+    {
+      "id": "bloons-td-3",
+      "name": "Bloons TD 3",
+      "image": "bloons-TD-3.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense"
+      ],
+      "description": "More towers, upgrades and camo bloons in the third round of monkey-versus-balloon defense.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bloons TD 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-3.html"
+        }
+      ]
+    },
+    {
+      "id": "bloons-td-4",
+      "name": "Bloons TD 4",
+      "image": "bloons-TD-4.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense"
+      ],
+      "description": "Two upgrade paths per tower and huge MOAB bloons make for deeper defense strategies.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bloons TD 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-4.html"
+        }
+      ]
+    },
+    {
+      "id": "bloons-td-5",
+      "name": "Bloons TD 5",
+      "image": "bloons-TD-5.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense"
+      ],
+      "description": "The deepest classic Bloons, with specialty buildings, special agents and dozens of tracks.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bloons TD 5",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-5.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "bloxorz",
+      "name": "Bloxorz",
+      "image": "bloxorz.jpg",
+      "tags": [
+        "Puzzle",
+        "3D",
+        "Logic"
+      ],
+      "description": "Roll a tall block across floating tiles and drop it into the square hole without falling off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bloxorz",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloxorz.html"
+        }
+      ]
+    },
+    {
+      "id": "blumgi-racers",
+      "name": "Blumgi Racers",
+      "image": "blumgi-racers.jpg",
+      "tags": [
+        "Racing",
+        "Driving",
+        "2 Player"
+      ],
+      "description": "Bouncy cartoon cars race over hills and loops where flipping is half the fun.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Blumgi Racers",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgi-racers.html"
+        }
+      ]
+    },
+    {
+      "id": "blumgi-rocket",
+      "name": "Blumgi Rocket",
+      "image": "blumgi-rocket.jpg",
+      "tags": [
+        "Physics",
+        "Puzzle",
+        "Casual"
+      ],
+      "description": "Blast yourself around with a rocket launcher, using the recoil to fly to the goal.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Blumgi Rocket",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgi-rocket.html"
+        }
+      ]
+    },
+    {
+      "id": "bob-the-robber",
+      "name": "Bob the Robber",
+      "image": "bob-the-robber.jpg",
+      "tags": [
+        "Stealth",
+        "Puzzle",
+        "Platformer"
+      ],
+      "description": "Stay in the shadows, dodge guards and empty the safes in this stealth puzzle classic.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bob the Robber",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber.html"
+        }
+      ]
+    },
+    {
+      "id": "bob-the-robber-2",
+      "name": "Bob the Robber 2",
+      "image": "bob-the-robber-2.jpg",
+      "tags": [
+        "Stealth",
+        "Puzzle",
+        "Platformer"
+      ],
+      "description": "Sneak past cameras and guards, crack safes and pull off bigger heists.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bob the Robber 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber-2.html"
+        }
+      ]
+    },
+    {
+      "id": "bob-the-robber-5",
+      "name": "Bob the Robber 5",
+      "image": "bob-the-robber-5.jpg",
+      "tags": [
+        "Stealth",
+        "Puzzle",
+        "Platformer"
+      ],
+      "description": "Bob takes on a high-security temple full of traps, lasers and hidden loot.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bob the Robber 5",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber-5.html"
+        }
+      ]
+    },
+    {
+      "id": "bouncy-motors",
+      "name": "Bouncy Motors",
+      "image": "bouncy-motors.jpg",
+      "tags": [
+        "Racing",
+        "Physics",
+        "Casual"
+      ],
+      "description": "Cartoon cars bounce and boing their way over silly obstacle courses.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bouncy Motors",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bouncy-motors.html"
+        }
+      ]
+    },
+    {
+      "id": "bow-masters",
+      "name": "Bowmasters",
+      "image": "bow-masters.jpg",
+      "tags": [
+        "Action",
+        "Archery",
+        "2 Player"
+      ],
+      "description": "Aim and fling arrows, axes and stranger weapons in turn-based duels with ragdoll results.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bowmasters",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bow-masters.html"
+        }
+      ]
+    },
+    {
+      "id": "boxel-rebound",
+      "name": "Boxel Rebound",
+      "image": "boxel-rebound.jpg",
+      "tags": [
+        "Platformer",
+        "Speedrun",
+        "Skill"
+      ],
+      "description": "A fast, minimal box-jumping platformer where every level is a speedrun waiting to happen.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Boxel Rebound",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxel-rebound.html"
+        }
+      ]
+    },
+    {
+      "id": "boxing-random",
+      "name": "Boxing Random",
+      "image": "boxing-random.jpg",
+      "tags": [
+        "Sports",
+        "Boxing",
+        "2 Player"
+      ],
+      "description": "Wobbly one-button boxing where the ring and gloves change every round.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Boxing Random",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxing-random.htm"
+        }
+      ]
+    },
+    {
+      "id": "breaking-the-bank",
+      "name": "Breaking the Bank",
+      "image": "breaking-the-bank.jpg",
+      "tags": [
+        "Point & Click",
+        "Comedy",
+        "Choices"
+      ],
+      "description": "Henry Stickmin plans a bank heist, and every choice leads to a ridiculous new failure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Breaking the Bank",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/breaking-the-bank.html"
+        }
+      ]
+    },
+    {
+      "id": "bubble-shooter",
+      "name": "Bubble Shooter",
+      "image": "bubble-shooter.jpg",
+      "tags": [
+        "Puzzle",
+        "Casual",
+        "Match 3"
+      ],
+      "description": "Aim and fire colored bubbles to make groups of three and clear the board.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Bubble Shooter",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bubble-shooter.html"
+        }
+      ]
+    },
+    {
+      "id": "burrito-bison-launcha-libre",
+      "name": "Burrito Bison: Launcha Libre",
+      "image": "burrito-bison-launcha-libre.jpg",
+      "tags": [
+        "Launch",
+        "Upgrades",
+        "Arcade"
+      ],
+      "description": "Slam into gummy bears and bounce as far as you can, buying upgrades to launch even farther.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Burrito Bison: Launcha Libre",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/burrito-bison-launcha-libre.html"
+        }
+      ]
+    },
+    {
+      "id": "candy-crush",
+      "name": "Candy Crush",
+      "image": "candy-crush.jpg",
+      "tags": [
+        "Puzzle",
+        "Match 3",
+        "Casual"
+      ],
+      "description": "Swap candies to match three or more and set off sweet special combos.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Candy Crush",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/candy-crush.html"
+        }
+      ]
+    },
+    {
+      "id": "capybara-clicker",
+      "name": "Capybara Clicker",
+      "image": "capybara-clicker.jpg",
+      "tags": [
+        "Clicker",
+        "Idle",
+        "Casual"
+      ],
+      "description": "Click the capybara, buy upgrades and build an army of chill rodents.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Capybara Clicker",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/capybara-clicker.html"
+        }
+      ]
+    },
+    {
+      "id": "car-drawing",
+      "name": "Car Drawing",
+      "image": "car-drawing.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Drawing"
+      ],
+      "description": "Draw any shape you like and it becomes your car's body. Find the design that makes it to the finish.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Car Drawing",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/car-drawing.html"
+        }
+      ]
+    },
+    {
+      "id": "car-king-arena",
+      "name": "Car King Arena",
+      "image": "car-king-arena.jpg",
+      "tags": [
+        "Action",
+        "Driving",
+        "Battle"
+      ],
+      "description": "Ram rivals off a shrinking arena in smashing car battles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Car King Arena",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/car-king-arena.html"
+        }
+      ]
+    },
+    {
+      "id": "chaos-faction-2",
+      "name": "Chaos Faction 2",
+      "image": "chaos-faction-2.jpg",
+      "tags": [
+        "Fighting",
+        "2 Player",
+        "Brawler"
+      ],
+      "description": "Pick a fighter and brawl with weapons and specials in chaotic arenas.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Chaos Faction 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chaos-faction-2.html"
+        }
+      ]
+    },
+    {
+      "id": "chess",
+      "name": "Chess",
+      "image": "chess.jpg",
+      "tags": [
+        "Board",
+        "Strategy",
+        "2 Player"
+      ],
+      "description": "The timeless game of kings and checkmates. Play the computer or pass the keyboard to a friend.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Chess",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chess.html"
+        }
+      ]
+    },
+    {
+      "id": "choppy-orc",
+      "name": "Choppy Orc",
+      "image": "choppy-orc.jpg",
+      "tags": [
+        "Platformer",
+        "Action",
+        "Pixel Art"
+      ],
+      "description": "A little orc with a big axe hacks and slashes through puzzle-platform levels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Choppy Orc",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/choppy-orc.html"
+        }
+      ]
+    },
+    {
+      "id": "circloo",
+      "name": "circloO",
+      "image": "circloO.jpg",
+      "tags": [
+        "Physics",
+        "Platformer",
+        "Minimal"
+      ],
+      "description": "A clean physics platformer about rolling a ball with momentum through gravity puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "circloO",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO.html"
+        }
+      ]
+    },
+    {
+      "id": "circloo-2",
+      "name": "circloO 2",
+      "image": "circloO-2.jpg",
+      "tags": [
+        "Physics",
+        "Platformer",
+        "Minimal"
+      ],
+      "description": "Roll a circle through bigger, trickier black-and-white physics levels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "circloO 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO-2.html"
+        }
+      ]
+    },
+    {
+      "id": "clash-of-vikings",
+      "name": "Clash of Vikings",
+      "image": "clash-of-vikings.jpg",
+      "tags": [
+        "Strategy",
+        "Battle",
+        "Upgrades"
+      ],
+      "description": "Raise a Viking army and battle hordes of the undead across the frozen north.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Clash of Vikings",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clash-of-vikings.html"
+        }
+      ]
+    },
+    {
+      "id": "cleanup-io",
+      "name": "Cleanup.io",
+      "image": "cleanup-io.jpg",
+      "tags": [
+        ".io",
+        "Arcade",
+        "Casual"
+      ],
+      "description": "Vacuum up junk to grow your cleaning machine and suck up smaller players.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cleanup.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cleanup-io.html"
+        }
+      ]
+    },
+    {
+      "id": "cluster-rush",
+      "name": "Cluster Rush",
+      "image": "cluster-rush.jpg",
+      "tags": [
+        "Platformer",
+        "3D",
+        "Runner"
+      ],
+      "description": "Leap between speeding trucks in a first-person race to the end of the highway.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cluster Rush",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cluster-rush.html"
+        }
+      ]
+    },
+    {
+      "id": "cookie-clicker",
+      "name": "Cookie Clicker",
+      "image": "cookie-clicker.jpg",
+      "tags": [
+        "Clicker",
+        "Idle",
+        "Incremental"
+      ],
+      "description": "Click a cookie, hire grandmas, build factories and grow a cookie empire to absurd sizes.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cookie Clicker",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cookie-clicker.htm"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "coreball",
+      "name": "Coreball",
+      "image": "coreball.jpg",
+      "tags": [
+        "Arcade",
+        "Skill",
+        "Minimal"
+      ],
+      "description": "Shoot pins into a spinning core without hitting any that are already stuck in it.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Coreball",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/coreball.html"
+        }
+      ]
+    },
+    {
+      "id": "crazy-cars",
+      "name": "Crazy Cars",
+      "image": "crazy-cars.jpg",
+      "tags": [
+        "Racing",
+        "Driving",
+        "3D"
+      ],
+      "description": "Floor it through traffic and over ramps in a wild arcade driving game.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Crazy Cars",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-cars.html"
+        }
+      ]
+    },
+    {
+      "id": "crazy-cattle-3d",
+      "name": "Crazy Cattle 3D",
+      "image": "crazy-cattle-3D.jpg",
+      "tags": [
+        "Action",
+        "Physics",
+        "Battle Royale"
+      ],
+      "description": "Sheep battle royale: bash other sheep off the cliffs and be the last one standing.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Crazy Cattle 3D",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-cattle-3D.html"
+        }
+      ]
+    },
+    {
+      "id": "crazy-crash-landing",
+      "name": "Crazy Crash Landing",
+      "image": "crazy-crash-landing.jpg",
+      "tags": [
+        "Arcade",
+        "Flying",
+        "Casual"
+      ],
+      "description": "Guide a falling plane safely down and pull off a messy emergency landing.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Crazy Crash Landing",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-crash-landing.html"
+        }
+      ]
+    },
+    {
+      "id": "crazy-motorcycle",
+      "name": "Crazy Motorcycle",
+      "image": "crazy-motorcycle.jpg",
+      "tags": [
+        "Racing",
+        "Stunts",
+        "3D"
+      ],
+      "description": "Weave a superbike through traffic and hit insane jumps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Crazy Motorcycle",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-motorcycle.html"
+        }
+      ]
+    },
+    {
+      "id": "crossy-road",
+      "name": "Crossy Road",
+      "image": "crossy-road.jpg",
+      "tags": [
+        "Arcade",
+        "Endless",
+        "Casual"
+      ],
+      "description": "Hop across roads, rivers and train tracks for as long as you can survive.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Crossy Road",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crossy-road.htm"
+        }
+      ]
+    },
+    {
+      "id": "cut-the-rope",
+      "name": "Cut the Rope",
+      "image": "cut-the-rope.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Casual"
+      ],
+      "description": "Slice ropes in the right order to swing the candy into Om Nom's mouth.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cut the Rope",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope.html"
+        }
+      ]
+    },
+    {
+      "id": "cut-the-rope-2",
+      "name": "Cut the Rope 2",
+      "image": "cut-the-rope-2.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Casual"
+      ],
+      "description": "Om Nom heads outdoors with new friends to help him reach the candy.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cut the Rope 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-2.html"
+        }
+      ]
+    },
+    {
+      "id": "cut-the-rope-holiday-gift",
+      "name": "Cut the Rope: Holiday Gift",
+      "image": "cut-the-rope-holiday-gift.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Holiday"
+      ],
+      "description": "Festive levels full of snow and presents for candy-loving Om Nom.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cut the Rope: Holiday Gift",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-holiday-gift.html"
+        }
+      ]
+    },
+    {
+      "id": "cut-the-rope-time-travel",
+      "name": "Cut the Rope: Time Travel",
+      "image": "cut-the-rope-time-travel.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Casual"
+      ],
+      "description": "Feed two Om Noms at once as you travel through history's levels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Cut the Rope: Time Travel",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-time-travel.html"
+        }
+      ]
+    },
+    {
+      "id": "dadish",
+      "name": "Dadish",
+      "image": "dadish.jpg",
+      "tags": [
+        "Platformer",
+        "Pixel Art",
+        "Comedy"
+      ],
+      "description": "Help a radish dad find his missing babies in a charming, punny pixel platformer.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Dadish",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish.html"
+        }
+      ]
+    },
+    {
+      "id": "dadish-2",
+      "name": "Dadish 2",
+      "image": "dadish-2.jpg",
+      "tags": [
+        "Platformer",
+        "Pixel Art",
+        "Comedy"
+      ],
+      "description": "The radish dad goes looking for his kids again, with new worlds and goofy bosses.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Dadish 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish-2.html"
+        }
+      ]
+    },
+    {
+      "id": "dadish-3",
+      "name": "Dadish 3",
+      "image": "dadish-3.jpg",
+      "tags": [
+        "Platformer",
+        "Pixel Art",
+        "Comedy"
+      ],
+      "description": "Dadish's biggest adventure yet, full of fast food villains and punny dialogue.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Dadish 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish-3.html"
+        }
+      ]
+    },
+    {
+      "id": "deadly-descent",
+      "name": "Deadly Descent",
+      "image": "deadly-descent.jpg",
+      "tags": [
+        "Arcade",
+        "Skill",
+        "Endless"
+      ],
+      "description": "Fall down a deadly shaft and survive the spikes as long as you can.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Deadly Descent",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deadly-descent.html"
+        }
+      ]
+    },
+    {
+      "id": "death-chase",
+      "name": "Death Chase",
+      "image": "death-chase.jpg",
+      "tags": [
+        "Racing",
+        "Action",
+        "Shooter"
+      ],
+      "description": "Speed down the road shooting at pursuers in a high-speed car chase.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Death Chase",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/death-chase.html"
+        }
+      ]
+    },
+    {
+      "id": "death-run-3d",
+      "name": "Death Run 3D",
+      "image": "death-run-3D.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Skill"
+      ],
+      "description": "Fly through a tunnel at insane speed, dodging blocks at the last second.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Death Run 3D",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/death-run-3D.html"
+        }
+      ]
+    },
+    {
+      "id": "demolition-derby-crash-racing",
+      "name": "Demolition Derby Crash Racing",
+      "image": "demolition-derby-crash-racing.jpg",
+      "tags": [
+        "Racing",
+        "Driving",
+        "Destruction"
+      ],
+      "description": "Smash opponents to scrap in a demolition derby arena.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Demolition Derby Crash Racing",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/demolition-derby-crash-racing.html"
+        }
+      ]
+    },
+    {
+      "id": "google-dino",
+      "name": "Dino Run",
+      "image": "google-dino.jpg",
+      "tags": [
+        "Arcade",
+        "Endless",
+        "Retro"
+      ],
+      "description": "The offline T-Rex runner. Jump cacti and duck pterodactyls for as long as you can.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Dino Run",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/google-dino.html"
+        }
+      ]
+    },
+    {
+      "id": "doodle-jump",
+      "name": "Doodle Jump",
+      "image": "doodle-jump.jpg",
+      "tags": [
+        "Arcade",
+        "Endless",
+        "Platformer"
+      ],
+      "description": "Bounce ever upward on notepad platforms, avoiding monsters and black holes.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Doodle Jump",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/doodle-jump.html"
+        }
+      ]
+    },
+    {
+      "id": "draw-climber",
+      "name": "Draw Climber",
+      "image": "draw-climber.jpg",
+      "tags": [
+        "Casual",
+        "Drawing",
+        "Racing"
+      ],
+      "description": "Draw your own legs, then redraw them mid-race to tackle new obstacles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Draw Climber",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/draw-climber.html"
+        }
+      ]
+    },
+    {
+      "id": "dreadhead-parkour",
+      "name": "Dreadhead Parkour",
+      "image": "dreadhead-parkour.jpg",
+      "tags": [
+        "Platformer",
+        "Parkour",
+        "Speedrun"
+      ],
+      "description": "Wall jump, slide and flip through fast-paced parkour levels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Dreadhead Parkour",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dreadhead-parkour.htm"
+        }
+      ]
+    },
+    {
+      "id": "drift-boss",
+      "name": "Drift Boss",
+      "image": "drift-boss.jpg",
+      "tags": [
+        "Arcade",
+        "Driving",
+        "One Button"
+      ],
+      "description": "Drift around endless zig-zag corners with one button, without falling off the edge.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Drift Boss",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drift-boss.htm"
+        }
+      ]
+    },
+    {
+      "id": "drift-hunters-pro",
+      "name": "Drift Hunters Pro",
+      "image": "drift-hunters-pro.jpg",
+      "tags": [
+        "Racing",
+        "Drifting",
+        "3D"
+      ],
+      "description": "Tune real-feeling cars and chase huge drift scores on detailed tracks.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Drift Hunters Pro",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drift-hunters-pro.html"
+        }
+      ]
+    },
+    {
+      "id": "drive-mad",
+      "name": "Drive Mad",
+      "image": "drive-mad.jpg",
+      "tags": [
+        "Racing",
+        "Physics",
+        "Puzzle"
+      ],
+      "description": "Get your wonky vehicle across collapsing bridges and loops without flipping.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Drive Mad",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drive-mad.htm"
+        }
+      ]
+    },
+    {
+      "id": "duck-life",
+      "name": "Duck Life",
+      "image": "duck-life.jpg",
+      "tags": [
+        "Simulation",
+        "Training",
+        "Racing"
+      ],
+      "description": "Train a duckling in running, swimming and flying to win the big race.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Duck Life",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life.html"
+        }
+      ]
+    },
+    {
+      "id": "duck-life-2",
+      "name": "Duck Life 2",
+      "image": "duck-life-2.jpg",
+      "tags": [
+        "Simulation",
+        "Training",
+        "Racing"
+      ],
+      "description": "Train your duck to run, fly and swim, then win races to save the farm.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Duck Life 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-2.html"
+        }
+      ]
+    },
+    {
+      "id": "duck-life-3",
+      "name": "Duck Life 3: Evolution",
+      "image": "duck-life-3.jpg",
+      "tags": [
+        "Simulation",
+        "Training",
+        "Racing"
+      ],
+      "description": "Raise new duck breeds and evolve them into racing champions.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Duck Life 3: Evolution",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-3.html"
+        }
+      ]
+    },
+    {
+      "id": "duck-life-4",
+      "name": "Duck Life 4",
+      "image": "duck-life-4.jpg",
+      "tags": [
+        "Simulation",
+        "Training",
+        "Adventure"
+      ],
+      "description": "Climb, swim and fly through a whole world of tournaments with your trained duck.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Duck Life 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-4.html"
+        }
+      ]
+    },
+    {
+      "id": "duck-life-5",
+      "name": "Duck Life 5: Treasure Hunt",
+      "image": "duck-life-5.jpg",
+      "tags": [
+        "Simulation",
+        "Training",
+        "Adventure"
+      ],
+      "description": "Train your duck to compete across an adventure map in search of hidden treasure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Duck Life 5: Treasure Hunt",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-5.html"
+        }
+      ]
+    },
+    {
+      "id": "ducklings-io",
+      "name": "Ducklings.io",
+      "image": "ducklings-io.jpg",
+      "tags": [
+        ".io",
+        "Arcade",
+        "Casual"
+      ],
+      "description": "Collect lost ducklings into a line behind you and steal other players' trains.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ducklings.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklings-io.html"
+        }
+      ]
+    },
+    {
+      "id": "eagle-ride",
+      "name": "Eagle Ride",
+      "image": "eagle-ride.jpg",
+      "tags": [
+        "Arcade",
+        "Flying",
+        "Casual"
+      ],
+      "description": "Soar through the sky as an eagle and dodge everything in your flight path.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Eagle Ride",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eagle-ride.html"
+        }
+      ]
+    },
+    {
+      "id": "earn-to-die",
+      "name": "Earn to Die",
+      "image": "earn-to-die.jpg",
+      "tags": [
+        "Driving",
+        "Zombies",
+        "Upgrades"
+      ],
+      "description": "Bolt guns and rockets onto your car and smash through hordes of zombies a little farther each day.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Earn to Die",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earn-to-die.html"
+        }
+      ]
+    },
+    {
+      "id": "earn-to-die-2",
+      "name": "Earn to Die 2",
+      "image": "earn-to-die-2.jpg",
+      "tags": [
+        "Driving",
+        "Zombies",
+        "Upgrades"
+      ],
+      "description": "Upgrade your ride and plow through a zombie apocalypse to reach the evacuation point.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Earn to Die 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earn-to-die-2.html"
+        }
+      ]
+    },
+    {
+      "id": "eggy-car",
+      "name": "Eggy Car",
+      "image": "eggy-car.jpg",
+      "tags": [
+        "Physics",
+        "Driving",
+        "Casual"
+      ],
+      "description": "Drive over hills without letting the egg on your roof fall off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Eggy Car",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eggy-car.html"
+        }
+      ]
+    },
+    {
+      "id": "elastic-face",
+      "name": "Elastic Face",
+      "image": "elastic-face.jpg",
+      "tags": [
+        "Sandbox",
+        "Funny",
+        "Casual"
+      ],
+      "description": "Stretch, pull and squish a face into the weirdest expressions you can.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Elastic Face",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/elastic-face.htm"
+        }
+      ]
+    },
+    {
+      "id": "escape-road",
+      "name": "Escape Road",
+      "image": "escape-road.jpg",
+      "tags": [
+        "Driving",
+        "Action",
+        "Chase"
+      ],
+      "description": "Steal a car and escape the police on a top-down city chase.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Escape Road",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road.html"
+        }
+      ]
+    },
+    {
+      "id": "escape-road-2",
+      "name": "Escape Road 2",
+      "image": "escape-road-2.jpg",
+      "tags": [
+        "Driving",
+        "Action",
+        "Chase"
+      ],
+      "description": "Outrun the police through a bigger, busier city.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Escape Road 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road-2.html"
+        }
+      ]
+    },
+    {
+      "id": "escape-road-3",
+      "name": "Escape Road 3",
+      "image": "escape-road-3.jpg",
+      "tags": [
+        "Driving",
+        "Action",
+        "Chase"
+      ],
+      "description": "The cops are faster, the maps are bigger, and you're still on the run.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Escape Road 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road-3.html"
+        }
+      ]
+    },
+    {
+      "id": "escaping-the-prison",
+      "name": "Escaping the Prison",
+      "image": "escaping-the-prison.jpg",
+      "tags": [
+        "Point & Click",
+        "Comedy",
+        "Choices"
+      ],
+      "description": "Henry Stickmin attempts a prison break, with plenty of creative ways to fail.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Escaping the Prison",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaping-the-prison.html"
+        }
+      ]
+    },
+    {
+      "id": "eugenes-life",
+      "name": "Eugene's Life",
+      "image": "eugenes-life.jpg",
+      "tags": [
+        "Story",
+        "Puzzle",
+        "Pixel Art"
+      ],
+      "description": "A short, odd story game about one man's very strange day.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Eugene's Life",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eugenes-life.html"
+        }
+      ]
+    },
+    {
+      "id": "evil-glitch",
+      "name": "Evil Glitch",
+      "image": "evil-glitch.jpg",
+      "tags": [
+        "Action",
+        "Arcade",
+        "Retro"
+      ],
+      "description": "Blast your way through waves of glitching enemies in a tiny retro shooter.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Evil Glitch",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/evil-glitch.html"
+        }
+      ]
+    },
+    {
+      "id": "fancy-pants-adventure",
+      "name": "Fancy Pants Adventure",
+      "image": "fancy-pants-adventure.jpg",
+      "tags": [
+        "Platformer",
+        "Adventure",
+        "Speed"
+      ],
+      "description": "A smooth, flowing platformer starring a stick figure in very fancy pants.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fancy Pants Adventure",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancy-pants-adventure.html"
+        }
+      ]
+    },
+    {
+      "id": "fancy-pants-adventure-2",
+      "name": "Fancy Pants Adventure 2",
+      "image": "fancy-pants-adventure-2.jpg",
+      "tags": [
+        "Platformer",
+        "Adventure",
+        "Speed"
+      ],
+      "description": "Slide, wall jump and swing a pencil through more stylish, speedy levels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fancy Pants Adventure 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancy-pants-adventure-2.html"
+        }
+      ]
+    },
+    {
+      "id": "fireblob",
+      "name": "Fireblob",
+      "image": "fireblob.jpg",
+      "tags": [
+        "Platformer",
+        "Pixel Art",
+        "Skill"
+      ],
+      "description": "A fiery little blob hops through tricky levels trying not to burn out.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fireblob",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireblob.html"
+        }
+      ]
+    },
+    {
+      "id": "fireboy-and-watergirl-2",
+      "name": "Fireboy and Watergirl 2: Light Temple",
+      "image": "fireboy-and-watergirl-2.jpg",
+      "tags": [
+        "Puzzle",
+        "Platformer",
+        "2 Player"
+      ],
+      "description": "Bounce light beams off mirrors to open doors in this co-op temple puzzle.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fireboy and Watergirl 2: Light Temple",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-2.html"
+        }
+      ]
+    },
+    {
+      "id": "fireboy-and-watergirl-3",
+      "name": "Fireboy and Watergirl 3: Ice Temple",
+      "image": "fireboy-and-watergirl-3.jpg",
+      "tags": [
+        "Puzzle",
+        "Platformer",
+        "2 Player"
+      ],
+      "description": "Freeze and melt your way through icy levels together.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fireboy and Watergirl 3: Ice Temple",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-3.html"
+        }
+      ]
+    },
+    {
+      "id": "fireboy-and-watergirl-4",
+      "name": "Fireboy and Watergirl 4: Crystal Temple",
+      "image": "fireboy-and-watergirl-4.jpg",
+      "tags": [
+        "Puzzle",
+        "Platformer",
+        "2 Player"
+      ],
+      "description": "Teleporters and crystal puzzles test your teamwork.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fireboy and Watergirl 4: Crystal Temple",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-4.html"
+        }
+      ]
+    },
+    {
+      "id": "fireboy-and-watergirl",
+      "name": "Fireboy and Watergirl: Forest Temple",
+      "image": "fireboy-and-watergirl.jpg",
+      "tags": [
+        "Puzzle",
+        "Platformer",
+        "2 Player"
+      ],
+      "description": "Guide fire and water through a temple together. Each one can only touch its own element.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fireboy and Watergirl: Forest Temple",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl.html"
+        }
+      ]
+    },
+    {
+      "id": "fnaf",
+      "name": "Five Nights at Freddy's",
+      "image": "fnaf.jpg",
+      "tags": [
+        "Horror",
+        "Survival",
+        "Strategy"
+      ],
+      "description": "Watch the cameras and manage your power as a night guard while the animatronics roam the pizzeria.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Five Nights at Freddy's",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "fnaf-2",
+      "name": "Five Nights at Freddy's 2",
+      "image": "fnaf-2.jpg",
+      "tags": [
+        "Horror",
+        "Survival",
+        "Strategy"
+      ],
+      "description": "No doors this time, just a mask, a flashlight and a music box to keep the animatronics away.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Five Nights at Freddy's 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-2.html"
+        }
+      ]
+    },
+    {
+      "id": "fnaf-3",
+      "name": "Five Nights at Freddy's 3",
+      "image": "fnaf-3.jpg",
+      "tags": [
+        "Horror",
+        "Survival",
+        "Strategy"
+      ],
+      "description": "Thirty years later, one animatronic stalks a horror attraction while you keep the systems running.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Five Nights at Freddy's 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-3.html"
+        }
+      ]
+    },
+    {
+      "id": "fnaf-4",
+      "name": "Five Nights at Freddy's 4",
+      "image": "fnaf-4.jpg",
+      "tags": [
+        "Horror",
+        "Survival",
+        "Audio"
+      ],
+      "description": "Listen at the bedroom doors and use your flashlight to keep nightmare animatronics at bay.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Five Nights at Freddy's 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-4.html"
+        }
+      ]
+    },
+    {
+      "id": "flappy-bird",
+      "name": "Flappy Bird",
+      "image": "flappy-bird.jpg",
+      "tags": [
+        "Arcade",
+        "One Button",
+        "Skill"
+      ],
+      "description": "Tap to flap through gaps in the pipes. It sounds easy until you try it.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Flappy Bird",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flappy-bird.html"
+        }
+      ]
+    },
+    {
+      "id": "fleeing-the-complex",
+      "name": "Fleeing the Complex",
+      "image": "fleeing-the-complex.jpg",
+      "tags": [
+        "Point & Click",
+        "Comedy",
+        "Choices"
+      ],
+      "description": "Henry breaks out of a high-tech prison with help from some very odd allies.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fleeing the Complex",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fleeing-the-complex.html"
+        }
+      ]
+    },
+    {
+      "id": "flood-runner-2",
+      "name": "Flood Runner 2",
+      "image": "flood-runner-2.jpg",
+      "tags": [
+        "Runner",
+        "Platformer",
+        "Survival"
+      ],
+      "description": "Outrun rising floodwaters across rooftops and collapsing platforms.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Flood Runner 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-2.html"
+        }
+      ]
+    },
+    {
+      "id": "flood-runner-3",
+      "name": "Flood Runner 3",
+      "image": "flood-runner-3.jpg",
+      "tags": [
+        "Runner",
+        "Platformer",
+        "Survival"
+      ],
+      "description": "Another flood, longer levels and more dangerous jumps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Flood Runner 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-3.html"
+        }
+      ]
+    },
+    {
+      "id": "flood-runner-4",
+      "name": "Flood Runner 4",
+      "image": "flood-runner-4.jpg",
+      "tags": [
+        "Runner",
+        "Platformer",
+        "Survival"
+      ],
+      "description": "The water keeps rising in the toughest Flood Runner yet.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Flood Runner 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-4.html"
+        }
+      ]
+    },
+    {
+      "id": "fnaf-sister-location",
+      "name": "FNAF: Sister Location",
+      "image": "fnaf-sister-location.jpg",
+      "tags": [
+        "Horror",
+        "Survival",
+        "Story"
+      ],
+      "description": "A new job at an underground facility, where the animatronics talk back.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "FNAF: Sister Location",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-sister-location.html"
+        }
+      ]
+    },
+    {
+      "id": "football-bros",
+      "name": "Football Bros",
+      "image": "football-bros.jpg",
+      "tags": [
+        "Sports",
+        "Football",
+        "2 Player"
+      ],
+      "description": "Arcade American football with big hits and simple controls.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Football Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/football-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "football-legends",
+      "name": "Football Legends",
+      "image": "football-legends.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "2 Player"
+      ],
+      "description": "Big-headed soccer stars face off with special shots and crazy tricks.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Football Legends",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/football-legends.html"
+        }
+      ]
+    },
+    {
+      "id": "free-rider-3",
+      "name": "Free Rider 3",
+      "image": "free-rider-3.jpg",
+      "tags": [
+        "Physics",
+        "Bike",
+        "Track Builder"
+      ],
+      "description": "Ride a bike across hand-drawn tracks, or draw your own.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Free Rider 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/free-rider-3.html"
+        }
+      ]
+    },
+    {
+      "id": "friday-night-funkin",
+      "name": "Friday Night Funkin'",
+      "image": "friday-night-funkin.jpg",
+      "tags": [
+        "Rhythm",
+        "Music",
+        "Arcade"
+      ],
+      "description": "Hit the arrows on the beat in rap battles to win over your girlfriend's dad.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Friday Night Funkin'",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/friday-night-funkin.html"
+        }
+      ]
+    },
+    {
+      "id": "fruit-ninja",
+      "name": "Fruit Ninja",
+      "image": "fruit-ninja.jpg",
+      "tags": [
+        "Arcade",
+        "Casual",
+        "Slicing"
+      ],
+      "description": "Slice flying fruit with your blade and avoid the bombs.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Fruit Ninja",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fruit-ninja.html"
+        }
+      ]
+    },
+    {
+      "id": "funny-battle",
+      "name": "Funny Battle",
+      "image": "funny-battle.jpg",
+      "tags": [
+        "Action",
+        "2 Player",
+        "Ragdoll"
+      ],
+      "description": "Floppy ragdoll fighters bonk each other in a silly two-player brawl.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Funny Battle",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-battle.html"
+        }
+      ]
+    },
+    {
+      "id": "funny-battle-2",
+      "name": "Funny Battle 2",
+      "image": "funny-battle-2.jpg",
+      "tags": [
+        "Action",
+        "2 Player",
+        "Ragdoll"
+      ],
+      "description": "Goofier weapons and wobblier fighters in round two of the floppy battles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Funny Battle 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-battle-2.html"
+        }
+      ]
+    },
+    {
+      "id": "funny-mad-racing",
+      "name": "Funny Mad Racing",
+      "image": "funny-mad-racing.jpg",
+      "tags": [
+        "Racing",
+        "Physics",
+        "Casual"
+      ],
+      "description": "Bump and bounce your way to the finish in a chaotic cartoon race.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Funny Mad Racing",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-mad-racing.html"
+        }
+      ]
+    },
+    {
+      "id": "funny-shooter-2",
+      "name": "Funny Shooter 2",
+      "image": "funny-shooter-2.jpg",
+      "tags": [
+        "Shooter",
+        "FPS",
+        "3D"
+      ],
+      "description": "Blast through waves of colorful goons with a growing arsenal in a light-hearted FPS.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Funny Shooter 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-shooter-2.html"
+        }
+      ]
+    },
+    {
+      "id": "geometry-dash",
+      "name": "Geometry Dash",
+      "image": "geometry-dash.jpg",
+      "tags": [
+        "Platformer",
+        "Rhythm",
+        "Skill"
+      ],
+      "description": "The full rhythm-platformer experience, with more levels, game modes and brutal difficulty spikes.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Geometry Dash",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-dash.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "geometry-dash-lite",
+      "name": "Geometry Dash Lite",
+      "image": "geometry-dash-lite.jpg",
+      "tags": [
+        "Platformer",
+        "Rhythm",
+        "Skill"
+      ],
+      "description": "Jump and fly through spike-filled levels synced to a pumping soundtrack. One touch and you start over.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Geometry Dash Lite",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-dash-lite.html"
+        }
+      ]
+    },
+    {
+      "id": "geometry-vibes",
+      "name": "Geometry Vibes",
+      "image": "geometry-vibes.jpg",
+      "tags": [
+        "Arcade",
+        "Rhythm",
+        "One Button"
+      ],
+      "description": "Steer a zig-zagging arrow through neon corridors to the beat.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Geometry Vibes",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-vibes.html"
+        }
+      ]
+    },
+    {
+      "id": "get-on-top",
+      "name": "Get On Top",
+      "image": "get-on-top.jpg",
+      "tags": [
+        "Fighting",
+        "2 Player",
+        "Physics"
+      ],
+      "description": "Two wrestlers try to land on each other's heads in a wobbly physics showdown.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Get On Top",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/get-on-top.html"
+        }
+      ]
+    },
+    {
+      "id": "getaway-shootout",
+      "name": "Getaway Shootout",
+      "image": "getaway-shootout.jpg",
+      "tags": [
+        "Action",
+        "2 Player",
+        "Racing"
+      ],
+      "description": "Hop, grab guns and race to the getaway vehicle before your rivals do.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Getaway Shootout",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getaway-shootout.html"
+        }
+      ]
+    },
+    {
+      "id": "gladi-hoppers",
+      "name": "Gladihoppers",
+      "image": "gladi-hoppers.jpg",
+      "tags": [
+        "Fighting",
+        "Physics",
+        "Upgrades"
+      ],
+      "description": "Hop-powered gladiators clash in arenas, earning gear for tougher battles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Gladihoppers",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/gladi-hoppers.html"
+        }
+      ]
+    },
+    {
+      "id": "google-baseball",
+      "name": "Google Baseball",
+      "image": "google-baseball.jpg",
+      "tags": [
+        "Sports",
+        "Baseball",
+        "Casual"
+      ],
+      "description": "Swing at pitches from snacks in a cute, simple Doodle baseball game.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Google Baseball",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/google-baseball.html"
+        }
+      ]
+    },
+    {
+      "id": "granny",
+      "name": "Granny",
+      "image": "granny.jpg",
+      "tags": [
+        "Horror",
+        "Escape",
+        "3D"
+      ],
+      "description": "Trapped in Granny's house for five days, you must sneak, search and escape without being heard.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Granny",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny.html"
+        }
+      ]
+    },
+    {
+      "id": "granny-2",
+      "name": "Granny 2",
+      "image": "granny-2.jpg",
+      "tags": [
+        "Horror",
+        "Escape",
+        "3D"
+      ],
+      "description": "Granny and Grandpa are both hunting you this time. Find a way out without making a sound.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Granny 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny-2.html"
+        }
+      ]
+    },
+    {
+      "id": "guess-their-answer",
+      "name": "Guess Their Answer",
+      "image": "guess-their-answer.jpg",
+      "tags": [
+        "Trivia",
+        "Party",
+        "Word"
+      ],
+      "description": "Guess the most popular answers to survey questions, family-feud style.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Guess Their Answer",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/guess-their-answer.html"
+        }
+      ]
+    },
+    {
+      "id": "hanger-2",
+      "name": "Hanger 2",
+      "image": "hanger-2.jpg",
+      "tags": [
+        "Physics",
+        "Swinging",
+        "Ragdoll"
+      ],
+      "description": "Swing on ropes through deadly levels, losing limbs if you're careless.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Hanger 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hanger-2.html"
+        }
+      ]
+    },
+    {
+      "id": "happy-wheels",
+      "name": "Happy Wheels",
+      "image": "happywheels.jpg",
+      "tags": [
+        "Physics",
+        "Ragdoll",
+        "Racing"
+      ],
+      "description": "Pick a rider and take on outrageous obstacle courses in a gory ragdoll physics game. Getting there in one piece is optional.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Happy Wheels",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/happy-wheels.html"
+        }
+      ]
+    },
+    {
+      "id": "helix-jump",
+      "name": "Helix Jump",
+      "image": "helix-jump.jpg",
+      "tags": [
+        "Arcade",
+        "Casual",
+        "3D"
+      ],
+      "description": "Rotate the tower to drop a bouncing ball through the gaps, avoiding the red sections.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Helix Jump",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/helix-jump.html"
+        }
+      ]
+    },
+    {
+      "id": "highway-traffic",
+      "name": "Highway Traffic",
+      "image": "highway-traffic.jpg",
+      "tags": [
+        "Driving",
+        "3D",
+        "Endless"
+      ],
+      "description": "Weave through dense highway traffic at top speed for big score multipliers.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Highway Traffic",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/highway-traffic.html"
+        }
+      ]
+    },
+    {
+      "id": "hill-climb-racing-lite",
+      "name": "Hill Climb Racing Lite",
+      "image": "hill-climb-racing-lite.jpg",
+      "tags": [
+        "Driving",
+        "Physics",
+        "Upgrades"
+      ],
+      "description": "Drive as far as you can over hills before you run out of fuel or flip.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Hill Climb Racing Lite",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hill-climb-racing-lite.html"
+        }
+      ]
+    },
+    {
+      "id": "hole-io",
+      "name": "Hole.io",
+      "image": "hole-io.jpg",
+      "tags": [
+        ".io",
+        "Arcade",
+        "Casual"
+      ],
+      "description": "Control a black hole that swallows everything in the city, getting bigger with every bite.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Hole.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hole-io.html"
+        }
+      ]
+    },
+    {
+      "id": "house-of-hazards",
+      "name": "House of Hazards",
+      "image": "house-of-hazards.jpg",
+      "tags": [
+        "Party",
+        "2 Player",
+        "Comedy"
+      ],
+      "description": "Do your morning chores while your friends trigger traps all over the house.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "House of Hazards",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/house-of-hazards.html"
+        }
+      ]
+    },
+    {
+      "id": "hover-racer-drive",
+      "name": "Hover Racer Drive",
+      "image": "hover-racer-drive.jpg",
+      "tags": [
+        "Racing",
+        "Sci-Fi",
+        "3D"
+      ],
+      "description": "Pilot a hovercraft through futuristic tracks at blistering speed.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Hover Racer Drive",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hover-racer-drive.html"
+        }
+      ]
+    },
+    {
+      "id": "ice-dodo",
+      "name": "Ice Dodo",
+      "image": "ice-dodo.jpg",
+      "tags": [
+        "Platformer",
+        "3D",
+        "Skill"
+      ],
+      "description": "Slide a dodo across frozen 3D obstacle courses without slipping off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ice Dodo",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ice-dodo.html"
+        }
+      ]
+    },
+    {
+      "id": "idle-breakout",
+      "name": "Idle Breakout",
+      "image": "idle-breakout.jpg",
+      "tags": [
+        "Idle",
+        "Incremental",
+        "Arcade"
+      ],
+      "description": "Buy balls that break bricks for you, then upgrade them into an unstoppable army.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Idle Breakout",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idle-breakout.html"
+        }
+      ]
+    },
+    {
+      "id": "idle-dice",
+      "name": "Idle Dice",
+      "image": "idle-dice.jpg",
+      "tags": [
+        "Idle",
+        "Incremental",
+        "Dice"
+      ],
+      "description": "Roll dice, earn multipliers and unlock more dice in an idle number-crunching game.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Idle Dice",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idle-dice.html"
+        }
+      ]
+    },
+    {
+      "id": "infiltrating-the-airship",
+      "name": "Infiltrating the Airship",
+      "image": "infiltrating-the-airship.jpg",
+      "tags": [
+        "Point & Click",
+        "Comedy",
+        "Choices"
+      ],
+      "description": "Henry Stickmin sneaks aboard the Toppat Clan's airship, with many ways it can go wrong.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Infiltrating the Airship",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/infiltrating-the-airship.html"
+        }
+      ]
+    },
+    {
+      "id": "iron-snout",
+      "name": "Iron Snout",
+      "image": "iron-snout.jpg",
+      "tags": [
+        "Fighting",
+        "Action",
+        "Arcade"
+      ],
+      "description": "A kung-fu piglet kicks, punches and dodges waves of hungry wolves.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Iron Snout",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/iron-snout.html"
+        }
+      ]
+    },
+    {
+      "id": "jacksmith",
+      "name": "Jacksmith",
+      "image": "jacksmith.jpg",
+      "tags": [
+        "Crafting",
+        "Simulation",
+        "Management"
+      ],
+      "description": "Forge weapons for your army, then watch them use your handiwork in battle.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Jacksmith",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jacksmith.html"
+        }
+      ]
+    },
+    {
+      "id": "jetpack-joyride",
+      "name": "Jetpack Joyride",
+      "image": "jetpack-joyride.jpg",
+      "tags": [
+        "Arcade",
+        "Endless",
+        "Runner"
+      ],
+      "description": "Barry blasts through a secret lab on a machine-gun jetpack, dodging zappers and missiles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Jetpack Joyride",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jetpack-joyride.html"
+        }
+      ]
+    },
+    {
+      "id": "johnny-trigger",
+      "name": "Johnny Trigger",
+      "image": "johnny-trigger.jpg",
+      "tags": [
+        "Action",
+        "Shooter",
+        "Slow Motion"
+      ],
+      "description": "Flip through the air in slow motion and take out bad guys with stylish shots.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Johnny Trigger",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/johnny-trigger.html"
+        }
+      ]
+    },
+    {
+      "id": "jumping-shell",
+      "name": "Jumping Shell",
+      "image": "jumping-shell.jpg",
+      "tags": [
+        "Arcade",
+        "Skill",
+        "Platformer"
+      ],
+      "description": "A bouncing shell leaps between platforms. Time each jump just right.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Jumping Shell",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jumping-shell.html"
+        }
+      ]
+    },
+    {
+      "id": "karate-bros",
+      "name": "Karate Bros",
+      "image": "karate-bros.jpg",
+      "tags": [
+        "Fighting",
+        "2 Player",
+        "Arcade"
+      ],
+      "description": "Chop and kick through enemies in quick martial-arts brawls.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Karate Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/karate-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "kart-bros",
+      "name": "Kart Bros",
+      "image": "kart-bros.jpg",
+      "tags": [
+        "Racing",
+        "Kart",
+        "2 Player"
+      ],
+      "description": "Power-up kart racing with ridiculous characters and tracks.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Kart Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kart-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "kittytoy",
+      "name": "Kitty Toy",
+      "image": "kittytoy.jpg",
+      "tags": [
+        "Casual",
+        "Sandbox",
+        "Pets"
+      ],
+      "description": "A relaxing cat toy box to play around with.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Kitty Toy",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kittytoy.html"
+        }
+      ]
+    },
+    {
+      "id": "learn-to-fly",
+      "name": "Learn to Fly",
+      "image": "learn-to-fly.jpg",
+      "tags": [
+        "Launch",
+        "Upgrades",
+        "Physics"
+      ],
+      "description": "Help a penguin prove penguins can fly with ramps, gliders and rockets.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Learn to Fly",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly.html"
+        }
+      ]
+    },
+    {
+      "id": "learn-to-fly-2",
+      "name": "Learn to Fly 2",
+      "image": "learn-to-fly-2.jpg",
+      "tags": [
+        "Launch",
+        "Upgrades",
+        "Physics"
+      ],
+      "description": "The penguin returns with sleds, gliders and rockets, determined to fly farther than ever.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Learn to Fly 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-2.html"
+        }
+      ]
+    },
+    {
+      "id": "learn-to-fly-3",
+      "name": "Learn to Fly 3",
+      "image": "learn-to-fly-3.jpg",
+      "tags": [
+        "Launch",
+        "Upgrades",
+        "Building"
+      ],
+      "description": "Build your own flying contraption from parts and send the penguin into space.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Learn to Fly 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-3.html"
+        }
+      ]
+    },
+    {
+      "id": "learn-to-fly-idle",
+      "name": "Learn to Fly Idle",
+      "image": "learn-to-fly-idle.jpg",
+      "tags": [
+        "Idle",
+        "Launch",
+        "Upgrades"
+      ],
+      "description": "The flying penguin goes idle. Launch, earn and upgrade even while you're away.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Learn to Fly Idle",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-idle.html"
+        }
+      ]
+    },
+    {
+      "id": "level-devil",
+      "name": "Level Devil",
+      "image": "level-devil.jpg",
+      "tags": [
+        "Platformer",
+        "Troll",
+        "Skill"
+      ],
+      "description": "A platformer that changes the level under your feet just when you think you've got it.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Level Devil",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/level-devil.html"
+        }
+      ]
+    },
+    {
+      "id": "little-alchemy-2",
+      "name": "Little Alchemy 2",
+      "image": "little-alchemy-2.jpg",
+      "tags": [
+        "Puzzle",
+        "Crafting",
+        "Casual"
+      ],
+      "description": "Combine elements, starting from air, earth, fire and water, to discover hundreds of new items.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Little Alchemy 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/little-alchemy-2.html"
+        }
+      ]
+    },
+    {
+      "id": "madalin-stunt-cars-2",
+      "name": "Madalin Stunt Cars 2",
+      "image": "madalin-stunt-cars-2.jpg",
+      "tags": [
+        "Driving",
+        "Stunts",
+        "3D"
+      ],
+      "description": "Tear around open stunt maps in supercars, hitting loops and huge ramps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Madalin Stunt Cars 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madalin-stunt-cars-2.html"
+        }
+      ]
+    },
+    {
+      "id": "madness-project-nexus",
+      "name": "Madness: Project Nexus",
+      "image": "madness-project-nexus.jpg",
+      "tags": [
+        "Action",
+        "Shooter",
+        "Brawler"
+      ],
+      "description": "Grit-heavy stick-figure combat with guns, swords and melee chaos.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Madness: Project Nexus",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madness-project-nexus.html"
+        }
+      ]
+    },
+    {
+      "id": "melon-playground",
+      "name": "Melon Playground",
+      "image": "melon-playground.jpg",
+      "tags": [
+        "Sandbox",
+        "Physics",
+        "Ragdoll"
+      ],
+      "description": "A physics sandbox where you spawn characters, weapons and machines and see what happens.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Melon Playground",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/melon-playground.html"
+        }
+      ]
+    },
+    {
+      "id": "merge-round-racers",
+      "name": "Merge Round Racers",
+      "image": "merge-round-racers.jpg",
+      "tags": [
+        "Merge",
+        "Idle",
+        "Racing"
+      ],
+      "description": "Merge cars into faster models and watch them lap the track for cash.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Merge Round Racers",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/merge-round-racers.html"
+        }
+      ]
+    },
+    {
+      "id": "minesweeper",
+      "name": "Minesweeper",
+      "image": "minesweeper.jpg",
+      "tags": [
+        "Puzzle",
+        "Logic",
+        "Retro"
+      ],
+      "description": "Use number clues to flag every mine and clear the board without blowing up.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Minesweeper",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/minesweeper.html"
+        }
+      ]
+    },
+    {
+      "id": "monkey-mart",
+      "name": "Monkey Mart",
+      "image": "monkey-mart.jpg",
+      "tags": [
+        "Management",
+        "Simulation",
+        "Casual"
+      ],
+      "description": "Run a supermarket staffed by monkeys. Grow crops, stock shelves and expand the store.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Monkey Mart",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monkey-mart.htm"
+        }
+      ]
+    },
+    {
+      "id": "monster-tracks",
+      "name": "Monster Tracks",
+      "image": "monster-tracks.jpg",
+      "tags": [
+        "Racing",
+        "Monster Truck",
+        "Stunts"
+      ],
+      "description": "Crush the competition in a monster truck on wild stunt tracks.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Monster Tracks",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monster-tracks.html"
+        }
+      ]
+    },
+    {
+      "id": "motherload",
+      "name": "Motherload",
+      "image": "motherload.jpg",
+      "tags": [
+        "Mining",
+        "Upgrades",
+        "Adventure"
+      ],
+      "description": "Dig deep into Mars with a mining pod, selling ore and upgrading to go deeper.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Motherload",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motherload.html"
+        }
+      ]
+    },
+    {
+      "id": "moto-x3m",
+      "name": "Moto X3M",
+      "image": "moto-x3m.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Stunts"
+      ],
+      "description": "Race a trial bike through obstacle courses, landing flips to shave time off each run.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Moto X3M",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m.htm"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "moto-x3m-2",
+      "name": "Moto X3M 2",
+      "image": "moto-x3m-2.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Stunts"
+      ],
+      "description": "More levels and nastier traps for the trial bike daredevil.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Moto X3M 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-2.html"
+        }
+      ]
+    },
+    {
+      "id": "moto-x3m-3",
+      "name": "Moto X3M 3",
+      "image": "moto-x3m-3.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Stunts"
+      ],
+      "description": "Flip, loop and crash through 22 new obstacle courses.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Moto X3M 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-3.html"
+        }
+      ]
+    },
+    {
+      "id": "moto-x3m-pool-party",
+      "name": "Moto X3M: Pool Party",
+      "image": "moto-x3m-pool-party.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Summer"
+      ],
+      "description": "Summer-themed bike stunts over waterslides, pools and inflatables.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Moto X3M: Pool Party",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-pool-party.html"
+        }
+      ]
+    },
+    {
+      "id": "moto-x3m-spooky-land",
+      "name": "Moto X3M: Spooky Land",
+      "image": "moto-x3m-spooky-land.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Halloween"
+      ],
+      "description": "Ride through graveyards, haunted mansions and pumpkin patches.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Moto X3M: Spooky Land",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-spooky-land.html"
+        }
+      ]
+    },
+    {
+      "id": "moto-x3m-winter",
+      "name": "Moto X3M: Winter",
+      "image": "moto-x3m-winter.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Winter"
+      ],
+      "description": "Snowy, icy levels full of festive traps and frozen ramps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Moto X3M: Winter",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-winter.html"
+        }
+      ]
+    },
+    {
+      "id": "murder",
+      "name": "Murder",
+      "image": "murder.jpg",
+      "tags": [
+        "Strategy",
+        "Stealth",
+        "Casual"
+      ],
+      "description": "Sneak up on the king and stab him while he's not looking, then take the throne yourself.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Murder",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/murder.html"
+        }
+      ]
+    },
+    {
+      "id": "noob-miner",
+      "name": "Noob Miner",
+      "image": "noob-miner.jpg",
+      "tags": [
+        "Mining",
+        "Adventure",
+        "Upgrades"
+      ],
+      "description": "Help a blocky noob mine his way down to riches in a pixel adventure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Noob Miner",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/noob-miner.html"
+        }
+      ]
+    },
+    {
+      "id": "openttd",
+      "name": "OpenTTD",
+      "image": "openTTD.jpg",
+      "tags": [
+        "Simulation",
+        "Strategy",
+        "Transport"
+      ],
+      "description": "Build a transport empire with trains, trucks, ships and planes in this open-source classic.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "OpenTTD",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/openTTD.html"
+        }
+      ]
+    },
+    {
+      "id": "opposite-day",
+      "name": "Opposite Day",
+      "image": "opposite-day.jpg",
+      "tags": [
+        "Puzzle",
+        "Platformer",
+        "Brain Teaser"
+      ],
+      "description": "Everything works backwards in this puzzle game where you have to think the opposite way.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Opposite Day",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/opposite-day.html"
+        }
+      ]
+    },
+    {
+      "id": "ovo",
+      "name": "OvO",
+      "image": "ovo.jpg",
+      "tags": [
+        "Platformer",
+        "Parkour",
+        "Speedrun"
+      ],
+      "description": "A minimal speedrun platformer with slides, wall jumps and dives.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "OvO",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo.html"
+        }
+      ]
+    },
+    {
+      "id": "ovo-2",
+      "name": "OvO 2",
+      "image": "ovo-2.jpg",
+      "tags": [
+        "Platformer",
+        "Parkour",
+        "Speedrun"
+      ],
+      "description": "The stickman parkour sequel, with new mechanics and faster routes.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "OvO 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo-2.html"
+        }
+      ]
+    },
+    {
+      "id": "ovo-3-dimensions",
+      "name": "OvO 3: Dimensions",
+      "image": "ovo-3-dimensions.jpg",
+      "tags": [
+        "Platformer",
+        "Parkour",
+        "Speedrun"
+      ],
+      "description": "Parkour across dimension-bending levels in the third OvO.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "OvO 3: Dimensions",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo-3-dimensions.html"
+        }
+      ]
+    },
+    {
+      "id": "pac-man",
+      "name": "Pac-Man",
+      "image": "pac-man.jpg",
+      "tags": [
+        "Arcade",
+        "Retro",
+        "Maze"
+      ],
+      "description": "Eat every dot in the maze while dodging the four ghosts.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Pac-Man",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pac-man.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-bakeria",
+      "name": "Papa's Bakeria",
+      "image": "papas-bakeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Bake made-to-order pies with custom crusts, fillings and toppings.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Bakeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-bakeria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-burgeria",
+      "name": "Papa's Burgeria",
+      "image": "papas-burgeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Grill patties and stack burgers just the way each customer wants them.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Burgeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-burgeria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-cheeseria",
+      "name": "Papa's Cheeseria",
+      "image": "papas-cheeseria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Toast gourmet grilled cheese sandwiches with fries on the side.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Cheeseria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-cheeseria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-cupcakeria",
+      "name": "Papa's Cupcakeria",
+      "image": "papas-cupcakeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Bake and decorate seasonal cupcakes for a picky crowd.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Cupcakeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-cupcakeria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-donuteria",
+      "name": "Papa's Donuteria",
+      "image": "papas-donuteria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Shape, fry and fill donuts before decorating them for customers.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Donuteria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-donuteria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-freezeria",
+      "name": "Papa's Freezeria",
+      "image": "papas-freezeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Blend sundaes on a tropical island, all with perfect toppings.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Freezeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-freezeria.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "papas-hot-doggeria",
+      "name": "Papa's Hot Doggeria",
+      "image": "papas-hot-doggeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Serve hot dogs, drinks and popcorn to hungry sports fans.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Hot Doggeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-hot-doggeria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-pancakeria",
+      "name": "Papa's Pancakeria",
+      "image": "papas-pancakeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Run a breakfast diner flipping pancakes, French toast and waffles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Pancakeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pancakeria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-pastaria",
+      "name": "Papa's Pastaria",
+      "image": "papas-pastaria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Cook pasta, sauces and garlic bread at an Italian restaurant.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Pastaria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pastaria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-pizzeria",
+      "name": "Papa's Pizzeria",
+      "image": "papas-pizzeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "The original Papa's game. Top, bake and slice pizzas to order.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Pizzeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pizzeria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-scooperia",
+      "name": "Papa's Scooperia",
+      "image": "papas-scooperia.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Bake cookies and top them with ice cream scoops and sauces.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Scooperia",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-scooperia.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-sushiria",
+      "name": "Papa's Sushiria",
+      "image": "papas-sushiria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Roll sushi and serve bubble tea at a sushi bar.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Sushiria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-sushiria.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-taco-mia",
+      "name": "Papa's Taco Mia!",
+      "image": "papas-taco-mia.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Build tacos with the perfect mix of meat, toppings and sauce.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Taco Mia!",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-taco-mia.html"
+        }
+      ]
+    },
+    {
+      "id": "papas-wingeria",
+      "name": "Papa's Wingeria",
+      "image": "papas-wingeria.jpg",
+      "tags": [
+        "Cooking",
+        "Management",
+        "Time Management"
+      ],
+      "description": "Fry and sauce chicken wings, then plate them up with sides.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Papa's Wingeria",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-wingeria.html"
+        }
+      ]
+    },
+    {
+      "id": "paper-io-2",
+      "name": "Paper.io 2",
+      "image": "paper-io-2.jpg",
+      "tags": [
+        ".io",
+        "Arcade",
+        "Territory"
+      ],
+      "description": "Claim territory by drawing loops, but watch out, since anyone who crosses your tail cuts you off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Paper.io 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/paper-io-2.htm"
+        }
+      ]
+    },
+    {
+      "id": "parking-fury",
+      "name": "Parking Fury",
+      "image": "parking-fury.jpg",
+      "tags": [
+        "Driving",
+        "Parking",
+        "Puzzle"
+      ],
+      "description": "Navigate tight lots and park perfectly without hitting anything.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Parking Fury",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury.html"
+        }
+      ]
+    },
+    {
+      "id": "parking-fury-2",
+      "name": "Parking Fury 2",
+      "image": "parking-fury-2.jpg",
+      "tags": [
+        "Driving",
+        "Parking",
+        "Puzzle"
+      ],
+      "description": "Squeeze cars into tighter parking spots without a scratch.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Parking Fury 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury-2.html"
+        }
+      ]
+    },
+    {
+      "id": "parking-fury-3",
+      "name": "Parking Fury 3",
+      "image": "parking-fury-3.jpg",
+      "tags": [
+        "Driving",
+        "Parking",
+        "Puzzle"
+      ],
+      "description": "Even more challenging parking jobs at night and in busy city streets.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Parking Fury 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury-3.html"
+        }
+      ]
+    },
+    {
+      "id": "picos-school",
+      "name": "Pico's School",
+      "image": "picos-school.jpg",
+      "tags": [
+        "Point & Click",
+        "Action",
+        "Retro"
+      ],
+      "description": "A cult-classic point-and-click adventure where Pico's school is taken over.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Pico's School",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/picos-school.html"
+        }
+      ]
+    },
+    {
+      "id": "ping-pong-chaos",
+      "name": "Ping Pong Chaos",
+      "image": "ping-pong-chaos.jpg",
+      "tags": [
+        "Sports",
+        "Table Tennis",
+        "Ragdoll"
+      ],
+      "description": "Floppy ragdoll table tennis where anything can happen.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ping Pong Chaos",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ping-pong-chaos.html"
+        }
+      ]
+    },
+    {
+      "id": "pixel-speedrun",
+      "name": "Pixel Speedrun",
+      "image": "pixel-speedrun.jpg",
+      "tags": [
+        "Platformer",
+        "Speedrun",
+        "Pixel Art"
+      ],
+      "description": "Race through pixel levels as fast as you can, shaving off every millisecond.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Pixel Speedrun",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pixel-speedrun.html"
+        }
+      ]
+    },
+    {
+      "id": "plants-vs-zombies",
+      "name": "Plants vs. Zombies",
+      "image": "plants-vs-zombies.jpg",
+      "tags": [
+        "Strategy",
+        "Tower Defense",
+        "Zombies"
+      ],
+      "description": "Plant peashooters, sunflowers and more to keep zombies off your lawn.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Plants vs. Zombies",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plants-vs-zombies.html"
+        }
+      ]
+    },
+    {
+      "id": "plonky",
+      "name": "Plonky",
+      "image": "plonky.jpg",
+      "tags": [
+        "Platformer",
+        "Puzzle",
+        "Casual"
+      ],
+      "description": "A cute blob-like creature bounces through puzzle-platform stages.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Plonky",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plonky.html"
+        }
+      ]
+    },
+    {
+      "id": "poor-bunny",
+      "name": "Poor Bunny",
+      "image": "poor-bunny.jpg",
+      "tags": [
+        "Arcade",
+        "2 Player",
+        "Survival"
+      ],
+      "description": "A bunny dodges spikes and traps while grabbing carrots, solo or with a friend.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Poor Bunny",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/poor-bunny.html"
+        }
+      ]
+    },
+    {
+      "id": "pou",
+      "name": "Pou",
+      "image": "pou.jpg",
+      "tags": [
+        "Pets",
+        "Simulation",
+        "Casual"
+      ],
+      "description": "Feed, clean and play with your little alien pet, and dress it up.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Pou",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pou.html"
+        }
+      ]
+    },
+    {
+      "id": "ragdoll-archers",
+      "name": "Ragdoll Archers",
+      "image": "ragdoll-archers.jpg",
+      "tags": [
+        "Archery",
+        "Ragdoll",
+        "2 Player"
+      ],
+      "description": "Wobbly stick archers trade arrow shots in physics-powered duels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ragdoll Archers",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-archers.htm"
+        }
+      ]
+    },
+    {
+      "id": "ragdoll-hit",
+      "name": "Ragdoll Hit",
+      "image": "ragdoll-hit.jpg",
+      "tags": [
+        "Fighting",
+        "Ragdoll",
+        "Physics"
+      ],
+      "description": "Floppy stickmen trade punches in chaotic physics fights.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ragdoll Hit",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-hit.html"
+        }
+      ]
+    },
+    {
+      "id": "ragdoll-soccer",
+      "name": "Ragdoll Soccer",
+      "image": "ragdoll-soccer.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "Ragdoll"
+      ],
+      "description": "Floppy players flail at the ball in hilarious physics football.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Ragdoll Soccer",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-soccer.html"
+        }
+      ]
+    },
+    {
+      "id": "red-ball-4-vol-1",
+      "name": "Red Ball 4 Vol. 1",
+      "image": "red-ball-4-vol-1.jpg",
+      "tags": [
+        "Platformer",
+        "Physics",
+        "Adventure"
+      ],
+      "description": "Roll the red ball through hills and traps to stop the evil squares from flattening the world.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Red Ball 4 Vol. 1",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-1.html"
+        }
+      ]
+    },
+    {
+      "id": "red-ball-4-vol-2",
+      "name": "Red Ball 4 Vol. 2",
+      "image": "red-ball-4-vol-2.jpg",
+      "tags": [
+        "Platformer",
+        "Physics",
+        "Adventure"
+      ],
+      "description": "Red Ball heads into dark forests and factories to battle the square boss.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Red Ball 4 Vol. 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-2.html"
+        }
+      ]
+    },
+    {
+      "id": "red-ball-4-vol-3",
+      "name": "Red Ball 4 Vol. 3",
+      "image": "red-ball-4-vol-3.jpg",
+      "tags": [
+        "Platformer",
+        "Physics",
+        "Adventure"
+      ],
+      "description": "Into the box factory for the final showdown with the evil squares.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Red Ball 4 Vol. 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-3.html"
+        }
+      ]
+    },
+    {
+      "id": "retro-bowl",
+      "name": "Retro Bowl",
+      "image": "retro-bowl.jpg",
+      "tags": [
+        "Sports",
+        "Football",
+        "Management"
+      ],
+      "description": "Manage an NFL-style team and throw passes in a beloved retro football game.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Retro Bowl",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-bowl.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "retro-bowl-college",
+      "name": "Retro Bowl College",
+      "image": "retro-bowl-college.jpg",
+      "tags": [
+        "Sports",
+        "Football",
+        "Management"
+      ],
+      "description": "Build a college football dynasty with recruiting, playcalling and retro-style gameplay.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Retro Bowl College",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-bowl-college.html"
+        }
+      ]
+    },
+    {
+      "id": "retro-highway",
+      "name": "Retro Highway",
+      "image": "retro-highway.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "Retro"
+      ],
+      "description": "Ride a motorcycle down a pixel highway, weaving through traffic at speed.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Retro Highway",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-highway.html"
+        }
+      ]
+    },
+    {
+      "id": "retro-ping-pong",
+      "name": "Retro Ping Pong",
+      "image": "retro-ping-pong.jpg",
+      "tags": [
+        "Sports",
+        "Table Tennis",
+        "Retro"
+      ],
+      "description": "Classic paddle-and-ball action with a pixel-art look.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Retro Ping Pong",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-ping-pong.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-school",
+      "name": "Riddle School",
+      "image": "riddle-school.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "Escape from school by solving goofy puzzles in this cult-favorite point-and-click.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle School",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-school-2",
+      "name": "Riddle School 2",
+      "image": "riddle-school-2.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "Phil gets sent to a new school and has to escape all over again.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle School 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-2.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-school-3",
+      "name": "Riddle School 3",
+      "image": "riddle-school-3.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "Escaping school by going through the vents, of course.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle School 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-3.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-school-4",
+      "name": "Riddle School 4",
+      "image": "riddle-school-4.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "Phil and friends get stuck on a field trip and need to find a way home.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle School 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-4.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-school-5",
+      "name": "Riddle School 5",
+      "image": "riddle-school-5.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "The final escape in the Riddle School saga, set in outer space.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle School 5",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-5.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-transfer",
+      "name": "Riddle Transfer",
+      "image": "riddle-transfer.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "A new kid tries to escape his new school in a Riddle School spin-off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle Transfer",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-transfer.html"
+        }
+      ]
+    },
+    {
+      "id": "riddle-transfer-2",
+      "name": "Riddle Transfer 2",
+      "image": "riddle-transfer-2.jpg",
+      "tags": [
+        "Point & Click",
+        "Puzzle",
+        "Comedy"
+      ],
+      "description": "The Riddle Transfer story continues with new puzzles to solve.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Riddle Transfer 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-transfer-2.html"
+        }
+      ]
+    },
+    {
+      "id": "rocket-soccer-derby",
+      "name": "Rocket Soccer Derby",
+      "image": "rocket-soccer-derby.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "Driving"
+      ],
+      "description": "Boost and fly cars into a giant ball to score goals.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Rocket Soccer Derby",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rocket-soccer-derby.html"
+        }
+      ]
+    },
+    {
+      "id": "rooftop-run",
+      "name": "Rooftop Run",
+      "image": "rooftop-run.jpg",
+      "tags": [
+        "Runner",
+        "Platformer",
+        "Endless"
+      ],
+      "description": "Leap from roof to roof across a city skyline without falling.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Rooftop Run",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-run.html"
+        }
+      ]
+    },
+    {
+      "id": "rooftop-snipers",
+      "name": "Rooftop Snipers",
+      "image": "rooftop-snipers.jpg",
+      "tags": [
+        "Shooter",
+        "2 Player",
+        "Physics"
+      ],
+      "description": "Jump and shoot to knock your opponent off the rooftop in tense one-on-one duels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Rooftop Snipers",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-snipers.htm"
+        }
+      ]
+    },
+    {
+      "id": "rooftop-snipers-2",
+      "name": "Rooftop Snipers 2",
+      "image": "rooftop-snipers-2.jpg",
+      "tags": [
+        "Shooter",
+        "2 Player",
+        "Physics"
+      ],
+      "description": "Wobbly snipers on rooftops try to knock each other off with one-button controls.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Rooftop Snipers 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-snipers-2.html"
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "name": "Run",
+      "image": "run.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Space"
+      ],
+      "description": "The original space tunnel runner. Jump over holes and use the walls to survive.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Run",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run.html"
+        }
+      ]
+    },
+    {
+      "id": "run-2",
+      "name": "Run 2",
+      "image": "run-2.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Space"
+      ],
+      "description": "Run through tunnels in space where you can switch walls and ceilings to dodge gaps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Run 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run-2.html"
+        }
+      ]
+    },
+    {
+      "id": "run-3",
+      "name": "Run 3",
+      "image": "run-3.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Space"
+      ],
+      "description": "The huge sequel with a galaxy map, unlockable characters and endless tunnels.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Run 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run-3.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "sand-game",
+      "name": "Sand Game",
+      "image": "sand-game.jpg",
+      "tags": [
+        "Sandbox",
+        "Simulation",
+        "Physics"
+      ],
+      "description": "Pour sand, water, fire and more onto a canvas and watch them interact.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Sand Game",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sand-game.html"
+        }
+      ]
+    },
+    {
+      "id": "sandbox-city",
+      "name": "Sandbox City",
+      "image": "sandbox-city.jpg",
+      "tags": [
+        "Sandbox",
+        "3D",
+        "Open World"
+      ],
+      "description": "Run around an open city sandbox with cars, weapons and mayhem.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Sandbox City",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sandbox-city.html"
+        }
+      ]
+    },
+    {
+      "id": "short-life",
+      "name": "Short Life",
+      "image": "short-life.jpg",
+      "tags": [
+        "Platformer",
+        "Ragdoll",
+        "Gore"
+      ],
+      "description": "Get a ragdoll through trap-filled levels with as many limbs as possible.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Short Life",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/short-life.html"
+        }
+      ]
+    },
+    {
+      "id": "six-cats-under",
+      "name": "Six Cats Under",
+      "image": "six-cats-under.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cats"
+      ],
+      "description": "A ghost helps her six cats escape a creepy house through clever puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Six Cats Under",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/six-cats-under.html"
+        }
+      ]
+    },
+    {
+      "id": "slope",
+      "name": "Slope",
+      "image": "slope.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Skill"
+      ],
+      "description": "Roll a ball down an endless neon slope, steering to avoid falling off or hitting red blocks.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Slope",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope.html"
+        }
+      ],
+      "featured": true
+    },
+    {
+      "id": "slope-2-player",
+      "name": "Slope 2 Player",
+      "image": "slope-2-player.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "2 Player"
+      ],
+      "description": "Race a friend down the neon slope in split-screen.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Slope 2 Player",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope-2-player.html"
+        }
+      ]
+    },
+    {
+      "id": "slope-3",
+      "name": "Slope 3",
+      "image": "slope-3.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Skill"
+      ],
+      "description": "Even faster slopes with new hazards for the rolling ball.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Slope 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope-3.html"
+        }
+      ]
+    },
+    {
+      "id": "slow-roads",
+      "name": "Slow Roads",
+      "image": "slow-roads.jpg",
+      "tags": [
+        "Driving",
+        "Relaxing",
+        "3D"
+      ],
+      "description": "A calm endless drive through procedurally generated scenery.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Slow Roads",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slow-roads.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob",
+      "name": "Snail Bob",
+      "image": "snail-bob.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Casual"
+      ],
+      "description": "Guide a slow-moving snail safely through traps by pressing buttons at the right time.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-2",
+      "name": "Snail Bob 2",
+      "image": "snail-bob-2.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Casual"
+      ],
+      "description": "Help Bob reach his grandpa's birthday party by flipping switches and moving platforms.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-2.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-3",
+      "name": "Snail Bob 3",
+      "image": "snail-bob-3.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Casual"
+      ],
+      "description": "Bob heads to Egypt in search of treasure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-3.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-4",
+      "name": "Snail Bob 4",
+      "image": "snail-bob-4.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Space"
+      ],
+      "description": "Bob goes into space in a sci-fi puzzle adventure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-4.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-5",
+      "name": "Snail Bob 5",
+      "image": "snail-bob-5.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Casual"
+      ],
+      "description": "Bob is in love and on a quest to reach his sweetheart.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 5",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-5.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-6",
+      "name": "Snail Bob 6",
+      "image": "snail-bob-6.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Winter"
+      ],
+      "description": "A wintry adventure through snowy, icy puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 6",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-6.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-7",
+      "name": "Snail Bob 7",
+      "image": "snail-bob-7.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Fantasy"
+      ],
+      "description": "Bob enters a fantasy world full of magic and dragons.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 7",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-7.html"
+        }
+      ]
+    },
+    {
+      "id": "snail-bob-8",
+      "name": "Snail Bob 8",
+      "image": "snail-bob-8.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Island"
+      ],
+      "description": "Bob takes on an island adventure with tropical puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snail Bob 8",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-8.html"
+        }
+      ]
+    },
+    {
+      "id": "snow-rider",
+      "name": "Snow Rider 3D",
+      "image": "snow-rider.jpg",
+      "tags": [
+        "Racing",
+        "3D",
+        "Winter"
+      ],
+      "description": "Sled down a snowy slope dodging trees, snowmen and other obstacles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snow Rider 3D",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snow-rider.htm"
+        }
+      ]
+    },
+    {
+      "id": "snow-road",
+      "name": "Snow Road",
+      "image": "snow-road.jpg",
+      "tags": [
+        "Runner",
+        "3D",
+        "Winter"
+      ],
+      "description": "Steer down a winding snowy road without falling off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snow Road",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snow-road.htm"
+        }
+      ]
+    },
+    {
+      "id": "snowball-io",
+      "name": "Snowball.io",
+      "image": "snowball-io.jpg",
+      "tags": [
+        ".io",
+        "Multiplayer",
+        "Winter"
+      ],
+      "description": "Roll snowballs bigger and knock other players off the icy arena.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Snowball.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowball-io.html"
+        }
+      ]
+    },
+    {
+      "id": "soccer-bros",
+      "name": "Soccer Bros",
+      "image": "soccer-bros.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "2 Player"
+      ],
+      "description": "Big-headed footballers try to bang in goals in fast arcade soccer.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Soccer Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccer-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "soccer-random",
+      "name": "Soccer Random",
+      "image": "soccer-random.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "2 Player"
+      ],
+      "description": "One-button ragdoll soccer where the stadium and players change every goal.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Soccer Random",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccer-random.htm"
+        }
+      ]
+    },
+    {
+      "id": "space-is-key",
+      "name": "Space is Key",
+      "image": "space-is-key.jpg",
+      "tags": [
+        "Platformer",
+        "One Button",
+        "Skill"
+      ],
+      "description": "Press space to jump through color-changing levels. It's the only button you need.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Space is Key",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-is-key.html"
+        }
+      ]
+    },
+    {
+      "id": "space-is-key-2",
+      "name": "Space is Key 2",
+      "image": "space-is-key-2.jpg",
+      "tags": [
+        "Platformer",
+        "One Button",
+        "Skill"
+      ],
+      "description": "A one-button platformer, with even harder sequences than the first.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Space is Key 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-is-key-2.html"
+        }
+      ]
+    },
+    {
+      "id": "space-waves",
+      "name": "Space Waves",
+      "image": "space-waves.jpg",
+      "tags": [
+        "Arcade",
+        "One Button",
+        "Rhythm"
+      ],
+      "description": "Hold to fly up and release to fall, threading a wave through neon spikes.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Space Waves",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-waves.html"
+        }
+      ]
+    },
+    {
+      "id": "spacebar-clicker",
+      "name": "Spacebar Clicker",
+      "image": "spacebar-clicker.jpg",
+      "tags": [
+        "Clicker",
+        "Idle",
+        "Incremental"
+      ],
+      "description": "Mash the spacebar to earn points and buy upgrades that press it for you.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Spacebar Clicker",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacebar-clicker.html"
+        }
+      ]
+    },
+    {
+      "id": "speed-stars",
+      "name": "Speed Stars",
+      "image": "speed-stars.jpg",
+      "tags": [
+        "Sports",
+        "Running",
+        "Track"
+      ],
+      "description": "Time your key presses to sprint faster than ever in track races.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Speed Stars",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/speed-stars.html"
+        }
+      ]
+    },
+    {
+      "id": "sprunki",
+      "name": "Sprunki",
+      "image": "sprunki.jpg",
+      "tags": [
+        "Music",
+        "Creative",
+        "Casual"
+      ],
+      "description": "Drag sounds onto characters to make your own beats and melodies.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Sprunki",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sprunki.html"
+        }
+      ]
+    },
+    {
+      "id": "stack",
+      "name": "Stack",
+      "image": "stack.jpg",
+      "tags": [
+        "Arcade",
+        "Casual",
+        "One Button"
+      ],
+      "description": "Drop moving blocks to build the tallest tower possible. Any overhang gets sliced off.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stack",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stack.html"
+        }
+      ]
+    },
+    {
+      "id": "stacktris",
+      "name": "Stacktris",
+      "image": "stacktris.jpg",
+      "tags": [
+        "Puzzle",
+        "Physics",
+        "Stacking"
+      ],
+      "description": "Falling-block puzzles with real physics. Your stacks can wobble and topple.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stacktris",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stacktris.html"
+        }
+      ]
+    },
+    {
+      "id": "state-io",
+      "name": "State.io",
+      "image": "state-io.jpg",
+      "tags": [
+        "Strategy",
+        ".io",
+        "Conquest"
+      ],
+      "description": "Send troops between regions to conquer the whole map.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "State.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/state-io.html"
+        }
+      ]
+    },
+    {
+      "id": "stealing-the-diamond",
+      "name": "Stealing the Diamond",
+      "image": "stealing-the-diamond.jpg",
+      "tags": [
+        "Point & Click",
+        "Comedy",
+        "Choices"
+      ],
+      "description": "Henry Stickmin plans to steal a priceless diamond from a museum.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stealing the Diamond",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stealing-the-diamond.html"
+        }
+      ]
+    },
+    {
+      "id": "stick-archers-battle",
+      "name": "Stick Archers Battle",
+      "image": "stick-archers-battle.jpg",
+      "tags": [
+        "Archery",
+        "Stickman",
+        "2 Player"
+      ],
+      "description": "Duel other stickmen in turn-based archery battles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stick Archers Battle",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-archers-battle.html"
+        }
+      ]
+    },
+    {
+      "id": "stick-fighter",
+      "name": "Stick Fighter",
+      "image": "stick-fighter.jpg",
+      "tags": [
+        "Fighting",
+        "Stickman",
+        "Action"
+      ],
+      "description": "Punch, kick and combo stickman enemies in arena fights.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stick Fighter",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-fighter.html"
+        }
+      ]
+    },
+    {
+      "id": "stick-merge",
+      "name": "Stick Merge",
+      "image": "stick-merge.jpg",
+      "tags": [
+        "Merge",
+        "Shooter",
+        "Stickman"
+      ],
+      "description": "Merge stickmen into stronger soldiers and battle enemy waves.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stick Merge",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-merge.html"
+        }
+      ]
+    },
+    {
+      "id": "stickman-hook",
+      "name": "Stickman Hook",
+      "image": "stickman-hook.jpg",
+      "tags": [
+        "Arcade",
+        "Swinging",
+        "Casual"
+      ],
+      "description": "Swing between hooks like a spider-stickman to reach the end of each level.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Stickman Hook",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickman-hook.html"
+        }
+      ]
+    },
+    {
+      "id": "subway-surfers-beijing",
+      "name": "Subway Surfers: Beijing",
+      "image": "subway-surfers-beijing.jpg",
+      "tags": [
+        "Runner",
+        "Endless",
+        "3D"
+      ],
+      "description": "Dash along Beijing's subway tracks, dodging trains and grabbing coins.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Subway Surfers: Beijing",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-beijing.html"
+        }
+      ]
+    },
+    {
+      "id": "subway-surfers-havana",
+      "name": "Subway Surfers: Havana",
+      "image": "subway-surfers-havana.jpg",
+      "tags": [
+        "Runner",
+        "Endless",
+        "3D"
+      ],
+      "description": "Surf the subway through colorful Havana streets.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Subway Surfers: Havana",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-havana.html"
+        }
+      ]
+    },
+    {
+      "id": "subway-surfers-san-francisco",
+      "name": "Subway Surfers: San Francisco",
+      "image": "subway-surfers-san-francisco.jpg",
+      "tags": [
+        "Runner",
+        "Endless",
+        "3D"
+      ],
+      "description": "Run from the inspector through San Francisco's hills and trams.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Subway Surfers: San Francisco",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-san-francisco.html"
+        }
+      ]
+    },
+    {
+      "id": "super-bike-the-champion",
+      "name": "Super Bike The Champion",
+      "image": "super-bike-the-champion.jpg",
+      "tags": [
+        "Racing",
+        "Bike",
+        "3D"
+      ],
+      "description": "Race superbikes through challenging circuits.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Super Bike The Champion",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-bike-the-champion.html"
+        }
+      ]
+    },
+    {
+      "id": "super-liquid-soccer",
+      "name": "Super Liquid Soccer",
+      "image": "super-liquid-soccer.jpg",
+      "tags": [
+        "Sports",
+        "Soccer",
+        "Arcade"
+      ],
+      "description": "Soccer where players move as if the pitch were covered in jelly.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Super Liquid Soccer",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-liquid-soccer.html"
+        }
+      ]
+    },
+    {
+      "id": "sm-63",
+      "name": "Super Mario 63",
+      "image": "sm-63.jpg",
+      "tags": [
+        "Platformer",
+        "Fan Game",
+        "Adventure"
+      ],
+      "description": "A fan-made 2D Mario adventure with FLUDD, Shine Sprites and a level designer.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Super Mario 63",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm-63.html"
+        }
+      ]
+    },
+    {
+      "id": "sm-64",
+      "name": "Super Mario 64",
+      "image": "sm-64.jpg",
+      "tags": [
+        "Platformer",
+        "3D",
+        "Adventure"
+      ],
+      "description": "A browser port of the classic 3D platformer. Collect Power Stars across Peach's castle.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Super Mario 64",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm-64.html"
+        }
+      ]
+    },
+    {
+      "id": "super-star-car",
+      "name": "Super Star Car",
+      "image": "super-star-car.jpg",
+      "tags": [
+        "Driving",
+        "3D",
+        "Upgrades"
+      ],
+      "description": "Smash cars through stunt worlds, collecting stars to unlock new rides.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Super Star Car",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-star-car.html"
+        }
+      ]
+    },
+    {
+      "id": "superhot",
+      "name": "SUPERHOT",
+      "image": "superhot.jpg",
+      "tags": [
+        "Shooter",
+        "FPS",
+        "Strategy"
+      ],
+      "description": "Time only moves when you move. Plan every dodge and shot in slow-motion gunfights.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "SUPERHOT",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superhot.html"
+        }
+      ]
+    },
+    {
+      "id": "table-tennis-world-tour",
+      "name": "Table Tennis World Tour",
+      "image": "table-tennis-world-tour.jpg",
+      "tags": [
+        "Sports",
+        "Table Tennis",
+        "3D"
+      ],
+      "description": "Travel the world playing realistic table tennis tournaments.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Table Tennis World Tour",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/table-tennis-world-tour.html"
+        }
+      ]
+    },
+    {
+      "id": "tag",
+      "name": "Tag",
+      "image": "tag.jpg",
+      "tags": [
+        "Arcade",
+        "2 Player",
+        "Platformer"
+      ],
+      "description": "A two-player chase game. Tag your friend and run before they tag you back.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tag",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tag.html"
+        }
+      ]
+    },
+    {
+      "id": "tanuki-sunset",
+      "name": "Tanuki Sunset",
+      "image": "tanuki-sunset.jpg",
+      "tags": [
+        "Racing",
+        "Skateboard",
+        "Retro"
+      ],
+      "description": "Longboard down sunset highways as a raccoon, drifting around corners.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tanuki Sunset",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tanuki-sunset.html"
+        }
+      ]
+    },
+    {
+      "id": "tap-road",
+      "name": "Tap Road",
+      "image": "tap-road.jpg",
+      "tags": [
+        "Arcade",
+        "One Button",
+        "Casual"
+      ],
+      "description": "Tap to turn your ball along a winding road and keep it on track.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tap Road",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tap-road.html"
+        }
+      ]
+    },
+    {
+      "id": "temple-of-boom",
+      "name": "Temple of Boom",
+      "image": "temple-of-boom.jpg",
+      "tags": [
+        "Shooter",
+        "Action",
+        "Top-Down"
+      ],
+      "description": "Blast monsters and grab treasure in a top-down temple shooter.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Temple of Boom",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/temple-of-boom.html"
+        }
+      ]
+    },
+    {
+      "id": "temple-run-2",
+      "name": "Temple Run 2",
+      "image": "temple-run-2.jpg",
+      "tags": [
+        "Runner",
+        "Endless",
+        "3D"
+      ],
+      "description": "Escape the temple guardian through jungles, mines and cliffs.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Temple Run 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/temple-run-2.htm"
+        }
+      ]
+    },
+    {
+      "id": "territorial-io",
+      "name": "Territorial.io",
+      "image": "territorial-io.jpg",
+      "tags": [
+        "Strategy",
+        ".io",
+        "Conquest"
+      ],
+      "description": "Expand your territory and battle other players for control of the map.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Territorial.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/territorial-io.html"
+        }
+      ]
+    },
+    {
+      "id": "tetrominoes",
+      "name": "Tetrominoes",
+      "image": "tetrominoes.jpg",
+      "tags": [
+        "Puzzle",
+        "Retro",
+        "Blocks"
+      ],
+      "description": "Rotate and drop falling blocks to clear lines in a classic block puzzle.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tetrominoes",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tetrominoes.html"
+        }
+      ]
+    },
+    {
+      "id": "the-impossible-quiz",
+      "name": "The Impossible Quiz",
+      "image": "the-impossible-quiz.jpg",
+      "tags": [
+        "Trivia",
+        "Comedy",
+        "Brain Teaser"
+      ],
+      "description": "Answer ridiculous trick questions where the obvious answer is never right.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "The Impossible Quiz",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/the-impossible-quiz.html"
+        }
+      ]
+    },
+    {
+      "id": "the-impossible-quiz-2",
+      "name": "The Impossible Quiz 2",
+      "image": "the-impossible-quiz-2.jpg",
+      "tags": [
+        "Trivia",
+        "Comedy",
+        "Brain Teaser"
+      ],
+      "description": "More absurd trick questions in the follow-up to the infamously unfair quiz.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "The Impossible Quiz 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/the-impossible-quiz-2.html"
+        }
+      ]
+    },
+    {
+      "id": "there-is-no-g",
+      "name": "There Is No Game",
+      "image": "there-is-no-g.jpg",
+      "tags": [
+        "Puzzle",
+        "Comedy",
+        "Meta"
+      ],
+      "description": "A game insisting it isn't a game, full of fourth-wall-breaking puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "There Is No Game",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/there-is-no-g.html"
+        }
+      ]
+    },
+    {
+      "id": "they-are-coming",
+      "name": "They Are Coming",
+      "image": "they-are-coming.jpg",
+      "tags": [
+        "Shooter",
+        "Zombies",
+        "Survival"
+      ],
+      "description": "Gather a squad and fight off endless zombies coming at you.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "They Are Coming",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/they-are-coming.html"
+        }
+      ]
+    },
+    {
+      "id": "this-is-the-only-level",
+      "name": "This is the Only Level",
+      "image": "this-is-the-only-level.jpg",
+      "tags": [
+        "Platformer",
+        "Puzzle",
+        "Troll"
+      ],
+      "description": "One level, dozens of twists. The elephant has to reach the pipe every time.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "This is the Only Level",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/this-is-the-only-level.html"
+        }
+      ]
+    },
+    {
+      "id": "this-is-the-only-level-too",
+      "name": "This is the Only Level Too",
+      "image": "this-is-the-only-level-too.jpg",
+      "tags": [
+        "Platformer",
+        "Puzzle",
+        "Troll"
+      ],
+      "description": "The same level again, with every attempt changing the rules.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "This is the Only Level Too",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/this-is-the-only-level-too.html"
+        }
+      ]
+    },
+    {
+      "id": "time-shooter-2",
+      "name": "Time Shooter 2",
+      "image": "time-shooter-2.jpg",
+      "tags": [
+        "Shooter",
+        "FPS",
+        "Slow Motion"
+      ],
+      "description": "Bullets slow down with you in a fast, stylish slow-motion shooter.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Time Shooter 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/time-shooter-2.html"
+        }
+      ]
+    },
+    {
+      "id": "time-shooter-3",
+      "name": "Time Shooter 3: SWAT",
+      "image": "time-shooter-3.jpg",
+      "tags": [
+        "Shooter",
+        "FPS",
+        "Slow Motion"
+      ],
+      "description": "Clear rooms as a SWAT officer with time-bending reflexes.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Time Shooter 3: SWAT",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/time-shooter-3.htm"
+        }
+      ]
+    },
+    {
+      "id": "tiny-fishing",
+      "name": "Tiny Fishing",
+      "image": "tiny-fishing.jpg",
+      "tags": [
+        "Idle",
+        "Fishing",
+        "Casual"
+      ],
+      "description": "Cast your line, reel in fish and upgrade your rod to reach the deep sea.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tiny Fishing",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tiny-fishing.html"
+        }
+      ]
+    },
+    {
+      "id": "tomb-of-the-mask",
+      "name": "Tomb of the Mask",
+      "image": "tomb-of-the-mask.jpg",
+      "tags": [
+        "Arcade",
+        "Maze",
+        "Retro"
+      ],
+      "description": "Zoom through a maze-like tomb on walls and ceilings as the water rises behind you.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tomb of the Mask",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tomb-of-the-mask.htm"
+        }
+      ]
+    },
+    {
+      "id": "trap-the-cat",
+      "name": "Trap the Cat",
+      "image": "trap-the-cat.jpg",
+      "tags": [
+        "Puzzle",
+        "Strategy",
+        "Board"
+      ],
+      "description": "Block hexes one at a time to trap the cat before it escapes the board.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Trap the Cat",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trap-the-cat.html"
+        }
+      ]
+    },
+    {
+      "id": "trivia-crack",
+      "name": "Trivia Crack",
+      "image": "trivia-crack.jpg",
+      "tags": [
+        "Trivia",
+        "Quiz",
+        "Casual"
+      ],
+      "description": "Spin the wheel and answer questions across six categories.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Trivia Crack",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trivia-crack.html"
+        }
+      ]
+    },
+    {
+      "id": "tube-jumpers",
+      "name": "Tube Jumpers",
+      "image": "tube-jumpers.jpg",
+      "tags": [
+        "Party",
+        "2 Player",
+        "Water"
+      ],
+      "description": "Knock friends off their inner tubes in a water-park battle.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tube Jumpers",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tube-jumpers.html"
+        }
+      ]
+    },
+    {
+      "id": "tunnel-rush",
+      "name": "Tunnel Rush",
+      "image": "tunnel-rush.jpg",
+      "tags": [
+        "Arcade",
+        "3D",
+        "Skill"
+      ],
+      "description": "Rush through a spinning neon tunnel dodging walls at breakneck speed.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Tunnel Rush",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tunnel-rush.html"
+        }
+      ]
+    },
+    {
+      "id": "unicycle-hero",
+      "name": "Unicycle Hero",
+      "image": "unicycle-hero.jpg",
+      "tags": [
+        "Physics",
+        "Balance",
+        "Skill"
+      ],
+      "description": "Balance on a unicycle and pedal through tricky stages.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Unicycle Hero",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/unicycle-hero.html"
+        }
+      ]
+    },
+    {
+      "id": "vex-4",
+      "name": "Vex 4",
+      "image": "vex-4.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Skill"
+      ],
+      "description": "Run, jump, slide and swim through deadly stickman obstacle courses.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex 4",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-4.html"
+        }
+      ]
+    },
+    {
+      "id": "vex-5",
+      "name": "Vex 5",
+      "image": "vex-5.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Skill"
+      ],
+      "description": "New acts and traps with checkpoints and achievements to chase.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex 5",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-5.html"
+        }
+      ]
+    },
+    {
+      "id": "vex-6",
+      "name": "Vex 6",
+      "image": "vex-6.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Skill"
+      ],
+      "description": "Even trickier acts and new saws, spikes and moving platforms.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex 6",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-6.htm"
+        }
+      ]
+    },
+    {
+      "id": "vex-7",
+      "name": "Vex 7",
+      "image": "vex-7.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Skill"
+      ],
+      "description": "The stickman returns with brand-new hazards and challenges.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex 7",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-7.htm"
+        }
+      ]
+    },
+    {
+      "id": "vex-8",
+      "name": "Vex 8",
+      "image": "vex-8.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Skill"
+      ],
+      "description": "The latest Vex, with longer acts and devious level design.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex 8",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-8.htm"
+        }
+      ]
+    },
+    {
+      "id": "vex-x3m",
+      "name": "Vex X3M",
+      "image": "vex-x3m.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Speedrun"
+      ],
+      "description": "Vex meets Moto X3M: race against the clock through stickman traps.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex X3M",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-x3m.html"
+        }
+      ]
+    },
+    {
+      "id": "vex-x3m-2",
+      "name": "Vex X3M 2",
+      "image": "vex-x3m-2.jpg",
+      "tags": [
+        "Platformer",
+        "Stickman",
+        "Speedrun"
+      ],
+      "description": "Fast-paced stickman speedrunning with a time-attack twist.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Vex X3M 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-x3m-2.html"
+        }
+      ]
+    },
+    {
+      "id": "volley-random",
+      "name": "Volley Random",
+      "image": "volley-random.jpg",
+      "tags": [
+        "Sports",
+        "Volleyball",
+        "2 Player"
+      ],
+      "description": "Wobbly two-on-two volleyball where every point brings a new setup.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Volley Random",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/volley-random.html"
+        }
+      ]
+    },
+    {
+      "id": "war-the-knights",
+      "name": "War the Knights",
+      "image": "war-the-knights.jpg",
+      "tags": [
+        "Strategy",
+        "Medieval",
+        "Battle"
+      ],
+      "description": "Command knights and archers in medieval battles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "War the Knights",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/war-the-knights.html"
+        }
+      ]
+    },
+    {
+      "id": "we-become-what-we-behold",
+      "name": "We Become What We Behold",
+      "image": "we-become-what-we-behold.jpg",
+      "tags": [
+        "Story",
+        "Short",
+        "Commentary"
+      ],
+      "description": "A five-minute game by Nicky Case about news cycles and how what we watch shapes what we become.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "We Become What We Behold",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/we-become-what-we-behold.html"
+        }
+      ]
+    },
+    {
+      "id": "wheelie-bike",
+      "name": "Wheelie Bike",
+      "image": "wheelie-bike.jpg",
+      "tags": [
+        "Physics",
+        "Bike",
+        "Balance"
+      ],
+      "description": "Pop a wheelie and hold it as long as you can without flipping.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheelie Bike",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheelie-bike.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely",
+      "name": "Wheely",
+      "image": "wheely.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "Clear the way for a cute little red car by flipping switches and moving obstacles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-2",
+      "name": "Wheely 2",
+      "image": "wheely-2.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "Wheely the little car heads out on a sweet new adventure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-2.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-3",
+      "name": "Wheely 3",
+      "image": "wheely-3.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "Help Wheely through a fun, spooky set of puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-3.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-4",
+      "name": "Wheely 4: Time Travel",
+      "image": "wheely-4.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "Wheely travels through time in a dinosaur-filled adventure.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 4: Time Travel",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-4.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-5",
+      "name": "Wheely 5: Armageddon",
+      "image": "wheely-5.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "Wheely saves the city from disaster in more clever puzzles.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 5: Armageddon",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-5.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-6",
+      "name": "Wheely 6: Fairytale",
+      "image": "wheely-6.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "A fairytale world full of magic puzzles for the little red car.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 6: Fairytale",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-6.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-7",
+      "name": "Wheely 7: Detective",
+      "image": "wheely-7.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Cars"
+      ],
+      "description": "Wheely goes undercover to solve a mystery.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 7: Detective",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-7.html"
+        }
+      ]
+    },
+    {
+      "id": "wheely-8",
+      "name": "Wheely 8: Aliens",
+      "image": "wheely-8.jpg",
+      "tags": [
+        "Puzzle",
+        "Point & Click",
+        "Space"
+      ],
+      "description": "Wheely meets aliens and must help them get home.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wheely 8: Aliens",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-8.html"
+        }
+      ]
+    },
+    {
+      "id": "wordle-unlimited",
+      "name": "Wordle Unlimited",
+      "image": "wordle-unlimited.jpg",
+      "tags": [
+        "Word",
+        "Puzzle",
+        "Daily"
+      ],
+      "description": "Guess the five-letter word in six tries, as many times as you want.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wordle Unlimited",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wordle-unlimited.html"
+        }
+      ]
+    },
+    {
+      "id": "worlds-hardest-game",
+      "name": "World's Hardest Game",
+      "image": "worlds-hardest-game.jpg",
+      "tags": [
+        "Skill",
+        "Puzzle",
+        "Precision"
+      ],
+      "description": "Guide a red square past moving blue dots to the goal. It's as hard as it sounds.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "World's Hardest Game",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game.html"
+        }
+      ]
+    },
+    {
+      "id": "worlds-hardest-game-2",
+      "name": "World's Hardest Game 2",
+      "image": "worlds-hardest-game-2.jpg",
+      "tags": [
+        "Skill",
+        "Puzzle",
+        "Precision"
+      ],
+      "description": "More impossible mazes for your little red square to survive.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "World's Hardest Game 2",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game-2.html"
+        }
+      ]
+    },
+    {
+      "id": "worlds-hardest-game-3",
+      "name": "World's Hardest Game 3",
+      "image": "worlds-hardest-game-3.jpg",
+      "tags": [
+        "Skill",
+        "Puzzle",
+        "Precision"
+      ],
+      "description": "The third round of the hardest square-dodging challenge.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "World's Hardest Game 3",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game-3.html"
+        }
+      ]
+    },
+    {
+      "id": "wrestle-bros",
+      "name": "Wrestle Bros",
+      "image": "wrestle-bros.jpg",
+      "tags": [
+        "Sports",
+        "Wrestling",
+        "2 Player"
+      ],
+      "description": "Big-headed wrestlers slam each other in arcade-style bouts.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Wrestle Bros",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wrestle-bros.html"
+        }
+      ]
+    },
+    {
+      "id": "yohoho-io",
+      "name": "YoHoHo.io",
+      "image": "yohoho-io.jpg",
+      "tags": [
+        ".io",
+        "Battle Royale",
+        "Pirates"
+      ],
+      "description": "Pirate battle royale: grab coins, upgrade your weapons and be the last pirate standing.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "YoHoHo.io",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/yohoho-io.html"
+        }
+      ]
+    },
+    {
+      "id": "zombie-rush",
+      "name": "Zombie Rush",
+      "image": "zombie-rush.jpg",
+      "tags": [
+        "Shooter",
+        "Zombies",
+        "Survival"
+      ],
+      "description": "Hold back waves of zombies with an ever-growing arsenal.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Zombie Rush",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zombie-rush.html"
+        }
+      ]
+    },
+    {
+      "id": "zrist",
+      "name": "Zrist",
+      "image": "zrist.jpg",
+      "tags": [
+        "Arcade",
+        "Skill",
+        "Casual"
+      ],
+      "description": "A quirky arcade challenge with simple controls and a high score to beat.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Zrist",
+          "type": "release",
+          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zrist.html"
         }
       ]
     }
