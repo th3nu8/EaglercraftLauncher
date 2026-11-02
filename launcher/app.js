@@ -202,13 +202,16 @@
     }
     closeGame(true);
     runningGame = g || null;
-    gameUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
     gameFrame = document.createElement('iframe');
     gameFrame.id = 'game';
     gameFrame.setAttribute('allow', 'fullscreen; pointer-lock; autoplay; gamepad; clipboard-read; clipboard-write; microphone');
     gameFrame.setAttribute('allowfullscreen', '');
-    gameFrame.src = gameUrl;
     document.body.appendChild(gameFrame);
+    // Write the game straight into the frame instead of using a blob: URL. The frame then shares
+    // this tab's normal web address, which Ruffle (Flash games) and other loaders need to work out
+    // where their files are. A blob: address makes Ruffle crash with an "update Ruffle" screen.
+    var gd = gameFrame.contentDocument;
+    gd.open(); gd.write(html); gd.close();
     document.body.classList.add('in-game');
     document.title = name + ' · ' + settings.title;
     setTimeout(function () { try { gameFrame.focus(); } catch (e) {} }, 300);
