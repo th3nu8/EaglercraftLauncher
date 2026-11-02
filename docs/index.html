@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Get Mist</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font:15px/1.5 "Segoe UI",Arial,system-ui,sans-serif;color:#c7d5e0;
+  background:radial-gradient(ellipse at top,#2a475e 0,transparent 60%),#1b2838;display:flex;justify-content:center;padding:40px 18px}
+main{width:100%;max-width:640px}
+.logo{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.ico{width:52px;height:52px;border-radius:50%;flex:none;background:
+  radial-gradient(ellipse 60% 22% at 50% 38%,rgba(255,255,255,.95) 0 60%,transparent 62%),
+  radial-gradient(ellipse 52% 18% at 40% 58%,rgba(255,255,255,.75) 0 60%,transparent 62%),
+  radial-gradient(ellipse 44% 15% at 60% 75%,rgba(255,255,255,.55) 0 60%,transparent 62%),
+  linear-gradient(160deg,#8fd3ff,#3a6fb0 70%,#27466e)}
+h1{margin:0;color:#fff;font-size:40px;letter-spacing:.14em;font-weight:800}
+.tag{color:#8f98a0;margin:0 0 28px}
+.card{background:rgba(0,0,0,.25);border-radius:6px;padding:20px 22px;margin-bottom:16px}
+h2{margin:0 0 10px;color:#fff;font-size:17px;font-weight:600}
+ol{margin:0;padding-left:20px} li{margin:6px 0}
+.drag{display:inline-flex;align-items:center;gap:10px;margin:14px 0 4px;padding:12px 22px;border-radius:3px;font-size:18px;font-weight:700;
+  color:#fff;text-decoration:none;background:linear-gradient(90deg,#75b022,#588a1b);cursor:grab;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.drag:hover{background:linear-gradient(90deg,#8ed629,#6aa621)}
+.hint{font-size:13px;color:#8f98a0}
+textarea{width:100%;height:90px;margin-top:10px;background:#0e141b;color:#a4c5dc;border:1px solid #2a3f53;border-radius:3px;padding:8px;font:12px monospace;resize:none}
+button{margin-top:8px;padding:9px 18px;border:0;border-radius:2px;font:inherit;cursor:pointer;color:#fff;background:linear-gradient(90deg,#47bfff,#1a44c2)}
+kbd{background:#2a3f53;border-radius:3px;padding:1px 6px;font-size:13px;color:#fff}
+</style>
+</head>
+<body>
+<main>
+  <div class="logo"><span class="ico"></span><h1>MIST</h1></div>
+  <p class="tag">Free browser games, a game library and friends — launched from one bookmark.</p>
+
+  <div class="card">
+    <h2>On a computer or Chromebook</h2>
+    <ol>
+      <li>Show your bookmarks bar: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> (<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> on Mac).</li>
+      <li>Drag this button up onto the bookmarks bar:</li>
+    </ol>
+    <a class="drag" href="javascript:(()=&gt;{let w=open(&#x27;about:blank&#x27;,&#x27;_blank&#x27;);if(!w)return alert(&#x27;Allow pop-ups for this site, then click the bookmark again.&#x27;);let d=w.document;d.write(&#x27;&lt;title&gt;Mist&lt;/title&gt;&lt;body id=&quot;el-blank&quot; style=&quot;margin:0;background:#1b1b1b;color:#ccc;font:15px sans-serif;padding:24px&quot;&gt;Loading…&lt;/body&gt;&#x27;);d.close();fetch(&#x27;https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/loader.js?&#x27;+Date.now()).then(r=&gt;{if(!r.ok)throw &#x27;HTTP &#x27;+r.status;return r.text()}).then(c=&gt;{let s=d.createElement(&#x27;script&#x27;);s.textContent=c;d.body.appendChild(s)}).catch(e=&gt;{d.body.textContent=&#x27;Could not load the launcher (&#x27;+e+&#x27;). This site may block it, so try the bookmark on a different page.&#x27;})})()" onclick="alert('Drag this button to your bookmarks bar instead of clicking it.');return false;">☁ Mist</a>
+    <div class="hint">Then go to any normal website and click <b>Mist</b> in your bookmarks bar.</div>
+  </div>
+
+  <div class="card">
+    <h2>Can't drag? Add it by hand</h2>
+    <ol>
+      <li>Copy the code below.</li>
+      <li>Create a new bookmark (right-click the bookmarks bar → <b>Add page…</b>).</li>
+      <li>Name it <b>Mist</b> and paste the code into the <b>URL</b> box.</li>
+    </ol>
+    <textarea id="code" readonly>javascript:(()=&gt;{let w=open(&#x27;about:blank&#x27;,&#x27;_blank&#x27;);if(!w)return alert(&#x27;Allow pop-ups for this site, then click the bookmark again.&#x27;);let d=w.document;d.write(&#x27;&lt;title&gt;Mist&lt;/title&gt;&lt;body id=&quot;el-blank&quot; style=&quot;margin:0;background:#1b1b1b;color:#ccc;font:15px sans-serif;padding:24px&quot;&gt;Loading…&lt;/body&gt;&#x27;);d.close();fetch(&#x27;https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/loader.js?&#x27;+Date.now()).then(r=&gt;{if(!r.ok)throw &#x27;HTTP &#x27;+r.status;return r.text()}).then(c=&gt;{let s=d.createElement(&#x27;script&#x27;);s.textContent=c;d.body.appendChild(s)}).catch(e=&gt;{d.body.textContent=&#x27;Could not load the launcher (&#x27;+e+&#x27;). This site may block it, so try the bookmark on a different page.&#x27;})})()</textarea>
+    <button id="copy">Copy code</button>
+  </div>
+
+  <div class="card">
+    <h2>Good to know</h2>
+    <ol>
+      <li>If nothing happens, allow pop-ups for the site you're on and click it again.</li>
+      <li>Some sites (Google, GitHub) block bookmarklets. Try it on a simpler page.</li>
+      <li>Bookmarklets don't run on the browser's new-tab page.</li>
+    </ol>
+  </div>
+</main>
+<script>
+document.getElementById('copy').onclick = function () {
+  var t = document.getElementById('code'), b = this;
+  t.select(); t.setSelectionRange(0, 99999);
+  (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.reject()).catch(function () { document.execCommand('copy'); })
+    .then(function () { b.textContent = 'Copied!'; setTimeout(function () { b.textContent = 'Copy code'; }, 1800); });
+};
+</script>
+</body>
+</html>

@@ -20,6 +20,14 @@ eaglercraft-launcher/
     └── eaglercraft-saves.service
 ```
 
+## Install page
+
+`docs/index.html` is a page that installs the bookmarklet (drag-to-bookmarks button plus copy code),
+and `docs/mist-qr.png` is a QR code that opens it. Turn on GitHub Pages once
+(Settings → Pages → Deploy from a branch → `main` / `/docs`) and it's live at
+https://th3nu8.github.io/EaglercraftLauncher/. Pages only publishes `docs/`, so the big game files
+in `versions/` don't count toward its size limit.
+
 ## Setup
 
 1. **Create a public GitHub repo**, e.g. `eaglercraft-launcher`, and push
