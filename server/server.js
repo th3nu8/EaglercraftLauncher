@@ -19,6 +19,24 @@ const MAX_SAVE_BYTES = (+process.env.MAX_SAVE_MB || 256) * 1048576;
 const ALLOW_SIGNUPS = process.env.ALLOW_SIGNUPS !== 'false';
 const SESSION_DAYS = +process.env.SESSION_DAYS || 180;
 const TRUST_PROXY = process.env.TRUST_PROXY !== 'false';
+// Website (the Mist install page) served at "/". Copy the repo's docs/ folder here.
+const PUBLIC_DIR = path.resolve(process.env.PUBLIC_DIR || path.join(__dirname, 'public'));
+const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png',
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp', '.txt': 'text/plain' };
+async function serveStatic(req, res, p) {
+  let rel = decodeURIComponent(p);
+  if (rel.endsWith('/')) rel += 'index.html';
+  const file = path.join(PUBLIC_DIR, path.normalize(rel).replace(/^([/\\]|\.\.)+/, ''));
+  if (!file.startsWith(PUBLIC_DIR + path.sep)) return false;
+  const type = MIME[path.extname(file).toLowerCase()];
+  if (!type) return false;
+  let st; try { st = await fsp.stat(file); } catch (e) { return false; }
+  if (!st.isFile()) return false;
+  res.writeHead(200, { 'Content-Type': type, 'Content-Length': st.size, 'Cache-Control': 'public, max-age=300', 'X-Content-Type-Options': 'nosniff' });
+  if (req.method === 'HEAD') { res.end(); return true; }
+  fs.createReadStream(file).pipe(res);
+  return true;
+}
 
 fs.mkdirSync(SAVES_DIR, { recursive: true });
 
@@ -155,6 +173,7 @@ async function handle(req, res) {
   const p = url.pathname;
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+  if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
   if (p === '/' || p === '/api/health') return send(res, 200, { ok: true, service: 'eaglercraft-saves', social: true, signups: ALLOW_SIGNUPS });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {

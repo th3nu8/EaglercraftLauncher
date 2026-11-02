@@ -11,6 +11,7 @@ ExecStart=/usr/bin/node /opt/eaglercraft-saves/server.js
 Environment=PORT=3100
 Environment=HOST=127.0.0.1
 Environment=DATA_DIR=/opt/eaglercraft-saves/data
+Environment=PUBLIC_DIR=/opt/eaglercraft-saves/public
 Environment=MAX_SAVE_MB=256
 Environment=ALLOW_SIGNUPS=true
 Restart=on-failure

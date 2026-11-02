@@ -22,6 +22,10 @@ eaglercraft-launcher/
 
 ## Install page
 
+The save server also serves this page at its own address (https://134.195.88.52/). Copy `docs/`
+into the server's `public/` folder (see *Run the save server* below). `docs/mist-qr.png` points there;
+`docs/mist-qr-github.png` points to the GitHub Pages copy.
+
 `docs/index.html` is a page that installs the bookmarklet (drag-to-bookmarks button plus copy code),
 and `docs/mist-qr.png` is a QR code that opens it. Turn on GitHub Pages once
 (Settings → Pages → Deploy from a branch → `main` / `/docs`) and it's live at
@@ -56,6 +60,7 @@ It's a single Node 18+ file with no dependencies.
 ```bash
 sudo mkdir -p /opt/eaglercraft-saves
 sudo cp server/server.js server/package.json /opt/eaglercraft-saves/
+sudo mkdir -p /opt/eaglercraft-saves/public && sudo cp docs/* /opt/eaglercraft-saves/public/
 sudo mkdir -p /opt/eaglercraft-saves/data && sudo chown -R www-data:www-data /opt/eaglercraft-saves
 sudo cp server/eaglercraft-saves.service /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now eaglercraft-saves
@@ -73,6 +78,7 @@ service file:
 | `MAX_SAVE_MB`   | `256`          | Largest save upload allowed per account. |
 | `ALLOW_SIGNUPS` | `true`         | Set `false` once your people have accounts. |
 | `SESSION_DAYS`  | `180`          | How long a sign-in lasts. |
+| `PUBLIC_DIR`    | `./public`     | Website served at `/` (copy of the repo's `docs/`). |
 
 ### 2. Give it an HTTPS address
 
