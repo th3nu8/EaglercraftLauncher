@@ -75,7 +75,7 @@
   function cacheKey(g, v) {
     // Eaglercraft keeps the old key so downloads from the previous launcher still count as installed.
     var id = g.id === 'eaglercraft' ? v.id : g.id + ':' + v.id;
-    return 'https://eagler-launcher.invalid/' + encodeURIComponent(id) + '?f=' + encodeURIComponent(v.file) + '&r=' + encodeURIComponent(v.rev || '');
+    return 'https://eagler-launcher.invalid/' + encodeURIComponent(id) + '?f=' + encodeURIComponent(String(v.file).split('/').pop()) + '&r=' + encodeURIComponent(v.rev || '');
   }
   function cacheOpen() { return (window.caches && caches.open) ? caches.open(CACHE_NAME) : Promise.reject(new Error('no cache')); }
   function cacheGet(g, v) {
@@ -110,7 +110,15 @@
   /* ---------- downloads ---------- */
   var dl = null; // {g, v, got, total, ctrl, promise}
   function fetchGame(g, v, onProgress, ctrl) {
-    return fetch(versionUrl(v), { cache: 'no-store', signal: ctrl && ctrl.signal }).then(function (r) {
+    // Try the copy in this repo first; if it isn't uploaded yet, use the version's "mirror" URL.
+    function get(url) { return fetch(url, { cache: 'no-store', signal: ctrl && ctrl.signal }); }
+    return get(versionUrl(v)).then(function (r) {
+      if (r.status === 404 && v.mirror) return get(v.mirror);
+      return r;
+    }, function (e) {
+      if (v.mirror && !(e && e.name === 'AbortError')) return get(v.mirror);
+      throw e;
+    }).then(function (r) {
       if (r.status === 404) throw new Error('versions/' + v.file + ' was not found in the repo.');
       if (!r.ok) throw new Error('Download failed (HTTP ' + r.status + ').');
       var total = +r.headers.get('content-length') || (v.sizeMB ? v.sizeMB * 1048576 : 0);

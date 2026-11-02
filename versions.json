@@ -93,7 +93,8 @@
           "id": "1.0",
           "name": "1 on 1 Soccer",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1-on-1-soccer.html"
+          "file": "1-on-1-soccer.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1-on-1-soccer.html"
         }
       ]
     },
@@ -112,7 +113,8 @@
           "id": "1.0",
           "name": "1 on 1 Tennis",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1-on-1-tennis.html"
+          "file": "1-on-1-tennis.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1-on-1-tennis.html"
         }
       ]
     },
@@ -132,7 +134,8 @@
           "id": "1.0",
           "name": "10 Minutes Till Dawn",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/10-minutes-till-dawn.html"
+          "file": "10-minutes-till-dawn.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/10-minutes-till-dawn.html"
         }
       ]
     },
@@ -151,7 +154,8 @@
           "id": "1.0",
           "name": "12 MiniBattles",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/12-mini-battles.html"
+          "file": "12-mini-battles.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/12-mini-battles.html"
         }
       ]
     },
@@ -170,7 +174,8 @@
           "id": "1.0",
           "name": "1v1.LOL",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1v1.lol.html"
+          "file": "1v1.lol.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1v1.lol.html"
         }
       ]
     },
@@ -189,7 +194,7 @@
           "id": "1.0",
           "name": "2048",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048.html"
+          "file": "2048.html"
         }
       ]
     },
@@ -208,7 +213,8 @@
           "id": "1.0",
           "name": "2048 Cupcakes",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048-cupcakes.html"
+          "file": "2048-cupcakes.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048-cupcakes.html"
         }
       ]
     },
@@ -227,7 +233,8 @@
           "id": "1.0",
           "name": "3D Flight Simulator",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3D-flight-simulator.html"
+          "file": "3D-flight-simulator.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3D-flight-simulator.html"
         }
       ]
     },
@@ -246,7 +253,8 @@
           "id": "1.0",
           "name": "3D Free Kick",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3d-free-kick.html"
+          "file": "3d-free-kick.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3d-free-kick.html"
         }
       ]
     },
@@ -265,7 +273,8 @@
           "id": "1.0",
           "name": "8 Ball Classic",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/8-ball-classic.html"
+          "file": "8-ball-classic.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/8-ball-classic.html"
         }
       ]
     },
@@ -284,7 +293,8 @@
           "id": "1.0",
           "name": "9007199254740992",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/9007199254740992.html"
+          "file": "9007199254740992.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/9007199254740992.html"
         }
       ]
     },
@@ -303,7 +313,8 @@
           "id": "1.0",
           "name": "Agar.io Lite",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agar-io-lite.html"
+          "file": "agar-io-lite.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agar-io-lite.html"
         }
       ]
     },
@@ -322,7 +333,8 @@
           "id": "1.0",
           "name": "Age of War",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/age-of-war.html"
+          "file": "age-of-war.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/age-of-war.html"
         }
       ]
     },
@@ -341,7 +353,8 @@
           "id": "1.0",
           "name": "Age of War 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/age-of-war-2.html"
+          "file": "age-of-war-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/age-of-war-2.html"
         }
       ]
     },
@@ -360,7 +373,8 @@
           "id": "1.0",
           "name": "Ages of Conflict",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ages-of-conflict.html"
+          "file": "ages-of-conflict.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ages-of-conflict.html"
         }
       ]
     },
@@ -379,7 +393,8 @@
           "id": "1.0",
           "name": "Among Us",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/among-us.html"
+          "file": "among-us.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/among-us.html"
         }
       ]
     },
@@ -398,7 +413,8 @@
           "id": "1.0",
           "name": "Angry Birds",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds.html"
+          "file": "angry-birds.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds.html"
         }
       ]
     },
@@ -417,7 +433,8 @@
           "id": "1.0",
           "name": "Angry Birds Showdown",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds-showdown.html"
+          "file": "angry-birds-showdown.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds-showdown.html"
         }
       ]
     },
@@ -436,7 +453,8 @@
           "id": "1.0",
           "name": "Angry Birds Space",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds-space.html"
+          "file": "angry-birds-space.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angry-birds-space.html"
         }
       ]
     },
@@ -455,7 +473,8 @@
           "id": "1.0",
           "name": "Awesome Tanks",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesome-tanks.html"
+          "file": "awesome-tanks.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesome-tanks.html"
         }
       ]
     },
@@ -474,7 +493,8 @@
           "id": "1.0",
           "name": "Awesome Tanks 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesome-tanks-2.html"
+          "file": "awesome-tanks-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesome-tanks-2.html"
         }
       ]
     },
@@ -493,7 +513,8 @@
           "id": "1.0",
           "name": "Backrooms",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/backrooms.html"
+          "file": "backrooms.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/backrooms.html"
         }
       ]
     },
@@ -512,7 +533,8 @@
           "id": "1.0",
           "name": "Bacon May Die",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bacon-may-die.html"
+          "file": "bacon-may-die.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bacon-may-die.html"
         }
       ]
     },
@@ -531,7 +553,8 @@
           "id": "1.0",
           "name": "Bad Ice Cream",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream.html"
+          "file": "bad-ice-cream.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream.html"
         }
       ]
     },
@@ -550,7 +573,8 @@
           "id": "1.0",
           "name": "Bad Ice Cream 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream-2.html"
+          "file": "bad-ice-cream-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream-2.html"
         }
       ]
     },
@@ -569,7 +593,8 @@
           "id": "1.0",
           "name": "Bad Ice Cream 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream-3.html"
+          "file": "bad-ice-cream-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-ice-cream-3.html"
         }
       ]
     },
@@ -588,7 +613,8 @@
           "id": "1.0",
           "name": "Bad Parenting",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-parenting.html"
+          "file": "bad-parenting.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-parenting.html"
         }
       ]
     },
@@ -607,7 +633,8 @@
           "id": "1.0",
           "name": "Bad Piggies",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-piggies.html"
+          "file": "bad-piggies.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-piggies.html"
         }
       ]
     },
@@ -626,7 +653,8 @@
           "id": "1.0",
           "name": "Bad Time Simulator",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-time-simulator.html"
+          "file": "bad-time-simulator.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bad-time-simulator.html"
         }
       ]
     },
@@ -645,7 +673,8 @@
           "id": "1.0",
           "name": "Baldi's Basics",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baldis-basics.html"
+          "file": "baldis-basics.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baldis-basics.html"
         }
       ]
     },
@@ -664,7 +693,8 @@
           "id": "1.0",
           "name": "Bank Robbery 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bank-robbery-2.html"
+          "file": "bank-robbery-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bank-robbery-2.html"
         }
       ]
     },
@@ -683,7 +713,8 @@
           "id": "1.0",
           "name": "Bank Robbery 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bank-robbery-3.html"
+          "file": "bank-robbery-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bank-robbery-3.html"
         }
       ]
     },
@@ -702,7 +733,8 @@
           "id": "1.0",
           "name": "Baseball Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baseball-bros.html"
+          "file": "baseball-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baseball-bros.html"
         }
       ]
     },
@@ -721,7 +753,8 @@
           "id": "1.0",
           "name": "Basket Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basket-bros.html"
+          "file": "basket-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basket-bros.html"
         }
       ]
     },
@@ -740,7 +773,8 @@
           "id": "1.0",
           "name": "Basket Random",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basket-random.html"
+          "file": "basket-random.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basket-random.html"
         }
       ]
     },
@@ -759,7 +793,8 @@
           "id": "1.0",
           "name": "Basketball Legends",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketball-legends.html"
+          "file": "basketball-legends.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketball-legends.html"
         }
       ]
     },
@@ -778,7 +813,8 @@
           "id": "1.0",
           "name": "Basketball Stars",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketball-stars.html"
+          "file": "basketball-stars.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketball-stars.html"
         }
       ]
     },
@@ -797,7 +833,8 @@
           "id": "1.0",
           "name": "Big ICE Tower Tiny Square",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-ice-tower-tiny-square.html"
+          "file": "big-ice-tower-tiny-square.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-ice-tower-tiny-square.html"
         }
       ]
     },
@@ -816,7 +853,8 @@
           "id": "1.0",
           "name": "Big NEON Tower Tiny Square",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-neon-tower-tiny-square.html"
+          "file": "big-neon-tower-tiny-square.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-neon-tower-tiny-square.html"
         }
       ]
     },
@@ -835,7 +873,8 @@
           "id": "1.0",
           "name": "Big Tower Tiny Square",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-tower-tiny-square.html"
+          "file": "big-tower-tiny-square.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-tower-tiny-square.html"
         }
       ]
     },
@@ -854,7 +893,8 @@
           "id": "1.0",
           "name": "Big Tower Tiny Square 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-tower-tiny-square-2.html"
+          "file": "big-tower-tiny-square-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/big-tower-tiny-square-2.html"
         }
       ]
     },
@@ -873,7 +913,8 @@
           "id": "1.0",
           "name": "Bit Planes",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bit-planes.htm"
+          "file": "bit-planes.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bit-planes.htm"
         }
       ]
     },
@@ -892,7 +933,8 @@
           "id": "1.0",
           "name": "BitLife",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitlife.html"
+          "file": "bitlife.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitlife.html"
         }
       ]
     },
@@ -911,7 +953,8 @@
           "id": "1.0",
           "name": "Blocky Snakes",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blocky-snakes.html"
+          "file": "blocky-snakes.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blocky-snakes.html"
         }
       ]
     },
@@ -930,7 +973,8 @@
           "id": "1.0",
           "name": "Bloons TD",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD.html"
+          "file": "bloons-TD.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD.html"
         }
       ]
     },
@@ -948,7 +992,8 @@
           "id": "1.0",
           "name": "Bloons TD 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-2.html"
+          "file": "bloons-TD-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-2.html"
         }
       ]
     },
@@ -966,7 +1011,8 @@
           "id": "1.0",
           "name": "Bloons TD 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-3.html"
+          "file": "bloons-TD-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-3.html"
         }
       ]
     },
@@ -984,7 +1030,8 @@
           "id": "1.0",
           "name": "Bloons TD 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-4.html"
+          "file": "bloons-TD-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-4.html"
         }
       ]
     },
@@ -1002,7 +1049,8 @@
           "id": "1.0",
           "name": "Bloons TD 5",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-5.html"
+          "file": "bloons-TD-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloons-TD-5.html"
         }
       ],
       "featured": true
@@ -1022,7 +1070,8 @@
           "id": "1.0",
           "name": "Bloxorz",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloxorz.html"
+          "file": "bloxorz.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloxorz.html"
         }
       ]
     },
@@ -1041,7 +1090,8 @@
           "id": "1.0",
           "name": "Blumgi Racers",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgi-racers.html"
+          "file": "blumgi-racers.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgi-racers.html"
         }
       ]
     },
@@ -1060,7 +1110,8 @@
           "id": "1.0",
           "name": "Blumgi Rocket",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgi-rocket.html"
+          "file": "blumgi-rocket.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgi-rocket.html"
         }
       ]
     },
@@ -1079,7 +1130,8 @@
           "id": "1.0",
           "name": "Bob the Robber",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber.html"
+          "file": "bob-the-robber.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber.html"
         }
       ]
     },
@@ -1098,7 +1150,8 @@
           "id": "1.0",
           "name": "Bob the Robber 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber-2.html"
+          "file": "bob-the-robber-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber-2.html"
         }
       ]
     },
@@ -1117,7 +1170,8 @@
           "id": "1.0",
           "name": "Bob the Robber 5",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber-5.html"
+          "file": "bob-the-robber-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bob-the-robber-5.html"
         }
       ]
     },
@@ -1136,7 +1190,8 @@
           "id": "1.0",
           "name": "Bouncy Motors",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bouncy-motors.html"
+          "file": "bouncy-motors.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bouncy-motors.html"
         }
       ]
     },
@@ -1155,7 +1210,8 @@
           "id": "1.0",
           "name": "Bowmasters",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bow-masters.html"
+          "file": "bow-masters.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bow-masters.html"
         }
       ]
     },
@@ -1174,7 +1230,8 @@
           "id": "1.0",
           "name": "Boxel Rebound",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxel-rebound.html"
+          "file": "boxel-rebound.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxel-rebound.html"
         }
       ]
     },
@@ -1193,7 +1250,8 @@
           "id": "1.0",
           "name": "Boxing Random",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxing-random.htm"
+          "file": "boxing-random.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxing-random.htm"
         }
       ]
     },
@@ -1212,7 +1270,8 @@
           "id": "1.0",
           "name": "Breaking the Bank",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/breaking-the-bank.html"
+          "file": "breaking-the-bank.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/breaking-the-bank.html"
         }
       ]
     },
@@ -1231,7 +1290,8 @@
           "id": "1.0",
           "name": "Bubble Shooter",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bubble-shooter.html"
+          "file": "bubble-shooter.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bubble-shooter.html"
         }
       ]
     },
@@ -1250,7 +1310,8 @@
           "id": "1.0",
           "name": "Burrito Bison: Launcha Libre",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/burrito-bison-launcha-libre.html"
+          "file": "burrito-bison-launcha-libre.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/burrito-bison-launcha-libre.html"
         }
       ]
     },
@@ -1269,7 +1330,8 @@
           "id": "1.0",
           "name": "Candy Crush",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/candy-crush.html"
+          "file": "candy-crush.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/candy-crush.html"
         }
       ]
     },
@@ -1288,7 +1350,8 @@
           "id": "1.0",
           "name": "Capybara Clicker",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/capybara-clicker.html"
+          "file": "capybara-clicker.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/capybara-clicker.html"
         }
       ]
     },
@@ -1307,7 +1370,8 @@
           "id": "1.0",
           "name": "Car Drawing",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/car-drawing.html"
+          "file": "car-drawing.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/car-drawing.html"
         }
       ]
     },
@@ -1326,7 +1390,8 @@
           "id": "1.0",
           "name": "Car King Arena",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/car-king-arena.html"
+          "file": "car-king-arena.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/car-king-arena.html"
         }
       ]
     },
@@ -1345,7 +1410,8 @@
           "id": "1.0",
           "name": "Chaos Faction 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chaos-faction-2.html"
+          "file": "chaos-faction-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chaos-faction-2.html"
         }
       ]
     },
@@ -1364,7 +1430,8 @@
           "id": "1.0",
           "name": "Chess",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chess.html"
+          "file": "chess.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chess.html"
         }
       ]
     },
@@ -1383,7 +1450,8 @@
           "id": "1.0",
           "name": "Choppy Orc",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/choppy-orc.html"
+          "file": "choppy-orc.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/choppy-orc.html"
         }
       ]
     },
@@ -1402,7 +1470,8 @@
           "id": "1.0",
           "name": "circloO",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO.html"
+          "file": "circloO.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO.html"
         }
       ]
     },
@@ -1421,7 +1490,8 @@
           "id": "1.0",
           "name": "circloO 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO-2.html"
+          "file": "circloO-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO-2.html"
         }
       ]
     },
@@ -1440,7 +1510,8 @@
           "id": "1.0",
           "name": "Clash of Vikings",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clash-of-vikings.html"
+          "file": "clash-of-vikings.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clash-of-vikings.html"
         }
       ]
     },
@@ -1459,7 +1530,8 @@
           "id": "1.0",
           "name": "Cleanup.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cleanup-io.html"
+          "file": "cleanup-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cleanup-io.html"
         }
       ]
     },
@@ -1478,7 +1550,8 @@
           "id": "1.0",
           "name": "Cluster Rush",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cluster-rush.html"
+          "file": "cluster-rush.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cluster-rush.html"
         }
       ]
     },
@@ -1497,7 +1570,8 @@
           "id": "1.0",
           "name": "Cookie Clicker",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cookie-clicker.htm"
+          "file": "cookie-clicker.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cookie-clicker.htm"
         }
       ],
       "featured": true
@@ -1517,7 +1591,8 @@
           "id": "1.0",
           "name": "Coreball",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/coreball.html"
+          "file": "coreball.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/coreball.html"
         }
       ]
     },
@@ -1536,7 +1611,8 @@
           "id": "1.0",
           "name": "Crazy Cars",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-cars.html"
+          "file": "crazy-cars.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-cars.html"
         }
       ]
     },
@@ -1555,7 +1631,8 @@
           "id": "1.0",
           "name": "Crazy Cattle 3D",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-cattle-3D.html"
+          "file": "crazy-cattle-3D.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-cattle-3D.html"
         }
       ]
     },
@@ -1574,7 +1651,8 @@
           "id": "1.0",
           "name": "Crazy Crash Landing",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-crash-landing.html"
+          "file": "crazy-crash-landing.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-crash-landing.html"
         }
       ]
     },
@@ -1593,7 +1671,8 @@
           "id": "1.0",
           "name": "Crazy Motorcycle",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-motorcycle.html"
+          "file": "crazy-motorcycle.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazy-motorcycle.html"
         }
       ]
     },
@@ -1612,7 +1691,8 @@
           "id": "1.0",
           "name": "Crossy Road",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crossy-road.htm"
+          "file": "crossy-road.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crossy-road.htm"
         }
       ]
     },
@@ -1631,7 +1711,8 @@
           "id": "1.0",
           "name": "Cut the Rope",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope.html"
+          "file": "cut-the-rope.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope.html"
         }
       ]
     },
@@ -1650,7 +1731,8 @@
           "id": "1.0",
           "name": "Cut the Rope 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-2.html"
+          "file": "cut-the-rope-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-2.html"
         }
       ]
     },
@@ -1669,7 +1751,8 @@
           "id": "1.0",
           "name": "Cut the Rope: Holiday Gift",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-holiday-gift.html"
+          "file": "cut-the-rope-holiday-gift.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-holiday-gift.html"
         }
       ]
     },
@@ -1688,7 +1771,8 @@
           "id": "1.0",
           "name": "Cut the Rope: Time Travel",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-time-travel.html"
+          "file": "cut-the-rope-time-travel.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cut-the-rope-time-travel.html"
         }
       ]
     },
@@ -1707,7 +1791,8 @@
           "id": "1.0",
           "name": "Dadish",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish.html"
+          "file": "dadish.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish.html"
         }
       ]
     },
@@ -1726,7 +1811,8 @@
           "id": "1.0",
           "name": "Dadish 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish-2.html"
+          "file": "dadish-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish-2.html"
         }
       ]
     },
@@ -1745,7 +1831,8 @@
           "id": "1.0",
           "name": "Dadish 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish-3.html"
+          "file": "dadish-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish-3.html"
         }
       ]
     },
@@ -1764,7 +1851,8 @@
           "id": "1.0",
           "name": "Deadly Descent",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deadly-descent.html"
+          "file": "deadly-descent.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deadly-descent.html"
         }
       ]
     },
@@ -1783,7 +1871,8 @@
           "id": "1.0",
           "name": "Death Chase",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/death-chase.html"
+          "file": "death-chase.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/death-chase.html"
         }
       ]
     },
@@ -1802,7 +1891,8 @@
           "id": "1.0",
           "name": "Death Run 3D",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/death-run-3D.html"
+          "file": "death-run-3D.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/death-run-3D.html"
         }
       ]
     },
@@ -1821,7 +1911,8 @@
           "id": "1.0",
           "name": "Demolition Derby Crash Racing",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/demolition-derby-crash-racing.html"
+          "file": "demolition-derby-crash-racing.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/demolition-derby-crash-racing.html"
         }
       ]
     },
@@ -1840,7 +1931,7 @@
           "id": "1.0",
           "name": "Dino Run",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/google-dino.html"
+          "file": "google-dino.html"
         }
       ]
     },
@@ -1859,7 +1950,8 @@
           "id": "1.0",
           "name": "Doodle Jump",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/doodle-jump.html"
+          "file": "doodle-jump.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/doodle-jump.html"
         }
       ]
     },
@@ -1878,7 +1970,8 @@
           "id": "1.0",
           "name": "Draw Climber",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/draw-climber.html"
+          "file": "draw-climber.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/draw-climber.html"
         }
       ]
     },
@@ -1897,7 +1990,8 @@
           "id": "1.0",
           "name": "Dreadhead Parkour",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dreadhead-parkour.htm"
+          "file": "dreadhead-parkour.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dreadhead-parkour.htm"
         }
       ]
     },
@@ -1916,7 +2010,8 @@
           "id": "1.0",
           "name": "Drift Boss",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drift-boss.htm"
+          "file": "drift-boss.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drift-boss.htm"
         }
       ]
     },
@@ -1935,7 +2030,8 @@
           "id": "1.0",
           "name": "Drift Hunters Pro",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drift-hunters-pro.html"
+          "file": "drift-hunters-pro.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drift-hunters-pro.html"
         }
       ]
     },
@@ -1954,7 +2050,8 @@
           "id": "1.0",
           "name": "Drive Mad",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drive-mad.htm"
+          "file": "drive-mad.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drive-mad.htm"
         }
       ]
     },
@@ -1973,7 +2070,8 @@
           "id": "1.0",
           "name": "Duck Life",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life.html"
+          "file": "duck-life.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life.html"
         }
       ]
     },
@@ -1992,7 +2090,8 @@
           "id": "1.0",
           "name": "Duck Life 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-2.html"
+          "file": "duck-life-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-2.html"
         }
       ]
     },
@@ -2011,7 +2110,8 @@
           "id": "1.0",
           "name": "Duck Life 3: Evolution",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-3.html"
+          "file": "duck-life-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-3.html"
         }
       ]
     },
@@ -2030,7 +2130,8 @@
           "id": "1.0",
           "name": "Duck Life 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-4.html"
+          "file": "duck-life-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-4.html"
         }
       ]
     },
@@ -2049,7 +2150,8 @@
           "id": "1.0",
           "name": "Duck Life 5: Treasure Hunt",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-5.html"
+          "file": "duck-life-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/duck-life-5.html"
         }
       ]
     },
@@ -2068,7 +2170,8 @@
           "id": "1.0",
           "name": "Ducklings.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklings-io.html"
+          "file": "ducklings-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklings-io.html"
         }
       ]
     },
@@ -2087,7 +2190,8 @@
           "id": "1.0",
           "name": "Eagle Ride",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eagle-ride.html"
+          "file": "eagle-ride.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eagle-ride.html"
         }
       ]
     },
@@ -2106,7 +2210,8 @@
           "id": "1.0",
           "name": "Earn to Die",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earn-to-die.html"
+          "file": "earn-to-die.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earn-to-die.html"
         }
       ]
     },
@@ -2125,7 +2230,8 @@
           "id": "1.0",
           "name": "Earn to Die 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earn-to-die-2.html"
+          "file": "earn-to-die-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earn-to-die-2.html"
         }
       ]
     },
@@ -2144,7 +2250,8 @@
           "id": "1.0",
           "name": "Eggy Car",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eggy-car.html"
+          "file": "eggy-car.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eggy-car.html"
         }
       ]
     },
@@ -2163,7 +2270,8 @@
           "id": "1.0",
           "name": "Elastic Face",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/elastic-face.htm"
+          "file": "elastic-face.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/elastic-face.htm"
         }
       ]
     },
@@ -2182,7 +2290,8 @@
           "id": "1.0",
           "name": "Escape Road",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road.html"
+          "file": "escape-road.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road.html"
         }
       ]
     },
@@ -2201,7 +2310,8 @@
           "id": "1.0",
           "name": "Escape Road 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road-2.html"
+          "file": "escape-road-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road-2.html"
         }
       ]
     },
@@ -2220,7 +2330,8 @@
           "id": "1.0",
           "name": "Escape Road 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road-3.html"
+          "file": "escape-road-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escape-road-3.html"
         }
       ]
     },
@@ -2239,7 +2350,8 @@
           "id": "1.0",
           "name": "Escaping the Prison",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaping-the-prison.html"
+          "file": "escaping-the-prison.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaping-the-prison.html"
         }
       ]
     },
@@ -2258,7 +2370,8 @@
           "id": "1.0",
           "name": "Eugene's Life",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eugenes-life.html"
+          "file": "eugenes-life.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eugenes-life.html"
         }
       ]
     },
@@ -2277,7 +2390,8 @@
           "id": "1.0",
           "name": "Evil Glitch",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/evil-glitch.html"
+          "file": "evil-glitch.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/evil-glitch.html"
         }
       ]
     },
@@ -2296,7 +2410,8 @@
           "id": "1.0",
           "name": "Fancy Pants Adventure",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancy-pants-adventure.html"
+          "file": "fancy-pants-adventure.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancy-pants-adventure.html"
         }
       ]
     },
@@ -2315,7 +2430,8 @@
           "id": "1.0",
           "name": "Fancy Pants Adventure 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancy-pants-adventure-2.html"
+          "file": "fancy-pants-adventure-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancy-pants-adventure-2.html"
         }
       ]
     },
@@ -2334,7 +2450,8 @@
           "id": "1.0",
           "name": "Fireblob",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireblob.html"
+          "file": "fireblob.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireblob.html"
         }
       ]
     },
@@ -2353,7 +2470,8 @@
           "id": "1.0",
           "name": "Fireboy and Watergirl 2: Light Temple",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-2.html"
+          "file": "fireboy-and-watergirl-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-2.html"
         }
       ]
     },
@@ -2372,7 +2490,8 @@
           "id": "1.0",
           "name": "Fireboy and Watergirl 3: Ice Temple",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-3.html"
+          "file": "fireboy-and-watergirl-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-3.html"
         }
       ]
     },
@@ -2391,7 +2510,8 @@
           "id": "1.0",
           "name": "Fireboy and Watergirl 4: Crystal Temple",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-4.html"
+          "file": "fireboy-and-watergirl-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl-4.html"
         }
       ]
     },
@@ -2410,7 +2530,8 @@
           "id": "1.0",
           "name": "Fireboy and Watergirl: Forest Temple",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl.html"
+          "file": "fireboy-and-watergirl.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboy-and-watergirl.html"
         }
       ]
     },
@@ -2429,7 +2550,8 @@
           "id": "1.0",
           "name": "Five Nights at Freddy's",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf.html"
+          "file": "fnaf.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf.html"
         }
       ],
       "featured": true
@@ -2449,7 +2571,8 @@
           "id": "1.0",
           "name": "Five Nights at Freddy's 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-2.html"
+          "file": "fnaf-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-2.html"
         }
       ]
     },
@@ -2468,7 +2591,8 @@
           "id": "1.0",
           "name": "Five Nights at Freddy's 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-3.html"
+          "file": "fnaf-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-3.html"
         }
       ]
     },
@@ -2487,7 +2611,8 @@
           "id": "1.0",
           "name": "Five Nights at Freddy's 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-4.html"
+          "file": "fnaf-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-4.html"
         }
       ]
     },
@@ -2506,7 +2631,8 @@
           "id": "1.0",
           "name": "Flappy Bird",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flappy-bird.html"
+          "file": "flappy-bird.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flappy-bird.html"
         }
       ]
     },
@@ -2525,7 +2651,8 @@
           "id": "1.0",
           "name": "Fleeing the Complex",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fleeing-the-complex.html"
+          "file": "fleeing-the-complex.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fleeing-the-complex.html"
         }
       ]
     },
@@ -2544,7 +2671,8 @@
           "id": "1.0",
           "name": "Flood Runner 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-2.html"
+          "file": "flood-runner-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-2.html"
         }
       ]
     },
@@ -2563,7 +2691,8 @@
           "id": "1.0",
           "name": "Flood Runner 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-3.html"
+          "file": "flood-runner-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-3.html"
         }
       ]
     },
@@ -2582,7 +2711,8 @@
           "id": "1.0",
           "name": "Flood Runner 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-4.html"
+          "file": "flood-runner-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flood-runner-4.html"
         }
       ]
     },
@@ -2601,7 +2731,8 @@
           "id": "1.0",
           "name": "FNAF: Sister Location",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-sister-location.html"
+          "file": "fnaf-sister-location.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf-sister-location.html"
         }
       ]
     },
@@ -2620,7 +2751,8 @@
           "id": "1.0",
           "name": "Football Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/football-bros.html"
+          "file": "football-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/football-bros.html"
         }
       ]
     },
@@ -2639,7 +2771,8 @@
           "id": "1.0",
           "name": "Football Legends",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/football-legends.html"
+          "file": "football-legends.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/football-legends.html"
         }
       ]
     },
@@ -2658,7 +2791,8 @@
           "id": "1.0",
           "name": "Free Rider 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/free-rider-3.html"
+          "file": "free-rider-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/free-rider-3.html"
         }
       ]
     },
@@ -2677,7 +2811,8 @@
           "id": "1.0",
           "name": "Friday Night Funkin'",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/friday-night-funkin.html"
+          "file": "friday-night-funkin.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/friday-night-funkin.html"
         }
       ]
     },
@@ -2696,7 +2831,8 @@
           "id": "1.0",
           "name": "Fruit Ninja",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fruit-ninja.html"
+          "file": "fruit-ninja.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fruit-ninja.html"
         }
       ]
     },
@@ -2715,7 +2851,8 @@
           "id": "1.0",
           "name": "Funny Battle",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-battle.html"
+          "file": "funny-battle.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-battle.html"
         }
       ]
     },
@@ -2734,7 +2871,8 @@
           "id": "1.0",
           "name": "Funny Battle 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-battle-2.html"
+          "file": "funny-battle-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-battle-2.html"
         }
       ]
     },
@@ -2753,7 +2891,8 @@
           "id": "1.0",
           "name": "Funny Mad Racing",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-mad-racing.html"
+          "file": "funny-mad-racing.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-mad-racing.html"
         }
       ]
     },
@@ -2772,7 +2911,8 @@
           "id": "1.0",
           "name": "Funny Shooter 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-shooter-2.html"
+          "file": "funny-shooter-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funny-shooter-2.html"
         }
       ]
     },
@@ -2791,7 +2931,8 @@
           "id": "1.0",
           "name": "Geometry Dash",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-dash.html"
+          "file": "geometry-dash.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-dash.html"
         }
       ],
       "featured": true
@@ -2811,7 +2952,8 @@
           "id": "1.0",
           "name": "Geometry Dash Lite",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-dash-lite.html"
+          "file": "geometry-dash-lite.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-dash-lite.html"
         }
       ]
     },
@@ -2830,7 +2972,8 @@
           "id": "1.0",
           "name": "Geometry Vibes",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-vibes.html"
+          "file": "geometry-vibes.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometry-vibes.html"
         }
       ]
     },
@@ -2849,7 +2992,8 @@
           "id": "1.0",
           "name": "Get On Top",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/get-on-top.html"
+          "file": "get-on-top.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/get-on-top.html"
         }
       ]
     },
@@ -2868,7 +3012,8 @@
           "id": "1.0",
           "name": "Getaway Shootout",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getaway-shootout.html"
+          "file": "getaway-shootout.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getaway-shootout.html"
         }
       ]
     },
@@ -2887,7 +3032,8 @@
           "id": "1.0",
           "name": "Gladihoppers",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/gladi-hoppers.html"
+          "file": "gladi-hoppers.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/gladi-hoppers.html"
         }
       ]
     },
@@ -2906,7 +3052,8 @@
           "id": "1.0",
           "name": "Google Baseball",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/google-baseball.html"
+          "file": "google-baseball.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/google-baseball.html"
         }
       ]
     },
@@ -2925,7 +3072,8 @@
           "id": "1.0",
           "name": "Granny",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny.html"
+          "file": "granny.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny.html"
         }
       ]
     },
@@ -2944,7 +3092,8 @@
           "id": "1.0",
           "name": "Granny 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny-2.html"
+          "file": "granny-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny-2.html"
         }
       ]
     },
@@ -2963,7 +3112,8 @@
           "id": "1.0",
           "name": "Guess Their Answer",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/guess-their-answer.html"
+          "file": "guess-their-answer.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/guess-their-answer.html"
         }
       ]
     },
@@ -2982,7 +3132,8 @@
           "id": "1.0",
           "name": "Hanger 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hanger-2.html"
+          "file": "hanger-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hanger-2.html"
         }
       ]
     },
@@ -3001,7 +3152,8 @@
           "id": "1.0",
           "name": "Happy Wheels",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/happy-wheels.html"
+          "file": "happy-wheels.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/happy-wheels.html"
         }
       ]
     },
@@ -3020,7 +3172,8 @@
           "id": "1.0",
           "name": "Helix Jump",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/helix-jump.html"
+          "file": "helix-jump.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/helix-jump.html"
         }
       ]
     },
@@ -3039,7 +3192,8 @@
           "id": "1.0",
           "name": "Highway Traffic",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/highway-traffic.html"
+          "file": "highway-traffic.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/highway-traffic.html"
         }
       ]
     },
@@ -3058,7 +3212,8 @@
           "id": "1.0",
           "name": "Hill Climb Racing Lite",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hill-climb-racing-lite.html"
+          "file": "hill-climb-racing-lite.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hill-climb-racing-lite.html"
         }
       ]
     },
@@ -3077,7 +3232,8 @@
           "id": "1.0",
           "name": "Hole.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hole-io.html"
+          "file": "hole-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hole-io.html"
         }
       ]
     },
@@ -3096,7 +3252,8 @@
           "id": "1.0",
           "name": "House of Hazards",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/house-of-hazards.html"
+          "file": "house-of-hazards.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/house-of-hazards.html"
         }
       ]
     },
@@ -3115,7 +3272,8 @@
           "id": "1.0",
           "name": "Hover Racer Drive",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hover-racer-drive.html"
+          "file": "hover-racer-drive.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hover-racer-drive.html"
         }
       ]
     },
@@ -3134,7 +3292,8 @@
           "id": "1.0",
           "name": "Ice Dodo",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ice-dodo.html"
+          "file": "ice-dodo.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ice-dodo.html"
         }
       ]
     },
@@ -3153,7 +3312,8 @@
           "id": "1.0",
           "name": "Idle Breakout",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idle-breakout.html"
+          "file": "idle-breakout.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idle-breakout.html"
         }
       ]
     },
@@ -3172,7 +3332,8 @@
           "id": "1.0",
           "name": "Idle Dice",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idle-dice.html"
+          "file": "idle-dice.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idle-dice.html"
         }
       ]
     },
@@ -3191,7 +3352,8 @@
           "id": "1.0",
           "name": "Infiltrating the Airship",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/infiltrating-the-airship.html"
+          "file": "infiltrating-the-airship.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/infiltrating-the-airship.html"
         }
       ]
     },
@@ -3210,7 +3372,8 @@
           "id": "1.0",
           "name": "Iron Snout",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/iron-snout.html"
+          "file": "iron-snout.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/iron-snout.html"
         }
       ]
     },
@@ -3229,7 +3392,8 @@
           "id": "1.0",
           "name": "Jacksmith",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jacksmith.html"
+          "file": "jacksmith.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jacksmith.html"
         }
       ]
     },
@@ -3248,7 +3412,8 @@
           "id": "1.0",
           "name": "Jetpack Joyride",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jetpack-joyride.html"
+          "file": "jetpack-joyride.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jetpack-joyride.html"
         }
       ]
     },
@@ -3267,7 +3432,8 @@
           "id": "1.0",
           "name": "Johnny Trigger",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/johnny-trigger.html"
+          "file": "johnny-trigger.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/johnny-trigger.html"
         }
       ]
     },
@@ -3286,7 +3452,8 @@
           "id": "1.0",
           "name": "Jumping Shell",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jumping-shell.html"
+          "file": "jumping-shell.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jumping-shell.html"
         }
       ]
     },
@@ -3305,7 +3472,8 @@
           "id": "1.0",
           "name": "Karate Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/karate-bros.html"
+          "file": "karate-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/karate-bros.html"
         }
       ]
     },
@@ -3324,7 +3492,8 @@
           "id": "1.0",
           "name": "Kart Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kart-bros.html"
+          "file": "kart-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kart-bros.html"
         }
       ]
     },
@@ -3343,7 +3512,8 @@
           "id": "1.0",
           "name": "Kitty Toy",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kittytoy.html"
+          "file": "kittytoy.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kittytoy.html"
         }
       ]
     },
@@ -3362,7 +3532,8 @@
           "id": "1.0",
           "name": "Learn to Fly",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly.html"
+          "file": "learn-to-fly.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly.html"
         }
       ]
     },
@@ -3381,7 +3552,8 @@
           "id": "1.0",
           "name": "Learn to Fly 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-2.html"
+          "file": "learn-to-fly-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-2.html"
         }
       ]
     },
@@ -3400,7 +3572,8 @@
           "id": "1.0",
           "name": "Learn to Fly 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-3.html"
+          "file": "learn-to-fly-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-3.html"
         }
       ]
     },
@@ -3419,7 +3592,8 @@
           "id": "1.0",
           "name": "Learn to Fly Idle",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-idle.html"
+          "file": "learn-to-fly-idle.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learn-to-fly-idle.html"
         }
       ]
     },
@@ -3438,7 +3612,8 @@
           "id": "1.0",
           "name": "Level Devil",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/level-devil.html"
+          "file": "level-devil.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/level-devil.html"
         }
       ]
     },
@@ -3457,7 +3632,8 @@
           "id": "1.0",
           "name": "Little Alchemy 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/little-alchemy-2.html"
+          "file": "little-alchemy-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/little-alchemy-2.html"
         }
       ]
     },
@@ -3476,7 +3652,8 @@
           "id": "1.0",
           "name": "Madalin Stunt Cars 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madalin-stunt-cars-2.html"
+          "file": "madalin-stunt-cars-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madalin-stunt-cars-2.html"
         }
       ]
     },
@@ -3495,7 +3672,8 @@
           "id": "1.0",
           "name": "Madness: Project Nexus",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madness-project-nexus.html"
+          "file": "madness-project-nexus.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madness-project-nexus.html"
         }
       ]
     },
@@ -3514,7 +3692,8 @@
           "id": "1.0",
           "name": "Melon Playground",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/melon-playground.html"
+          "file": "melon-playground.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/melon-playground.html"
         }
       ]
     },
@@ -3533,7 +3712,8 @@
           "id": "1.0",
           "name": "Merge Round Racers",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/merge-round-racers.html"
+          "file": "merge-round-racers.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/merge-round-racers.html"
         }
       ]
     },
@@ -3552,7 +3732,8 @@
           "id": "1.0",
           "name": "Minesweeper",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/minesweeper.html"
+          "file": "minesweeper.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/minesweeper.html"
         }
       ]
     },
@@ -3571,7 +3752,8 @@
           "id": "1.0",
           "name": "Monkey Mart",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monkey-mart.htm"
+          "file": "monkey-mart.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monkey-mart.htm"
         }
       ]
     },
@@ -3590,7 +3772,8 @@
           "id": "1.0",
           "name": "Monster Tracks",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monster-tracks.html"
+          "file": "monster-tracks.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monster-tracks.html"
         }
       ]
     },
@@ -3609,7 +3792,8 @@
           "id": "1.0",
           "name": "Motherload",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motherload.html"
+          "file": "motherload.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motherload.html"
         }
       ]
     },
@@ -3628,7 +3812,8 @@
           "id": "1.0",
           "name": "Moto X3M",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m.htm"
+          "file": "moto-x3m.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m.htm"
         }
       ],
       "featured": true
@@ -3648,7 +3833,8 @@
           "id": "1.0",
           "name": "Moto X3M 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-2.html"
+          "file": "moto-x3m-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-2.html"
         }
       ]
     },
@@ -3667,7 +3853,8 @@
           "id": "1.0",
           "name": "Moto X3M 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-3.html"
+          "file": "moto-x3m-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-3.html"
         }
       ]
     },
@@ -3686,7 +3873,8 @@
           "id": "1.0",
           "name": "Moto X3M: Pool Party",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-pool-party.html"
+          "file": "moto-x3m-pool-party.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-pool-party.html"
         }
       ]
     },
@@ -3705,7 +3893,8 @@
           "id": "1.0",
           "name": "Moto X3M: Spooky Land",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-spooky-land.html"
+          "file": "moto-x3m-spooky-land.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-spooky-land.html"
         }
       ]
     },
@@ -3724,7 +3913,8 @@
           "id": "1.0",
           "name": "Moto X3M: Winter",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-winter.html"
+          "file": "moto-x3m-winter.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/moto-x3m-winter.html"
         }
       ]
     },
@@ -3743,7 +3933,8 @@
           "id": "1.0",
           "name": "Murder",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/murder.html"
+          "file": "murder.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/murder.html"
         }
       ]
     },
@@ -3762,7 +3953,8 @@
           "id": "1.0",
           "name": "Noob Miner",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/noob-miner.html"
+          "file": "noob-miner.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/noob-miner.html"
         }
       ]
     },
@@ -3781,7 +3973,7 @@
           "id": "1.0",
           "name": "OpenTTD",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/openTTD.html"
+          "file": "openTTD.html"
         }
       ]
     },
@@ -3800,7 +3992,8 @@
           "id": "1.0",
           "name": "Opposite Day",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/opposite-day.html"
+          "file": "opposite-day.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/opposite-day.html"
         }
       ]
     },
@@ -3819,7 +4012,8 @@
           "id": "1.0",
           "name": "OvO",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo.html"
+          "file": "ovo.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo.html"
         }
       ]
     },
@@ -3838,7 +4032,8 @@
           "id": "1.0",
           "name": "OvO 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo-2.html"
+          "file": "ovo-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo-2.html"
         }
       ]
     },
@@ -3857,7 +4052,8 @@
           "id": "1.0",
           "name": "OvO 3: Dimensions",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo-3-dimensions.html"
+          "file": "ovo-3-dimensions.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo-3-dimensions.html"
         }
       ]
     },
@@ -3876,7 +4072,8 @@
           "id": "1.0",
           "name": "Pac-Man",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pac-man.html"
+          "file": "pac-man.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pac-man.html"
         }
       ]
     },
@@ -3895,7 +4092,8 @@
           "id": "1.0",
           "name": "Papa's Bakeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-bakeria.html"
+          "file": "papas-bakeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-bakeria.html"
         }
       ]
     },
@@ -3914,7 +4112,8 @@
           "id": "1.0",
           "name": "Papa's Burgeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-burgeria.html"
+          "file": "papas-burgeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-burgeria.html"
         }
       ]
     },
@@ -3933,7 +4132,8 @@
           "id": "1.0",
           "name": "Papa's Cheeseria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-cheeseria.html"
+          "file": "papas-cheeseria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-cheeseria.html"
         }
       ]
     },
@@ -3952,7 +4152,8 @@
           "id": "1.0",
           "name": "Papa's Cupcakeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-cupcakeria.html"
+          "file": "papas-cupcakeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-cupcakeria.html"
         }
       ]
     },
@@ -3971,7 +4172,8 @@
           "id": "1.0",
           "name": "Papa's Donuteria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-donuteria.html"
+          "file": "papas-donuteria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-donuteria.html"
         }
       ]
     },
@@ -3990,7 +4192,8 @@
           "id": "1.0",
           "name": "Papa's Freezeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-freezeria.html"
+          "file": "papas-freezeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-freezeria.html"
         }
       ],
       "featured": true
@@ -4010,7 +4213,8 @@
           "id": "1.0",
           "name": "Papa's Hot Doggeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-hot-doggeria.html"
+          "file": "papas-hot-doggeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-hot-doggeria.html"
         }
       ]
     },
@@ -4029,7 +4233,8 @@
           "id": "1.0",
           "name": "Papa's Pancakeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pancakeria.html"
+          "file": "papas-pancakeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pancakeria.html"
         }
       ]
     },
@@ -4048,7 +4253,8 @@
           "id": "1.0",
           "name": "Papa's Pastaria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pastaria.html"
+          "file": "papas-pastaria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pastaria.html"
         }
       ]
     },
@@ -4067,7 +4273,8 @@
           "id": "1.0",
           "name": "Papa's Pizzeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pizzeria.html"
+          "file": "papas-pizzeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-pizzeria.html"
         }
       ]
     },
@@ -4086,7 +4293,8 @@
           "id": "1.0",
           "name": "Papa's Scooperia",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-scooperia.html"
+          "file": "papas-scooperia.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-scooperia.html"
         }
       ]
     },
@@ -4105,7 +4313,8 @@
           "id": "1.0",
           "name": "Papa's Sushiria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-sushiria.html"
+          "file": "papas-sushiria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-sushiria.html"
         }
       ]
     },
@@ -4124,7 +4333,8 @@
           "id": "1.0",
           "name": "Papa's Taco Mia!",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-taco-mia.html"
+          "file": "papas-taco-mia.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-taco-mia.html"
         }
       ]
     },
@@ -4143,7 +4353,8 @@
           "id": "1.0",
           "name": "Papa's Wingeria",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-wingeria.html"
+          "file": "papas-wingeria.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papas-wingeria.html"
         }
       ]
     },
@@ -4162,7 +4373,8 @@
           "id": "1.0",
           "name": "Paper.io 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/paper-io-2.htm"
+          "file": "paper-io-2.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/paper-io-2.htm"
         }
       ]
     },
@@ -4181,7 +4393,8 @@
           "id": "1.0",
           "name": "Parking Fury",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury.html"
+          "file": "parking-fury.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury.html"
         }
       ]
     },
@@ -4200,7 +4413,8 @@
           "id": "1.0",
           "name": "Parking Fury 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury-2.html"
+          "file": "parking-fury-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury-2.html"
         }
       ]
     },
@@ -4219,7 +4433,8 @@
           "id": "1.0",
           "name": "Parking Fury 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury-3.html"
+          "file": "parking-fury-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parking-fury-3.html"
         }
       ]
     },
@@ -4238,7 +4453,8 @@
           "id": "1.0",
           "name": "Pico's School",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/picos-school.html"
+          "file": "picos-school.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/picos-school.html"
         }
       ]
     },
@@ -4257,7 +4473,8 @@
           "id": "1.0",
           "name": "Ping Pong Chaos",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ping-pong-chaos.html"
+          "file": "ping-pong-chaos.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ping-pong-chaos.html"
         }
       ]
     },
@@ -4276,7 +4493,8 @@
           "id": "1.0",
           "name": "Pixel Speedrun",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pixel-speedrun.html"
+          "file": "pixel-speedrun.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pixel-speedrun.html"
         }
       ]
     },
@@ -4295,7 +4513,8 @@
           "id": "1.0",
           "name": "Plants vs. Zombies",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plants-vs-zombies.html"
+          "file": "plants-vs-zombies.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plants-vs-zombies.html"
         }
       ]
     },
@@ -4314,7 +4533,8 @@
           "id": "1.0",
           "name": "Plonky",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plonky.html"
+          "file": "plonky.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plonky.html"
         }
       ]
     },
@@ -4333,7 +4553,8 @@
           "id": "1.0",
           "name": "Poor Bunny",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/poor-bunny.html"
+          "file": "poor-bunny.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/poor-bunny.html"
         }
       ]
     },
@@ -4352,7 +4573,8 @@
           "id": "1.0",
           "name": "Pou",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pou.html"
+          "file": "pou.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pou.html"
         }
       ]
     },
@@ -4371,7 +4593,8 @@
           "id": "1.0",
           "name": "Ragdoll Archers",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-archers.htm"
+          "file": "ragdoll-archers.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-archers.htm"
         }
       ]
     },
@@ -4390,7 +4613,8 @@
           "id": "1.0",
           "name": "Ragdoll Hit",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-hit.html"
+          "file": "ragdoll-hit.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-hit.html"
         }
       ]
     },
@@ -4409,7 +4633,8 @@
           "id": "1.0",
           "name": "Ragdoll Soccer",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-soccer.html"
+          "file": "ragdoll-soccer.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdoll-soccer.html"
         }
       ]
     },
@@ -4428,7 +4653,8 @@
           "id": "1.0",
           "name": "Red Ball 4 Vol. 1",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-1.html"
+          "file": "red-ball-4-vol-1.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-1.html"
         }
       ]
     },
@@ -4447,7 +4673,8 @@
           "id": "1.0",
           "name": "Red Ball 4 Vol. 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-2.html"
+          "file": "red-ball-4-vol-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-2.html"
         }
       ]
     },
@@ -4466,7 +4693,8 @@
           "id": "1.0",
           "name": "Red Ball 4 Vol. 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-3.html"
+          "file": "red-ball-4-vol-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/red-ball-4-vol-3.html"
         }
       ]
     },
@@ -4485,7 +4713,8 @@
           "id": "1.0",
           "name": "Retro Bowl",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-bowl.html"
+          "file": "retro-bowl.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-bowl.html"
         }
       ],
       "featured": true
@@ -4505,7 +4734,8 @@
           "id": "1.0",
           "name": "Retro Bowl College",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-bowl-college.html"
+          "file": "retro-bowl-college.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-bowl-college.html"
         }
       ]
     },
@@ -4524,7 +4754,8 @@
           "id": "1.0",
           "name": "Retro Highway",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-highway.html"
+          "file": "retro-highway.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-highway.html"
         }
       ]
     },
@@ -4543,7 +4774,8 @@
           "id": "1.0",
           "name": "Retro Ping Pong",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-ping-pong.html"
+          "file": "retro-ping-pong.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retro-ping-pong.html"
         }
       ]
     },
@@ -4562,7 +4794,8 @@
           "id": "1.0",
           "name": "Riddle School",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school.html"
+          "file": "riddle-school.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school.html"
         }
       ]
     },
@@ -4581,7 +4814,8 @@
           "id": "1.0",
           "name": "Riddle School 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-2.html"
+          "file": "riddle-school-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-2.html"
         }
       ]
     },
@@ -4600,7 +4834,8 @@
           "id": "1.0",
           "name": "Riddle School 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-3.html"
+          "file": "riddle-school-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-3.html"
         }
       ]
     },
@@ -4619,7 +4854,8 @@
           "id": "1.0",
           "name": "Riddle School 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-4.html"
+          "file": "riddle-school-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-4.html"
         }
       ]
     },
@@ -4638,7 +4874,8 @@
           "id": "1.0",
           "name": "Riddle School 5",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-5.html"
+          "file": "riddle-school-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-school-5.html"
         }
       ]
     },
@@ -4657,7 +4894,8 @@
           "id": "1.0",
           "name": "Riddle Transfer",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-transfer.html"
+          "file": "riddle-transfer.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-transfer.html"
         }
       ]
     },
@@ -4676,7 +4914,8 @@
           "id": "1.0",
           "name": "Riddle Transfer 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-transfer-2.html"
+          "file": "riddle-transfer-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddle-transfer-2.html"
         }
       ]
     },
@@ -4695,7 +4934,8 @@
           "id": "1.0",
           "name": "Rocket Soccer Derby",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rocket-soccer-derby.html"
+          "file": "rocket-soccer-derby.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rocket-soccer-derby.html"
         }
       ]
     },
@@ -4714,7 +4954,8 @@
           "id": "1.0",
           "name": "Rooftop Run",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-run.html"
+          "file": "rooftop-run.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-run.html"
         }
       ]
     },
@@ -4733,7 +4974,8 @@
           "id": "1.0",
           "name": "Rooftop Snipers",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-snipers.htm"
+          "file": "rooftop-snipers.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-snipers.htm"
         }
       ]
     },
@@ -4752,7 +4994,8 @@
           "id": "1.0",
           "name": "Rooftop Snipers 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-snipers-2.html"
+          "file": "rooftop-snipers-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftop-snipers-2.html"
         }
       ]
     },
@@ -4771,7 +5014,8 @@
           "id": "1.0",
           "name": "Run",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run.html"
+          "file": "run.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run.html"
         }
       ]
     },
@@ -4790,7 +5034,8 @@
           "id": "1.0",
           "name": "Run 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run-2.html"
+          "file": "run-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run-2.html"
         }
       ]
     },
@@ -4809,7 +5054,8 @@
           "id": "1.0",
           "name": "Run 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run-3.html"
+          "file": "run-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run-3.html"
         }
       ],
       "featured": true
@@ -4829,7 +5075,8 @@
           "id": "1.0",
           "name": "Sand Game",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sand-game.html"
+          "file": "sand-game.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sand-game.html"
         }
       ]
     },
@@ -4848,7 +5095,8 @@
           "id": "1.0",
           "name": "Sandbox City",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sandbox-city.html"
+          "file": "sandbox-city.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sandbox-city.html"
         }
       ]
     },
@@ -4867,7 +5115,8 @@
           "id": "1.0",
           "name": "Short Life",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/short-life.html"
+          "file": "short-life.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/short-life.html"
         }
       ]
     },
@@ -4886,7 +5135,8 @@
           "id": "1.0",
           "name": "Six Cats Under",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/six-cats-under.html"
+          "file": "six-cats-under.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/six-cats-under.html"
         }
       ]
     },
@@ -4905,7 +5155,8 @@
           "id": "1.0",
           "name": "Slope",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope.html"
+          "file": "slope.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope.html"
         }
       ],
       "featured": true
@@ -4925,7 +5176,8 @@
           "id": "1.0",
           "name": "Slope 2 Player",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope-2-player.html"
+          "file": "slope-2-player.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope-2-player.html"
         }
       ]
     },
@@ -4944,7 +5196,8 @@
           "id": "1.0",
           "name": "Slope 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope-3.html"
+          "file": "slope-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope-3.html"
         }
       ]
     },
@@ -4963,7 +5216,8 @@
           "id": "1.0",
           "name": "Slow Roads",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slow-roads.html"
+          "file": "slow-roads.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slow-roads.html"
         }
       ]
     },
@@ -4982,7 +5236,8 @@
           "id": "1.0",
           "name": "Snail Bob",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob.html"
+          "file": "snail-bob.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob.html"
         }
       ]
     },
@@ -5001,7 +5256,8 @@
           "id": "1.0",
           "name": "Snail Bob 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-2.html"
+          "file": "snail-bob-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-2.html"
         }
       ]
     },
@@ -5020,7 +5276,8 @@
           "id": "1.0",
           "name": "Snail Bob 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-3.html"
+          "file": "snail-bob-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-3.html"
         }
       ]
     },
@@ -5039,7 +5296,8 @@
           "id": "1.0",
           "name": "Snail Bob 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-4.html"
+          "file": "snail-bob-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-4.html"
         }
       ]
     },
@@ -5058,7 +5316,8 @@
           "id": "1.0",
           "name": "Snail Bob 5",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-5.html"
+          "file": "snail-bob-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-5.html"
         }
       ]
     },
@@ -5077,7 +5336,8 @@
           "id": "1.0",
           "name": "Snail Bob 6",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-6.html"
+          "file": "snail-bob-6.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-6.html"
         }
       ]
     },
@@ -5096,7 +5356,8 @@
           "id": "1.0",
           "name": "Snail Bob 7",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-7.html"
+          "file": "snail-bob-7.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-7.html"
         }
       ]
     },
@@ -5115,7 +5376,8 @@
           "id": "1.0",
           "name": "Snail Bob 8",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-8.html"
+          "file": "snail-bob-8.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snail-bob-8.html"
         }
       ]
     },
@@ -5134,7 +5396,8 @@
           "id": "1.0",
           "name": "Snow Rider 3D",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snow-rider.htm"
+          "file": "snow-rider.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snow-rider.htm"
         }
       ]
     },
@@ -5153,7 +5416,8 @@
           "id": "1.0",
           "name": "Snow Road",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snow-road.htm"
+          "file": "snow-road.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snow-road.htm"
         }
       ]
     },
@@ -5172,7 +5436,8 @@
           "id": "1.0",
           "name": "Snowball.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowball-io.html"
+          "file": "snowball-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowball-io.html"
         }
       ]
     },
@@ -5191,7 +5456,8 @@
           "id": "1.0",
           "name": "Soccer Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccer-bros.html"
+          "file": "soccer-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccer-bros.html"
         }
       ]
     },
@@ -5210,7 +5476,8 @@
           "id": "1.0",
           "name": "Soccer Random",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccer-random.htm"
+          "file": "soccer-random.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccer-random.htm"
         }
       ]
     },
@@ -5229,7 +5496,8 @@
           "id": "1.0",
           "name": "Space is Key",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-is-key.html"
+          "file": "space-is-key.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-is-key.html"
         }
       ]
     },
@@ -5248,7 +5516,8 @@
           "id": "1.0",
           "name": "Space is Key 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-is-key-2.html"
+          "file": "space-is-key-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-is-key-2.html"
         }
       ]
     },
@@ -5267,7 +5536,8 @@
           "id": "1.0",
           "name": "Space Waves",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-waves.html"
+          "file": "space-waves.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/space-waves.html"
         }
       ]
     },
@@ -5286,7 +5556,8 @@
           "id": "1.0",
           "name": "Spacebar Clicker",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacebar-clicker.html"
+          "file": "spacebar-clicker.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacebar-clicker.html"
         }
       ]
     },
@@ -5305,7 +5576,8 @@
           "id": "1.0",
           "name": "Speed Stars",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/speed-stars.html"
+          "file": "speed-stars.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/speed-stars.html"
         }
       ]
     },
@@ -5324,7 +5596,8 @@
           "id": "1.0",
           "name": "Sprunki",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sprunki.html"
+          "file": "sprunki.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sprunki.html"
         }
       ]
     },
@@ -5343,7 +5616,8 @@
           "id": "1.0",
           "name": "Stack",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stack.html"
+          "file": "stack.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stack.html"
         }
       ]
     },
@@ -5362,7 +5636,8 @@
           "id": "1.0",
           "name": "Stacktris",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stacktris.html"
+          "file": "stacktris.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stacktris.html"
         }
       ]
     },
@@ -5381,7 +5656,8 @@
           "id": "1.0",
           "name": "State.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/state-io.html"
+          "file": "state-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/state-io.html"
         }
       ]
     },
@@ -5400,7 +5676,8 @@
           "id": "1.0",
           "name": "Stealing the Diamond",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stealing-the-diamond.html"
+          "file": "stealing-the-diamond.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stealing-the-diamond.html"
         }
       ]
     },
@@ -5419,7 +5696,8 @@
           "id": "1.0",
           "name": "Stick Archers Battle",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-archers-battle.html"
+          "file": "stick-archers-battle.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-archers-battle.html"
         }
       ]
     },
@@ -5438,7 +5716,8 @@
           "id": "1.0",
           "name": "Stick Fighter",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-fighter.html"
+          "file": "stick-fighter.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-fighter.html"
         }
       ]
     },
@@ -5457,7 +5736,8 @@
           "id": "1.0",
           "name": "Stick Merge",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-merge.html"
+          "file": "stick-merge.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stick-merge.html"
         }
       ]
     },
@@ -5476,7 +5756,8 @@
           "id": "1.0",
           "name": "Stickman Hook",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickman-hook.html"
+          "file": "stickman-hook.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickman-hook.html"
         }
       ]
     },
@@ -5495,7 +5776,8 @@
           "id": "1.0",
           "name": "Subway Surfers: Beijing",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-beijing.html"
+          "file": "subway-surfers-beijing.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-beijing.html"
         }
       ]
     },
@@ -5514,7 +5796,8 @@
           "id": "1.0",
           "name": "Subway Surfers: Havana",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-havana.html"
+          "file": "subway-surfers-havana.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-havana.html"
         }
       ]
     },
@@ -5533,7 +5816,8 @@
           "id": "1.0",
           "name": "Subway Surfers: San Francisco",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-san-francisco.html"
+          "file": "subway-surfers-san-francisco.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subway-surfers-san-francisco.html"
         }
       ]
     },
@@ -5552,7 +5836,8 @@
           "id": "1.0",
           "name": "Super Bike The Champion",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-bike-the-champion.html"
+          "file": "super-bike-the-champion.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-bike-the-champion.html"
         }
       ]
     },
@@ -5571,7 +5856,8 @@
           "id": "1.0",
           "name": "Super Liquid Soccer",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-liquid-soccer.html"
+          "file": "super-liquid-soccer.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-liquid-soccer.html"
         }
       ]
     },
@@ -5590,7 +5876,8 @@
           "id": "1.0",
           "name": "Super Mario 63",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm-63.html"
+          "file": "sm-63.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm-63.html"
         }
       ]
     },
@@ -5609,7 +5896,8 @@
           "id": "1.0",
           "name": "Super Mario 64",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm-64.html"
+          "file": "sm-64.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm-64.html"
         }
       ]
     },
@@ -5628,7 +5916,8 @@
           "id": "1.0",
           "name": "Super Star Car",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-star-car.html"
+          "file": "super-star-car.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/super-star-car.html"
         }
       ]
     },
@@ -5647,7 +5936,8 @@
           "id": "1.0",
           "name": "SUPERHOT",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superhot.html"
+          "file": "superhot.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superhot.html"
         }
       ]
     },
@@ -5666,7 +5956,8 @@
           "id": "1.0",
           "name": "Table Tennis World Tour",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/table-tennis-world-tour.html"
+          "file": "table-tennis-world-tour.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/table-tennis-world-tour.html"
         }
       ]
     },
@@ -5685,7 +5976,8 @@
           "id": "1.0",
           "name": "Tag",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tag.html"
+          "file": "tag.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tag.html"
         }
       ]
     },
@@ -5704,7 +5996,8 @@
           "id": "1.0",
           "name": "Tanuki Sunset",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tanuki-sunset.html"
+          "file": "tanuki-sunset.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tanuki-sunset.html"
         }
       ]
     },
@@ -5723,7 +6016,8 @@
           "id": "1.0",
           "name": "Tap Road",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tap-road.html"
+          "file": "tap-road.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tap-road.html"
         }
       ]
     },
@@ -5742,7 +6036,8 @@
           "id": "1.0",
           "name": "Temple of Boom",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/temple-of-boom.html"
+          "file": "temple-of-boom.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/temple-of-boom.html"
         }
       ]
     },
@@ -5761,7 +6056,8 @@
           "id": "1.0",
           "name": "Temple Run 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/temple-run-2.htm"
+          "file": "temple-run-2.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/temple-run-2.htm"
         }
       ]
     },
@@ -5780,7 +6076,8 @@
           "id": "1.0",
           "name": "Territorial.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/territorial-io.html"
+          "file": "territorial-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/territorial-io.html"
         }
       ]
     },
@@ -5799,7 +6096,8 @@
           "id": "1.0",
           "name": "Tetrominoes",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tetrominoes.html"
+          "file": "tetrominoes.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tetrominoes.html"
         }
       ]
     },
@@ -5818,7 +6116,8 @@
           "id": "1.0",
           "name": "The Impossible Quiz",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/the-impossible-quiz.html"
+          "file": "the-impossible-quiz.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/the-impossible-quiz.html"
         }
       ]
     },
@@ -5837,7 +6136,8 @@
           "id": "1.0",
           "name": "The Impossible Quiz 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/the-impossible-quiz-2.html"
+          "file": "the-impossible-quiz-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/the-impossible-quiz-2.html"
         }
       ]
     },
@@ -5856,7 +6156,8 @@
           "id": "1.0",
           "name": "There Is No Game",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/there-is-no-g.html"
+          "file": "there-is-no-g.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/there-is-no-g.html"
         }
       ]
     },
@@ -5875,7 +6176,8 @@
           "id": "1.0",
           "name": "They Are Coming",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/they-are-coming.html"
+          "file": "they-are-coming.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/they-are-coming.html"
         }
       ]
     },
@@ -5894,7 +6196,8 @@
           "id": "1.0",
           "name": "This is the Only Level",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/this-is-the-only-level.html"
+          "file": "this-is-the-only-level.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/this-is-the-only-level.html"
         }
       ]
     },
@@ -5913,7 +6216,8 @@
           "id": "1.0",
           "name": "This is the Only Level Too",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/this-is-the-only-level-too.html"
+          "file": "this-is-the-only-level-too.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/this-is-the-only-level-too.html"
         }
       ]
     },
@@ -5932,7 +6236,8 @@
           "id": "1.0",
           "name": "Time Shooter 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/time-shooter-2.html"
+          "file": "time-shooter-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/time-shooter-2.html"
         }
       ]
     },
@@ -5951,7 +6256,8 @@
           "id": "1.0",
           "name": "Time Shooter 3: SWAT",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/time-shooter-3.htm"
+          "file": "time-shooter-3.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/time-shooter-3.htm"
         }
       ]
     },
@@ -5970,7 +6276,8 @@
           "id": "1.0",
           "name": "Tiny Fishing",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tiny-fishing.html"
+          "file": "tiny-fishing.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tiny-fishing.html"
         }
       ]
     },
@@ -5989,7 +6296,8 @@
           "id": "1.0",
           "name": "Tomb of the Mask",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tomb-of-the-mask.htm"
+          "file": "tomb-of-the-mask.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tomb-of-the-mask.htm"
         }
       ]
     },
@@ -6008,7 +6316,8 @@
           "id": "1.0",
           "name": "Trap the Cat",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trap-the-cat.html"
+          "file": "trap-the-cat.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trap-the-cat.html"
         }
       ]
     },
@@ -6027,7 +6336,8 @@
           "id": "1.0",
           "name": "Trivia Crack",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trivia-crack.html"
+          "file": "trivia-crack.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trivia-crack.html"
         }
       ]
     },
@@ -6046,7 +6356,8 @@
           "id": "1.0",
           "name": "Tube Jumpers",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tube-jumpers.html"
+          "file": "tube-jumpers.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tube-jumpers.html"
         }
       ]
     },
@@ -6065,7 +6376,8 @@
           "id": "1.0",
           "name": "Tunnel Rush",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tunnel-rush.html"
+          "file": "tunnel-rush.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tunnel-rush.html"
         }
       ]
     },
@@ -6084,7 +6396,8 @@
           "id": "1.0",
           "name": "Unicycle Hero",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/unicycle-hero.html"
+          "file": "unicycle-hero.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/unicycle-hero.html"
         }
       ]
     },
@@ -6103,7 +6416,8 @@
           "id": "1.0",
           "name": "Vex 4",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-4.html"
+          "file": "vex-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-4.html"
         }
       ]
     },
@@ -6122,7 +6436,8 @@
           "id": "1.0",
           "name": "Vex 5",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-5.html"
+          "file": "vex-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-5.html"
         }
       ]
     },
@@ -6141,7 +6456,8 @@
           "id": "1.0",
           "name": "Vex 6",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-6.htm"
+          "file": "vex-6.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-6.htm"
         }
       ]
     },
@@ -6160,7 +6476,8 @@
           "id": "1.0",
           "name": "Vex 7",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-7.htm"
+          "file": "vex-7.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-7.htm"
         }
       ]
     },
@@ -6179,7 +6496,8 @@
           "id": "1.0",
           "name": "Vex 8",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-8.htm"
+          "file": "vex-8.htm",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-8.htm"
         }
       ]
     },
@@ -6198,7 +6516,8 @@
           "id": "1.0",
           "name": "Vex X3M",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-x3m.html"
+          "file": "vex-x3m.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-x3m.html"
         }
       ]
     },
@@ -6217,7 +6536,8 @@
           "id": "1.0",
           "name": "Vex X3M 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-x3m-2.html"
+          "file": "vex-x3m-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex-x3m-2.html"
         }
       ]
     },
@@ -6236,7 +6556,8 @@
           "id": "1.0",
           "name": "Volley Random",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/volley-random.html"
+          "file": "volley-random.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/volley-random.html"
         }
       ]
     },
@@ -6255,7 +6576,8 @@
           "id": "1.0",
           "name": "War the Knights",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/war-the-knights.html"
+          "file": "war-the-knights.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/war-the-knights.html"
         }
       ]
     },
@@ -6274,7 +6596,7 @@
           "id": "1.0",
           "name": "We Become What We Behold",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/we-become-what-we-behold.html"
+          "file": "we-become-what-we-behold.html"
         }
       ]
     },
@@ -6293,7 +6615,8 @@
           "id": "1.0",
           "name": "Wheelie Bike",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheelie-bike.html"
+          "file": "wheelie-bike.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheelie-bike.html"
         }
       ]
     },
@@ -6312,7 +6635,8 @@
           "id": "1.0",
           "name": "Wheely",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely.html"
+          "file": "wheely.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely.html"
         }
       ]
     },
@@ -6331,7 +6655,8 @@
           "id": "1.0",
           "name": "Wheely 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-2.html"
+          "file": "wheely-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-2.html"
         }
       ]
     },
@@ -6350,7 +6675,8 @@
           "id": "1.0",
           "name": "Wheely 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-3.html"
+          "file": "wheely-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-3.html"
         }
       ]
     },
@@ -6369,7 +6695,8 @@
           "id": "1.0",
           "name": "Wheely 4: Time Travel",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-4.html"
+          "file": "wheely-4.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-4.html"
         }
       ]
     },
@@ -6388,7 +6715,8 @@
           "id": "1.0",
           "name": "Wheely 5: Armageddon",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-5.html"
+          "file": "wheely-5.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-5.html"
         }
       ]
     },
@@ -6407,7 +6735,8 @@
           "id": "1.0",
           "name": "Wheely 6: Fairytale",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-6.html"
+          "file": "wheely-6.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-6.html"
         }
       ]
     },
@@ -6426,7 +6755,8 @@
           "id": "1.0",
           "name": "Wheely 7: Detective",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-7.html"
+          "file": "wheely-7.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-7.html"
         }
       ]
     },
@@ -6445,7 +6775,8 @@
           "id": "1.0",
           "name": "Wheely 8: Aliens",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-8.html"
+          "file": "wheely-8.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely-8.html"
         }
       ]
     },
@@ -6464,7 +6795,8 @@
           "id": "1.0",
           "name": "Wordle Unlimited",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wordle-unlimited.html"
+          "file": "wordle-unlimited.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wordle-unlimited.html"
         }
       ]
     },
@@ -6483,7 +6815,8 @@
           "id": "1.0",
           "name": "World's Hardest Game",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game.html"
+          "file": "worlds-hardest-game.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game.html"
         }
       ]
     },
@@ -6502,7 +6835,8 @@
           "id": "1.0",
           "name": "World's Hardest Game 2",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game-2.html"
+          "file": "worlds-hardest-game-2.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game-2.html"
         }
       ]
     },
@@ -6521,7 +6855,8 @@
           "id": "1.0",
           "name": "World's Hardest Game 3",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game-3.html"
+          "file": "worlds-hardest-game-3.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worlds-hardest-game-3.html"
         }
       ]
     },
@@ -6540,7 +6875,8 @@
           "id": "1.0",
           "name": "Wrestle Bros",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wrestle-bros.html"
+          "file": "wrestle-bros.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wrestle-bros.html"
         }
       ]
     },
@@ -6559,7 +6895,8 @@
           "id": "1.0",
           "name": "YoHoHo.io",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/yohoho-io.html"
+          "file": "yohoho-io.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/yohoho-io.html"
         }
       ]
     },
@@ -6578,7 +6915,8 @@
           "id": "1.0",
           "name": "Zombie Rush",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zombie-rush.html"
+          "file": "zombie-rush.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zombie-rush.html"
         }
       ]
     },
@@ -6597,7 +6935,8 @@
           "id": "1.0",
           "name": "Zrist",
           "type": "release",
-          "file": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zrist.html"
+          "file": "zrist.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zrist.html"
         }
       ]
     }
