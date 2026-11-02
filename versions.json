@@ -213,8 +213,7 @@
           "id": "1.0",
           "name": "2048 Cupcakes",
           "type": "release",
-          "file": "2048-cupcakes.html",
-          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048-cupcakes.html"
+          "file": "2048-cupcakes.html"
         }
       ]
     },
@@ -2390,8 +2389,7 @@
           "id": "1.0",
           "name": "Evil Glitch",
           "type": "release",
-          "file": "evil-glitch.html",
-          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/evil-glitch.html"
+          "file": "evil-glitch.html"
         }
       ]
     },

@@ -30,3 +30,15 @@ By Nicky Case, released into the public domain under CC0. Source: https://github
 Uses PIXI.js and Howler.js (MIT). Sounds from freesound.org, several under CC BY:
 "squeak!" by ermfilm, "single cricket" by cs272, "bloody impact" by Hybrid_V,
 "creepy warp sound" by Andromadax24 (all CC BY); the rest are CC0.
+
+## 2048 Cupcakes (`2048-cupcakes.html`)
+By henry7720, based on 2048 by Gabriele Cirulli. GNU Affero General Public License v3.0.
+Source code: https://github.com/henry7720/2048-cupcakes (full license text in that repo's LICENSE file).
+
+## Evil Glitch (`evil-glitch.html`)
+Copyright (c) 2016 agar3s. js13k 2016 jam version, ISC License.
+Source: https://github.com/agar3s/devil-glitches
+
+> Permission to use, copy, modify, and/or distribute this software for any purpose with or without
+> fee is hereby granted, provided that the above copyright notice and this permission notice appear
+> in all copies. THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES.
