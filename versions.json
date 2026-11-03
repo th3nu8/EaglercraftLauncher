@@ -125,7 +125,7 @@
     {
       "id": "10-minutes-till-dawn",
       "name": "10 Minutes Till Dawn",
-      "image": "10-minutes-till-dawn.jpg",
+      "image": "10-minutes-till-dawn.png",
       "tags": [
         "Action",
         "Shooter",
@@ -186,7 +186,7 @@
     {
       "id": "2048",
       "name": "2048",
-      "image": "2048.jpg",
+      "image": "2048.png",
       "tags": [
         "Puzzle",
         "Casual",
@@ -284,7 +284,7 @@
     {
       "id": "9007199254740992",
       "name": "9007199254740992",
-      "image": "9007199254740992.jpg",
+      "image": "9007199254740992.png",
       "tags": [
         "Puzzle",
         "Merge",
@@ -644,7 +644,7 @@
     {
       "id": "bad-time-simulator",
       "name": "Bad Time Simulator",
-      "image": "bad-time-simulator.jpg",
+      "image": "bad-time-simulator.png",
       "tags": [
         "Action",
         "Bullet Hell",
@@ -1361,7 +1361,7 @@
     {
       "id": "car-drawing",
       "name": "Car Drawing",
-      "image": "car-drawing.jpg",
+      "image": "car-drawing.png",
       "tags": [
         "Puzzle",
         "Physics",
@@ -2781,7 +2781,7 @@
     {
       "id": "free-rider-3",
       "name": "Free Rider 3",
-      "image": "free-rider-3.jpg",
+      "image": "free-rider-3.png",
       "tags": [
         "Physics",
         "Bike",
@@ -3042,7 +3042,7 @@
     {
       "id": "google-baseball",
       "name": "Google Baseball",
-      "image": "google-baseball.jpg",
+      "image": "google-baseball.png",
       "tags": [
         "Sports",
         "Baseball",
