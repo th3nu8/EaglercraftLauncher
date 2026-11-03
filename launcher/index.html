@@ -13,6 +13,7 @@
     <nav class="mainnav">
       <button class="nav active" data-page="store">STORE</button>
       <button class="nav" data-page="library">LIBRARY</button>
+      <button class="nav" data-page="users">USERS</button>
       <button class="nav-x" id="navFriends">FRIENDS</button>
     </nav>
     <div class="nav-right">
@@ -58,6 +59,19 @@
         <button class="add-game" id="openLocal">＋ Add a Game <small>(open a local .html)</small></button>
       </aside>
       <div class="lib-main" id="libMain"></div>
+    </section>
+
+    <!-- USERS -->
+    <section class="page" id="page-users">
+      <div class="users-wrap">
+        <div class="users-head">
+          <h2 id="usersTitle">Players</h2>
+          <input id="usersSearch" class="store-search" placeholder="search players" autocomplete="off">
+          <select id="usersSort" class="vselect"><option value="new">Newest first</option><option value="name">A–Z</option></select>
+        </div>
+        <div class="ugrid" id="usersGrid"></div>
+        <div class="more-wrap"><button class="btn" id="usersMore">Show more</button></div>
+      </div>
     </section>
 
     <!-- SETTINGS -->

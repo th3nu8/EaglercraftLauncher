@@ -71,6 +71,7 @@ window.MistSocial = function (ctx) {
   }
   function onAuthChange() {
     seenIncoming = null; lastUnread = {};
+    if (document.getElementById('page-users') && document.getElementById('page-users').classList.contains('active')) setTimeout(function () { loadUsers(true); }, 0);
     if (!eng()) { closeChat(); data = null; render(); return; }
     beat(); refresh();
   }
@@ -323,12 +324,75 @@ window.MistSocial = function (ctx) {
     render();
   }
 
+  /* ---------- users page ---------- */
+  var usersState = { q: '', sort: 'new', page: 0, list: [], pages: 1, loading: false, seq: 0 };
+  function loadUsers(reset) {
+    var grid = $('#usersGrid'); if (!grid) return;
+    if (!eng()) {
+      grid.textContent = ''; $('#usersMore').style.display = 'none'; $('#usersTitle').textContent = 'Players';
+      var e = el('div', 'fp-empty');
+      e.appendChild(el('p', null, ctx.getEngine() ? 'Sign in to see everyone on Mist and add friends.' : 'The players list needs a save server. Set one in Settings.'));
+      var b = el('button', 'btn green', ctx.getEngine() ? 'Sign in' : 'Open settings'); b.onclick = ctx.openAccount;
+      e.appendChild(b); grid.appendChild(e); return;
+    }
+    if (reset) { usersState.page = 0; usersState.list = []; }
+    var seq = ++usersState.seq; usersState.loading = true;
+    if (reset) { grid.textContent = ''; grid.appendChild(el('div', 'fp-empty', 'Loading players…')); }
+    api('GET', '/api/users?q=' + encodeURIComponent(usersState.q) + '&sort=' + usersState.sort + '&page=' + usersState.page).then(function (r) {
+      if (seq !== usersState.seq) return;
+      usersState.loading = false; usersState.pages = r.pages;
+      usersState.list = usersState.list.concat(r.users);
+      $('#usersTitle').textContent = usersState.q ? r.matches + ' of ' + r.total + ' players' : 'Players (' + r.total + ')';
+      renderUsers();
+    }, function (e) { usersState.loading = false; grid.textContent = ''; grid.appendChild(el('div', 'fp-empty', e.message)); });
+  }
+  function relationButton(u) {
+    if (u.relation === 'me') { var me = el('span', 'u-rel', 'You'); return me; }
+    if (u.relation === 'friend') { var m = el('button', 'btn', 'Message'); m.onclick = function (e) { e.stopPropagation(); openChat(u.name); }; return m; }
+    if (u.relation === 'requested') return el('span', 'u-rel', 'Request sent');
+    var b = el('button', 'btn green', u.relation === 'requestedYou' ? 'Accept' : 'Add friend');
+    b.onclick = function (e) {
+      e.stopPropagation(); b.disabled = true;
+      api('POST', u.relation === 'requestedYou' ? '/api/friends/accept' : '/api/friends/request', { username: u.name }).then(function (r) {
+        var nowFriends = u.relation === 'requestedYou' || (r && r.accepted);
+        u.relation = nowFriends ? 'friend' : 'requested';
+        toast(nowFriends ? 'You and ' + u.name + ' are now friends' : 'Friend request sent to ' + u.name);
+        renderUsers(); refresh();
+      }, function (e2) { b.disabled = false; toast(e2.message); });
+    };
+    return b;
+  }
+  function renderUsers() {
+    var grid = $('#usersGrid'); grid.textContent = '';
+    if (!usersState.list.length) { grid.appendChild(el('div', 'fp-empty', usersState.q ? 'No players match “' + usersState.q + '”.' : 'No players yet.')); }
+    usersState.list.forEach(function (u) {
+      var c = el('div', 'ucard' + (u.relation === 'me' ? ' me' : ''));
+      c.appendChild(avatar(u.name, 64, u.state || null));
+      var t = el('div', 'u-t');
+      t.appendChild(el('b', null, u.name));
+      if (u.state) t.appendChild(el('small', 'st-' + u.state, stateText(u)));
+      t.appendChild(el('small', null, 'Joined ' + new Date(u.created).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) + ' · ' + u.friendCount + ' friend' + (u.friendCount === 1 ? '' : 's')));
+      c.appendChild(t);
+      c.appendChild(relationButton(u));
+      c.onclick = function () { openProfile(u.name); };
+      grid.appendChild(c);
+    });
+    $('#usersMore').style.display = usersState.page + 1 < usersState.pages ? '' : 'none';
+  }
+  function wireUsers() {
+    var t;
+    $('#usersSearch').oninput = function () { var v = this.value.trim(); clearTimeout(t); t = setTimeout(function () { usersState.q = v; loadUsers(true); }, 250); };
+    $('#usersSort').onchange = function () { usersState.sort = this.value; loadUsers(true); };
+    $('#usersMore').onclick = function () { if (usersState.loading) return; usersState.page++; loadUsers(false); };
+  }
+
   function friendsWhoPlay(gameName) {
     if (!data) return [];
     return data.friends.filter(function (f) { return (f.state === 'ingame' && f.game === gameName) || (f.recent || []).indexOf(gameName) >= 0; });
   }
 
   return {
+    loadUsers: loadUsers, wireUsers: wireUsers,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

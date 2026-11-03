@@ -371,6 +371,7 @@
     else if (view.page === 'game') renderGamePage();
     else if (view.page === 'library') renderLibrary();
     else if (view.page === 'settings') renderSettings();
+    else if (view.page === 'users') { if (social) social.loadUsers(true); }
   }
   function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
 
@@ -905,6 +906,7 @@
   if (social) {
     $('#friendsBtn').onclick = function () { social.togglePanel(); };
     $('#navFriends').onclick = function () { social.togglePanel(); };
+    social.wireUsers();
     social.start();
     var lastFriendsKey = '';
     setInterval(function () { // re-render "friends who play" boxes when friend data changes

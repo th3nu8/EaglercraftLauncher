@@ -338,6 +338,26 @@ async function handle(req, res) {
     return fail(res, 404, 'Not found.');
   }
 
+  if (req.method === 'GET' && p === '/api/users') {
+    // Everyone signed in can browse players. Online/playing status is only included for friends (and you).
+    const q = String(url.searchParams.get('q') || '').trim().toLowerCase().slice(0, 40);
+    const sort = url.searchParams.get('sort') === 'name' ? 'name' : 'new';
+    const page = Math.max(0, parseInt(url.searchParams.get('page'), 10) || 0), per = 48;
+    const me = soc(user.id);
+    let all = Object.values(db.users);
+    const total = all.length;
+    if (q) all = all.filter(u => u.name.toLowerCase().includes(q));
+    all.sort(sort === 'name' ? (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) : (a, b) => (b.created || 0) - (a.created || 0));
+    const users = all.slice(page * per, page * per + per).map(u => {
+      const isMe = u.id === user.id, isFriend = me.friends.includes(u.id);
+      const out = { name: u.name, created: u.created, friendCount: soc(u.id).friends.length,
+        relation: isMe ? 'me' : isFriend ? 'friend' : me.outgoing.includes(u.id) ? 'requested' : me.incoming.includes(u.id) ? 'requestedYou' : 'none' };
+      if (isMe || isFriend) { const pr = presenceOf(u.id); out.state = pr.state; out.game = pr.game; out.lastSeen = pr.lastSeen; }
+      return out;
+    });
+    return send(res, 200, { total, matches: all.length, page, pages: Math.max(1, Math.ceil(all.length / per)), users });
+  }
+
   if (req.method === 'GET' && p === '/api/profile') {
     const other = userByName(url.searchParams.get('name')) || user;
     const isMe = other.id === user.id, isFriend = soc(user.id).friends.includes(other.id);
