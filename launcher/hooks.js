@@ -251,6 +251,105 @@ window.MistHooks = (function () {
         top: Math.max.apply(null, skills.map(function (k) { return num(d[k]); })) };
     });
   }
+  /* ---------- Spec-driven hooks ----------
+   * Most games are described by a small spec instead of custom code:
+   *   { src: 'ls' | 'flash' | 'prefs' | 'lf', key: RegExp (or exact string), fmt: 'json'|'num'|'ini'|'b64json'|'raw', stats: { name: expr } }
+   * expr is a path into the save ('a.b.0.c'), optionally followed by '|op':
+   *   |len (array/object size)  |true (count truthy entries)  |ge:N (count entries >= N)  |bool (1 if truthy)
+   *   |sum (sum of entries)     |max (largest entry)          |keys:RE (count keys matching RE)
+   * Paths may use '*' to step into every entry of an array/object (results are flattened).
+   * A stat may also be a function(save) for odd cases. With several matching saves, the highest value wins. */
+  function getPath(o, path) {
+    if (path === '' || path === '.') return [o];
+    var parts = path.split('.'), cur = [o];
+    parts.forEach(function (p) {
+      var next = [];
+      cur.forEach(function (c) {
+        if (c === null || c === undefined) return;
+        if (typeof c === 'string' && /^[\[{]/.test(c)) { try { c = JSON.parse(c); } catch (e) {} }
+        if (p === '*') { if (typeof c === 'object') for (var k in c) next.push(c[k]); }
+        else next.push(c[p]);
+      });
+      cur = next;
+    });
+    return cur;
+  }
+  function evalStat(save, expr) {
+    if (typeof expr === 'function') { try { return num(expr(save)); } catch (e) { return 0; } }
+    var bar = expr.indexOf('|'), path = bar < 0 ? expr : expr.slice(0, bar), op = bar < 0 ? '' : expr.slice(bar + 1);
+    var vals = getPath(save, path), out = 0;
+    if (op.indexOf('cntge:') === 0) { var th = num(op.slice(6)); return vals.filter(function (v) { return num(v) >= th; }).length; }   // count leaves >= N
+    if (op === 'tot') return vals.reduce(function (a, v) { return a + num(v); }, 0);                     // sum of leaves
+    if (op === 'cnt') return vals.filter(function (v) { return v === true || num(v) > 0; }).length;   // count leaves that are set
+    vals.forEach(function (v) {
+      var n;
+      if (typeof v === 'string' && /^[\[{]/.test(v)) { try { v = JSON.parse(v); } catch (e) {} }
+      if (!op) n = typeof v === 'boolean' ? (v ? 1 : 0) : num(v);
+      else if (op === 'len') n = v && typeof v === 'object' ? Object.keys(v).length : 0;
+      else if (op === 'true') n = countTrue(v);
+      else if (op === 'bool') n = v && v !== '0' && v !== 'false' ? 1 : 0;
+      else if (op === 'sum' || op === 'max') { n = 0; if (v && typeof v === 'object') for (var k in v) n = op === 'sum' ? n + num(v[k]) : Math.max(n, num(v[k])); }
+      else if (op.indexOf('ge:') === 0) { var t = num(op.slice(3)); n = 0; if (v && typeof v === 'object') for (var k2 in v) if (num(v[k2]) >= t) n++; }
+      else if (op.indexOf('truekeys:') === 0) { var re2 = new RegExp(op.slice(9)); n = 0; if (v && typeof v === 'object') for (var k4 in v) if (re2.test(k4) && v[k4] && v[k4] !== '0' && !/^false$/i.test(String(v[k4]))) n++; }
+      else if (op.indexOf('keymax:') === 0) { var re3 = new RegExp(op.slice(7)); n = 0; if (v && typeof v === 'object') for (var k5 in v) if (re3.test(k5)) n = Math.max(n, num(v[k5])); }
+      else if (op.indexOf('keys:') === 0) { var re = new RegExp(op.slice(5)); n = 0; if (v && typeof v === 'object') for (var k3 in v) if (re.test(k3)) n++; }
+      if (n > out) out = n;
+    });
+    return out;
+  }
+  function decode(raw, fmt) {
+    if (raw === null || raw === undefined) return null;
+    if (fmt === 'raw') return raw;
+    if (fmt === 'num') return num(raw);
+    if (fmt === 'ini') {
+      var o = {}, sec = o;
+      String(raw).split(/\r?\n/).forEach(function (line) {
+        line = line.trim(); var m = /^\[(.+)\]$/.exec(line); if (m) { sec = o[m[1]] = o[m[1]] || {}; return; }
+        var kv = /^([^=]+)="?([^"]*)"?$/.exec(line); if (kv) sec[kv[1].trim()] = kv[2];
+      });
+      return o;
+    }
+    if (fmt === 'b64json') { var s = String(raw), i = s.indexOf('eyJ'); if (i < 0) i = 0; try { return JSON.parse(atob(s.slice(i).replace(/[^A-Za-z0-9+/=]/g, ''))); } catch (e) { return null; } }
+    if (typeof raw !== 'string') return raw;
+    try { return JSON.parse(raw); } catch (e) { return /^-?\d+(\.\d+)?$/.test(raw.trim()) ? num(raw) : raw; }
+  }
+  function keyMatch(key, spec) { return typeof spec.key === 'string' ? key === spec.key : spec.key.test(key); }
+  function specHook(spec) {
+    function compute(saves) {
+      if (!saves.length) return null;
+      var out = {};
+      Object.keys(spec.stats).forEach(function (st) { out[st] = 0; saves.forEach(function (sv) { var v = evalStat(sv, spec.stats[st]); if (v > out[st]) out[st] = v; }); });
+      return out;
+    }
+    if (spec.src === 'flash') return flashHook(spec.key instanceof RegExp ? spec.key : new RegExp('^' + spec.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'), compute, spec.interval);
+    return { interval: spec.interval || 5000, poll: function (win, state) {
+      if (spec.src === 'prefs') return readPlayerPrefs().then(function (p) {
+        if (!p) return null;
+        if (spec.key) { var hit = Object.keys(p).some(function (k) { return keyMatch(k, spec); }); if (!hit) return null; }
+        return compute([p]);
+      }).catch(function () { return null; });
+      if (spec.src === 'lf' && spec.key instanceof RegExp) return openDb(spec.db || 'localforage').then(function (db) {
+        if (!db || !db.objectStoreNames.contains('keyvaluepairs')) { if (db) db.close(); return null; }
+        var os = db.transaction('keyvaluepairs', 'readonly').objectStore('keyvaluepairs');
+        return Promise.all([req(os.getAllKeys()), req(os.getAll())]).then(function (r) {
+          db.close(); var o = {}, any = false;
+          r[0].forEach(function (k, i) { if (spec.key.test(String(k))) { o[k] = decode(r[1][i], spec.fmt); any = true; } });
+          return any ? compute([o]) : null;
+        }, function () { db.close(); return null; });
+      }).catch(function () { return null; });
+      if (spec.src === 'lf') return readLocalforage(spec.key).then(function (v) { return v === null || v === undefined ? null : compute([decode(v, spec.fmt)]); }).catch(function () { return null; });
+      // localStorage (session: only keys whose value changed while this game runs - for games sharing key names)
+      var saves = [];
+      if (spec.session) {
+        var st = state;
+        if (!st.base) { st.base = {}; lsKeys().forEach(function (k) { if (keyMatch(k, spec)) st.base[k] = ls(k); }); return null; }
+        if (!lsKeys().some(function (k) { return keyMatch(k, spec) && ls(k) !== st.base[k]; })) return null;
+      }
+      lsKeys().forEach(function (k) { if (keyMatch(k, spec)) { var d = decode(ls(k), spec.fmt); if (d !== null) saves.push(spec.whole ? (function () { var o = {}; o[k] = d; return o; })() : d); } });
+      if (spec.all) { var o = {}; lsKeys().forEach(function (k) { if (keyMatch(k, spec)) o[k] = decode(ls(k), spec.fmt); }); return Object.keys(o).length ? compute([o]) : null; }
+      return compute(saves);
+    } };
+  }
   function maxOf(list, fn) { return list.reduce(function (m, x) { var v = num(fn(x)); return v > m ? v : m; }, 0); }
 
   /* ---------- Eaglercraft worlds (IndexedDB "…PlatformFilesystem…" / "filesystem") ---------- */
@@ -347,13 +446,6 @@ window.MistHooks = (function () {
       var d = saves[0]; return { bronze: d.bronze ? 1 : 0, silver: d.silver ? 1 : 0, gold: d.gold ? 1 : 0 };
     }),
     /* ---- batch 1 ---- */
-    '2048': { interval: 4000, poll: function () {
-      var g = lsJson('gameState'), tile = 0;
-      if (g && g.grid && g.grid.cells) g.grid.cells.forEach(function (col) { (col || []).forEach(function (c) { if (c && c.value > tile) tile = c.value; }); });
-      var best = Math.max(num(ls('bestScore')), g ? num(g.score) : 0);
-      if (!g && !best) return null;
-      return { tile: tile, best: best };
-    } },
     'OvO': { interval: 6000, poll: function () {
       return readLocalforage('DedraOvO').then(function (v) {
         if (typeof v !== 'string') return null;
@@ -420,6 +512,9 @@ window.MistHooks = (function () {
     'FNAF: Sister Location': fnaf({ night: 'night', skip: function (v) { return String(v['custom night active?']) === '1'; } }),
   };
 
+  /* Spec-described games (see specHook). */
+  var SPECS = window.MIST_SPECS || {};
+  Object.keys(SPECS).forEach(function (n) { if (!HOOKS[n]) HOOKS[n] = specHook(SPECS[n]); });
   return {
     has: function (name) { return !!HOOKS[name]; },
     names: function () { return Object.keys(HOOKS); },

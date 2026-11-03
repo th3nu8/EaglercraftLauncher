@@ -1,0 +1,3547 @@
+{
+ "Learn to Fly Idle": {
+  "spec": {
+   "src": "flash",
+   "key": "save_game",
+   "stats": {
+    "obstacle": "savegame.achievements_bestObstacle",
+    "kills": "savegame.achievements_kills",
+    "launch": "savegame.achievements_launchLevel",
+    "space": "savegame.achievements_spaceReached|bool",
+    "ach": "savegame.achievements|true"
+   }
+  },
+  "ach": [
+   [
+    "ob5",
+    "🧱",
+    "Wall Breaker",
+    "Smash through obstacle 5.",
+    "obstacle",
+    5,
+    "common"
+   ],
+   [
+    "ob25",
+    "🏔️",
+    "Unstoppable Penguin",
+    "Smash through obstacle 25.",
+    "obstacle",
+    25,
+    "rare"
+   ],
+   [
+    "ob100",
+    "🌋",
+    "Mountain Mover",
+    "Smash through obstacle 100.",
+    "obstacle",
+    100,
+    "epic"
+   ],
+   [
+    "k100",
+    "💥",
+    "Demolition",
+    "Destroy 100 obstacles.",
+    "kills",
+    100,
+    "common"
+   ],
+   [
+    "l20",
+    "🚀",
+    "Power Launch",
+    "Get launch power to level 20.",
+    "launch",
+    20,
+    "rare"
+   ],
+   [
+    "space",
+    "🌌",
+    "To Space!",
+    "Reach space.",
+    "space",
+    1,
+    "legendary"
+   ],
+   [
+    "a10",
+    "🏅",
+    "Achiever",
+    "Unlock 10 of the game’s own achievements.",
+    "ach",
+    10,
+    "epic"
+   ]
+  ]
+ },
+ "Learn to Fly": {
+  "spec": {
+   "src": "flash",
+   "key": "learntofly",
+   "stats": {
+    "day": "cday",
+    "done": "gamefinished|bool",
+    "cash": "cash"
+   }
+  },
+  "ach": [
+   [
+    "d5",
+    "🐧",
+    "Flight School",
+    "Reach day 5.",
+    "day",
+    5,
+    "common"
+   ],
+   [
+    "d20",
+    "🪂",
+    "Frequent Flyer",
+    "Reach day 20.",
+    "day",
+    20,
+    "rare"
+   ],
+   [
+    "d40",
+    "🛩️",
+    "Ace Pilot",
+    "Reach day 40.",
+    "day",
+    40,
+    "epic"
+   ],
+   [
+    "c5k",
+    "💵",
+    "Savings",
+    "Have $5,000 at once.",
+    "cash",
+    5000,
+    "rare"
+   ],
+   [
+    "done",
+    "🏔️",
+    "Penguins Can Fly",
+    "Beat the game by smashing the iceberg.",
+    "done",
+    1,
+    "legendary"
+   ]
+  ]
+ },
+ "Bloons TD 3": {
+  "spec": {
+   "src": "flash",
+   "key": "btd3",
+   "stats": {
+    "bronze": ".|keys:^bronze",
+    "silver": ".|keys:^silver",
+    "gold": ".|keys:^gold"
+   }
+  },
+  "ach": [
+   [
+    "b1",
+    "🥉",
+    "Pop Goes the Bloon",
+    "Earn a bronze medal on any track.",
+    "bronze",
+    1,
+    "common"
+   ],
+   [
+    "b4",
+    "🎈",
+    "Track Explorer",
+    "Earn bronze medals on 4 tracks.",
+    "bronze",
+    4,
+    "rare"
+   ],
+   [
+    "s1",
+    "🥈",
+    "Silver Strategy",
+    "Earn a silver medal.",
+    "silver",
+    1,
+    "rare"
+   ],
+   [
+    "g1",
+    "🥇",
+    "Golden Monkey",
+    "Earn a gold medal.",
+    "gold",
+    1,
+    "epic"
+   ],
+   [
+    "g8",
+    "👑",
+    "Bloon Master",
+    "Earn gold medals on 8 tracks.",
+    "gold",
+    8,
+    "legendary"
+   ]
+  ]
+ },
+ "2048 Cupcakes": {
+  "spec": {
+   "src": "ls",
+   "key": "/^(gameState|bestScore)$/",
+   "session": true,
+   "all": true,
+   "stats": {
+    "tile": "gameState.grid.cells.*.*.value",
+    "best": "bestScore"
+   }
+  },
+  "ach": [
+   [
+    "c64",
+    "🧁",
+    "Sprinkles",
+    "Bake the 64 cupcake.",
+    "tile",
+    64,
+    "common"
+   ],
+   [
+    "c256",
+    "🍰",
+    "Layer Cake",
+    "Bake the 256 cupcake.",
+    "tile",
+    256,
+    "common"
+   ],
+   [
+    "c1024",
+    "🎂",
+    "Showstopper",
+    "Bake the 1024 cupcake.",
+    "tile",
+    1024,
+    "rare"
+   ],
+   [
+    "c2048",
+    "👑",
+    "Ultimate Cupcake",
+    "Bake the 2048 cupcake.",
+    "tile",
+    2048,
+    "epic"
+   ],
+   [
+    "s10k",
+    "🍬",
+    "Sugar Rush",
+    "Score 10,000 in one game.",
+    "best",
+    10000,
+    "rare"
+   ]
+  ]
+ },
+ "2048": {
+  "spec": {
+   "src": "ls",
+   "key": "/^(gameState|bestScore)$/",
+   "session": true,
+   "all": true,
+   "stats": {
+    "tile": "gameState.grid.cells.*.*.value",
+    "best": "bestScore"
+   }
+  },
+  "ach": [
+   [
+    "t256",
+    "🟨",
+    "Getting Started",
+    "Make a 256 tile.",
+    "tile",
+    256,
+    "common"
+   ],
+   [
+    "t512",
+    "🟧",
+    "Halfway There",
+    "Make a 512 tile.",
+    "tile",
+    512,
+    "common"
+   ],
+   [
+    "t1024",
+    "🟥",
+    "So Close",
+    "Make a 1024 tile.",
+    "tile",
+    1024,
+    "rare"
+   ],
+   [
+    "t2048",
+    "🏆",
+    "2048!",
+    "Make the 2048 tile.",
+    "tile",
+    2048,
+    "epic"
+   ],
+   [
+    "t4096",
+    "👑",
+    "Beyond 2048",
+    "Make a 4096 tile.",
+    "tile",
+    4096,
+    "legendary"
+   ],
+   [
+    "s5k",
+    "📈",
+    "High Scorer",
+    "Score 5,000 points in one game.",
+    "best",
+    5000,
+    "common"
+   ],
+   [
+    "s20k",
+    "💯",
+    "Number Cruncher",
+    "Score 20,000 points in one game.",
+    "best",
+    20000,
+    "rare"
+   ]
+  ]
+ },
+ "Bad Ice Cream": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "levels_unlocked|true",
+    "score": "level_scores|sum"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🍦",
+    "Brain Freeze",
+    "Unlock 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🍨",
+    "Fruit Collector",
+    "Unlock 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l40",
+    "👑",
+    "Ice Cream King",
+    "Unlock all 40 levels.",
+    "levels",
+    40,
+    "epic"
+   ],
+   [
+    "s50k",
+    "🍓",
+    "Sweet Score",
+    "Get 50,000 points across all levels.",
+    "score",
+    50000,
+    "rare"
+   ]
+  ]
+ },
+ "Bob the Robber": {
+  "spec": {
+   "src": "flash",
+   "key": "level",
+   "stats": {
+    "level": "var_lev"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🕵️",
+    "Sneaky",
+    "Reach level 3.",
+    "level",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "💰",
+    "Master Thief",
+    "Reach level 8.",
+    "level",
+    8,
+    "rare"
+   ],
+   [
+    "l15",
+    "👑",
+    "The Perfect Heist",
+    "Reach level 15.",
+    "level",
+    15,
+    "epic"
+   ]
+  ]
+ },
+ "Bob the Robber 2": {
+  "spec": {
+   "src": "flash",
+   "key": "bobtherobber2",
+   "stats": {
+    "money": "totalMoney",
+    "score": "totalScore",
+    "stars": "stars|sum",
+    "levels": "levels|true"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🔦",
+    "Break-In",
+    "Unlock 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🏦",
+    "Heist Planner",
+    "Unlock 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "st20",
+    "⭐",
+    "Star Thief",
+    "Collect 20 stars.",
+    "stars",
+    20,
+    "rare"
+   ],
+   [
+    "m10k",
+    "💵",
+    "Big Score",
+    "Steal $10,000 in total.",
+    "money",
+    10000,
+    "epic"
+   ]
+  ]
+ },
+ "Chaos Faction 2": {
+  "spec": {
+   "src": "flash",
+   "key": "CF2",
+   "stats": {
+    "levels": "completedLevels|true",
+    "weapons": "unlockedWeapons|true",
+    "chars": "unlockedChars|true",
+    "ach": "achievements|true"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "⚔️",
+    "First Blood",
+    "Complete a level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l10",
+    "💥",
+    "Brawler",
+    "Complete 10 levels.",
+    "levels",
+    10,
+    "rare"
+   ],
+   [
+    "l25",
+    "👑",
+    "Chaos Master",
+    "Complete 25 levels.",
+    "levels",
+    25,
+    "epic"
+   ],
+   [
+    "w10",
+    "🔫",
+    "Armory",
+    "Unlock 10 weapons.",
+    "weapons",
+    10,
+    "rare"
+   ],
+   [
+    "c5",
+    "🧑‍🤝‍🧑",
+    "Fighters Assemble",
+    "Unlock 5 characters.",
+    "chars",
+    5,
+    "common"
+   ],
+   [
+    "a10",
+    "🏅",
+    "Faction Hero",
+    "Unlock 10 of the game’s own achievements.",
+    "ach",
+    10,
+    "epic"
+   ]
+  ]
+ },
+ "Fancy Pants Adventure": {
+  "spec": {
+   "src": "flash",
+   "key": "FancyPantsMan",
+   "stats": {
+    "level": "LevelSelect",
+    "trophies": "TrophyGet|true"
+   }
+  },
+  "ach": [
+   [
+    "lv2",
+    "👖",
+    "Stylish Start",
+    "Unlock level 2.",
+    "level",
+    2,
+    "common"
+   ],
+   [
+    "lv4",
+    "🌀",
+    "Spiral Runner",
+    "Unlock level 4.",
+    "level",
+    4,
+    "rare"
+   ],
+   [
+    "t1",
+    "🏆",
+    "Trophy Hunter",
+    "Get a trophy.",
+    "trophies",
+    1,
+    "rare"
+   ],
+   [
+    "t5",
+    "👑",
+    "Fanciest Pants",
+    "Get all 5 trophies.",
+    "trophies",
+    5,
+    "legendary"
+   ]
+  ]
+ },
+ "Flood Runner 2": {
+  "spec": {
+   "src": "flash",
+   "key": "run_profile",
+   "stats": {
+    "best": "pl1scr"
+   }
+  },
+  "ach": [
+   [
+    "s5k",
+    "🌊",
+    "Outrun the Wave",
+    "Score 5,000.",
+    "best",
+    5000,
+    "common"
+   ],
+   [
+    "s20k",
+    "🏃",
+    "Flood Dodger",
+    "Score 20,000.",
+    "best",
+    20000,
+    "rare"
+   ],
+   [
+    "s50k",
+    "🏆",
+    "Flood Legend",
+    "Score 50,000.",
+    "best",
+    50000,
+    "epic"
+   ]
+  ]
+ },
+ "Flood Runner 4": {
+  "spec": {
+   "src": "flash",
+   "key": "flood_runner_4",
+   "stats": {
+    "ach": ".|truekeys:^achieve_"
+   }
+  },
+  "ach": [
+   [
+    "a1",
+    "🌊",
+    "First Feat",
+    "Complete one of the game’s achievements.",
+    "ach",
+    1,
+    "common"
+   ],
+   [
+    "a5",
+    "🐉",
+    "Monster Masher",
+    "Complete 5 achievements.",
+    "ach",
+    5,
+    "rare"
+   ],
+   [
+    "a12",
+    "⚡",
+    "Storm Chaser",
+    "Complete 12 achievements.",
+    "ach",
+    12,
+    "epic"
+   ],
+   [
+    "a20",
+    "👑",
+    "Flood Master",
+    "Complete 20 achievements.",
+    "ach",
+    20,
+    "legendary"
+   ]
+  ]
+ },
+ "8 Ball Classic": {
+  "spec": {
+   "src": "ls",
+   "key": "my8BallClassic",
+   "stats": {
+    "games": "numGames",
+    "best": "bestScore",
+    "rating": "aiRating"
+   }
+  },
+  "ach": [
+   [
+    "g1",
+    "🎱",
+    "Break Shot",
+    "Play a game.",
+    "games",
+    1,
+    "common"
+   ],
+   [
+    "g10",
+    "🟢",
+    "Pool Regular",
+    "Play 10 games.",
+    "games",
+    10,
+    "common"
+   ],
+   [
+    "g50",
+    "🏆",
+    "Pool Shark",
+    "Play 50 games.",
+    "games",
+    50,
+    "rare"
+   ],
+   [
+    "g200",
+    "🏆",
+    "Cue Master",
+    "Play 200 games.",
+    "games",
+    200,
+    "epic"
+   ]
+  ]
+ },
+ "Infiltrating the Airship": {
+  "spec": {
+   "src": "flash",
+   "key": "InfiltratingAirship",
+   "stats": {
+    "medals": ".|truekeys:medalsave$",
+    "items": ".|truekeys:save$"
+   }
+  },
+  "ach": [
+   [
+    "m1",
+    "🎖️",
+    "Medal of Honor",
+    "Earn a medal.",
+    "medals",
+    1,
+    "common"
+   ],
+   [
+    "m5",
+    "🏅",
+    "Decorated Agent",
+    "Earn 5 medals.",
+    "medals",
+    5,
+    "rare"
+   ],
+   [
+    "m10",
+    "👑",
+    "Airship Legend",
+    "Earn 10 medals.",
+    "medals",
+    10,
+    "epic"
+   ],
+   [
+    "i15",
+    "🛩️",
+    "Covert Operative",
+    "Unlock 15 endings, medals or tools.",
+    "items",
+    15,
+    "rare"
+   ],
+   [
+    "i40",
+    "🕵️",
+    "Infiltration Expert",
+    "Unlock 40 endings, medals or tools.",
+    "items",
+    40,
+    "legendary"
+   ]
+  ]
+ },
+ "Angry Birds Showdown": {
+  "spec": {
+   "src": "ls",
+   "key": "myangrybirdsshowdown",
+   "stats": {
+    "matches": "aiMatches|len",
+    "power": "powerUps.*.powerUp"
+   }
+  },
+  "ach": [
+   [
+    "m1",
+    "🐦",
+    "Showdown!",
+    "Play a match.",
+    "matches",
+    1,
+    "common"
+   ],
+   [
+    "m10",
+    "🐷",
+    "Pig Popper",
+    "Play 10 matches.",
+    "matches",
+    10,
+    "rare"
+   ],
+   [
+    "m30",
+    "👑",
+    "Showdown Champ",
+    "Play 30 matches.",
+    "matches",
+    30,
+    "epic"
+   ],
+   [
+    "p5",
+    "⚡",
+    "Powered Up",
+    "Upgrade a power-up to level 5.",
+    "power",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Awesome Tanks": {
+  "spec": {
+   "src": "ls",
+   "key": "AWESOME-TANKS",
+   "stats": {
+    "levels": "game.levels",
+    "done": "game.completed|bool",
+    "tanks": "stats.tanksDestroyed",
+    "coins": "stats.coinsCollected",
+    "ach": "achievements|true"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🛡️",
+    "Rolling Out",
+    "Beat 3 levels.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "💣",
+    "Tank Commander",
+    "Beat 8 levels.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "done",
+    "🏆",
+    "Awesome!",
+    "Beat the whole game.",
+    "done",
+    1,
+    "epic"
+   ],
+   [
+    "t100",
+    "💥",
+    "Tank Buster",
+    "Destroy 100 enemy tanks.",
+    "tanks",
+    100,
+    "rare"
+   ],
+   [
+    "c500",
+    "🪙",
+    "Scrap Collector",
+    "Collect 500 coins.",
+    "coins",
+    500,
+    "common"
+   ],
+   [
+    "a5",
+    "👑",
+    "Decorated Tank",
+    "Unlock all 5 of the game’s achievements.",
+    "ach",
+    5,
+    "legendary"
+   ]
+  ]
+ },
+ "Big Tower Tiny Square": {
+  "spec": {
+   "src": "lf",
+   "key": "/_key$/",
+   "stats": {
+    "deaths": "TotalDeaths_key",
+    "jumps": "TotalJumps_key",
+    "time": "Gametime_key"
+   }
+  },
+  "ach": [
+   [
+    "j500",
+    "⬛",
+    "Tiny Hops",
+    "Jump 500 times.",
+    "jumps",
+    500,
+    "common"
+   ],
+   [
+    "j5k",
+    "🧗",
+    "Tower Climber",
+    "Jump 5,000 times.",
+    "jumps",
+    5000,
+    "rare"
+   ],
+   [
+    "d100",
+    "💀",
+    "Pixel Perseverance",
+    "Die 100 times.",
+    "deaths",
+    100,
+    "common"
+   ],
+   [
+    "d1000",
+    "☠️",
+    "Not Giving Up",
+    "Die 1,000 times.",
+    "deaths",
+    1000,
+    "epic"
+   ]
+  ]
+ },
+ "Big ICE Tower Tiny Square": {
+  "spec": {
+   "src": "lf",
+   "key": "/_keyhs$/",
+   "stats": {
+    "deaths": "TotalDeaths_keyhs",
+    "jumps": "TotalJumps_keyhs",
+    "time": "Gametime_keyhs"
+   }
+  },
+  "ach": [
+   [
+    "j500",
+    "⬛",
+    "Tiny Hops",
+    "Jump 500 times.",
+    "jumps",
+    500,
+    "common"
+   ],
+   [
+    "j5k",
+    "🧗",
+    "Tower Climber",
+    "Jump 5,000 times.",
+    "jumps",
+    5000,
+    "rare"
+   ],
+   [
+    "d100",
+    "💀",
+    "Pixel Perseverance",
+    "Die 100 times.",
+    "deaths",
+    100,
+    "common"
+   ],
+   [
+    "d1000",
+    "☠️",
+    "Not Giving Up",
+    "Die 1,000 times.",
+    "deaths",
+    1000,
+    "epic"
+   ]
+  ]
+ },
+ "Basketball Stars": {
+  "spec": {
+   "src": "ls",
+   "key": "bb_test",
+   "stats": {
+    "dunks": "invsav.achievs.dunks",
+    "threes": "invsav.achievs.points3",
+    "blocks": "invsav.achievs.blocks",
+    "steals": "invsav.achievs.steals",
+    "cups": "invsav.achievs|truekeys:^(GC|SC|BC)\\d"
+   }
+  },
+  "ach": [
+   [
+    "dunk10",
+    "🏀",
+    "Slam Dunk",
+    "Make 10 dunks.",
+    "dunks",
+    10,
+    "common"
+   ],
+   [
+    "three25",
+    "🎯",
+    "Downtown",
+    "Hit 25 three-pointers.",
+    "threes",
+    25,
+    "rare"
+   ],
+   [
+    "block25",
+    "✋",
+    "Rejected!",
+    "Block 25 shots.",
+    "blocks",
+    25,
+    "rare"
+   ],
+   [
+    "steal25",
+    "🦊",
+    "Pickpocket",
+    "Make 25 steals.",
+    "steals",
+    25,
+    "rare"
+   ],
+   [
+    "cup1",
+    "🏆",
+    "Cup Winner",
+    "Win a cup.",
+    "cups",
+    1,
+    "epic"
+   ],
+   [
+    "cup3",
+    "👑",
+    "Basketball Star",
+    "Win 3 cups.",
+    "cups",
+    3,
+    "legendary"
+   ]
+  ]
+ },
+ "Bank Robbery 3": {
+  "spec": {
+   "src": "ls",
+   "key": "/^(level|money|escape)$/",
+   "all": true,
+   "session": true,
+   "stats": {
+    "level": "level",
+    "money": "money",
+    "escape": "escape"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🏦",
+    "Inside Job",
+    "Reach level 3.",
+    "level",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "💎",
+    "Vault Cracker",
+    "Reach level 8.",
+    "level",
+    8,
+    "rare"
+   ],
+   [
+    "l15",
+    "👑",
+    "Heist Legend",
+    "Reach level 15.",
+    "level",
+    15,
+    "epic"
+   ],
+   [
+    "m5k",
+    "💰",
+    "Loaded",
+    "Have $5,000.",
+    "money",
+    5000,
+    "rare"
+   ]
+  ]
+ },
+ "Bit Planes": {
+  "spec": {
+   "src": "ls",
+   "key": "stats",
+   "session": true,
+   "stats": {
+    "killed": "killed",
+    "missiles": "missiles",
+    "cows": "cowKilled"
+   }
+  },
+  "ach": [
+   [
+    "k25",
+    "✈️",
+    "Dogfighter",
+    "Shoot down 25 planes.",
+    "killed",
+    25,
+    "common"
+   ],
+   [
+    "k250",
+    "🎖️",
+    "Flying Ace",
+    "Shoot down 250 planes.",
+    "killed",
+    250,
+    "rare"
+   ],
+   [
+    "m100",
+    "🚀",
+    "Missile Command",
+    "Fire 100 missiles.",
+    "missiles",
+    100,
+    "common"
+   ],
+   [
+    "cow",
+    "🐄",
+    "Udderly Ridiculous",
+    "Take out a cow.",
+    "cows",
+    1,
+    "epic"
+   ]
+  ]
+ },
+ "Riddle School 4": {
+  "spec": {
+   "src": "flash",
+   "key": "riddleschool4",
+   "stats": {
+    "beat": "beatgame|bool"
+   }
+  },
+  "ach": [
+   [
+    "beat",
+    "🎓",
+    "Field Trip Over",
+    "Beat Riddle School 4.",
+    "beat",
+    1,
+    "epic"
+   ]
+  ]
+ },
+ "Riddle School 5": {
+  "spec": {
+   "src": "flash",
+   "key": "riddleschool5",
+   "stats": {
+    "beat": "beatgame|bool"
+   }
+  },
+  "ach": [
+   [
+    "beat",
+    "🎓",
+    "Graduated",
+    "Beat Riddle School 5.",
+    "beat",
+    1,
+    "epic"
+   ]
+  ]
+ },
+ "Riddle Transfer": {
+  "spec": {
+   "src": "flash",
+   "key": "riddletransfer1",
+   "stats": {
+    "beat": "beatgame|bool"
+   }
+  },
+  "ach": [
+   [
+    "beat",
+    "🚌",
+    "Transferred",
+    "Beat Riddle Transfer.",
+    "beat",
+    1,
+    "epic"
+   ]
+  ]
+ },
+ "Run": {
+  "spec": {
+   "src": "flash",
+   "key": "run",
+   "stats": {
+    "adv": "maxAdvLevel",
+    "inf": "infCompletions",
+    "diff": "maxDifficulty"
+   }
+  },
+  "ach": [
+   [
+    "a10",
+    "👽",
+    "Space Jogger",
+    "Reach adventure level 10.",
+    "adv",
+    10,
+    "common"
+   ],
+   [
+    "a30",
+    "🌌",
+    "Tunnel Explorer",
+    "Reach adventure level 30.",
+    "adv",
+    30,
+    "rare"
+   ],
+   [
+    "a50",
+    "👑",
+    "Run Legend",
+    "Reach adventure level 50.",
+    "adv",
+    50,
+    "epic"
+   ],
+   [
+    "i10",
+    "♾️",
+    "Infinite Runner",
+    "Complete 10 infinite-mode tunnels.",
+    "inf",
+    10,
+    "rare"
+   ]
+  ]
+ },
+ "Run 2": {
+  "spec": {
+   "src": "flash",
+   "key": "Run2",
+   "stats": {
+    "level": "maxLevel",
+    "bonus": "bonusLevelsComplete",
+    "batteries": "bonusesEarned"
+   }
+  },
+  "ach": [
+   [
+    "l10",
+    "👽",
+    "Back in the Tunnel",
+    "Reach level 10.",
+    "level",
+    10,
+    "common"
+   ],
+   [
+    "l30",
+    "🌌",
+    "Deep Space",
+    "Reach level 30.",
+    "level",
+    30,
+    "rare"
+   ],
+   [
+    "l50",
+    "👑",
+    "Tunnel Master",
+    "Reach level 50.",
+    "level",
+    50,
+    "epic"
+   ],
+   [
+    "b5",
+    "🔋",
+    "Bonus Round",
+    "Complete 5 bonus levels.",
+    "bonus",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob": {
+  "spec": {
+   "src": "flash",
+   "key": "snailBob_SO",
+   "stats": {
+    "levels": "gameData.*.score|cnt",
+    "score": "gameData.*.score|tot",
+    "beat": "gameData.lastLevelCompleted|bool"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🏡",
+    "On the Move",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Home Sweet Home",
+    "Complete the final level.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "s20k",
+    "⭐",
+    "High Scorer",
+    "Score 20,000 points across all levels.",
+    "score",
+    20000,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob 2": {
+  "spec": {
+   "src": "flash",
+   "key": "snailBob2_SO",
+   "stats": {
+    "levels": "gameData.*.score|cnt",
+    "score": "gameData.*.score|tot",
+    "beat": "gameData.lastLevelCompleted|bool"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🏡",
+    "On the Move",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Grandpa’s Birthday",
+    "Complete the final level.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "s20k",
+    "⭐",
+    "High Scorer",
+    "Score 20,000 points across all levels.",
+    "score",
+    20000,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob 3": {
+  "spec": {
+   "src": "flash",
+   "key": "snailBob3_SO2",
+   "stats": {
+    "levels": "gameData.*.score|cnt",
+    "score": "gameData.*.score|tot",
+    "beat": "gameData.lastLevelCompleted|bool"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🏡",
+    "On the Move",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Egyptian Adventure",
+    "Complete the final level.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "s20k",
+    "⭐",
+    "High Scorer",
+    "Score 20,000 points across all levels.",
+    "score",
+    20000,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob 4": {
+  "spec": {
+   "src": "flash",
+   "key": "snailBobSpace_SO",
+   "stats": {
+    "levels": "gameData.*.score|cnt",
+    "score": "gameData.*.score|tot",
+    "beat": "gameData.lastLevelCompleted|bool"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🏡",
+    "On the Move",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Space Explorer",
+    "Complete the final level.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "s20k",
+    "⭐",
+    "High Scorer",
+    "Score 20,000 points across all levels.",
+    "score",
+    20000,
+    "rare"
+   ]
+  ]
+ },
+ "Bouncy Motors": {
+  "spec": {
+   "src": "ls",
+   "key": "player_data_progress",
+   "stats": {
+    "levels": "completedLevelsCount",
+    "money": "money",
+    "stickmen": "stickmenAnnihilationCount"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🚗",
+    "Bouncing Along",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🏁",
+    "Road Warrior",
+    "Complete 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l50",
+    "👑",
+    "Bouncy Legend",
+    "Complete 50 levels.",
+    "levels",
+    50,
+    "epic"
+   ],
+   [
+    "k100",
+    "💥",
+    "Stickman Smasher",
+    "Knock over 100 stickmen.",
+    "stickmen",
+    100,
+    "rare"
+   ],
+   [
+    "m5k",
+    "💰",
+    "Car Fund",
+    "Have 5,000 money.",
+    "money",
+    5000,
+    "common"
+   ]
+  ]
+ },
+ "Bob the Robber 5": {
+  "spec": {
+   "src": "ls",
+   "key": "/^bob_robber_v5:(stages|session)$/",
+   "all": true,
+   "stats": {
+    "levels": "bob_robber_v5:stages.*.stars|cnt",
+    "stars": "bob_robber_v5:stages.*.stars|tot",
+    "docs": "bob_robber_v5:stages.*.documents|tot",
+    "end": "bob_robber_v5:session.endingReached|bool"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🔦",
+    "Night Shift",
+    "Clear 3 stages.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "s15",
+    "⭐",
+    "Star Burglar",
+    "Earn 15 stars.",
+    "stars",
+    15,
+    "rare"
+   ],
+   [
+    "d10",
+    "📁",
+    "Secret Files",
+    "Steal 10 documents.",
+    "docs",
+    10,
+    "rare"
+   ],
+   [
+    "end",
+    "👑",
+    "The Last Job",
+    "Reach the ending.",
+    "end",
+    1,
+    "epic"
+   ]
+  ]
+ },
+ "BitLife": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^LivesStarted$/",
+   "stats": {
+    "started": "LivesStarted",
+    "done": "LivesCompleted"
+   }
+  },
+  "ach": [
+   [
+    "s5",
+    "👶",
+    "New Beginnings",
+    "Start 5 lives.",
+    "started",
+    5,
+    "common"
+   ],
+   [
+    "d1",
+    "⚰️",
+    "A Full Life",
+    "Live a life to the end.",
+    "done",
+    1,
+    "common"
+   ],
+   [
+    "d10",
+    "📖",
+    "Many Lives",
+    "Complete 10 lives.",
+    "done",
+    10,
+    "rare"
+   ],
+   [
+    "d50",
+    "👑",
+    "Reincarnated",
+    "Complete 50 lives.",
+    "done",
+    50,
+    "epic"
+   ]
+  ]
+ },
+ "Parking Fury": {
+  "spec": {
+   "src": "ls",
+   "key": "ParkingFury_01",
+   "stats": {
+    "levels": ".|ge:1",
+    "stars": ".|sum",
+    "perfect": ".|ge:3"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🅿️",
+    "Parallel Parker",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🚙",
+    "Valet",
+    "Complete 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "s45",
+    "⭐",
+    "Star Parker",
+    "Earn 45 stars.",
+    "stars",
+    45,
+    "rare"
+   ],
+   [
+    "p20",
+    "👑",
+    "Perfect Park",
+    "Get 3 stars on 20 levels.",
+    "perfect",
+    20,
+    "epic"
+   ]
+  ]
+ },
+ "Parking Fury 2": {
+  "spec": {
+   "src": "ls",
+   "key": "ParkingFury2_01",
+   "stats": {
+    "levels": ".|ge:1",
+    "stars": ".|sum",
+    "perfect": ".|ge:3"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🅿️",
+    "Parallel Parker",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🚙",
+    "Valet",
+    "Complete 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "s45",
+    "⭐",
+    "Star Parker",
+    "Earn 45 stars.",
+    "stars",
+    45,
+    "rare"
+   ],
+   [
+    "p20",
+    "👑",
+    "Perfect Park",
+    "Get 3 stars on 20 levels.",
+    "perfect",
+    20,
+    "epic"
+   ]
+  ]
+ },
+ "Parking Fury 3": {
+  "spec": {
+   "src": "ls",
+   "key": "ParkingFury3_01",
+   "stats": {
+    "levels": ".|ge:1",
+    "stars": ".|sum",
+    "perfect": ".|ge:3"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🅿️",
+    "Parallel Parker",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🚙",
+    "Valet",
+    "Complete 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "s45",
+    "⭐",
+    "Star Parker",
+    "Earn 45 stars.",
+    "stars",
+    45,
+    "rare"
+   ],
+   [
+    "p20",
+    "👑",
+    "Perfect Park",
+    "Get 3 stars on 20 levels.",
+    "perfect",
+    20,
+    "epic"
+   ]
+  ]
+ },
+ "World's Hardest Game 3": {
+  "spec": {
+   "src": "ls",
+   "key": "/^whg3_(level|deaths)$/",
+   "all": true,
+   "stats": {
+    "level": "whg3_level",
+    "deaths": "whg3_deaths"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🟥",
+    "Still Hard",
+    "Reach level 5.",
+    "level",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🟦",
+    "Harder Still",
+    "Reach level 15.",
+    "level",
+    15,
+    "rare"
+   ],
+   [
+    "l30",
+    "👑",
+    "The Hardest",
+    "Reach level 30.",
+    "level",
+    30,
+    "epic"
+   ],
+   [
+    "d500",
+    "💀",
+    "Determined",
+    "Die 500 times.",
+    "deaths",
+    500,
+    "common"
+   ]
+  ]
+ },
+ "Hanger 2": {
+  "spec": {
+   "src": "ls",
+   "key": "hanger_web_save2",
+   "stats": {
+    "best": "bestScore",
+    "coins": "coins",
+    "level": "levelSet",
+    "skins": "skins|true"
+   }
+  },
+  "ach": [
+   [
+    "b500",
+    "🪢",
+    "Hanging On",
+    "Score 500 in one run.",
+    "best",
+    500,
+    "common"
+   ],
+   [
+    "b2k",
+    "🕸️",
+    "Swing King",
+    "Score 2,000 in one run.",
+    "best",
+    2000,
+    "rare"
+   ],
+   [
+    "b5k",
+    "👑",
+    "Rope Master",
+    "Score 5,000 in one run.",
+    "best",
+    5000,
+    "epic"
+   ],
+   [
+    "sk5",
+    "🎨",
+    "Wardrobe",
+    "Unlock 5 skins.",
+    "skins",
+    5,
+    "rare"
+   ],
+   [
+    "c1k",
+    "🪙",
+    "Coin Swinger",
+    "Collect 1,000 coins.",
+    "coins",
+    1000,
+    "common"
+   ]
+  ]
+ },
+ "Spacebar Clicker": {
+  "spec": {
+   "src": "ls",
+   "key": "spacebar_clicker_game",
+   "stats": {
+    "points": "v",
+    "upgrades": "items.*.lvl|tot"
+   }
+  },
+  "ach": [
+   [
+    "p1k",
+    "⌨️",
+    "Tap Tap Tap",
+    "Earn 1,000 points.",
+    "points",
+    1000,
+    "common"
+   ],
+   [
+    "p1m",
+    "🚀",
+    "Space Program",
+    "Earn 1,000,000 points.",
+    "points",
+    1000000.0,
+    "rare"
+   ],
+   [
+    "p1b",
+    "🌌",
+    "Galactic Clicker",
+    "Earn 1,000,000,000 points.",
+    "points",
+    1000000000.0,
+    "epic"
+   ],
+   [
+    "u50",
+    "🛠️",
+    "Upgraded",
+    "Buy 50 upgrade levels.",
+    "upgrades",
+    50,
+    "rare"
+   ]
+  ]
+ },
+ "Google Baseball": {
+  "spec": {
+   "src": "ls",
+   "key": "doodle-july4th19-score",
+   "fmt": "num",
+   "stats": {
+    "best": "."
+   }
+  },
+  "ach": [
+   [
+    "s10",
+    "⚾",
+    "Batter Up",
+    "Score 10 runs.",
+    "best",
+    10,
+    "common"
+   ],
+   [
+    "s50",
+    "🌭",
+    "Home Run Derby",
+    "Score 50 runs.",
+    "best",
+    50,
+    "rare"
+   ],
+   [
+    "s100",
+    "🏆",
+    "Slugger",
+    "Score 100 runs.",
+    "best",
+    100,
+    "epic"
+   ]
+  ]
+ },
+ "Capybara Clicker": {
+  "spec": {
+   "src": "ls",
+   "key": "/^(number_click|number_capybaras|capyparas_earned|achiev_.*)$/",
+   "all": true,
+   "session": true,
+   "stats": {
+    "clicks": "number_click",
+    "capys": "capyparas_earned",
+    "ach": ".|truekeys:^achiev_"
+   }
+  },
+  "ach": [
+   [
+    "c100",
+    "🖱️",
+    "Pet the Capybara",
+    "Click 100 times.",
+    "clicks",
+    100,
+    "common"
+   ],
+   [
+    "c5k",
+    "👆",
+    "Capy Clicker",
+    "Click 5,000 times.",
+    "clicks",
+    5000,
+    "rare"
+   ],
+   [
+    "e1k",
+    "🦫",
+    "Capybara Colony",
+    "Earn 1,000 capybaras.",
+    "capys",
+    1000,
+    "common"
+   ],
+   [
+    "e1m",
+    "🌴",
+    "Capybara Paradise",
+    "Earn 1,000,000 capybaras.",
+    "capys",
+    1000000.0,
+    "epic"
+   ],
+   [
+    "a10",
+    "🏅",
+    "Chill Achiever",
+    "Unlock 10 of the game’s achievements.",
+    "ach",
+    10,
+    "rare"
+   ]
+  ]
+ },
+ "Choppy Orc": {
+  "spec": {
+   "src": "lf",
+   "key": "ORCMaxLevel",
+   "stats": {
+    "level": "."
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🪓",
+    "Choppy Start",
+    "Reach level 5.",
+    "level",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "👹",
+    "Orc Warrior",
+    "Reach level 15.",
+    "level",
+    15,
+    "rare"
+   ],
+   [
+    "l30",
+    "👑",
+    "Orc Chieftain",
+    "Reach level 30.",
+    "level",
+    30,
+    "epic"
+   ]
+  ]
+ },
+ "Cleanup.io": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^vacuum\\.version$/",
+   "stats": {
+    "best": "bestscore",
+    "level": "level",
+    "xp": "xp"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🧹",
+    "Tidy Up",
+    "Reach level 5.",
+    "level",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🧽",
+    "Neat Freak",
+    "Reach level 20.",
+    "level",
+    20,
+    "rare"
+   ],
+   [
+    "b1k",
+    "🗑️",
+    "Spotless",
+    "Get a best score of 1,000.",
+    "best",
+    1000,
+    "rare"
+   ],
+   [
+    "b5k",
+    "👑",
+    "Cleanup Champion",
+    "Get a best score of 5,000.",
+    "best",
+    5000,
+    "epic"
+   ]
+  ]
+ },
+ "Crazy Cars": {
+  "spec": {
+   "src": "ls",
+   "key": "accounts",
+   "stats": {
+    "dist": "0.garage.stats.driveDistance",
+    "air": "0.garage.stats.airTime",
+    "speed": "0.garage.stats.topSpeed",
+    "cars": "0.garage.vehicles|len"
+   }
+  },
+  "ach": [
+   [
+    "d10k",
+    "🚗",
+    "Road Trip",
+    "Drive 10,000 m in total.",
+    "dist",
+    10000,
+    "common"
+   ],
+   [
+    "d100k",
+    "🛣️",
+    "Long Haul",
+    "Drive 100,000 m in total.",
+    "dist",
+    100000,
+    "rare"
+   ],
+   [
+    "air60",
+    "🛫",
+    "Hang Time",
+    "Spend 60 seconds in the air in total.",
+    "air",
+    60,
+    "rare"
+   ],
+   [
+    "car3",
+    "🏎️",
+    "Car Collector",
+    "Own 3 vehicles.",
+    "cars",
+    3,
+    "epic"
+   ]
+  ]
+ },
+ "Crazy Crash Landing": {
+  "spec": {
+   "src": "ls",
+   "key": "savesData",
+   "stats": {
+    "levels": "completeLevels|true",
+    "money": "money",
+    "engine": "engineUpgradeCount"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "✈️",
+    "Touchdown",
+    "Complete a level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🛬",
+    "Rough Landing",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "rare"
+   ],
+   [
+    "l9",
+    "👑",
+    "Crash Expert",
+    "Complete all 9 levels.",
+    "levels",
+    9,
+    "epic"
+   ],
+   [
+    "e5",
+    "🔧",
+    "Tuned Up",
+    "Upgrade the engine 5 times.",
+    "engine",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Cut the Rope 2": {
+  "spec": {
+   "src": "ls",
+   "key": "{FAMOBI_GAMEID}:savegame",
+   "stats": {
+    "levels": "CTR2_PREFS__ALL|truekeys:LEVEL_STATUS"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🍬",
+    "Om Nom Nom",
+    "Unlock 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l25",
+    "🐸",
+    "Candy Hunter",
+    "Unlock 25 levels.",
+    "levels",
+    25,
+    "rare"
+   ],
+   [
+    "l60",
+    "🌳",
+    "Rope Master",
+    "Unlock 60 levels.",
+    "levels",
+    60,
+    "epic"
+   ],
+   [
+    "l100",
+    "👑",
+    "Sweet Tooth",
+    "Unlock 100 levels.",
+    "levels",
+    100,
+    "legendary"
+   ]
+  ]
+ },
+ "Snail Bob 5": {
+  "spec": {
+   "src": "flash",
+   "key": "NewSnailBob_SharedObject",
+   "stats": {
+    "levels": "gameData.levels.*.isCompleted|cnt",
+    "beat": "gameData.gameIsCompleted|bool",
+    "cups": "gameData.miniGames.*.bestCup|cnt"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🏡",
+    "On the Move",
+    "Complete 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Love Story",
+    "Complete the whole game.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "cup",
+    "🏆",
+    "Mini Champion",
+    "Win a cup in a mini-game.",
+    "cups",
+    1,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob 6": {
+  "spec": {
+   "src": "flash",
+   "key": "SnailBob6_SharedObject",
+   "stats": {
+    "levels": "gameData.levels.*.isCompleted|cnt",
+    "beat": "gameData.gameIsCompleted|bool",
+    "cups": "gameData.miniGames.*.bestCup|cnt"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🏡",
+    "On the Move",
+    "Complete 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Winter Story",
+    "Complete the whole game.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "cup",
+    "🏆",
+    "Mini Champion",
+    "Win a cup in a mini-game.",
+    "cups",
+    1,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob 7": {
+  "spec": {
+   "src": "flash",
+   "key": "SnailBob7_SharedObject",
+   "stats": {
+    "levels": "gameData.levels.*.isCompleted|cnt",
+    "beat": "gameData.gameIsCompleted|bool",
+    "cups": "gameData.miniGames.*.bestCup|cnt"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🏡",
+    "On the Move",
+    "Complete 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Fantasy Story",
+    "Complete the whole game.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "cup",
+    "🏆",
+    "Mini Champion",
+    "Win a cup in a mini-game.",
+    "cups",
+    1,
+    "rare"
+   ]
+  ]
+ },
+ "Snail Bob 8": {
+  "spec": {
+   "src": "flash",
+   "key": "SnailBob8_SharedObject",
+   "stats": {
+    "levels": "gameData.levels.*.isCompleted|cnt",
+    "beat": "gameData.gameIsCompleted|bool",
+    "cups": "gameData.miniGames.*.bestCup|cnt"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🐌",
+    "Slow and Steady",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🏡",
+    "On the Move",
+    "Complete 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "beat",
+    "👑",
+    "Island Story",
+    "Complete the whole game.",
+    "beat",
+    1,
+    "epic"
+   ],
+   [
+    "cup",
+    "🏆",
+    "Mini Champion",
+    "Win a cup in a mini-game.",
+    "cups",
+    1,
+    "rare"
+   ]
+  ]
+ },
+ "Deadly Descent": {
+  "spec": {
+   "src": "ls",
+   "key": "saves",
+   "session": true,
+   "stats": {
+    "cars": ".|truekeys:_Unlocked$"
+   }
+  },
+  "ach": [
+   [
+    "c2",
+    "🚙",
+    "Second Ride",
+    "Unlock a second car.",
+    "cars",
+    2,
+    "common"
+   ],
+   [
+    "c5",
+    "🏎️",
+    "Garage Full",
+    "Unlock 5 cars.",
+    "cars",
+    5,
+    "rare"
+   ],
+   [
+    "c10",
+    "👑",
+    "Collector",
+    "Unlock 10 cars.",
+    "cars",
+    10,
+    "epic"
+   ]
+  ]
+ },
+ "Death Chase": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^auto02_kupene$/",
+   "stats": {
+    "cars": ".|truekeys:^auto\\d+_kupene$",
+    "armor": ".|truekeys:^g_armor\\d+$",
+    "guns": ".|truekeys:^g_minigun\\d+$"
+   }
+  },
+  "ach": [
+   [
+    "c1",
+    "🚗",
+    "New Wheels",
+    "Buy a new car.",
+    "cars",
+    1,
+    "common"
+   ],
+   [
+    "c5",
+    "🔥",
+    "Fleet",
+    "Buy 5 cars.",
+    "cars",
+    5,
+    "rare"
+   ],
+   [
+    "c13",
+    "👑",
+    "Death Racer",
+    "Buy every car.",
+    "cars",
+    13,
+    "epic"
+   ],
+   [
+    "a5",
+    "🛡️",
+    "Armored Up",
+    "Buy 5 armor upgrades.",
+    "armor",
+    5,
+    "rare"
+   ],
+   [
+    "g5",
+    "🔫",
+    "Locked and Loaded",
+    "Buy 5 minigun upgrades.",
+    "guns",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Death Run 3D": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^IdNetApi\\.BestScore/",
+   "stats": {
+    "best": ".|keymax:^IdNetApi\\.BestScore"
+   }
+  },
+  "ach": [
+   [
+    "b1k",
+    "💀",
+    "Run for Your Life",
+    "Get a best score of 1,000.",
+    "best",
+    1000,
+    "common"
+   ],
+   [
+    "b5k",
+    "🌀",
+    "Speed Demon",
+    "Get a best score of 5,000.",
+    "best",
+    5000,
+    "rare"
+   ],
+   [
+    "b20k",
+    "👑",
+    "Death Defier",
+    "Get a best score of 20,000.",
+    "best",
+    20000,
+    "epic"
+   ]
+  ]
+ },
+ "Super Mario 63": {
+  "spec": {
+   "src": "flash",
+   "key": "/^SuperMario.*SavedFile$/",
+   "stats": {
+    "stars": "FileAStar|true",
+    "coins": "FileAStarCoin|true",
+    "keys": ".|truekeys:^FileABowserKey"
+   }
+  },
+  "ach": [
+   [
+    "s1",
+    "⭐",
+    "Here We Go!",
+    "Collect a Shine Sprite.",
+    "stars",
+    1,
+    "common"
+   ],
+   [
+    "s16",
+    "🌟",
+    "Shine Collector",
+    "Collect 16 Shine Sprites.",
+    "stars",
+    16,
+    "rare"
+   ],
+   [
+    "s40",
+    "✨",
+    "Super Star",
+    "Collect 40 Shine Sprites.",
+    "stars",
+    40,
+    "epic"
+   ],
+   [
+    "s64",
+    "👑",
+    "It’s-a Me!",
+    "Collect all 64 Shine Sprites.",
+    "stars",
+    64,
+    "legendary"
+   ],
+   [
+    "k3",
+    "🔑",
+    "Bowser’s Keys",
+    "Collect all 3 Bowser keys.",
+    "keys",
+    3,
+    "epic"
+   ],
+   [
+    "c10",
+    "🪙",
+    "Star Coins",
+    "Collect 10 Star Coins.",
+    "coins",
+    10,
+    "rare"
+   ]
+  ]
+ },
+ "This is the Only Level": {
+  "spec": {
+   "src": "flash",
+   "key": "finalLevel",
+   "stats": {
+    "level": "level",
+    "deaths": "deaths"
+   }
+  },
+  "ach": [
+   [
+    "l10",
+    "🐘",
+    "Same Level, New Twist",
+    "Reach stage 10.",
+    "level",
+    10,
+    "common"
+   ],
+   [
+    "l25",
+    "🔁",
+    "Deja Vu",
+    "Reach stage 25.",
+    "level",
+    25,
+    "rare"
+   ],
+   [
+    "l40",
+    "👑",
+    "The Only Level, Beaten",
+    "Reach stage 40.",
+    "level",
+    40,
+    "epic"
+   ],
+   [
+    "d100",
+    "💀",
+    "Elephant Graveyard",
+    "Die 100 times.",
+    "deaths",
+    100,
+    "common"
+   ]
+  ]
+ },
+ "Draw Climber": {
+  "spec": {
+   "src": "ls",
+   "key": "/^drawclimber_/",
+   "stats": {
+    "level": "game_db.NumGates",
+    "gold": "game_db.NumGolds",
+    "heroes": "game_db.NumLocks|true"
+   }
+  },
+  "ach": [
+   [
+    "l10",
+    "✏️",
+    "Scribbler",
+    "Reach level 10.",
+    "level",
+    10,
+    "common"
+   ],
+   [
+    "l50",
+    "🧗",
+    "Climber",
+    "Reach level 50.",
+    "level",
+    50,
+    "rare"
+   ],
+   [
+    "l150",
+    "👑",
+    "Master Draftsman",
+    "Reach level 150.",
+    "level",
+    150,
+    "epic"
+   ],
+   [
+    "h5",
+    "🎨",
+    "Character Collection",
+    "Unlock 5 characters.",
+    "heroes",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Dreadhead Parkour": {
+  "spec": {
+   "src": "lf",
+   "db": "c3-localstorage-1g7gr0zpzy8",
+   "key": "/^MyGameData$/",
+   "stats": {
+    "level": "MyGameData.data.levelka",
+    "stars": "MyGameData.data.pole_stars.data.*.*.0|tot"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏃",
+    "Parkour Rookie",
+    "Reach level 5.",
+    "level",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🧱",
+    "Free Runner",
+    "Reach level 20.",
+    "level",
+    20,
+    "rare"
+   ],
+   [
+    "l52",
+    "👑",
+    "Dreadhead Legend",
+    "Reach level 52.",
+    "level",
+    52,
+    "epic"
+   ],
+   [
+    "s50",
+    "⭐",
+    "Star Runner",
+    "Earn 50 stars.",
+    "stars",
+    50,
+    "rare"
+   ]
+  ]
+ },
+ "Wheely": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelsOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Wheely 2": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelsOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Wheely 3": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelsOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "This is the Only Level Too": {
+  "spec": {
+   "src": "flash",
+   "key": "titol2Data",
+   "stats": {
+    "level": "levelNum",
+    "egg": "foundEgg|bool",
+    "kills": "bestKills"
+   }
+  },
+  "ach": [
+   [
+    "l10",
+    "🐘",
+    "Here We Go Again",
+    "Reach stage 10.",
+    "level",
+    10,
+    "common"
+   ],
+   [
+    "l20",
+    "🔁",
+    "Twice the Fun",
+    "Reach stage 20.",
+    "level",
+    20,
+    "rare"
+   ],
+   [
+    "egg",
+    "🥚",
+    "Easter Egg",
+    "Find the hidden egg.",
+    "egg",
+    1,
+    "epic"
+   ]
+  ]
+ },
+ "Eggy Car": {
+  "spec": {
+   "src": "lf",
+   "key": "/^eggcar_(best|coins)$/",
+   "stats": {
+    "best": "eggcar_best",
+    "coins": "eggcar_coins"
+   }
+  },
+  "ach": [
+   [
+    "b100",
+    "🥚",
+    "Careful Driver",
+    "Drive 100 m without breaking the egg.",
+    "best",
+    100,
+    "common"
+   ],
+   [
+    "b500",
+    "🚗",
+    "Egg-cellent",
+    "Drive 500 m.",
+    "best",
+    500,
+    "rare"
+   ],
+   [
+    "b1k",
+    "👑",
+    "Eggspert",
+    "Drive 1,000 m.",
+    "best",
+    1000,
+    "epic"
+   ],
+   [
+    "c500",
+    "🪙",
+    "Nest Egg",
+    "Collect 500 coins.",
+    "coins",
+    500,
+    "common"
+   ]
+  ]
+ },
+ "Wheely 4: Time Travel": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Wheely 5: Armageddon": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Eagle Ride": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^CollectedJewels$/",
+   "stats": {
+    "jewels": "CollectedJewels"
+   }
+  },
+  "ach": [
+   [
+    "j10",
+    "💎",
+    "Shiny Things",
+    "Collect 10 jewels.",
+    "jewels",
+    10,
+    "common"
+   ],
+   [
+    "j100",
+    "🦅",
+    "Treasure Flyer",
+    "Collect 100 jewels.",
+    "jewels",
+    100,
+    "rare"
+   ],
+   [
+    "j500",
+    "👑",
+    "King of the Skies",
+    "Collect 500 jewels.",
+    "jewels",
+    500,
+    "epic"
+   ]
+  ]
+ },
+ "Wheely 6: Fairytale": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Wheely 7: Detective": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🚗",
+    "Rolling",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "🚦",
+    "Road Trip",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Fireboy and Watergirl 2: Light Temple": {
+  "spec": {
+   "src": "ls",
+   "key": "fb-light:progress",
+   "stats": {
+    "levels": "temples.*.levels.*.state|cntge:2",
+    "done": "gameComplete|bool"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🔥",
+    "Into the Light Temple",
+    "Finish your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l10",
+    "💧",
+    "Teamwork",
+    "Finish 10 levels.",
+    "levels",
+    10,
+    "common"
+   ],
+   [
+    "l20",
+    "🗝️",
+    "Deep in the Temple",
+    "Finish 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l41",
+    "💎",
+    "Every Room",
+    "Finish all 41 levels.",
+    "levels",
+    41,
+    "epic"
+   ],
+   [
+    "done",
+    "👑",
+    "Light Temple Conquered",
+    "Complete the game.",
+    "done",
+    1,
+    "legendary"
+   ]
+  ]
+ },
+ "Fireboy and Watergirl 3: Ice Temple": {
+  "spec": {
+   "src": "ls",
+   "key": "fb-ice:progress",
+   "stats": {
+    "levels": "temples.*.levels.*.state|cntge:2",
+    "done": "gameComplete|bool"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🔥",
+    "Into the Ice Temple",
+    "Finish your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l10",
+    "💧",
+    "Teamwork",
+    "Finish 10 levels.",
+    "levels",
+    10,
+    "common"
+   ],
+   [
+    "l20",
+    "🗝️",
+    "Deep in the Temple",
+    "Finish 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l37",
+    "💎",
+    "Every Room",
+    "Finish all 37 levels.",
+    "levels",
+    37,
+    "epic"
+   ],
+   [
+    "done",
+    "👑",
+    "Ice Temple Conquered",
+    "Complete the game.",
+    "done",
+    1,
+    "legendary"
+   ]
+  ]
+ },
+ "Fireboy and Watergirl 4: Crystal Temple": {
+  "spec": {
+   "src": "ls",
+   "key": "fb-crystal:progress",
+   "stats": {
+    "levels": "temples.*.levels.*.state|cntge:2",
+    "done": "gameComplete|bool"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🔥",
+    "Into the Crystal Temple",
+    "Finish your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l10",
+    "💧",
+    "Teamwork",
+    "Finish 10 levels.",
+    "levels",
+    10,
+    "common"
+   ],
+   [
+    "l20",
+    "🗝️",
+    "Deep in the Temple",
+    "Finish 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l39",
+    "💎",
+    "Every Room",
+    "Finish all 39 levels.",
+    "levels",
+    39,
+    "epic"
+   ],
+   [
+    "done",
+    "👑",
+    "Crystal Temple Conquered",
+    "Complete the game.",
+    "done",
+    1,
+    "legendary"
+   ]
+  ]
+ },
+ "Wheely 8: Aliens": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "m_levelOpened"
+   }
+  },
+  "ach": [
+   [
+    "l3",
+    "🛸",
+    "Close Encounter",
+    "Unlock level 3.",
+    "levels",
+    3,
+    "common"
+   ],
+   [
+    "l8",
+    "👽",
+    "Abducted",
+    "Unlock level 8.",
+    "levels",
+    8,
+    "rare"
+   ],
+   [
+    "l16",
+    "👑",
+    "Wheely Good",
+    "Unlock every level.",
+    "levels",
+    16,
+    "epic"
+   ]
+  ]
+ },
+ "Bad Ice Cream 2": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "levels_unlocked|true",
+    "score": "level_scores|sum"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🍦",
+    "Brain Freeze",
+    "Unlock 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🍨",
+    "Fruit Collector",
+    "Unlock 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l40",
+    "👑",
+    "Scoop Supreme",
+    "Unlock all 40 levels.",
+    "levels",
+    40,
+    "epic"
+   ],
+   [
+    "s50k",
+    "🍓",
+    "Sweet Score",
+    "Get 50,000 points across all levels.",
+    "score",
+    50000,
+    "rare"
+   ]
+  ]
+ },
+ "Bad Ice Cream 3": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "levels": "levels_unlocked|true",
+    "score": "level_scores|sum"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🍦",
+    "Brain Freeze",
+    "Unlock 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🍨",
+    "Fruit Collector",
+    "Unlock 20 levels.",
+    "levels",
+    20,
+    "rare"
+   ],
+   [
+    "l40",
+    "👑",
+    "Ice Cream Royalty",
+    "Unlock all 40 levels.",
+    "levels",
+    40,
+    "epic"
+   ],
+   [
+    "s50k",
+    "🍓",
+    "Sweet Score",
+    "Get 50,000 points across all levels.",
+    "score",
+    50000,
+    "rare"
+   ]
+  ]
+ }
+}
