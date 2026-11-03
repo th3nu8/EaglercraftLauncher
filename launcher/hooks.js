@@ -83,17 +83,29 @@ window.MistHooks = (function () {
   }
 
   /* ---------- Unity PlayerPrefs (stored in IndexedDB /idbfs) ---------- */
+  /* Unity games keep PlayerPrefs in /idbfs/<hash>/PlayerPrefs. Read every such file and merge them. */
   function readPlayerPrefs() {
     return openDb('/idbfs').then(function (db) {
       if (!db || !db.objectStoreNames.contains('FILE_DATA')) { if (db) db.close(); return null; }
-      var store = db.transaction('FILE_DATA', 'readonly').objectStore('FILE_DATA');
-      return req(store.getAllKeys()).then(function (keys) {
-        var key = keys.filter(function (k) { return /\/PlayerPrefs$/.test(k); })[0];
-        if (!key) { db.close(); return null; }
-        return req(db.transaction('FILE_DATA', 'readonly').objectStore('FILE_DATA').get(key)).then(function (rec) {
-          db.close(); return parsePrefs(bytes(rec && rec.contents));
+      return req(db.transaction('FILE_DATA', 'readonly').objectStore('FILE_DATA').getAllKeys()).then(function (keys) {
+        keys = keys.filter(function (k) { return /\/PlayerPrefs$/.test(k); });
+        if (!keys.length) { db.close(); return null; }
+        return Promise.all(keys.map(function (k) { return req(db.transaction('FILE_DATA', 'readonly').objectStore('FILE_DATA').get(k)); })).then(function (recs) {
+          db.close(); var out = {};
+          recs.forEach(function (rec) { var p = parsePrefs(bytes(rec && rec.contents)); for (var k in p) out[k] = p[k]; });
+          return out;
         });
-      });
+      }, function () { db.close(); return null; });
+    });
+  }
+  function prefsHook(fn, interval) {
+    return { interval: interval || 6000, poll: function () { return readPlayerPrefs().then(function (p) { return p ? fn(p) : null; }).catch(function () { return null; }); } };
+  }
+  function lsJson(key) { try { return JSON.parse(ls(key) || 'null'); } catch (e) { return null; } }
+  function readLocalforage(key) {
+    return openDb('localforage').then(function (db) {
+      if (!db || !db.objectStoreNames.contains('keyvaluepairs')) { if (db) db.close(); return null; }
+      return req(db.transaction('keyvaluepairs', 'readonly').objectStore('keyvaluepairs').get(key)).then(function (v) { db.close(); return v; }, function () { db.close(); return null; });
     });
   }
   function parsePrefs(u8) {
@@ -181,6 +193,64 @@ window.MistHooks = (function () {
         customTracks: keys.filter(function (k) { return k.indexOf('polytrack_v5_prod_track_') === 0; }).length };
     } },
     'Bloons TD 5': { interval: 8000, poll: btd5 },
+    /* ---- batch 1 ---- */
+    '2048': { interval: 4000, poll: function () {
+      var g = lsJson('gameState'), tile = 0;
+      if (g && g.grid && g.grid.cells) g.grid.cells.forEach(function (col) { (col || []).forEach(function (c) { if (c && c.value > tile) tile = c.value; }); });
+      var best = Math.max(num(ls('bestScore')), g ? num(g.score) : 0);
+      if (!g && !best) return null;
+      return { tile: tile, best: best };
+    } },
+    'OvO': { interval: 6000, poll: function () {
+      return readLocalforage('DedraOvO').then(function (v) {
+        if (typeof v !== 'string') return null;
+        var i = v.indexOf('eyJ'); if (i < 0) return null;
+        var b64 = v.slice(i).replace(/[^A-Za-z0-9+/]/g, ''), txt = '';
+        try { txt = atob(b64.slice(0, b64.length - b64.length % 4)); } catch (e) { return null; }
+        var pick = function (k) { var m = new RegExp('"' + k + '":(-?[0-9.]+)').exec(txt); return m ? num(m[1]) : 0; };
+        if (!/"Levels":/.test(txt)) return null;
+        return { level: pick('Levels'), coins: pick('CollectedCoins'), gold: pick('Gold') };
+      }).catch(function () { return null; });
+    } },
+    'Drift Boss': { interval: 5000, poll: function () {
+      var k = lsKeys().filter(function (x) { return /^mjs-drift-boss-game/.test(x); })[0]; if (!k) return null;
+      var d = lsJson(k); if (!d) return null;
+      return { score: num(d.score), coins: num(d.collectedCoin), cars: (d.cars || []).length };
+    } },
+    'Temple Run 2': { interval: 5000, poll: function () {
+      var d = lsJson('TR2_GAME_STATE'); if (!d || !d.statsData) return null; var s = d.statsData;
+      return { score: num(s.highestScore), run: num(s.longestRun), games: num(s.totalGames), distance: num(s.totalDistance), coins: num(s.totalCoins) };
+    } },
+    'Vex 5': { interval: 5000, poll: function () {
+      var k = lsKeys().filter(function (x) { return /^vex5_v\d+:sg$/.test(x); })[0]; if (!k) return null;
+      var d = lsJson(k); if (!d) return null;
+      var ach = d.achievements || {};
+      return { levels: (d.levels || []).filter(function (l) { return l && num(l.tt) >= 0; }).length,
+        achievements: Object.keys(ach).filter(function (a) { return ach[a] === true; }).length,
+        deaths: num(d.stats && d.stats.td) };
+    } },
+    'Idle Breakout': { interval: 8000, poll: function () {
+      var k = lsKeys().filter(function (x) { return /^breakout\.\d+\.save\.dat$/.test(x); })[0]; if (!k) return null;
+      var ini = ls(k) || '', sec = '', main = {}, ach = 0;
+      ini.split(/\r?\n/).forEach(function (line) {
+        var m = /^\[(.+)\]$/.exec(line.trim()); if (m) { sec = m[1]; return; }
+        var kv = /^([^=]+)="?([^"]*)"?$/.exec(line.trim()); if (!kv) return;
+        if (sec === 'main') main[kv[1]] = kv[2]; else if (sec === 'achievements' && num(kv[2]) > 0) ach++;
+      });
+      return { level: num(main.level), prestige: num(main.prestiged), clicks: num(main.clicks), achievements: ach };
+    } },
+    'Geometry Dash Lite': prefsHook(function (p) {
+      if (!p.PLAYER_DATA) return null;
+      var pd, gd; try { pd = JSON.parse(p.PLAYER_DATA); gd = JSON.parse(p.GAME_DATA || '{}'); } catch (e) { return null; }
+      var lv = (pd.leveldatas || []).filter(function (l) { return !l.comingSoon; });
+      var star = function (id) { var x = (gd.starData || []).filter(function (s) { return s.id === id; })[0]; return x ? num(x.parameter) : 0; };
+      return { stereo: lv[0] && num(lv[0].normalMode) >= 100 ? 1 : 0,
+        levels: lv.filter(function (l) { return num(l.normalMode) >= 100; }).length,
+        coins: lv.reduce(function (a, l) { return a + num(l.coin); }, 0),
+        jumps: star(0), attempts: star(1) };
+    }),
+    'Tunnel Rush': prefsHook(function (p) { return p.RecordDistance === undefined ? null : { distance: Math.floor(num(p.RecordDistance)) }; }),
+    'Snow Rider 3D': prefsHook(function (p) { return p.Plays === undefined ? null : { plays: num(p.Plays), skin: num(p.CurrentSkin) > 0 ? 1 : 0 }; }),
     'Slope': { interval: 6000, poll: function () {
       return readPlayerPrefs().then(function (prefs) {
         if (!prefs) return null;
