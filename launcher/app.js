@@ -217,12 +217,14 @@
     setTimeout(function () { try { gameFrame.focus(); } catch (e) {} }, 300);
     if (!g || g.cloudSaves) startAutosave();
     if (social) social.setPlaying(g ? g.name : name);
+    startHooks(g);
     var b = $('#backBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 2500);
   }
   function closeGame(silent) {
     if (!gameFrame) return;
     if (!silent && !confirm('Return to the library? Unsaved progress in the running game will be lost.')) return;
     var hadSaves = !runningGame || runningGame.cloudSaves;
+    stopHooks();
     gameFrame.remove(); gameFrame = null; runningGame = null;
     if (social) social.setPlaying(null);
     if (gameUrl) { URL.revokeObjectURL(gameUrl); gameUrl = null; }
@@ -232,6 +234,21 @@
     if (!silent && hadSaves && engine && engine.signedIn()) setTimeout(backgroundSync, 600);
     renderAll();
   }
+  /* Game hooks: read progress from supported games while they run (launcher/hooks.js). */
+  var hookWatch = null;
+  function startHooks(g) {
+    stopHooks();
+    if (!g || !window.MistHooks || !MistHooks.has(g.name) || !engine || !engine.signedIn() || !gameFrame) return;
+    var gameName = g.name;
+    hookWatch = MistHooks.watch(gameName, gameFrame.contentWindow, function (stats) {
+      if (!engine || !engine.signedIn()) return;
+      engine.api('POST', '/api/game-stats', { json: { game: gameName, stats: stats } }).then(function (r) {
+        if (social && r && r.newAchievements) social.showAchievements(r.newAchievements);
+      }, function () {});
+    });
+  }
+  function stopHooks() { if (hookWatch) { hookWatch.stop(); hookWatch = null; } }
+
   function launchLocalFile(file) {
     var r = new FileReader();
     showOverlay('Opening ' + file.name, 'Reading file…', true);

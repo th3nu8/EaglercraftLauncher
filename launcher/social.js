@@ -256,6 +256,9 @@ window.MistSocial = function (ctx) {
     return n;
   }
 
+  var hookDefs = {};
+  function loadHookDefs() { if (!eng()) return Promise.resolve(hookDefs); return api('GET', '/api/hook-defs').then(function (r) { hookDefs = r.games || {}; return hookDefs; }, function () { return hookDefs; }); }
+
   /* ---------- per-game achievements (10 per game) ---------- */
   var GAME_TIERS = [['m5','🌱','First Look','5 minutes',300],['m15','🎈','Warming Up','15 minutes',900],['m30','🎯','Getting the Hang','30 minutes',1800],
     ['h1','🪝','Hooked','1 hour',3600],['h2','🎮','Regular','2 hours',7200],['h5','💪','Dedicated','5 hours',18000],['h10','🛡️','Veteran','10 hours',36000],
@@ -279,25 +282,45 @@ window.MistSocial = function (ctx) {
     row.appendChild(right);
     return row;
   }
+  function specialRow(t) {
+    var row = el('div', 'pach special' + (t.unlocked ? ' got' : ''));
+    row.appendChild(el('span', 'ach-ico', t.icon));
+    var tx = el('div', 'pach-tx'); tx.appendChild(el('b', null, t.name)); tx.appendChild(el('span', null, t.desc));
+    if (!t.unlocked && t.progress !== undefined && t.goal > 1) {
+      var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = Math.round(100 * t.progress / t.goal) + '%'; pb.appendChild(pf); tx.appendChild(pb);
+      tx.appendChild(el('small', null, Number(t.progress).toLocaleString() + ' / ' + Number(t.goal).toLocaleString()));
+    }
+    row.appendChild(tx);
+    var right = el('div', 'pach-r');
+    if (t.unlocked !== undefined) right.appendChild(el('small', null, t.unlocked ? 'Unlocked ' + fmtDate(t.unlocked, true) : 'Locked'));
+    if (t.rarity !== undefined) right.appendChild(rarityEl(t.rarity));
+    row.appendChild(right);
+    return row;
+  }
   /* Achievements panel for one game (store page and library). */
   function renderGameAch(host, game) {
     host.textContent = '';
     var head = el('div', 'gach-h'); head.appendChild(el('h5', null, 'Achievements')); host.appendChild(head);
     var list = el('div', 'plist'); host.appendChild(list);
-    function draw(tiers, summary) {
+    function draw(tiers, summary, special) {
       list.textContent = '';
       if (summary) head.appendChild(summary);
+      if (special && special.length) {
+        list.appendChild(el('div', 'gach-sub', 'Game challenges'));
+        special.forEach(function (t) { list.appendChild(specialRow(t)); });
+        list.appendChild(el('div', 'gach-sub', 'Playtime'));
+      }
       tiers.forEach(function (t) { list.appendChild(tierRow(t, true)); });
     }
     if (!eng()) {
-      var note = el('span', 'gach-sum', '10 achievements · sign in to track them');
+      var note = el('span', 'gach-sum', 'Sign in to track achievements');
       draw(staticTiers(game), note); return;
     }
     list.appendChild(el('div', 'fp-empty', 'Loading…'));
     api('GET', '/api/game-achievements?game=' + encodeURIComponent(game)).then(function (r) {
       var sum = el('span', 'gach-sum', r.unlocked + ' / ' + r.total + ' unlocked · ' + fmtTime(r.seconds) + ' played');
       var wrap = el('div', 'pbar big gach-bar'); var f = el('i'); f.style.width = Math.round(100 * r.unlocked / r.total) + '%'; wrap.appendChild(f);
-      draw(r.tiers, sum); host.insertBefore(wrap, list);
+      draw(r.tiers, sum, r.special); host.insertBefore(wrap, list);
     }, function () { draw(staticTiers(game), el('span', 'gach-sum', '10 achievements')); });
   }
 
@@ -312,7 +335,7 @@ window.MistSocial = function (ctx) {
       return;
     }
     host.appendChild(el('div', 'fp-empty', 'Loading achievements…'));
-    api('GET', '/api/profile?name=' + encodeURIComponent(eng().user)).then(function (pr) { host.textContent = ''; buildAchPage(host, pr); },
+    Promise.all([api('GET', '/api/profile?name=' + encodeURIComponent(eng().user)), loadHookDefs()]).then(function (r) { var pr = r[0]; host.textContent = ''; buildAchPage(host, pr); },
       function (e) { host.textContent = ''; host.appendChild(el('div', 'fp-empty', e.message)); });
   }
   function buildAchPage(host, pr) {
@@ -321,8 +344,10 @@ window.MistSocial = function (ctx) {
     var names = ctx.gameNames();
     var general = pr.achievements || [];
     var genGot = general.filter(function (a) { return a.unlocked; }).length;
-    var gameGot = 0; Object.keys(played).forEach(function (n) { gameGot += played[n].tiers.filter(function (t) { return t.unlocked; }).length; });
-    var total = general.length + names.length * GAME_TIERS.length, got = genGot + gameGot;
+    var gameGot = 0; Object.keys(played).forEach(function (n) { gameGot += played[n].tiers.filter(function (t) { return t.unlocked; }).length + (played[n].special || []).filter(function (t) { return t.unlocked; }).length; });
+    var perGame = function (n) { return GAME_TIERS.length + (hookDefs[n] ? hookDefs[n].length : 0); };
+    var gameTotal = names.reduce(function (a, n) { return a + perGame(n); }, 0);
+    var total = general.length + gameTotal, got = genGot + gameGot;
 
     var top = el('div', 'ach-top');
     var big = el('div', 'ach-big'); big.appendChild(el('b', null, got.toLocaleString() + ' / ' + total.toLocaleString()));
@@ -331,7 +356,9 @@ window.MistSocial = function (ctx) {
     var bar = el('div', 'pbar big'); var f = el('i'); f.style.width = Math.max(0.5, 100 * got / total) + '%'; bar.appendChild(f); top.appendChild(bar);
     var split = el('div', 'ach-split');
     split.appendChild(el('span', null, 'General: ' + genGot + ' / ' + general.length));
-    split.appendChild(el('span', null, 'Game achievements: ' + gameGot.toLocaleString() + ' / ' + (names.length * GAME_TIERS.length).toLocaleString() + ' across ' + names.length + ' games'));
+    split.appendChild(el('span', null, 'Game achievements: ' + gameGot.toLocaleString() + ' / ' + gameTotal.toLocaleString() + ' across ' + names.length + ' games'));
+    var hooked = Object.keys(hookDefs).filter(function (n) { return names.indexOf(n) >= 0; });
+    if (hooked.length) split.appendChild(el('span', 'hooked-note', '🎯 ' + hooked.length + ' games have extra challenges'));
     top.appendChild(split);
     host.appendChild(top);
 
@@ -377,15 +404,17 @@ window.MistSocial = function (ctx) {
       listHost.textContent = '';
       var term = achView.q.toLowerCase();
       var rows = names.filter(function (n) { return !term || n.toLowerCase().indexOf(term) >= 0; }).map(function (n) {
-        var p = played[n]; return { name: n, p: p, got: p ? p.tiers.filter(function (t) { return t.unlocked; }).length : 0, sec: p ? p.seconds : 0 };
+        var p = played[n];
+        var got = p ? p.tiers.filter(function (t) { return t.unlocked; }).length + (p.special || []).filter(function (t) { return t.unlocked; }).length : 0;
+        return { name: n, p: p, got: got, total: perGame(n), sec: p ? p.seconds : 0, hooked: !!hookDefs[n] };
       });
       rows.sort(achView.sort === 'name' ? function (a, b) { return a.name.localeCompare(b.name); } : function (a, b) { return b.got - a.got || b.sec - a.sec || a.name.localeCompare(b.name); });
       rows.slice(0, achView.shown).forEach(function (r) {
         var card = el('div', 'pgame expandable');
         var ico = el('div', 'pgame-ico small'); var gg = ctx.gameByName(r.name); if (gg) ctx.artInto(ico, gg, 'capsule', false); card.appendChild(ico);
-        var info = el('div', 'pgame-info'); info.appendChild(el('b', null, r.name));
-        info.appendChild(el('small', 'pgame-count', r.got + ' / ' + GAME_TIERS.length + ' achievements' + (r.sec ? ' · ' + fmtTime(r.sec) + ' played' : ' · not played yet')));
-        var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = (100 * r.got / GAME_TIERS.length) + '%'; pb.appendChild(pf); info.appendChild(pb);
+        var info = el('div', 'pgame-info'); var nm = el('b', null, r.name); if (r.hooked) nm.appendChild(el('span', 'hook-tag', '🎯 challenges')); info.appendChild(nm);
+        info.appendChild(el('small', 'pgame-count', r.got + ' / ' + r.total + ' achievements' + (r.sec ? ' · ' + fmtTime(r.sec) + ' played' : ' · not played yet')));
+        var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = (100 * r.got / r.total) + '%'; pb.appendChild(pf); info.appendChild(pb);
         card.appendChild(info);
         var tiers = el('div', 'ptiers');
         (r.p ? r.p.tiers : staticTiers(r.name)).forEach(function (t) { var m = el('span', 'ptier' + (t.unlocked ? ' got' : ''), t.icon); m.title = t.name + ': play ' + t.label; tiers.appendChild(m); });
@@ -394,6 +423,8 @@ window.MistSocial = function (ctx) {
         var full = el('div', 'plist pgame-full' + (achView.open[r.name] ? ' open' : ''));
         function fill() {
           if (full.children.length) return;
+          var sp = r.p && r.p.special ? r.p.special : (hookDefs[r.name] || []).map(function (a) { return Object.assign({}, a, { unlocked: null, progress: 0 }); });
+          if (sp.length) { full.appendChild(el('div', 'gach-sub', 'Game challenges')); sp.forEach(function (t) { full.appendChild(specialRow(t)); }); full.appendChild(el('div', 'gach-sub', 'Playtime')); }
           var tl = r.p ? r.p.tiers : staticTiers(r.name).map(function (t) { t.unlocked = null; t.progress = 0; return t; });
           tl.forEach(function (t) { full.appendChild(tierRow(t, true)); });
         }
@@ -428,7 +459,8 @@ window.MistSocial = function (ctx) {
     }
     host.appendChild(el('div', 'fp-empty', 'Loading profile…'));
     var seq = ++profSeq;
-    api('GET', '/api/profile?name=' + encodeURIComponent(name || eng().user)).then(function (pr) {
+    Promise.all([api('GET', '/api/profile?name=' + encodeURIComponent(name || eng().user)), loadHookDefs()]).then(function (r) {
+      var pr = r[0];
       if (seq !== profSeq) return;
       host.textContent = '';
       buildProfile(host, pr);
@@ -468,7 +500,7 @@ window.MistSocial = function (ctx) {
     if (!pr.games) host.appendChild(oldServerNote());
     pr.games = pr.games || [];
     var s = pr.stats || {}, strip = el('div', 'prof-stats');
-    var gameTotal = ctx.gameNames().length * GAME_TIERS.length;
+    var gameTotal = ctx.gameNames().reduce(function (a, n) { return a + GAME_TIERS.length + (hookDefs[n] ? hookDefs[n].length : 0); }, 0);
     [[fmtTime(s.playtime || 0), 'Played'], [String(s.games || 0), 'Games'], [(s.achievements || 0) + ' / ' + (s.achievementsTotal || pr.achievements.length), 'Achievements'],
      [(s.gameBadges || 0) + ' / ' + gameTotal.toLocaleString(), 'Game achievements'], [String(s.bestStreak || 0), 'Best streak'], [String(s.daysActive || 0), 'Days active']
     ].forEach(function (x) { var c = el('div', 'pst'); c.appendChild(el('b', null, x[0])); c.appendChild(el('small', null, x[1])); strip.appendChild(c); });
@@ -536,8 +568,9 @@ window.MistSocial = function (ctx) {
         info.appendChild(el('small', null, 'Next: ' + g.next.name + ' · ' + fmtTime(g.next.progress) + ' / ' + fmtTime(g.next.goal)));
       }
       card.appendChild(info);
-      var gotN = g.tiers.filter(function (t) { return t.unlocked; }).length;
-      info.appendChild(el('small', 'pgame-count', gotN + ' / ' + g.tiers.length + ' achievements'));
+      var sp = g.special || [];
+      var gotN = g.tiers.filter(function (t) { return t.unlocked; }).length + sp.filter(function (t) { return t.unlocked; }).length;
+      info.appendChild(el('small', 'pgame-count', gotN + ' / ' + (g.tiers.length + sp.length) + ' achievements'));
       var tiers = el('div', 'ptiers');
       g.tiers.forEach(function (t) {
         var m = el('span', 'ptier' + (t.unlocked ? ' got' : ''), t.icon);
@@ -548,6 +581,7 @@ window.MistSocial = function (ctx) {
       var toggle = el('span', 'pgame-more', '▾');
       card.appendChild(toggle);
       var full = el('div', 'plist pgame-full');
+      if (sp.length) { full.appendChild(el('div', 'gach-sub', 'Game challenges')); sp.forEach(function (t) { full.appendChild(specialRow(t)); }); full.appendChild(el('div', 'gach-sub', 'Playtime')); }
       g.tiers.forEach(function (t) { full.appendChild(tierRow(t, pr.isMe)); });
       card.onclick = function (e) {
         if (e.target.closest('.link')) return;
@@ -729,6 +763,7 @@ window.MistSocial = function (ctx) {
 
   return {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
+    showAchievements: showAchievements, hookDefs: function () { return hookDefs; },
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }
