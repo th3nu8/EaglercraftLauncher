@@ -289,10 +289,9 @@ window.MistSocial = function (ctx) {
   var hookDefs = {};
   function loadHookDefs() { if (!eng()) return Promise.resolve(hookDefs); return api('GET', '/api/hook-defs').then(function (r) { hookDefs = r.games || {}; return hookDefs; }, function () { return hookDefs; }); }
 
-  /* ---------- per-game achievements (10 per game) ---------- */
+  /* ---------- per-game achievements (7 per game) ---------- */
   var GAME_TIERS = [['m5','🌱','First Look','5 minutes',300],['m15','🎈','Warming Up','15 minutes',900],['m30','🎯','Getting the Hang','30 minutes',1800],
-    ['h1','🪝','Hooked','1 hour',3600],['h2','🎮','Regular','2 hours',7200],['h5','💪','Dedicated','5 hours',18000],['h10','🛡️','Veteran','10 hours',36000],
-    ['h25','⭐','Expert','25 hours',90000],['h50','🏆','Master','50 hours',180000],['h100','👑','Legend','100 hours',360000]];
+    ['h1','🪝','Hooked','1 hour',3600],['h2','🎮','Regular','2 hours',7200],['h5','💪','Dedicated','5 hours',18000],['h10','🛡️','Veteran','10 hours',36000]];
   function staticTiers(game) {
     return GAME_TIERS.map(function (t) { return { id: t[0], icon: t[1], name: t[2], label: t[3], goal: t[4], desc: 'Play ' + game + ' for ' + t[3] + '.' }; });
   }
@@ -351,7 +350,7 @@ window.MistSocial = function (ctx) {
       var sum = el('span', 'gach-sum', r.unlocked + ' / ' + r.total + ' unlocked · ' + fmtTime(r.seconds) + ' played');
       var wrap = el('div', 'pbar big gach-bar'); var f = el('i'); f.style.width = Math.round(100 * r.unlocked / r.total) + '%'; wrap.appendChild(f);
       draw(r.tiers, sum, r.special); host.insertBefore(wrap, list);
-    }, function () { draw(staticTiers(game), el('span', 'gach-sum', '10 achievements')); });
+    }, function () { draw(staticTiers(game), el('span', 'gach-sum', '7 achievements')); });
   }
 
   /* ---------- achievements page: everything, with names and goals ---------- */
@@ -427,7 +426,7 @@ window.MistSocial = function (ctx) {
     [['progress', 'Most unlocked'], ['name', 'A–Z']].forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; sortSel.appendChild(op); });
     sortSel.value = achView.sort || 'progress';
     bar2.appendChild(q); bar2.appendChild(sortSel);
-    bar2.appendChild(el('small', 'psec-sub', 'Every game: 🌱 5m · 🎈 15m · 🎯 30m · 🪝 1h · 🎮 2h · 💪 5h · 🛡️ 10h · ⭐ 25h · 🏆 50h · 👑 100h'));
+    bar2.appendChild(el('small', 'psec-sub', 'Every game: 🌱 5m · 🎈 15m · 🎯 30m · 🪝 1h · 🎮 2h · 💪 5h · 🛡️ 10h'));
     host.appendChild(bar2);
     var listHost = el('div'); host.appendChild(listHost);
     var more = el('div', 'more-wrap'); var mb = el('button', 'btn'); more.appendChild(mb); host.appendChild(more);
@@ -586,7 +585,7 @@ window.MistSocial = function (ctx) {
     gh.appendChild(el('span', 'psec-count', (s.gameBadges || 0) + ' of ' + gameTotal.toLocaleString() + ' unlocked'));
     if (pr.isMe) { var all = ctx.button('', 'See all achievements', null, function () { ctx.showAchievements(); }); all.classList.add('psec-btn'); gh.appendChild(all); }
     gsec.appendChild(gh);
-    gsec.appendChild(el('p', 'psec-sub', 'Every game has 10 achievements for time played, from 5 minutes up to 100 hours. Click a game to see them all.'));
+    gsec.appendChild(el('p', 'psec-sub', 'Every game has 7 achievements for time played, from 5 minutes up to 10 hours. Click a game to see them all.'));
     if (!pr.games.length) gsec.appendChild(el('div', 'fp-empty', (pr.isMe ? 'You haven’t' : pr.name + ' hasn’t') + ' played any games yet.'));
     pr.games.forEach(function (g) {
       var card = el('div', 'pgame');

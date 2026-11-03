@@ -270,9 +270,6 @@ const GAME_TIERS = [
   { id: 'h2',   icon: '🎮', name: 'Regular',          goal: 2 * H,   label: '2 hours' },
   { id: 'h5',   icon: '💪', name: 'Dedicated',        goal: 5 * H,   label: '5 hours' },
   { id: 'h10',  icon: '🛡️', name: 'Veteran',          goal: 10 * H,  label: '10 hours' },
-  { id: 'h25',  icon: '⭐', name: 'Expert',           goal: 25 * H,  label: '25 hours' },
-  { id: 'h50',  icon: '🏆', name: 'Master',           goal: 50 * H,  label: '50 hours' },
-  { id: 'h100', icon: '👑', name: 'Legend',           goal: 100 * H, label: '100 hours' },
 ];
 // Convert badges from the earlier 4-badge version (bronze/silver/gold/platinum): keep the dates
 // where a matching achievement exists, then fill in the rest from playtime.
@@ -285,7 +282,9 @@ const GAME_TIERS = [
       delete tiers[old]; changed++;
     }
   }
-  if (changed) console.log(`Converted ${changed} old game badge(s) to the 10-achievement system.`);
+  // The 25h/50h/100h per-game tiers were removed: drop them so counts and XP match what's shown.
+  for (const games of Object.values(db.gameAch)) for (const tiers of Object.values(games)) for (const id of ['h25', 'h50', 'h100']) if (tiers[id]) { delete tiers[id]; changed++; }
+  if (changed) { console.log(`Updated ${changed} old game badge(s) to the current 7-per-game set.`); saveDbSoon(); }
 })();
 const TIER_BY_ID = Object.fromEntries(GAME_TIERS.map(t => [t.id, t]));
 function checkGameAch(uid, game, notify = true) {
@@ -477,9 +476,9 @@ function achList(uid, withProgress) {
   });
 }
 /* XP and levels: every unlocked achievement is worth 100 XP. LEVELS[i] is the XP needed to go from level i to i+1;
- * they add up to 355,500 XP = every achievement (20 general + 345 games x 10 playtime + 85 game challenges). */
+ * they add up to 252,000 XP = every achievement (20 general + 345 games x 7 playtime + 85 game challenges). */
 const XP_PER_ACH = 100;
-const LEVELS = [1000, 1500, 3000, 4000, 4500, 5500, 7000, 9500, 13000, 17000, 19000, 20500, 22500, 24000, 26000, 28500, 32000, 34500, 37000, 45500];
+const LEVELS = [1000, 1500, 2000, 2500, 3000, 4000, 5000, 6500, 9000, 12000, 13500, 14500, 16000, 17000, 18500, 20000, 22500, 24500, 26500, 32500];
 function achCount(uid) {
   return Object.keys(db.ach[uid] || {}).length + Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid);
 }
