@@ -228,26 +228,26 @@ db.ach = db.ach || {};           // uid -> { achievementId: unlockedAt }
 db.achNew = db.achNew || {};     // uid -> [achievementId] not yet shown to the player
 const H = 3600;
 const ACHIEVEMENTS = [
-  { id: 'welcome',       icon: '👋', name: 'Welcome to Mist',  desc: 'Create a Mist account.',                  stat: s => 1, goal: 1 },
-  { id: 'play-10m',      icon: '🎮', name: 'First Steps',      desc: 'Play for 10 minutes.',                    stat: s => s.play, goal: 600, fmt: 'time' },
-  { id: 'play-1h',       icon: '⏱️', name: 'Getting Comfy',    desc: 'Play for 1 hour in total.',               stat: s => s.play, goal: H, fmt: 'time' },
-  { id: 'play-10h',      icon: '🔥', name: 'Dedicated',        desc: 'Play for 10 hours in total.',             stat: s => s.play, goal: 10 * H, fmt: 'time' },
-  { id: 'play-50h',      icon: '💎', name: 'No Life',          desc: 'Play for 50 hours in total.',             stat: s => s.play, goal: 50 * H, fmt: 'time' },
-  { id: 'play-100h',     icon: '👑', name: 'Mist Legend',      desc: 'Play for 100 hours in total.',            stat: s => s.play, goal: 100 * H, fmt: 'time' },
-  { id: 'one-game-2h',   icon: '🏃', name: 'Marathon',         desc: 'Spend 2 hours in a single game.',         stat: s => maxGame(s), goal: 2 * H, fmt: 'time' },
-  { id: 'one-game-10h',  icon: '🎯', name: 'Obsessed',         desc: 'Spend 10 hours in a single game.',        stat: s => maxGame(s), goal: 10 * H, fmt: 'time' },
-  { id: 'games-5',       icon: '🧭', name: 'Explorer',         desc: 'Play 5 different games.',                 stat: s => Object.keys(s.perGame).length, goal: 5 },
-  { id: 'games-15',      icon: '🗺️', name: 'Game Hopper',      desc: 'Play 15 different games.',                stat: s => Object.keys(s.perGame).length, goal: 15 },
-  { id: 'games-40',      icon: '📚', name: 'Connoisseur',      desc: 'Play 40 different games.',                stat: s => Object.keys(s.perGame).length, goal: 40 },
-  { id: 'friends-1',     icon: '🤝', name: 'First Friend',     desc: 'Make your first friend.',                 stat: (s, u) => soc(u).friends.length, goal: 1 },
-  { id: 'friends-5',     icon: '👥', name: 'Squad Up',         desc: 'Have 5 friends.',                         stat: (s, u) => soc(u).friends.length, goal: 5 },
-  { id: 'friends-15',    icon: '🌟', name: 'Popular',          desc: 'Have 15 friends.',                        stat: (s, u) => soc(u).friends.length, goal: 15 },
-  { id: 'msg-1',         icon: '💬', name: 'Hello!',           desc: 'Send your first chat message.',           stat: s => s.msgs, goal: 1 },
-  { id: 'msg-100',       icon: '🗣️', name: 'Chatterbox',       desc: 'Send 100 chat messages.',                 stat: s => s.msgs, goal: 100 },
-  { id: 'streak-3',      icon: '📅', name: 'Regular',          desc: 'Open Mist 3 days in a row.',              stat: s => s.best, goal: 3 },
-  { id: 'streak-7',      icon: '🗓️', name: 'Weekly Warrior',   desc: 'Open Mist 7 days in a row.',              stat: s => s.best, goal: 7 },
-  { id: 'days-30',       icon: '🏅', name: 'Veteran',          desc: 'Open Mist on 30 different days.',         stat: s => s.days, goal: 30 },
-  { id: 'cloud-1',       icon: '☁️', name: 'Cloud Saver',      desc: 'Back up your worlds to the cloud.',       stat: s => s.saves, goal: 1 },
+  { id: 'welcome',       icon: '👋', name: 'Welcome to Mist',  desc: 'Create a Mist account.',                  stat: s => 1, goal: 1 , rank: 'common' },
+  { id: 'play-10m',      icon: '🎮', name: 'First Steps',      desc: 'Play for 10 minutes.',                    stat: s => s.play, goal: 600, fmt: 'time' , rank: 'common' },
+  { id: 'play-1h',       icon: '⏱️', name: 'Getting Comfy',    desc: 'Play for 1 hour in total.',               stat: s => s.play, goal: H, fmt: 'time' , rank: 'common' },
+  { id: 'play-10h',      icon: '🔥', name: 'Dedicated',        desc: 'Play for 10 hours in total.',             stat: s => s.play, goal: 10 * H, fmt: 'time' , rank: 'rare' },
+  { id: 'play-50h',      icon: '💎', name: 'No Life',          desc: 'Play for 50 hours in total.',             stat: s => s.play, goal: 50 * H, fmt: 'time' , rank: 'epic' },
+  { id: 'play-100h',     icon: '👑', name: 'Mist Legend',      desc: 'Play for 100 hours in total.',            stat: s => s.play, goal: 100 * H, fmt: 'time' , rank: 'legendary' },
+  { id: 'one-game-2h',   icon: '🏃', name: 'Marathon',         desc: 'Spend 2 hours in a single game.',         stat: s => maxGame(s), goal: 2 * H, fmt: 'time' , rank: 'rare' },
+  { id: 'one-game-10h',  icon: '🎯', name: 'Obsessed',         desc: 'Spend 10 hours in a single game.',        stat: s => maxGame(s), goal: 10 * H, fmt: 'time' , rank: 'epic' },
+  { id: 'games-5',       icon: '🧭', name: 'Explorer',         desc: 'Play 5 different games.',                 stat: s => Object.keys(s.perGame).length, goal: 5 , rank: 'common' },
+  { id: 'games-15',      icon: '🗺️', name: 'Game Hopper',      desc: 'Play 15 different games.',                stat: s => Object.keys(s.perGame).length, goal: 15 , rank: 'rare' },
+  { id: 'games-40',      icon: '📚', name: 'Connoisseur',      desc: 'Play 40 different games.',                stat: s => Object.keys(s.perGame).length, goal: 40 , rank: 'epic' },
+  { id: 'friends-1',     icon: '🤝', name: 'First Friend',     desc: 'Make your first friend.',                 stat: (s, u) => soc(u).friends.length, goal: 1 , rank: 'common' },
+  { id: 'friends-5',     icon: '👥', name: 'Squad Up',         desc: 'Have 5 friends.',                         stat: (s, u) => soc(u).friends.length, goal: 5 , rank: 'rare' },
+  { id: 'friends-15',    icon: '🌟', name: 'Popular',          desc: 'Have 15 friends.',                        stat: (s, u) => soc(u).friends.length, goal: 15 , rank: 'epic' },
+  { id: 'msg-1',         icon: '💬', name: 'Hello!',           desc: 'Send your first chat message.',           stat: s => s.msgs, goal: 1 , rank: 'common' },
+  { id: 'msg-100',       icon: '🗣️', name: 'Chatterbox',       desc: 'Send 100 chat messages.',                 stat: s => s.msgs, goal: 100 , rank: 'rare' },
+  { id: 'streak-3',      icon: '📅', name: 'Regular',          desc: 'Open Mist 3 days in a row.',              stat: s => s.best, goal: 3 , rank: 'common' },
+  { id: 'streak-7',      icon: '🗓️', name: 'Weekly Warrior',   desc: 'Open Mist 7 days in a row.',              stat: s => s.best, goal: 7 , rank: 'rare' },
+  { id: 'days-30',       icon: '🏅', name: 'Veteran',          desc: 'Open Mist on 30 different days.',         stat: s => s.days, goal: 30 , rank: 'epic' },
+  { id: 'cloud-1',       icon: '☁️', name: 'Cloud Saver',      desc: 'Back up your worlds to the cloud.',       stat: s => s.saves, goal: 1 , rank: 'common' },
 ];
 const ACH_BY_ID = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
 const maxGame = s => Object.values(s.perGame).reduce((m, v) => Math.max(m, v), 0);
@@ -263,13 +263,13 @@ function checkAch(uid) {
 db.gameAch = db.gameAch || {};   // uid -> { gameName: { tierId: unlockedAt } }
 const M = 60;
 const GAME_TIERS = [
-  { id: 'm5',   icon: '🌱', name: 'First Look',       goal: 5 * M,   label: '5 minutes' },
-  { id: 'm15',  icon: '🎈', name: 'Warming Up',       goal: 15 * M,  label: '15 minutes' },
-  { id: 'm30',  icon: '🎯', name: 'Getting the Hang', goal: 30 * M,  label: '30 minutes' },
-  { id: 'h1',   icon: '🪝', name: 'Hooked',           goal: H,       label: '1 hour' },
-  { id: 'h2',   icon: '🎮', name: 'Regular',          goal: 2 * H,   label: '2 hours' },
-  { id: 'h5',   icon: '💪', name: 'Dedicated',        goal: 5 * H,   label: '5 hours' },
-  { id: 'h10',  icon: '🛡️', name: 'Veteran',          goal: 10 * H,  label: '10 hours' },
+  { id: 'm5',   icon: '🌱', name: 'First Look',       goal: 5 * M,   label: '5 minutes' , rank: 'common' },
+  { id: 'm15',  icon: '🎈', name: 'Warming Up',       goal: 15 * M,  label: '15 minutes' , rank: 'common' },
+  { id: 'm30',  icon: '🎯', name: 'Getting the Hang', goal: 30 * M,  label: '30 minutes' , rank: 'common' },
+  { id: 'h1',   icon: '🪝', name: 'Hooked',           goal: H,       label: '1 hour' , rank: 'rare' },
+  { id: 'h2',   icon: '🎮', name: 'Regular',          goal: 2 * H,   label: '2 hours' , rank: 'rare' },
+  { id: 'h5',   icon: '💪', name: 'Dedicated',        goal: 5 * H,   label: '5 hours' , rank: 'epic' },
+  { id: 'h10',  icon: '🛡️', name: 'Veteran',          goal: 10 * H,  label: '10 hours' , rank: 'legendary' },
 ];
 // Convert badges from the earlier 4-badge version (bronze/silver/gold/platinum): keep the dates
 // where a matching achievement exists, then fill in the rest from playtime.
@@ -299,14 +299,14 @@ function takeNewAch(uid) {
   delete db.achNew[uid]; saveDbSoon();
   return ids.map(id => {
     if (id.startsWith('x:')) {
-      const [, aid, ...rest] = id.split(':'), game = rest.join(':'), a = (HOOK_ACH[game] || []).find(x => x.id === aid);
-      return a && { id, icon: a.icon, name: game + ': ' + a.name, desc: a.desc, game };
+      const [, aid, ...rest] = id.split(':'), game = rest.join(':'), a = achDefs(game).find(x => x.id === aid);
+      return a && { id, icon: a.icon, name: game + ': ' + a.name, desc: a.desc, game, rank: a.rank, xp: RANK_XP[a.rank] };
     }
     if (id.startsWith('g:')) {
       const [, tier, ...rest] = id.split(':'), game = rest.join(':'), t = TIER_BY_ID[tier];
-      return t && { id, icon: t.icon, name: game + ': ' + t.name, desc: 'Play ' + game + ' for ' + t.label + '.', game };
+      return t && { id, icon: t.icon, name: game + ': ' + t.name, desc: 'Play ' + game + ' for ' + t.label + '.', game, rank: t.rank, xp: RANK_XP[t.rank] };
     }
-    const a = ACH_BY_ID[id]; return a && { id: a.id, icon: a.icon, name: a.name, desc: a.desc };
+    const a = ACH_BY_ID[id]; return a && { id: a.id, icon: a.icon, name: a.name, desc: a.desc, rank: a.rank, xp: RANK_XP[a.rank] };
   }).filter(Boolean);
 }
 /* ---------------- game hooks ----------------
@@ -316,9 +316,24 @@ db.gstats = db.gstats || {};     // uid -> { gameName: { statKey: number } }
 db.hookAch = db.hookAch || {};   // uid -> { gameName: { achId: unlockedAt } }
 const fnafNights = (n, extra) => {
   const list = [];
-  for (let i = 1; i <= n; i++) list.push({ id: 'night' + i, icon: i === 5 ? '🌅' : '🌙', name: 'Night ' + i, desc: 'Survive night ' + i + '.', stat: 'night' + i, goal: 1 });
+  for (let i = 1; i <= n; i++) list.push({ id: 'night' + i, icon: i === 5 ? '🌅' : '🌙', name: 'Night ' + i, desc: 'Survive night ' + i + '.', stat: 'night' + i, goal: 1,
+    rank: i === n ? 'legendary' : i === n - 1 ? 'epic' : i <= 2 ? 'common' : 'rare' });
   return list.concat(extra || []);
 };
+const HOOK_RANKS = {   // anything not listed is common
+  'Eaglercraft': { diamonds: 'rare', nether: 'rare', blaze: 'rare', enchant: 'rare', ghast: 'epic', brew: 'epic', sniper: 'epic', end: 'epic', dragon: 'legendary' },
+  'YoHoHo.io': { sailor: 'rare', win: 'rare', best5: 'rare', win10: 'epic', kills100: 'epic' },
+  'Polytrack': { track5: 'rare', builder: 'rare', track10: 'epic' },
+  'Bloons TD 5': { medal10: 'rare', xp25k: 'rare', mission: 'rare', challenge: 'rare', medal25: 'epic', xp100k: 'legendary' },
+  'Cookie Clicker': { click1000: 'rare', bake1m: 'rare', bld100: 'rare', bake1b: 'epic', bld500: 'epic', cps1m: 'epic', golden50: 'epic', ach50: 'epic', ascend: 'epic', bake1t: 'legendary' },
+  'Slope': { s100: 'rare', s200: 'epic', s400: 'legendary' },
+};
+/* Basic achievements every game gets, tracked by the server from play sessions. */
+const GENERIC_ACH = [
+  { id: 'days3', icon: '📆', name: 'Coming Back', desc: 'Play this game on 3 different days.', stat: '_days', goal: 3, rank: 'common', basic: true },
+  { id: 'days7', icon: '🗓️', name: 'Weekly Habit', desc: 'Play this game on 7 different days.', stat: '_days', goal: 7, rank: 'rare', basic: true },
+  { id: 'launch25', icon: '🔁', name: 'Frequent Flyer', desc: 'Launch this game 25 times.', stat: '_launches', goal: 25, rank: 'rare', basic: true },
+];
 const HOOK_ACH = {
   'Eaglercraft': [
     { id: 'wood', icon: '🪵', name: 'Getting Wood', desc: 'Punch a tree until a block of wood pops out.', stat: 'mineWood', goal: 1 },
@@ -394,18 +409,27 @@ const HOOK_ACH = {
   "Five Nights at Freddy's 4": fnafNights(6),
   'FNAF: Sister Location': fnafNights(5),
 };
+for (const [g, defs] of Object.entries(HOOK_ACH)) for (const a of defs) if (!a.rank) a.rank = (HOOK_RANKS[g] || {})[a.id] || 'common';
+const achDefs = game => GENERIC_ACH.concat(HOOK_ACH[game] || []);
+/* Count a launch / play day for a game (called when a play session starts). */
+function noteSession(uid, game, now) {
+  const all = db.gstats[uid] || (db.gstats[uid] = {}), st = all[game] || (all[game] = {});
+  st._launches = (st._launches || 0) + 1;
+  const day = dayKey(now); if (st._lastDay !== day) { st._lastDay = day; st._days = (st._days || 0) + 1; }
+  saveDbSoon(); checkHookAch(uid, game);
+}
 function hookList(game, uid) {
-  const defs = HOOK_ACH[game]; if (!defs) return [];
+  const defs = achDefs(game);
   const got = ((db.hookAch[uid] || {})[game]) || {}, st = ((db.gstats[uid] || {})[game]) || {}, r = rarity();
   return defs.map(a => {
-    const o = { id: 'h:' + a.id, icon: a.icon, name: a.name, desc: a.desc, goal: a.goal, special: true,
+    const o = { id: 'h:' + a.id, icon: a.icon, name: a.name, desc: a.desc, goal: a.goal, special: true, rank: a.rank, basic: !!a.basic,
       unlocked: got[a.id] || null, rarity: pct(((r.hooks[game] || {})[a.id]), r.players) };
     if (!o.unlocked && a.goal > 1) o.progress = Math.min(a.goal, st[a.stat] || 0);
     return o;
   });
 }
 function checkHookAch(uid, game) {
-  const defs = HOOK_ACH[game]; if (!defs) return [];
+  const defs = achDefs(game);
   const st = ((db.gstats[uid] || {})[game]) || {}, all = db.hookAch[uid] || (db.hookAch[uid] = {}), got = all[game] || (all[game] = {});
   const fresh = [];
   for (const a of defs) if (!got[a.id] && (st[a.stat] || 0) >= a.goal) { got[a.id] = Date.now(); fresh.push('x:' + a.id + ':' + game); }
@@ -438,7 +462,7 @@ const pct = (n, of) => Math.round(1000 * (n || 0) / Math.max(1, of)) / 10;
 function tierList(game, got, sec) {
   const r = rarity();
   return GAME_TIERS.map(t => {
-    const o = { id: t.id, icon: t.icon, name: t.name, desc: 'Play ' + game + ' for ' + t.label + '.', label: t.label, goal: t.goal,
+    const o = { id: t.id, icon: t.icon, name: t.name, desc: 'Play ' + game + ' for ' + t.label + '.', label: t.label, goal: t.goal, rank: t.rank,
       unlocked: got[t.id] || null, rarity: pct((r.games[game] || {})[t.id], r.players) };
     if (sec !== null && sec !== undefined && !o.unlocked) o.progress = Math.min(t.goal, Math.round(sec));
     return o;
@@ -448,7 +472,7 @@ function gameList(uid, withProgress) {
   const st = stats(uid), all = db.gameAch[uid] || {}, r = rarity(), recent = {};
   for (const x of soc(uid).recent) recent[x.game] = x.at;
   const per = Object.assign({}, st.perGame);
-  for (const g of Object.keys((db.gstats && db.gstats[uid]) || {})) if (!(g in per) && HOOK_ACH[g]) per[g] = 0;   // challenge progress before the first playtime ping
+  for (const g of Object.keys((db.gstats && db.gstats[uid]) || {})) if (!(g in per) && Object.keys(db.gstats[uid][g]).some(k => k[0] !== '_')) per[g] = 0;   // challenge progress before the first playtime ping
   return Object.entries(per).sort((a, b) => b[1] - a[1]).map(([game, sec]) => {
     const got = all[game] || {}, next = GAME_TIERS.find(t => !got[t.id]);
     return {
@@ -469,24 +493,58 @@ function markActiveDay(uid, now) {
 function achList(uid, withProgress) {
   const st = stats(uid), got = db.ach[uid] || {};
   return ACHIEVEMENTS.map(a => {
-    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, unlocked: got[a.id] || null, rarity: pct(rarity().general[a.id], rarity().players),
+    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, rank: a.rank, unlocked: got[a.id] || null, rarity: pct(rarity().general[a.id], rarity().players),
       goal: a.goal, fmt: a.fmt || null };
     if (withProgress && !o.unlocked) o.progress = Math.min(a.goal, a.stat(st, uid));
     return o;
   });
 }
-/* XP and levels: every unlocked achievement is worth 100 XP. LEVELS[i] is the XP needed to go from level i to i+1;
- * they add up to 252,000 XP = every achievement (20 general + 345 games x 7 playtime + 85 game challenges). */
-const XP_PER_ACH = 100;
-const LEVELS = [1000, 1500, 2000, 2500, 3000, 4000, 5000, 6500, 9000, 12000, 13500, 14500, 16000, 17000, 18500, 20000, 22500, 24500, 26500, 32500];
+/* XP and levels. Each achievement gives XP by rarity. There are 50 levels; they are rescaled automatically so that
+ * level 50 means every achievement for every game in versions.json is unlocked. */
+const RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000 };
+const MAX_LEVEL = 50;
+let GAME_NAMES = null, LEVELS = null;                    // from versions.json (local copy, else GitHub)
+const VERSIONS_URL = process.env.VERSIONS_URL || 'https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/versions.json';
+function setGames(json) {
+  try { const v = JSON.parse(json); const list = (v.games || v).map(g => g.name).filter(Boolean); if (list.length) { GAME_NAMES = list; LEVELS = null; } } catch (e) {}
+}
+function loadGames() {
+  for (const f of [path.join(PUBLIC_DIR, 'versions.json'), path.join(__dirname, '..', 'versions.json')]) {
+    try { setGames(fs.readFileSync(f, 'utf8')); if (GAME_NAMES) return; } catch (e) {}
+  }
+  if (typeof fetch === 'function') fetch(VERSIONS_URL).then(r => r.ok ? r.text() : '').then(setGames).catch(() => {});
+}
+loadGames(); setInterval(loadGames, 6 * 3600e3).unref();
+const sumXp = list => list.reduce((n, a) => n + RANK_XP[a.rank], 0);
+function totalXp() {
+  const names = GAME_NAMES || [], perGame = sumXp(GAME_TIERS) + sumXp(GENERIC_ACH);
+  let t = sumXp(ACHIEVEMENTS) + Math.max(names.length, 345) * perGame;
+  for (const [g, defs] of Object.entries(HOOK_ACH)) t += sumXp(defs);
+  return t;
+}
+/* Level curve: each level costs more than the last (roughly 1 : 60 from level 1 to 50), rounded to 50 XP. */
+function levels() {
+  if (LEVELS) return LEVELS;
+  const total = totalXp(), w = []; for (let i = 1; i <= MAX_LEVEL; i++) w.push(Math.pow(i + 3, 1.6));
+  const sw = w.reduce((a, b) => a + b, 0); let acc = 0;
+  LEVELS = w.map((x, i) => { if (i === MAX_LEVEL - 1) return total - acc; const v = Math.max(50, Math.round(total * x / sw / 50) * 50); acc += v; return v; });
+  return LEVELS;
+}
 function achCount(uid) {
   return Object.keys(db.ach[uid] || {}).length + Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid);
 }
+function userXp(uid) {
+  let xp = 0;
+  for (const id of Object.keys(db.ach[uid] || {})) if (ACH_BY_ID[id]) xp += RANK_XP[ACH_BY_ID[id].rank];
+  for (const tiers of Object.values(db.gameAch[uid] || {})) for (const id of Object.keys(tiers)) if (TIER_BY_ID[id]) xp += RANK_XP[TIER_BY_ID[id].rank];
+  for (const [g, got] of Object.entries(db.hookAch[uid] || {})) { const defs = achDefs(g); for (const id of Object.keys(got)) { const a = defs.find(x => x.id === id); if (a) xp += RANK_XP[a.rank]; } }
+  return xp;
+}
 function levelInfo(uid) {
-  const xp = achCount(uid) * XP_PER_ACH; let level = 0, left = xp;
-  while (level < LEVELS.length && left >= LEVELS[level]) { left -= LEVELS[level]; level++; }
-  const maxed = level >= LEVELS.length;
-  return { xp, level, maxLevel: LEVELS.length, into: maxed ? 0 : left, need: maxed ? 0 : LEVELS[level] };
+  const L = levels(), xp = userXp(uid); let level = 0, left = xp;
+  while (level < L.length && left >= L[level]) { left -= L[level]; level++; }
+  const maxed = level >= L.length;
+  return { xp, level, maxLevel: L.length, into: maxed ? 0 : left, need: maxed ? 0 : L[level] };
 }
 function statSummary(uid) {
   const st = stats(uid), top = Object.entries(st.perGame).sort((a, b) => b[1] - a[1])[0];
@@ -646,6 +704,7 @@ async function handle(req, res) {
         st.play += sec; st.perGame[game] = (st.perGame[game] || 0) + sec; saveDbSoon();
         checkGameAch(user.id, game);
       }
+      if (!prev || prev.game !== game || now - prev.at >= 150e3) noteSession(user.id, game, now);
       lastIngame.set(user.id, { game, at: now });
     } else lastIngame.delete(user.id);
     if (state !== 'offline' && markActiveDay(user.id, now)) saveDbSoon();
@@ -747,8 +806,9 @@ async function handle(req, res) {
 
   if (req.method === 'GET' && p === '/api/hook-defs') {
     const out = {};
-    for (const [g, defs] of Object.entries(HOOK_ACH)) out[g] = defs.map(a => ({ id: 'h:' + a.id, icon: a.icon, name: a.name, desc: a.desc, goal: a.goal }));
-    return send(res, 200, { games: out });
+    const view = a => ({ id: 'h:' + a.id, icon: a.icon, name: a.name, desc: a.desc, goal: a.goal, rank: a.rank, basic: !!a.basic });
+    for (const [g, defs] of Object.entries(HOOK_ACH)) out[g] = defs.map(view);
+    return send(res, 200, { games: out, generic: GENERIC_ACH.map(view), rankXp: RANK_XP, levels: levels() });
   }
 
   if (req.method === 'GET' && p === '/api/profile') {

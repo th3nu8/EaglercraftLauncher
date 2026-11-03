@@ -488,3 +488,13 @@ body.in-game #app{visibility:hidden}
 .acct-text{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:center}
 .acct-text small{grid-column:1/3}
 #pLevel{display:inline-flex}
+
+.rank{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:2px;margin-bottom:4px;white-space:nowrap}
+.rank.r-common{background:rgba(160,170,180,.18);color:#c6d0d8}
+.rank.r-rare{background:rgba(61,143,209,.22);color:#7cc0ff}
+.rank.r-epic{background:rgba(155,93,229,.25);color:#cfa7ff}
+.rank.r-legendary{background:rgba(255,193,7,.2);color:#ffd54f;box-shadow:0 0 8px rgba(255,213,79,.25)}
+.pach-r{display:flex;flex-direction:column;align-items:flex-end}
+.ach-toast.r-rare{border-left-color:#3d8fd1}
+.ach-toast.r-epic{border-left-color:#9b5de5}
+.ach-toast.r-legendary{border-left-color:#ffd54f;box-shadow:0 0 18px rgba(255,213,79,.35)}
