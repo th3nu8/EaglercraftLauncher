@@ -237,77 +237,166 @@ window.MistSocial = function (ctx) {
   }
 
   /* ---------- profiles ---------- */
-  function openProfile(name) {
-    api('GET', '/api/profile?name=' + encodeURIComponent(name)).then(function (pr) {
-      ctx.openModal(function (box) {
-        box.classList.add('profile-box');
-        var top = el('div', 'pf-top');
-        top.appendChild(avatar(pr.name, 84, pr.state || null));
-        var t = el('div', 'pf-t');
-        t.appendChild(el('h3', null, pr.name));
-        if (pr.state) t.appendChild(el('div', 'pf-state st-' + pr.state, stateText(pr)));
-        t.appendChild(el('small', null, 'Member since ' + new Date(pr.created).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) + ' · ' + pr.friendCount + ' friend' + (pr.friendCount === 1 ? '' : 's')));
-        top.appendChild(t); box.appendChild(top);
-        if (pr.stats) {
-          var sr = el('div', 'pf-stats');
-          [['Played', fmtTime(pr.stats.playtime)], ['Games', String(pr.stats.games)],
-           ['Best streak', pr.stats.bestStreak + (pr.stats.bestStreak === 1 ? ' day' : ' days')],
-           ['Achievements', pr.stats.achievements + ' / ' + pr.stats.achievementsTotal]].forEach(function (x) {
-            var c = el('div', 'pf-stat'); c.appendChild(el('b', null, x[1])); c.appendChild(el('small', null, x[0])); sr.appendChild(c);
-          });
-          box.appendChild(sr);
-          if (pr.stats.topGame) box.appendChild(el('p', 'pf-top-game', 'Most played: ' + pr.stats.topGame.name + ' (' + fmtTime(pr.stats.topGame.seconds) + ')'));
-        }
-        if (pr.achievements) {
-          var got = pr.achievements.filter(function (a) { return a.unlocked; });
-          var shown = pr.isMe ? pr.achievements : got;
-          box.appendChild(el('div', 'pf-h', 'Achievements' + (pr.isMe ? '' : ' (' + got.length + ' of ' + pr.achievements.length + ')')));
-          if (!shown.length) box.appendChild(el('p', null, pr.name + ' hasn’t unlocked any achievements yet.'));
-          var ag = el('div', 'ach-grid');
-          shown.slice().sort(function (a, b) { return (b.unlocked ? 1 : 0) - (a.unlocked ? 1 : 0) || (b.unlocked || 0) - (a.unlocked || 0); }).forEach(function (a) {
-            var c = el('div', 'ach' + (a.unlocked ? ' got' : ''));
-            c.title = a.desc + (a.unlocked ? '\nUnlocked ' + new Date(a.unlocked).toLocaleDateString() : '');
-            c.appendChild(el('span', 'ach-ico', a.icon));
-            var tx = el('div', 'ach-tx'); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('small', null, a.desc));
-            if (!a.unlocked && a.goal) {
-              var pct = Math.round(100 * a.progress / a.goal);
-              var bar = el('div', 'ach-bar'); var fill = el('i'); fill.style.width = pct + '%'; bar.appendChild(fill); tx.appendChild(bar);
-              tx.appendChild(el('small', 'ach-prog', (a.fmt === 'time' ? fmtTime(a.progress) + ' / ' + fmtTime(a.goal) : a.progress + ' / ' + a.goal)));
-            }
-            c.appendChild(tx); ag.appendChild(c);
-          });
-          box.appendChild(ag);
-        }
-        if (pr.recent && pr.recent.length) {
-          box.appendChild(el('div', 'pf-h', 'Recently played'));
-          var rl = el('div', 'pf-recent');
-          pr.recent.forEach(function (r) {
-            var row = el('div', 'pf-game');
-            var ico = el('span', 'pf-ico'); var g = ctx.gameByName(r.game); if (g) ctx.artInto(ico, g, 'icon', false); row.appendChild(ico);
-            row.appendChild(el('b', null, r.game)); row.appendChild(el('small', null, ago(r.at)));
-            if (g) { row.classList.add('link'); row.onclick = function () { ctx.closeModal(); ctx.showGame(g); }; }
-            rl.appendChild(row);
-          });
-          box.appendChild(rl);
-        } else if (!pr.isMe && !pr.isFriend) {
-          box.appendChild(el('p', null, 'Add ' + pr.name + ' as a friend to see what they’re playing.'));
-        }
-        var a = el('div', 'm-actions');
-        a.appendChild(ctx.button('ghost', 'Close', null, ctx.closeModal));
-        if (pr.isFriend) {
-          a.appendChild(ctx.button('danger', 'Remove friend', null, function () { removeFriend(pr.name); }));
-          a.appendChild(ctx.button('green', 'Message', null, function () { ctx.closeModal(); openChat(pr.name); }));
-        } else if (!pr.isMe) {
-          a.appendChild(ctx.button('green', pr.requestedYou ? 'Accept request' : pr.requested ? 'Request sent' : 'Add friend', null, function () {
-            if (pr.requested) return;
-            api('POST', pr.requestedYou ? '/api/friends/accept' : '/api/friends/request', { username: pr.name }).then(function () {
-              ctx.closeModal(); toast(pr.requestedYou ? 'You and ' + pr.name + ' are now friends' : 'Friend request sent'); refresh();
-            }, function (e) { toast(e.message); });
-          }));
-        }
-        box.appendChild(a);
+  function openProfile(name) { ctx.closeModal(); ctx.showProfile(name); }
+
+  /* ---------- full profile page ---------- */
+  var profSeq = 0, profFilter = 'all';
+  function fmtDate(t, long) { return new Date(t).toLocaleDateString(undefined, long ? { month: 'long', day: 'numeric', year: 'numeric' } : { month: 'short', year: 'numeric' }); }
+  function rarityEl(r) {
+    if (!r) return el('span', 'rarity', 'No one yet');
+    var cls = r <= 5 ? 'ultra' : r <= 20 ? 'rare' : '';
+    return el('span', 'rarity ' + cls, (r < 1 ? '<1' : r) + '% of players');
+  }
+  function renderProfile(name) {
+    var host = $('#profilePage'); if (!host) return;
+    host.textContent = '';
+    if (!eng()) {
+      var e0 = el('div', 'fp-empty'); e0.appendChild(el('p', null, 'Sign in to see player profiles.'));
+      var b0 = el('button', 'btn green', 'Sign in'); b0.onclick = ctx.openAccount; e0.appendChild(b0); host.appendChild(e0); return;
+    }
+    host.appendChild(el('div', 'fp-empty', 'Loading profile…'));
+    var seq = ++profSeq;
+    api('GET', '/api/profile?name=' + encodeURIComponent(name || eng().user)).then(function (pr) {
+      if (seq !== profSeq) return;
+      host.textContent = '';
+      buildProfile(host, pr);
+    }, function (e) { if (seq === profSeq) { host.textContent = ''; host.appendChild(el('div', 'fp-empty', e.message)); } });
+  }
+  function buildProfile(host, pr) {
+    var hue = hash(pr.name) % 360;
+    /* header */
+    var hero = el('div', 'prof-hero');
+    hero.style.background = 'linear-gradient(120deg,hsl(' + hue + ',45%,24%),hsl(' + ((hue + 40) % 360) + ',40%,14%) 60%,#16202d)';
+    hero.appendChild(avatar(pr.name, 132, pr.state || null));
+    var who = el('div', 'prof-who');
+    who.appendChild(el('h1', null, pr.name));
+    if (pr.state) who.appendChild(el('div', 'prof-state st-' + pr.state, stateText(pr)));
+    who.appendChild(el('div', 'prof-meta', 'Member since ' + fmtDate(pr.created, true) + ' · ' + pr.friendCount + ' friend' + (pr.friendCount === 1 ? '' : 's')));
+    hero.appendChild(who);
+    var acts = el('div', 'prof-acts');
+    if (pr.isMe) {
+      acts.appendChild(ctx.button('', 'Friends & chat', null, function () { togglePanel(true); }));
+    } else if (pr.isFriend) {
+      acts.appendChild(ctx.button('green', 'Message', null, function () { openChat(pr.name); }));
+      acts.appendChild(ctx.button('ghost', 'Remove friend', null, function () { removeFriend(pr.name); setTimeout(function () { renderProfile(pr.name); }, 600); }));
+    } else {
+      var add = ctx.button('green', pr.requestedYou ? 'Accept friend request' : pr.requested ? 'Request sent' : 'Add friend', null, function () {
+        if (pr.requested) return;
+        api('POST', pr.requestedYou ? '/api/friends/accept' : '/api/friends/request', { username: pr.name }).then(function () {
+          toast(pr.requestedYou ? 'You and ' + pr.name + ' are now friends' : 'Friend request sent'); refresh(); renderProfile(pr.name);
+        }, function (e) { toast(e.message); });
       });
-    }, function (e) { toast(e.message); });
+      if (pr.requested) add.disabled = true;
+      acts.appendChild(add);
+    }
+    hero.appendChild(acts);
+    host.appendChild(hero);
+
+    /* stats strip */
+    var s = pr.stats, strip = el('div', 'prof-stats');
+    [[fmtTime(s.playtime), 'Played'], [String(s.games), 'Games'], [s.achievements + ' / ' + s.achievementsTotal, 'Achievements'],
+     [s.gameBadges + (s.gameBadgesTotal ? ' / ' + s.gameBadgesTotal : ''), 'Game badges'], [String(s.bestStreak), 'Best streak'], [String(s.daysActive), 'Days active']
+    ].forEach(function (x) { var c = el('div', 'pst'); c.appendChild(el('b', null, x[0])); c.appendChild(el('small', null, x[1])); strip.appendChild(c); });
+    host.appendChild(strip);
+
+    var cols = el('div', 'prof-cols'), main = el('div'), side = el('div');
+
+    /* achievements */
+    var sec = el('section', 'psec');
+    var head = el('div', 'psec-h');
+    var got = pr.achievements.filter(function (a) { return a.unlocked; }).length;
+    head.appendChild(el('h2', null, 'Achievements'));
+    head.appendChild(el('span', 'psec-count', got + ' of ' + pr.achievements.length));
+    var tabs = el('div', 'ptabs');
+    [['all', 'All'], ['got', 'Unlocked'], ['locked', 'Locked']].forEach(function (t) {
+      var b = el('button', profFilter === t[0] ? 'on' : '', t[1]);
+      b.onclick = function () { profFilter = t[0]; host.textContent = ''; buildProfile(host, pr); };
+      tabs.appendChild(b);
+    });
+    head.appendChild(tabs);
+    sec.appendChild(head);
+    var bar = el('div', 'pbar big'); var fill = el('i'); fill.style.width = Math.round(100 * got / pr.achievements.length) + '%'; bar.appendChild(fill); sec.appendChild(bar);
+    var list = el('div', 'plist');
+    pr.achievements.filter(function (a) { return profFilter === 'all' || (profFilter === 'got' ? a.unlocked : !a.unlocked); })
+      .sort(function (a, b) { return (b.unlocked ? 1 : 0) - (a.unlocked ? 1 : 0) || (b.unlocked || 0) - (a.unlocked || 0) || a.rarity - b.rarity; })
+      .forEach(function (a) {
+        var row = el('div', 'pach' + (a.unlocked ? ' got' : ''));
+        row.appendChild(el('span', 'ach-ico', a.icon));
+        var tx = el('div', 'pach-tx');
+        tx.appendChild(el('b', null, a.name));
+        tx.appendChild(el('span', null, a.desc));
+        if (!a.unlocked && a.goal) {
+          var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = Math.round(100 * a.progress / a.goal) + '%'; pb.appendChild(pf); tx.appendChild(pb);
+          tx.appendChild(el('small', null, a.fmt === 'time' ? fmtTime(a.progress) + ' / ' + fmtTime(a.goal) : a.progress + ' / ' + a.goal));
+        }
+        row.appendChild(tx);
+        var right = el('div', 'pach-r');
+        right.appendChild(el('small', null, a.unlocked ? 'Unlocked ' + fmtDate(a.unlocked, true) : 'Locked'));
+        right.appendChild(rarityEl(a.rarity));
+        row.appendChild(right);
+        list.appendChild(row);
+      });
+    if (!list.children.length) list.appendChild(el('div', 'fp-empty', profFilter === 'got' ? 'Nothing unlocked yet.' : 'Everything unlocked!'));
+    sec.appendChild(list);
+    main.appendChild(sec);
+
+    /* per-game achievements */
+    var gsec = el('section', 'psec');
+    var gh = el('div', 'psec-h'); gh.appendChild(el('h2', null, 'Game achievements'));
+    gh.appendChild(el('span', 'psec-count', s.gameBadges + ' badge' + (s.gameBadges === 1 ? '' : 's')));
+    gsec.appendChild(gh);
+    gsec.appendChild(el('p', 'psec-sub', 'Every game has four badges for time played: 🥉 10 minutes · 🥈 1 hour · 🥇 5 hours · 💠 20 hours.'));
+    if (!pr.games.length) gsec.appendChild(el('div', 'fp-empty', (pr.isMe ? 'You haven’t' : pr.name + ' hasn’t') + ' played any games yet.'));
+    pr.games.forEach(function (g) {
+      var card = el('div', 'pgame');
+      var ico = el('div', 'pgame-ico'); var gg = ctx.gameByName(g.name); if (gg) ctx.artInto(ico, gg, 'capsule', false); card.appendChild(ico);
+      var info = el('div', 'pgame-info');
+      var nm = el('b', null, g.name); if (gg) { nm.classList.add('link'); nm.onclick = function () { ctx.showGame(gg); }; }
+      info.appendChild(nm);
+      info.appendChild(el('small', null, fmtTime(g.seconds) + ' played' + (g.lastPlayed ? ' · last played ' + fmtDate(g.lastPlayed, true) : '')));
+      if (g.next) {
+        var nb = el('div', 'pbar'); var nf = el('i'); nf.style.width = Math.round(100 * g.next.progress / g.next.goal) + '%'; nb.appendChild(nf); info.appendChild(nb);
+        info.appendChild(el('small', null, 'Next: ' + g.next.name + ' · ' + fmtTime(g.next.progress) + ' / ' + fmtTime(g.next.goal)));
+      }
+      card.appendChild(info);
+      var tiers = el('div', 'ptiers');
+      g.tiers.forEach(function (t) {
+        var m = el('span', 'ptier ' + t.id + (t.unlocked ? ' got' : ''), t.icon);
+        m.title = t.name + ' (play ' + t.label + ')\n' + (t.unlocked ? 'Unlocked ' + fmtDate(t.unlocked, true) : 'Locked') + '\n' + t.rarity + '% of players';
+        tiers.appendChild(m);
+      });
+      card.appendChild(tiers);
+      gsec.appendChild(card);
+    });
+    main.appendChild(gsec);
+
+    /* side: recently played + friends */
+    if (pr.recent && pr.recent.length) {
+      var rs = el('section', 'psec side'); rs.appendChild(el('h3', null, 'Recently played'));
+      pr.recent.forEach(function (r) {
+        var row = el('div', 'pside-row'); var gi = el('span', 'pside-ico'); var g2 = ctx.gameByName(r.game); if (g2) ctx.artInto(gi, g2, 'icon', false);
+        row.appendChild(gi); var t = el('div', 'fp-t'); t.appendChild(el('b', null, r.game)); t.appendChild(el('small', null, ago(r.at))); row.appendChild(t);
+        if (g2) { row.classList.add('link'); row.onclick = function () { ctx.showGame(g2); }; }
+        rs.appendChild(row);
+      });
+      side.appendChild(rs);
+    }
+    if (pr.friends) {
+      var fs = el('section', 'psec side'); fs.appendChild(el('h3', null, 'Friends (' + pr.friends.length + ')'));
+      if (!pr.friends.length) fs.appendChild(el('small', 'psec-sub', 'No friends yet.'));
+      pr.friends.forEach(function (f) {
+        var row = el('button', 'pside-row link'); row.appendChild(avatar(f.name, 30, f.state || null));
+        var t = el('div', 'fp-t'); t.appendChild(el('b', null, f.name)); if (f.state) t.appendChild(el('small', 'st-' + f.state, stateText(f))); row.appendChild(t);
+        row.onclick = function () { openProfile(f.name); };
+        fs.appendChild(row);
+      });
+      side.appendChild(fs);
+    } else if (!pr.isMe) {
+      var hint = el('section', 'psec side'); hint.appendChild(el('h3', null, 'Friends'));
+      hint.appendChild(el('small', 'psec-sub', 'Become friends with ' + pr.name + ' to see their friends and what they’re playing.'));
+      side.appendChild(hint);
+    }
+    cols.appendChild(main); cols.appendChild(side); host.appendChild(cols);
   }
 
   /* ---------- chat ---------- */
@@ -450,7 +539,7 @@ window.MistSocial = function (ctx) {
   }
 
   return {
-    loadUsers: loadUsers, wireUsers: wireUsers,
+    loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

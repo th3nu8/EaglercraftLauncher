@@ -126,6 +126,18 @@ Unlocks pop up in the top-right, even over a running game. Profiles show stats a
 profile shows progress bars, and the Users page shows each player's trophy count and playtime.
 The list lives in `ACHIEVEMENTS` in `server/server.js`, so adding one is a single line.
 
+### Profiles & game achievements
+
+Click any player name (Users page, friends list, chat, store) or **My profile & achievements**
+in the account menu to open a full profile page:
+- header with avatar, status (friends only) and Add friend / Message buttons
+- stats: playtime, games, achievements, game badges, best streak, days active
+- every achievement with unlock date, **rarity** (% of players who have it) and, on your own
+  profile, progress bars; filter All / Unlocked / Locked
+- **Game achievements**: each game you play earns 🥉 10 min, 🥈 1 h, 🥇 5 h and 💠 20 h badges,
+  with progress toward the next one
+- recently played games and friends (visible to you and your friends)
+
 ### If accounts go missing
 
 The server now protects against the two ways accounts used to get lost:

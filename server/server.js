@@ -259,10 +259,62 @@ function checkAch(uid) {
   if (fresh.length) { (db.achNew[uid] = db.achNew[uid] || []).push(...fresh); saveDb(); }
   return fresh;
 }
+/* Per-game achievements: four playtime tiers for every game a player plays. */
+db.gameAch = db.gameAch || {};   // uid -> { gameName: { tierId: unlockedAt } }
+const GAME_TIERS = [
+  { id: 'bronze',   icon: '🥉', name: 'Getting Started', goal: 600,     label: '10 minutes' },
+  { id: 'silver',   icon: '🥈', name: 'Hooked',          goal: H,       label: '1 hour' },
+  { id: 'gold',     icon: '🥇', name: 'Dedicated',       goal: 5 * H,   label: '5 hours' },
+  { id: 'platinum', icon: '💠', name: 'Master',          goal: 20 * H,  label: '20 hours' },
+];
+const TIER_BY_ID = Object.fromEntries(GAME_TIERS.map(t => [t.id, t]));
+function checkGameAch(uid, game, notify = true) {
+  const sec = stats(uid).perGame[game] || 0, all = db.gameAch[uid] || (db.gameAch[uid] = {}), got = all[game] || (all[game] = {});
+  const fresh = [];
+  for (const t of GAME_TIERS) if (!got[t.id] && sec >= t.goal) { got[t.id] = Date.now(); fresh.push('g:' + t.id + ':' + game); }
+  if (fresh.length) { if (notify) (db.achNew[uid] = db.achNew[uid] || []).push(...fresh); saveDb(); }
+  return fresh;
+}
 function takeNewAch(uid) {
   const ids = db.achNew[uid]; if (!ids || !ids.length) return [];
   delete db.achNew[uid]; saveDbSoon();
-  return ids.map(id => ACH_BY_ID[id]).filter(Boolean).map(a => ({ id: a.id, icon: a.icon, name: a.name, desc: a.desc }));
+  return ids.map(id => {
+    if (id.startsWith('g:')) {
+      const [, tier, ...rest] = id.split(':'), game = rest.join(':'), t = TIER_BY_ID[tier];
+      return t && { id, icon: t.icon, name: game + ': ' + t.name, desc: 'Play ' + game + ' for ' + t.label + '.', game };
+    }
+    const a = ACH_BY_ID[id]; return a && { id: a.id, icon: a.icon, name: a.name, desc: a.desc };
+  }).filter(Boolean);
+}
+/* How many players have each achievement (cached for a minute). */
+let rarityCache = null, rarityAt = 0;
+function rarity() {
+  if (rarityCache && Date.now() - rarityAt < 60e3) return rarityCache;
+  const players = Math.max(1, Object.keys(db.users).length), general = {}, games = {};
+  for (const u of Object.values(db.users)) {
+    for (const id of Object.keys(db.ach[u.id] || {})) general[id] = (general[id] || 0) + 1;
+    for (const [g, tiers] of Object.entries(db.gameAch[u.id] || {})) {
+      const row = games[g] || (games[g] = { players: 0 });
+      if (stats(u.id).perGame[g]) row.players++;
+      for (const t of Object.keys(tiers)) row[t] = (row[t] || 0) + 1;
+    }
+  }
+  rarityCache = { players, general, games }; rarityAt = Date.now();
+  return rarityCache;
+}
+const pct = (n, of) => Math.round(1000 * (n || 0) / Math.max(1, of)) / 10;
+function gameList(uid, withProgress) {
+  const st = stats(uid), all = db.gameAch[uid] || {}, r = rarity(), recent = {};
+  for (const x of soc(uid).recent) recent[x.game] = x.at;
+  return Object.entries(st.perGame).sort((a, b) => b[1] - a[1]).map(([game, sec]) => {
+    const got = all[game] || {}, next = GAME_TIERS.find(t => !got[t.id]);
+    return {
+      name: game, seconds: Math.round(sec), lastPlayed: recent[game] || null,
+      tiers: GAME_TIERS.map(t => ({ id: t.id, icon: t.icon, name: t.name, label: t.label, goal: t.goal, unlocked: got[t.id] || null,
+        rarity: pct((r.games[game] || {})[t.id], r.players) })),
+      next: withProgress && next ? { name: next.name, goal: next.goal, progress: Math.min(next.goal, Math.round(sec)) } : null
+    };
+  });
 }
 function markActiveDay(uid, now) {
   const st = stats(uid), today = dayKey(now);
@@ -274,7 +326,7 @@ function markActiveDay(uid, now) {
 function achList(uid, withProgress) {
   const st = stats(uid), got = db.ach[uid] || {};
   return ACHIEVEMENTS.map(a => {
-    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, unlocked: got[a.id] || null };
+    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, unlocked: got[a.id] || null, rarity: pct(rarity().general[a.id], rarity().players) };
     if (withProgress && !o.unlocked) { o.progress = Math.min(a.goal, a.stat(st, uid)); o.goal = a.goal; o.fmt = a.fmt || null; }
     return o;
   });
@@ -283,7 +335,9 @@ function statSummary(uid) {
   const st = stats(uid), top = Object.entries(st.perGame).sort((a, b) => b[1] - a[1])[0];
   return { playtime: Math.round(st.play), games: Object.keys(st.perGame).length, topGame: top ? { name: top[0], seconds: Math.round(top[1]) } : null,
     streak: st.lastDay === dayKey(Date.now()) || st.lastDay === dayKey(Date.now() - 864e5) ? st.streak : 0, bestStreak: st.best, daysActive: st.days,
-    achievements: Object.keys(db.ach[uid] || {}).length, achievementsTotal: ACHIEVEMENTS.length };
+    achievements: Object.keys(db.ach[uid] || {}).length, achievementsTotal: ACHIEVEMENTS.length,
+    gameBadges: Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0),
+    gameBadgesTotal: Object.keys(st.perGame).length * GAME_TIERS.length };
 }
 const lastIngame = new Map(); // uid -> { game, at } for playtime counting
 
@@ -433,6 +487,7 @@ async function handle(req, res) {
       if (prev && prev.game === game && now - prev.at < 150e3) {
         const sec = (now - prev.at) / 1000, st = stats(user.id);
         st.play += sec; st.perGame[game] = (st.perGame[game] || 0) + sec; saveDbSoon();
+        checkGameAch(user.id, game);
       }
       lastIngame.set(user.id, { game, at: now });
     } else lastIngame.delete(user.id);
@@ -497,7 +552,8 @@ async function handle(req, res) {
     const users = all.slice(page * per, page * per + per).map(u => {
       const isMe = u.id === user.id, isFriend = me.friends.includes(u.id);
       const out = { name: u.name, created: u.created, friendCount: soc(u.id).friends.length,
-        achievements: Object.keys(db.ach[u.id] || {}).length, playtime: Math.round(stats(u.id).play),
+        achievements: Object.keys(db.ach[u.id] || {}).length + Object.values(db.gameAch[u.id] || {}).reduce((n, g) => n + Object.keys(g).length, 0),
+        playtime: Math.round(stats(u.id).play),
         relation: isMe ? 'me' : isFriend ? 'friend' : me.outgoing.includes(u.id) ? 'requested' : me.incoming.includes(u.id) ? 'requestedYou' : 'none' };
       if (isMe || isFriend) { const pr = presenceOf(u.id); out.state = pr.state; out.game = pr.game; out.lastSeen = pr.lastSeen; }
       return out;
@@ -513,6 +569,16 @@ async function handle(req, res) {
     if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
     out.stats = statSummary(other.id);
     out.achievements = achList(other.id, isMe);
+    out.games = gameList(other.id, isMe);
+    out.players = Object.keys(db.users).length;
+    if (isMe || isFriend) {
+      const mine = soc(user.id).friends;
+      out.friends = soc(other.id).friends.map(userById).filter(Boolean).map(f => {
+        const o = { name: f.name };
+        if (f.id === user.id || mine.includes(f.id)) Object.assign(o, presenceOf(f.id));
+        return o;
+      }).sort((a, b) => a.name.localeCompare(b.name));
+    }
     return send(res, 200, out);
   }
 
@@ -553,6 +619,7 @@ async function handle(req, res) {
     const st = stats(u.id);
     if (db.saves[u.id] && !st.saves) st.saves = 1;
     n += checkAch(u.id).length;
+    for (const g of Object.keys(st.perGame)) n += checkGameAch(u.id, g, false).length;
   }
   if (n) console.log(`Unlocked ${n} achievement(s) for existing accounts.`);
 })();

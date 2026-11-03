@@ -20,7 +20,7 @@ if (!fromDir || !toDir) { console.log('Usage: node merge-data.js <from-data-fold
 const read = dir => JSON.parse(fs.readFileSync(path.join(dir, 'db.json'), 'utf8'));
 const from = read(fromDir);
 let to; try { to = read(toDir); } catch (e) { to = { users: {}, sessions: {}, saves: {} }; }
-for (const k of ['users', 'sessions', 'saves', 'social', 'messages', 'reads', 'stats', 'ach']) { from[k] = from[k] || {}; to[k] = to[k] || {}; }
+for (const k of ['users', 'sessions', 'saves', 'social', 'messages', 'reads', 'stats', 'ach', 'gameAch']) { from[k] = from[k] || {}; to[k] = to[k] || {}; }
 if (fs.existsSync(path.join(toDir, 'server.lock'))) {
   const pid = parseInt(fs.readFileSync(path.join(toDir, 'server.lock'), 'utf8'), 10);
   try { process.kill(pid, 0); console.log(`A server (pid ${pid}) is still using ${toDir}. Stop it first.`); process.exit(1); } catch (e) {}
@@ -39,6 +39,7 @@ for (const [key, u] of Object.entries(from.users)) {
   }
   if (from.stats[u.id]) to.stats[u.id] = from.stats[u.id];
   if (from.ach[u.id]) to.ach[u.id] = from.ach[u.id];
+  if (from.gameAch[u.id]) to.gameAch[u.id] = from.gameAch[u.id];
 }
 const addedIds = new Set(added.map(n => from.users[n.toLowerCase()].id));
 // friends / requests for the added accounts (pointing at accounts that exist in the target)

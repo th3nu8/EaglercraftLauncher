@@ -357,6 +357,7 @@
   function go(page, game) {
     view.page = page;
     if (page === 'game') view.game = game;
+    if (page === 'profile') view.profileName = game || null;
     if (page === 'library' && game !== undefined) { view.libGame = game ? game.id : null; store.set('libGame', view.libGame); }
     $$('.page').forEach(function (p) { p.classList.toggle('active', p.id === 'page-' + page); });
     $$('.nav').forEach(function (n) { n.classList.toggle('active', n.dataset.page === page || (page === 'game' && n.dataset.page === 'store')); });
@@ -372,6 +373,7 @@
     else if (view.page === 'library') renderLibrary();
     else if (view.page === 'settings') renderSettings();
     else if (view.page === 'users') { if (social) social.loadUsers(true); }
+    else if (view.page === 'profile') { if (social) social.renderProfile(view.profileName); }
   }
   function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
 
@@ -715,7 +717,7 @@
         'Last synced ' + ago(st.lastSync).toLowerCase() + '. Worlds sync when you press Play, every few minutes while you play, and when you come back to the library.'));
       var stack = el('div', 'm-stack');
       if (st.state === 'conflict') stack.appendChild(button('green', 'Fix save conflict', null, function () { closeModal(); runSync(true); }));
-      stack.appendChild(button('', 'View my profile', null, function () { closeModal(); social.openProfile(engine.user); }));
+      stack.appendChild(button('', 'My profile & achievements', null, function () { closeModal(); go('profile', engine.user); }));
       stack.appendChild(button('', 'Friends & chat', null, function () { closeModal(); social.togglePanel(true); }));
       stack.appendChild(button('', 'Sync now', null, function () { if (gameFrame) { toast('Return to the library first'); return; } closeModal(); runSync(true); }));
       stack.appendChild(button('', 'Change password', null, openChangePassword));
@@ -900,7 +902,8 @@
   social = window.MistSocial ? MistSocial({
     getEngine: function () { return engine; }, el: el, toast: toast, ago: ago, popMenu: popMenu,
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
-    gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); }
+    gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); },
+    showProfile: function (n) { go('profile', n); }
   }) : null;
   renderAccount();
   if (social) {
