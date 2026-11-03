@@ -38,24 +38,85 @@ async function serveStatic(req, res, p) {
   return true;
 }
 
-fs.mkdirSync(SAVES_DIR, { recursive: true });
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
+
+/* ---------------- storage safety ----------------
+ * Accounts used to vanish when the server couldn't write its data folder (it kept running with
+ * everything only in memory) or when two copies ran with different data folders. Now:
+ *  - it refuses to start if the data folder isn't writable,
+ *  - only one server may use a data folder at a time (lock file),
+ *  - failed saves are retried, reported on /api/health, and block new sign-ups,
+ *  - db.json is backed up on start and every 6 hours (newest 28 kept). */
+function fatal(msg) { console.error('\n*** ' + msg + '\n'); process.exit(1); }
+try {
+  fs.mkdirSync(SAVES_DIR, { recursive: true }); fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  const probe = path.join(DATA_DIR, '.write-test-' + process.pid);
+  fs.writeFileSync(probe, 'ok'); fs.renameSync(probe, probe + '.x'); fs.unlinkSync(probe + '.x');
+  if (fs.existsSync(DB_FILE)) fs.accessSync(DB_FILE, fs.constants.R_OK | fs.constants.W_OK);
+} catch (e) {
+  fatal(`Can't write to the data folder ${DATA_DIR} (${e.code}). Accounts would be lost on restart.\n` +
+        `    Fix: sudo chown -R ${process.env.USER || 'www-data'}:${process.env.USER || 'www-data'} ${DATA_DIR}   (use the user the server runs as)`);
+}
+const LOCK_FILE = path.join(DATA_DIR, 'server.lock');
+try {
+  const other = parseInt(fs.readFileSync(LOCK_FILE, 'utf8'), 10);
+  if (other && other !== process.pid) {
+    let alive = false; try { process.kill(other, 0); alive = true; } catch (e) { alive = e.code === 'EPERM'; }
+    if (alive) fatal(`Another Mist server (pid ${other}) is already using ${DATA_DIR}. Stop it first, or two servers will overwrite each other's accounts.`);
+  }
+} catch (e) { /* no lock yet */ }
+fs.writeFileSync(LOCK_FILE, String(process.pid));
+const releaseLock = () => { try { if (fs.readFileSync(LOCK_FILE, 'utf8') === String(process.pid)) fs.unlinkSync(LOCK_FILE); } catch (e) {} };
+process.on('exit', releaseLock);
+['SIGINT', 'SIGTERM'].forEach(sig => process.on(sig, () => {
+  if (saveSoonTimer) { clearTimeout(saveSoonTimer); saveSoonTimer = null; saveDb(); } // flush pending changes
+  writeChain.finally(() => process.exit(0));
+}));
 
 /* ---------------- tiny JSON database ---------------- */
 let db = { users: {}, sessions: {}, saves: {} };
 try {
   db = Object.assign(db, JSON.parse(fs.readFileSync(DB_FILE, 'utf8')));
 } catch (e) {
-  if (e.code !== 'ENOENT') { console.error('Could not read ' + DB_FILE, e); process.exit(1); }
+  if (e.code !== 'ENOENT') fatal(`Could not read ${DB_FILE}: ${e.message}\n    Restore the newest file from ${BACKUP_DIR} to db.json.`);
 }
-let writeChain = Promise.resolve();
+let storageError = null, writeChain = Promise.resolve(), writeQueued = false, saveSoonTimer = null;
 function saveDb() {
+  if (writeQueued) return writeChain;          // a write is already waiting; it will include these changes
+  writeQueued = true;
   writeChain = writeChain.then(async () => {
-    const tmp = DB_FILE + '.tmp';
-    await fsp.writeFile(tmp, JSON.stringify(db));
-    await fsp.rename(tmp, DB_FILE);
-  }).catch(e => console.error('db write failed', e));
+    writeQueued = false;
+    const tmp = DB_FILE + '.' + process.pid + '.tmp';
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const fh = await fsp.open(tmp, 'w');
+        try { await fh.writeFile(JSON.stringify(db)); await fh.sync(); } finally { await fh.close(); }
+        await fsp.rename(tmp, DB_FILE);
+        if (storageError) console.error('Saving works again.');
+        storageError = null; return;
+      } catch (e) {
+        storageError = e.code || e.message;
+        console.error(`!!! Could not save ${DB_FILE} (attempt ${attempt}): ${e.message}`);
+        if (attempt >= 3) return;
+        await new Promise(r => setTimeout(r, 500 * attempt));
+      }
+    }
+  });
   return writeChain;
 }
+function saveDbSoon() { if (!saveSoonTimer) saveSoonTimer = setTimeout(() => { saveSoonTimer = null; saveDb(); }, 15000); }
+function backupDb() {
+  if (!fs.existsSync(DB_FILE)) return;
+  const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
+  fs.copyFile(DB_FILE, path.join(BACKUP_DIR, 'db-' + stamp + '.json'), err => {
+    if (err) return console.error('Backup failed:', err.message);
+    const old = fs.readdirSync(BACKUP_DIR).filter(f => /^db-.*\.json$/.test(f)).sort().slice(0, -28);
+    old.forEach(f => fs.unlink(path.join(BACKUP_DIR, f), () => {}));
+  });
+}
+backupDb();
+setInterval(backupDb, 6 * 3600e3).unref();
+console.log(`Data folder: ${DATA_DIR} (${Object.keys(db.users).length} accounts)`);
 
 /* per-user lock so two uploads can't interleave */
 const locks = new Map();
@@ -161,6 +222,71 @@ function friendView(me, uid) {
   return { name: u.name, state: pr.state, game: pr.game, lastSeen: pr.lastSeen,
     unread: unreadFrom(me, uid), recent: soc(uid).recent.slice(0, 5).map(r => r.game) };
 }
+/* ---------------- stats & achievements ---------------- */
+db.stats = db.stats || {};       // uid -> { play, perGame:{name:sec}, msgs, days, streak, best, lastDay, saves }
+db.ach = db.ach || {};           // uid -> { achievementId: unlockedAt }
+db.achNew = db.achNew || {};     // uid -> [achievementId] not yet shown to the player
+const H = 3600;
+const ACHIEVEMENTS = [
+  { id: 'welcome',       icon: '👋', name: 'Welcome to Mist',  desc: 'Create a Mist account.',                  stat: s => 1, goal: 1 },
+  { id: 'play-10m',      icon: '🎮', name: 'First Steps',      desc: 'Play for 10 minutes.',                    stat: s => s.play, goal: 600, fmt: 'time' },
+  { id: 'play-1h',       icon: '⏱️', name: 'Getting Comfy',    desc: 'Play for 1 hour in total.',               stat: s => s.play, goal: H, fmt: 'time' },
+  { id: 'play-10h',      icon: '🔥', name: 'Dedicated',        desc: 'Play for 10 hours in total.',             stat: s => s.play, goal: 10 * H, fmt: 'time' },
+  { id: 'play-50h',      icon: '💎', name: 'No Life',          desc: 'Play for 50 hours in total.',             stat: s => s.play, goal: 50 * H, fmt: 'time' },
+  { id: 'play-100h',     icon: '👑', name: 'Mist Legend',      desc: 'Play for 100 hours in total.',            stat: s => s.play, goal: 100 * H, fmt: 'time' },
+  { id: 'one-game-2h',   icon: '🏃', name: 'Marathon',         desc: 'Spend 2 hours in a single game.',         stat: s => maxGame(s), goal: 2 * H, fmt: 'time' },
+  { id: 'one-game-10h',  icon: '🎯', name: 'Obsessed',         desc: 'Spend 10 hours in a single game.',        stat: s => maxGame(s), goal: 10 * H, fmt: 'time' },
+  { id: 'games-5',       icon: '🧭', name: 'Explorer',         desc: 'Play 5 different games.',                 stat: s => Object.keys(s.perGame).length, goal: 5 },
+  { id: 'games-15',      icon: '🗺️', name: 'Game Hopper',      desc: 'Play 15 different games.',                stat: s => Object.keys(s.perGame).length, goal: 15 },
+  { id: 'games-40',      icon: '📚', name: 'Connoisseur',      desc: 'Play 40 different games.',                stat: s => Object.keys(s.perGame).length, goal: 40 },
+  { id: 'friends-1',     icon: '🤝', name: 'First Friend',     desc: 'Make your first friend.',                 stat: (s, u) => soc(u).friends.length, goal: 1 },
+  { id: 'friends-5',     icon: '👥', name: 'Squad Up',         desc: 'Have 5 friends.',                         stat: (s, u) => soc(u).friends.length, goal: 5 },
+  { id: 'friends-15',    icon: '🌟', name: 'Popular',          desc: 'Have 15 friends.',                        stat: (s, u) => soc(u).friends.length, goal: 15 },
+  { id: 'msg-1',         icon: '💬', name: 'Hello!',           desc: 'Send your first chat message.',           stat: s => s.msgs, goal: 1 },
+  { id: 'msg-100',       icon: '🗣️', name: 'Chatterbox',       desc: 'Send 100 chat messages.',                 stat: s => s.msgs, goal: 100 },
+  { id: 'streak-3',      icon: '📅', name: 'Regular',          desc: 'Open Mist 3 days in a row.',              stat: s => s.best, goal: 3 },
+  { id: 'streak-7',      icon: '🗓️', name: 'Weekly Warrior',   desc: 'Open Mist 7 days in a row.',              stat: s => s.best, goal: 7 },
+  { id: 'days-30',       icon: '🏅', name: 'Veteran',          desc: 'Open Mist on 30 different days.',         stat: s => s.days, goal: 30 },
+  { id: 'cloud-1',       icon: '☁️', name: 'Cloud Saver',      desc: 'Back up your worlds to the cloud.',       stat: s => s.saves, goal: 1 },
+];
+const ACH_BY_ID = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
+const maxGame = s => Object.values(s.perGame).reduce((m, v) => Math.max(m, v), 0);
+const stats = uid => db.stats[uid] || (db.stats[uid] = { play: 0, perGame: {}, msgs: 0, days: 0, streak: 0, best: 0, lastDay: '', saves: 0 });
+const dayKey = t => new Date(t).toISOString().slice(0, 10);
+function checkAch(uid) {
+  const st = stats(uid), got = db.ach[uid] || (db.ach[uid] = {}), now = Date.now(), fresh = [];
+  for (const a of ACHIEVEMENTS) if (!got[a.id] && a.stat(st, uid) >= a.goal) { got[a.id] = now; fresh.push(a.id); }
+  if (fresh.length) { (db.achNew[uid] = db.achNew[uid] || []).push(...fresh); saveDb(); }
+  return fresh;
+}
+function takeNewAch(uid) {
+  const ids = db.achNew[uid]; if (!ids || !ids.length) return [];
+  delete db.achNew[uid]; saveDbSoon();
+  return ids.map(id => ACH_BY_ID[id]).filter(Boolean).map(a => ({ id: a.id, icon: a.icon, name: a.name, desc: a.desc }));
+}
+function markActiveDay(uid, now) {
+  const st = stats(uid), today = dayKey(now);
+  if (st.lastDay === today) return false;
+  st.streak = st.lastDay === dayKey(now - 864e5) ? st.streak + 1 : 1;
+  st.best = Math.max(st.best, st.streak); st.days++; st.lastDay = today;
+  return true;
+}
+function achList(uid, withProgress) {
+  const st = stats(uid), got = db.ach[uid] || {};
+  return ACHIEVEMENTS.map(a => {
+    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, unlocked: got[a.id] || null };
+    if (withProgress && !o.unlocked) { o.progress = Math.min(a.goal, a.stat(st, uid)); o.goal = a.goal; o.fmt = a.fmt || null; }
+    return o;
+  });
+}
+function statSummary(uid) {
+  const st = stats(uid), top = Object.entries(st.perGame).sort((a, b) => b[1] - a[1])[0];
+  return { playtime: Math.round(st.play), games: Object.keys(st.perGame).length, topGame: top ? { name: top[0], seconds: Math.round(top[1]) } : null,
+    streak: st.lastDay === dayKey(Date.now()) || st.lastDay === dayKey(Date.now() - 864e5) ? st.streak : 0, bestStreak: st.best, daysActive: st.days,
+    achievements: Object.keys(db.ach[uid] || {}).length, achievementsTotal: ACHIEVEMENTS.length };
+}
+const lastIngame = new Map(); // uid -> { game, at } for playtime counting
+
 function messageRateLimited(uid) {
   const now = Date.now(); let h = msgHits.get(uid);
   if (!h || now - h.t > 60e3) { h = { t: now, n: 0 }; msgHits.set(uid, h); }
@@ -174,7 +300,7 @@ async function handle(req, res) {
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
-  if (p === '/' || p === '/api/health') return send(res, 200, { ok: true, service: 'eaglercraft-saves', social: true, signups: ALLOW_SIGNUPS });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -183,6 +309,7 @@ async function handle(req, res) {
     const key = name.toLowerCase();
 
     if (p === '/api/register') {
+      if (storageError) return fail(res, 503, 'The server can’t save new accounts right now. Ask the owner to check the server.');
       if (!ALLOW_SIGNUPS) return fail(res, 403, 'Sign-ups are closed on this server.');
       if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return fail(res, 400, 'Username must be 3–20 letters, numbers or underscores.');
       if (pw.length < 6 || pw.length > 200) return fail(res, 400, 'Password must be at least 6 characters.');
@@ -193,6 +320,12 @@ async function handle(req, res) {
       const user = { id: crypto.randomUUID(), name, salt, hash, created: Date.now() };
       db.users[key] = user;
       const token = await newSession(user.id);
+      if (storageError) { // don't hand out an account that won't survive a restart
+        delete db.users[key];
+        for (const [k, v] of Object.entries(db.sessions)) if (v.uid === user.id) delete db.sessions[k];
+        return fail(res, 503, 'The server can’t save new accounts right now. Ask the owner to check the server.');
+      }
+      checkAch(user.id);
       return send(res, 200, { token, user: { name }, save: null });
     }
 
@@ -272,6 +405,7 @@ async function handle(req, res) {
       await fsp.rename(file, file + '.prev').catch(() => {}); // keep one previous copy as a safety net
       await fsp.rename(tmp, file);
       db.saves[user.id] = { rev: ifRev + 1, hash, size, updatedAt: Date.now() };
+      stats(user.id).saves++; checkAch(user.id);
       await saveDb();
       return send(res, 200, { save: publicMeta(db.saves[user.id]) });
     });
@@ -284,7 +418,7 @@ async function handle(req, res) {
     const friends = me.friends.map(id => friendView(user.id, id)).filter(Boolean)
       .sort((a, b) => order[a.state] - order[b.state] || (b.state === 'offline' ? b.lastSeen - a.lastSeen : 0) || a.name.localeCompare(b.name));
     const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
-    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing) });
+    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id) });
   }
 
   if (req.method === 'POST' && p === '/api/presence') {
@@ -293,13 +427,24 @@ async function handle(req, res) {
     const game = state === 'ingame' ? String(body.game || '').slice(0, 60) : null;
     const me = soc(user.id), now = Date.now();
     if (state === 'offline') presence.delete(user.id); else presence.set(user.id, { state, game, at: now });
+    // playtime: count the time since the previous "playing" ping for the same game (pings come every minute)
+    const prev = lastIngame.get(user.id);
+    if (state === 'ingame' && game) {
+      if (prev && prev.game === game && now - prev.at < 150e3) {
+        const sec = (now - prev.at) / 1000, st = stats(user.id);
+        st.play += sec; st.perGame[game] = (st.perGame[game] || 0) + sec; saveDbSoon();
+      }
+      lastIngame.set(user.id, { game, at: now });
+    } else lastIngame.delete(user.id);
+    if (state !== 'offline' && markActiveDay(user.id, now)) saveDbSoon();
+    if (state !== 'offline') checkAch(user.id);
     let dirty = false;
     if (game && (!me.recent[0] || me.recent[0].game !== game)) {
       me.recent = [{ game, at: now }].concat(me.recent.filter(r => r.game !== game)).slice(0, 8); dirty = true;
     }
     if (now - (me.lastSeen || 0) > 5 * 60e3 || state === 'offline') { me.lastSeen = now; dirty = true; }
     if (dirty) saveDb();
-    return send(res, 200, { ok: true });
+    return send(res, 200, { ok: true, newAchievements: takeNewAch(user.id) });
   }
 
   if (req.method === 'POST' && p.startsWith('/api/friends/')) {
@@ -313,7 +458,7 @@ async function handle(req, res) {
       if (me.friends.includes(other.id)) return fail(res, 409, 'You’re already friends.');
       if (me.incoming.includes(other.id)) { // they already asked: accept
         pull(me.incoming, other.id); pull(them.outgoing, user.id);
-        me.friends.push(other.id); them.friends.push(user.id); await saveDb();
+        me.friends.push(other.id); them.friends.push(user.id); checkAch(user.id); checkAch(other.id); await saveDb();
         return send(res, 200, { ok: true, accepted: true });
       }
       if (me.outgoing.includes(other.id)) return fail(res, 409, 'Request already sent.');
@@ -327,6 +472,7 @@ async function handle(req, res) {
       pull(me.incoming, other.id); pull(them.outgoing, user.id);
       if (!me.friends.includes(other.id)) me.friends.push(other.id);
       if (!them.friends.includes(user.id)) them.friends.push(user.id);
+      checkAch(user.id); checkAch(other.id);
       await saveDb(); return send(res, 200, { ok: true });
     }
     if (action === 'decline' || action === 'cancel' || action === 'remove') {
@@ -351,6 +497,7 @@ async function handle(req, res) {
     const users = all.slice(page * per, page * per + per).map(u => {
       const isMe = u.id === user.id, isFriend = me.friends.includes(u.id);
       const out = { name: u.name, created: u.created, friendCount: soc(u.id).friends.length,
+        achievements: Object.keys(db.ach[u.id] || {}).length, playtime: Math.round(stats(u.id).play),
         relation: isMe ? 'me' : isFriend ? 'friend' : me.outgoing.includes(u.id) ? 'requested' : me.incoming.includes(u.id) ? 'requestedYou' : 'none' };
       if (isMe || isFriend) { const pr = presenceOf(u.id); out.state = pr.state; out.game = pr.game; out.lastSeen = pr.lastSeen; }
       return out;
@@ -364,6 +511,8 @@ async function handle(req, res) {
     const out = { name: other.name, created: other.created, friendCount: soc(other.id).friends.length, isMe, isFriend,
       requested: soc(user.id).outgoing.includes(other.id), requestedYou: soc(user.id).incoming.includes(other.id) };
     if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
+    out.stats = statSummary(other.id);
+    out.achievements = achList(other.id, isMe);
     return send(res, 200, out);
   }
 
@@ -388,6 +537,7 @@ async function handle(req, res) {
       const msg = { id: ++db.msgSeq, from: user.id, text, at: Date.now() };
       list.push(msg); if (list.length > MAX_MSGS_PER_CHAT) list.splice(0, list.length - MAX_MSGS_PER_CHAT);
       db.reads[user.id] = db.reads[user.id] || {}; db.reads[user.id][other.id] = msg.id;
+      stats(user.id).msgs++; checkAch(user.id);
       await saveDb();
       return send(res, 200, { message: { id: msg.id, from: user.name, mine: true, text, at: msg.at } });
     }
@@ -395,6 +545,17 @@ async function handle(req, res) {
 
   return fail(res, 404, 'Not found.');
 }
+
+// Backfill achievements for accounts that existed before achievements were added.
+(function backfill() {
+  let n = 0;
+  for (const u of Object.values(db.users)) {
+    const st = stats(u.id);
+    if (db.saves[u.id] && !st.saves) st.saves = 1;
+    n += checkAch(u.id).length;
+  }
+  if (n) console.log(`Unlocked ${n} achievement(s) for existing accounts.`);
+})();
 
 http.createServer((req, res) => {
   handle(req, res).catch(e => {

@@ -35,10 +35,36 @@ window.MistSocial = function (ctx) {
     return f.lastSeen ? 'Last online ' + ago(f.lastSeen).toLowerCase() : 'Offline';
   }
 
+  /* ---------- achievements ---------- */
+  function fmtTime(sec) {
+    sec = Math.round(sec || 0);
+    if (sec < 60) return sec ? '<1m' : '0m';
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60);
+    return h ? h + 'h' + (m && h < 10 ? ' ' + m + 'm' : '') : m + 'm';
+  }
+  var achQueue = [], achShowing = false;
+  function showAchievements(list) {
+    if (!list || !list.length) return;
+    achQueue = achQueue.concat(list); if (!achShowing) nextAch();
+  }
+  function nextAch() {
+    var a = achQueue.shift(); if (!a) { achShowing = false; return; }
+    achShowing = true;
+    var host = document.getElementById('achToasts');
+    if (!host) { host = el('div'); host.id = 'achToasts'; document.body.appendChild(host); }
+    var t = el('div', 'ach-toast');
+    t.appendChild(el('span', 'ach-ico', a.icon));
+    var tx = el('div', 'ach-tx'); tx.appendChild(el('small', null, 'Achievement unlocked')); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('span', null, a.desc));
+    t.appendChild(tx); host.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add('show'); });
+    setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); nextAch(); }, 350); }, 4500);
+  }
+
   /* ---------- presence ---------- */
   function beat() {
     if (!eng()) return;
-    api('POST', '/api/presence', playing ? { state: 'ingame', game: playing } : { state: 'online' }).catch(function () {});
+    api('POST', '/api/presence', playing ? { state: 'ingame', game: playing } : { state: 'online' })
+      .then(function (r) { showAchievements(r && r.newAchievements); }, function () {});
   }
   function setPlaying(gameName) { playing = gameName || null; beat(); }
 
@@ -54,6 +80,7 @@ window.MistSocial = function (ctx) {
         if (f.unread > was && !(chat && chat.name === f.name)) toast('New message from ' + f.name);
         lastUnread[f.name] = f.unread;
       });
+      showAchievements(d.newAchievements);
       data = d; render();
     }).catch(function () {});
   }
@@ -221,6 +248,36 @@ window.MistSocial = function (ctx) {
         if (pr.state) t.appendChild(el('div', 'pf-state st-' + pr.state, stateText(pr)));
         t.appendChild(el('small', null, 'Member since ' + new Date(pr.created).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) + ' · ' + pr.friendCount + ' friend' + (pr.friendCount === 1 ? '' : 's')));
         top.appendChild(t); box.appendChild(top);
+        if (pr.stats) {
+          var sr = el('div', 'pf-stats');
+          [['Played', fmtTime(pr.stats.playtime)], ['Games', String(pr.stats.games)],
+           ['Best streak', pr.stats.bestStreak + (pr.stats.bestStreak === 1 ? ' day' : ' days')],
+           ['Achievements', pr.stats.achievements + ' / ' + pr.stats.achievementsTotal]].forEach(function (x) {
+            var c = el('div', 'pf-stat'); c.appendChild(el('b', null, x[1])); c.appendChild(el('small', null, x[0])); sr.appendChild(c);
+          });
+          box.appendChild(sr);
+          if (pr.stats.topGame) box.appendChild(el('p', 'pf-top-game', 'Most played: ' + pr.stats.topGame.name + ' (' + fmtTime(pr.stats.topGame.seconds) + ')'));
+        }
+        if (pr.achievements) {
+          var got = pr.achievements.filter(function (a) { return a.unlocked; });
+          var shown = pr.isMe ? pr.achievements : got;
+          box.appendChild(el('div', 'pf-h', 'Achievements' + (pr.isMe ? '' : ' (' + got.length + ' of ' + pr.achievements.length + ')')));
+          if (!shown.length) box.appendChild(el('p', null, pr.name + ' hasn’t unlocked any achievements yet.'));
+          var ag = el('div', 'ach-grid');
+          shown.slice().sort(function (a, b) { return (b.unlocked ? 1 : 0) - (a.unlocked ? 1 : 0) || (b.unlocked || 0) - (a.unlocked || 0); }).forEach(function (a) {
+            var c = el('div', 'ach' + (a.unlocked ? ' got' : ''));
+            c.title = a.desc + (a.unlocked ? '\nUnlocked ' + new Date(a.unlocked).toLocaleDateString() : '');
+            c.appendChild(el('span', 'ach-ico', a.icon));
+            var tx = el('div', 'ach-tx'); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('small', null, a.desc));
+            if (!a.unlocked && a.goal) {
+              var pct = Math.round(100 * a.progress / a.goal);
+              var bar = el('div', 'ach-bar'); var fill = el('i'); fill.style.width = pct + '%'; bar.appendChild(fill); tx.appendChild(bar);
+              tx.appendChild(el('small', 'ach-prog', (a.fmt === 'time' ? fmtTime(a.progress) + ' / ' + fmtTime(a.goal) : a.progress + ' / ' + a.goal)));
+            }
+            c.appendChild(tx); ag.appendChild(c);
+          });
+          box.appendChild(ag);
+        }
         if (pr.recent && pr.recent.length) {
           box.appendChild(el('div', 'pf-h', 'Recently played'));
           var rl = el('div', 'pf-recent');
@@ -372,6 +429,7 @@ window.MistSocial = function (ctx) {
       t.appendChild(el('b', null, u.name));
       if (u.state) t.appendChild(el('small', 'st-' + u.state, stateText(u)));
       t.appendChild(el('small', null, 'Joined ' + new Date(u.created).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) + ' · ' + u.friendCount + ' friend' + (u.friendCount === 1 ? '' : 's')));
+      if (u.achievements !== undefined) t.appendChild(el('small', 'u-ach', '🏆 ' + u.achievements + ' · ' + fmtTime(u.playtime) + ' played'));
       c.appendChild(t);
       c.appendChild(relationButton(u));
       c.onclick = function () { openProfile(u.name); };

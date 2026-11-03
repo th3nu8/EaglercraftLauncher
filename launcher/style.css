@@ -333,6 +333,31 @@ button.fp-row:hover,.fp-row.sel{background:#3d4450}
 .ucard .btn{flex:none;height:30px;font-size:13px}
 .u-rel{flex:none;font-size:12px;color:#8f98a0;padding:0 6px}
 .ugrid .fp-empty{grid-column:1/-1}
+/* achievements */
+#achToasts{position:fixed;right:18px;top:76px;z-index:60;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.ach-toast{display:flex;align-items:center;gap:12px;width:320px;padding:12px 14px;border-radius:3px;background:linear-gradient(135deg,#2b3d53,#16202d);
+  box-shadow:0 8px 28px rgba(0,0,0,.6);border-left:3px solid #e4b43c;opacity:0;transform:translateY(-12px);transition:.3s}
+.ach-toast.show{opacity:1;transform:none}
+.ach-ico{font-size:28px;width:44px;height:44px;display:grid;place-items:center;flex:none;border-radius:3px;background:rgba(228,180,60,.15)}
+.ach-tx{display:flex;flex-direction:column;min-width:0;flex:1}
+.ach-tx small{font-size:11px;color:#8f98a0}
+.ach-toast .ach-tx small{text-transform:uppercase;letter-spacing:.06em;color:#e4b43c}
+.ach-tx b{color:#fff;font-size:14px}
+.ach-tx span{font-size:12px;color:#acb2b8}
+.profile-box{width:min(560px,94vw);max-height:88vh;overflow:auto}
+.pf-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 8px}
+.pf-stat{background:rgba(0,0,0,.25);border-radius:3px;padding:8px;text-align:center}
+.pf-stat b{display:block;color:#fff;font-size:17px}
+.pf-stat small{color:#8f98a0;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.pf-top-game{margin:0 0 6px!important;font-size:12px!important}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px;margin-bottom:10px}
+.ach{display:flex;gap:10px;align-items:center;padding:8px;border-radius:3px;background:rgba(0,0,0,.25);filter:grayscale(1);opacity:.6}
+.ach.got{filter:none;opacity:1;background:rgba(228,180,60,.08)}
+.ach .ach-ico{width:38px;height:38px;font-size:22px}
+.ach-bar{height:4px;background:#0e141b;border-radius:2px;margin-top:4px;overflow:hidden}
+.ach-bar i{display:block;height:100%;background:#67c1f5}
+.ach-prog{margin-top:2px}
+.u-ach{color:#e4b43c!important}
 body.in-game .friends,body.in-game .chatwin{display:none!important}
 @media (max-width:860px){.chatwin{right:0;width:100%}.friends{width:100%}.nav-x{font-size:15px;padding:0 8px}}
 

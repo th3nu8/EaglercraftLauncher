@@ -59,7 +59,7 @@ It's a single Node 18+ file with no dependencies.
 
 ```bash
 sudo mkdir -p /opt/eaglercraft-saves
-sudo cp server/server.js server/package.json /opt/eaglercraft-saves/
+sudo cp server/server.js server/merge-data.js server/package.json /opt/eaglercraft-saves/
 sudo mkdir -p /opt/eaglercraft-saves/public && sudo cp docs/* /opt/eaglercraft-saves/public/
 sudo mkdir -p /opt/eaglercraft-saves/data && sudo chown -R www-data:www-data /opt/eaglercraft-saves
 sudo cp server/eaglercraft-saves.service /etc/systemd/system/
@@ -115,6 +115,34 @@ just run the updated `server/server.js`.
   per conversation are kept. New messages and requests pop up a notification and a red badge.
 - **Profiles:** click any name or your own to see member-since, friend count and recently played games.
 - Limits: 300 friends, 100 pending requests, 30 messages a minute per person.
+
+### Achievements & stats
+
+The server tracks playtime (from the "Playing X" status Mist sends every minute while a game is
+open in "Inside launcher" mode), games played, days active and streaks, friends, chat messages and
+cloud saves. 20 achievements unlock from those, like *First Steps* (10 min played), *Explorer*
+(5 games), *Squad Up* (5 friends), *Weekly Warrior* (7-day streak) and *Mist Legend* (100 hours).
+Unlocks pop up in the top-right, even over a running game. Profiles show stats and badges, your own
+profile shows progress bars, and the Users page shows each player's trophy count and playtime.
+The list lives in `ACHIEVEMENTS` in `server/server.js`, so adding one is a single line.
+
+### If accounts go missing
+
+The server now protects against the two ways accounts used to get lost:
+- It **won't start** if it can't write its data folder, and prints the `chown` command to fix it.
+- Only **one server per data folder**: a second copy refuses to start instead of fighting over the data.
+- If saving fails while running, it retries, shows `"storage":"error"` on `/api/health`, and refuses
+  sign-ups instead of accepting accounts that would vanish on restart.
+- `db.json` is **backed up** to `data/backups/` on every start and every 6 hours (newest 28 kept).
+- The log's first line says which data folder is in use and how many accounts it has.
+
+To pull accounts back from another data folder (e.g. one a manually started copy was using):
+```bash
+sudo systemctl stop eaglercraft-saves
+sudo node /opt/eaglercraft-saves/merge-data.js /path/to/other/data /opt/eaglercraft-saves/data
+sudo chown -R www-data:www-data /opt/eaglercraft-saves/data
+sudo systemctl start eaglercraft-saves
+```
 
 ### How syncing works
 
