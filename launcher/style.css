@@ -446,7 +446,6 @@ button.fp-row:hover,.fp-row.sel{background:#3d4450}
 .old-server b{color:#ff9f93}
 .nav{font-size:17px}
 .gach-sub{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8f98a0;margin:8px 0 2px}
-.pach.special.got{background:linear-gradient(90deg,rgba(103,193,245,.14),rgba(0,0,0,.25) 60%)}
 .pach.special:not(.got) .ach-ico{filter:grayscale(1);opacity:.6}
 .hook-tag{font-size:11px;font-weight:400;color:#67c1f5;background:rgba(103,193,245,.15);padding:1px 6px;border-radius:2px;margin-left:8px;vertical-align:2px}
 .hooked-note{color:#67c1f5}

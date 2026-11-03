@@ -296,14 +296,10 @@ window.MistSocial = function (ctx) {
     rank = RANK_XP[rank] ? rank : 'common';
     return el('span', 'rank r-' + rank, rank.charAt(0).toUpperCase() + rank.slice(1) + ' · ' + RANK_XP[rank] + ' XP');
   }
-  /* Game challenges first, then playtime + the visit-based basics. */
+  /* One list per game: its own achievements first, then the playtime ones. */
   function gameSections(box, special, tiers, showProgress) {
-    special = special || [];
-    var ch = special.filter(function (t) { return !t.basic; }), basic = special.filter(function (t) { return t.basic; });
-    if (ch.length) { box.appendChild(el('div', 'gach-sub', 'Game challenges')); ch.forEach(function (t) { box.appendChild(specialRow(t)); }); }
-    if (ch.length || basic.length) box.appendChild(el('div', 'gach-sub', 'Playtime & visits'));
+    (special || []).forEach(function (t) { box.appendChild(specialRow(t)); });
     tiers.forEach(function (t) { box.appendChild(tierRow(t, showProgress)); });
-    basic.forEach(function (t) { box.appendChild(specialRow(t)); });
   }
 
   /* ---------- per-game achievements (7 per game) ---------- */
@@ -400,8 +396,6 @@ window.MistSocial = function (ctx) {
     var split = el('div', 'ach-split');
     split.appendChild(el('span', null, 'General: ' + genGot + ' / ' + general.length));
     split.appendChild(el('span', null, 'Game achievements: ' + gameGot.toLocaleString() + ' / ' + gameTotal.toLocaleString() + ' across ' + names.length + ' games'));
-    var hooked = Object.keys(hookDefs).filter(function (n) { return names.indexOf(n) >= 0; });
-    if (hooked.length) split.appendChild(el('span', 'hooked-note', '🎯 ' + hooked.length + ' games have extra challenges'));
     top.appendChild(split);
     host.appendChild(top);
 
@@ -455,7 +449,7 @@ window.MistSocial = function (ctx) {
       rows.slice(0, achView.shown).forEach(function (r) {
         var card = el('div', 'pgame expandable');
         var ico = el('div', 'pgame-ico small'); var gg = ctx.gameByName(r.name); if (gg) ctx.artInto(ico, gg, 'capsule', false); card.appendChild(ico);
-        var info = el('div', 'pgame-info'); var nm = el('b', null, r.name); if (r.hooked) nm.appendChild(el('span', 'hook-tag', '🎯 challenges')); info.appendChild(nm);
+        var info = el('div', 'pgame-info'); info.appendChild(el('b', null, r.name));
         info.appendChild(el('small', 'pgame-count', r.got + ' / ' + r.total + ' achievements' + (r.sec ? ' · ' + fmtTime(r.sec) + ' played' : ' · not played yet')));
         var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = (100 * r.got / r.total) + '%'; pb.appendChild(pf); info.appendChild(pb);
         card.appendChild(info);

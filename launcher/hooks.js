@@ -124,6 +124,135 @@ window.MistHooks = (function () {
     return out;
   }
 
+  /* ---------- Flash saves (Ruffle keeps each SharedObject in localStorage as a base64 .sol file) ---------- */
+  function parseSol(u8) {
+    var dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), i = 0;
+    function u8r() { return u8[i++]; }
+    function u16() { var v = dv.getUint16(i); i += 2; return v; }
+    function u32() { var v = dv.getUint32(i); i += 4; return v; }
+    function dbl() { var v = dv.getFloat64(i); i += 8; return v; }
+    function str(n) { var v = text(u8.subarray(i, i + n)); i += n; return v; }
+    // AMF0
+    var refs0 = [];
+    function amf0() {
+      var t = u8r(), o, k;
+      switch (t) {
+        case 0: return dbl();
+        case 1: return !!u8r();
+        case 2: return str(u16());
+        case 3: case 0x10: case 8:
+          if (t === 0x10) str(u16());
+          if (t === 8) u32();
+          o = {}; refs0.push(o);
+          while (i < u8.length) { k = str(u16()); if (u8[i] === 9) { i++; break; } o[k] = amf0(); }
+          return o;
+        case 5: case 6: case 0x0D: return null;
+        case 7: return refs0[u16()] || null;
+        case 0x0A: { var n = u32(), arr = []; refs0.push(arr); for (var j = 0; j < n; j++) arr.push(amf0()); return arr; }
+        case 0x0B: { var d = dbl(); i += 2; return d; }
+        case 0x0C: case 0x0F: return str(u32());
+        case 0x11: return amf3();
+        default: throw new Error('amf0 ' + t);
+      }
+    }
+    // AMF3
+    var strs = [], objs = [], traits = [];
+    function u29() { var v = 0, b, n = 0; while (n < 3 && ((b = u8r()) & 0x80)) { v = (v << 7) | (b & 0x7f); n++; } if (n < 3) v = (v << 7) | b; else { b = u8r(); v = (v << 8) | b; } return v; }
+    function s3() { var r = u29(); if (!(r & 1)) return strs[r >> 1]; var n = r >> 1; if (!n) return ''; var v = str(n); strs.push(v); return v; }
+    function amf3() {
+      var t = u8r(), r, o, n, j;
+      switch (t) {
+        case 0: case 1: return null;
+        case 2: return false;
+        case 3: return true;
+        case 4: r = u29(); return r & 0x10000000 ? r - 0x20000000 : r;
+        case 5: return dbl();
+        case 6: return s3();
+        case 7: case 0x0B: r = u29(); if (!(r & 1)) return objs[r >> 1]; o = str(r >> 1); objs.push(o); return o;
+        case 8: r = u29(); if (!(r & 1)) return objs[r >> 1]; o = dbl(); objs.push(o); return o;
+        case 9:
+          r = u29(); if (!(r & 1)) return objs[r >> 1];
+          n = r >> 1; o = []; objs.push(o);
+          var key; while ((key = s3()) !== '') o[key] = amf3();
+          for (j = 0; j < n; j++) o.push(amf3());
+          return o;
+        case 0x0A: {
+          r = u29(); if (!(r & 1)) return objs[r >> 1];
+          var tr;
+          if (!(r & 2)) tr = traits[r >> 2];
+          else { tr = { ext: !!(r & 4), dyn: !!(r & 8), names: [] }; s3(); var cnt = r >> 4; for (j = 0; j < cnt; j++) tr.names.push(s3()); traits.push(tr); }
+          o = {}; objs.push(o);
+          if (tr.ext) throw new Error('amf3 externalizable');
+          tr.names.forEach(function (nm) { o[nm] = amf3(); });
+          if (tr.dyn) { var k2; while ((k2 = s3()) !== '') o[k2] = amf3(); }
+          return o;
+        }
+        case 0x0C: r = u29(); if (!(r & 1)) return objs[r >> 1]; i += r >> 1; o = '[bytes]'; objs.push(o); return o;
+        case 0x0D: case 0x0E: case 0x0F: case 0x10:
+          r = u29(); if (!(r & 1)) return objs[r >> 1]; n = r >> 1; i++; o = []; objs.push(o);
+          if (t === 0x10) s3();
+          for (j = 0; j < n; j++) o.push(t === 0x0D ? (i += 4, dv.getInt32(i - 4)) : t === 0x0E ? (i += 4, dv.getUint32(i - 4)) : t === 0x0F ? dbl() : amf3());
+          return o;
+        case 0x11: r = u29(); if (!(r & 1)) return objs[r >> 1]; n = r >> 1; i++; o = {}; objs.push(o); for (j = 0; j < n; j++) { var kk = amf3(); o[String(kk)] = amf3(); } return o;
+        default: throw new Error('amf3 ' + t);
+      }
+    }
+    if (u16() !== 0x00BF) return null;
+    u32(); if (str(4) !== 'TCSO') return null; i += 6;
+    var name = str(u16()), ver = u32(), data = {};
+    try {
+      while (i < u8.length) {
+        var k = ver === 3 ? s3() : str(u16());
+        data[k] = ver === 3 ? amf3() : amf0();
+        i++;   // trailing 0
+      }
+    } catch (e) {}
+    return { name: name, data: data };
+  }
+  /* Find Ruffle saves whose SharedObject name matches re; returns [{key, data}]. */
+  function flashSaves(re) {
+    var out = [];
+    lsKeys().forEach(function (k) {
+      var name = k.split('/').pop(); if (!re.test(name)) return;
+      var v = ls(k); if (!v) return;
+      try { var bin = atob(v), u = new Uint8Array(bin.length); for (var j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+        var sol = parseSol(u); if (sol) out.push({ key: name, data: sol.data }); } catch (e) {}
+    });
+    return out;
+  }
+  /* A Flash hook: only saves written while this game runs count, so games that share a save name
+   * (Duck Life 1-4 all use "mydata", every Papa's game uses similar slot names) can't credit each other. */
+  function flashHook(re, fn, interval) {
+    return { interval: interval || 5000, poll: function (win, state) {
+      var keys = lsKeys().filter(function (k) { return re.test(k.split('/').pop()); });
+      if (!state.base) { state.base = {}; keys.forEach(function (k) { state.base[k] = ls(k); }); return null; }
+      var changed = keys.filter(function (k) { return ls(k) !== state.base[k]; });
+      if (!changed.length) return null;
+      var saves = [];
+      changed.forEach(function (k) {
+        try { var bin = atob(ls(k)), u = new Uint8Array(bin.length); for (var j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+          var sol = parseSol(u); if (sol) saves.push(sol.data); } catch (e) {}
+      });
+      return saves.length ? fn(saves) : null;
+    } };
+  }
+  function countTrue(a) { var n = 0; if (a && typeof a === 'object') for (var k in a) { var v = a[k]; if (v === true || (typeof v === 'number' && v > 0) || v === 'yes') n++; } return n; }
+  function papas() {
+    return flashHook(/^(papas[a-z]+_\d+|RoyPizzeriaSlot\d+)$/i, function (saves) {
+      return { rank: maxOf(saves, function (d) { return d.rank || (d.savedata && d.savedata.rank); }),
+        day: maxOf(saves, function (d) { return d.day || (d.savedata && d.savedata.currentday); }),
+        badges: maxOf(saves, function (d) { return countTrue(d.medalsEarned); }) };
+    });
+  }
+  function duckOld(climb) {
+    return flashHook(/^mydata$/, function (saves) {
+      var d = saves[0], skills = ['runlvl', 'swilvl', 'flylvl'].concat(climb ? ['clilvl'] : []);
+      return { race: num(d.race), money: num(d.money), low: Math.min.apply(null, skills.map(function (k) { return num(d[k]); })),
+        top: Math.max.apply(null, skills.map(function (k) { return num(d[k]); })) };
+    });
+  }
+  function maxOf(list, fn) { return list.reduce(function (m, x) { var v = num(fn(x)); return v > m ? v : m; }, 0); }
+
   /* ---------- Eaglercraft worlds (IndexedDB "…PlatformFilesystem…" / "filesystem") ---------- */
   var ADV = { 'minecraft:story/root': 'mineWood', 'minecraft:story/mine_stone': 'buildPickaxe', 'minecraft:story/upgrade_tools': 'buildBetterPickaxe',
     'minecraft:story/smelt_iron': 'acquireIron', 'minecraft:adventure/kill_a_mob': 'killEnemy', 'minecraft:husbandry/breed_an_animal': 'breedCow',
@@ -193,6 +322,30 @@ window.MistHooks = (function () {
         customTracks: keys.filter(function (k) { return k.indexOf('polytrack_v5_prod_track_') === 0; }).length };
     } },
     'Bloons TD 5': { interval: 8000, poll: btd5 },
+    /* ---- batch 2 (Flash) ---- */
+    "Papa's Pizzeria": papas(), "Papa's Burgeria": papas(), "Papa's Taco Mia!": papas(), "Papa's Freezeria": papas(),
+    "Papa's Pancakeria": papas(), "Papa's Wingeria": papas(), "Papa's Hot Doggeria": papas(), "Papa's Cupcakeria": papas(),
+    "Papa's Pastaria": papas(), "Papa's Donuteria": papas(), "Papa's Cheeseria": papas(), "Papa's Bakeria": papas(),
+    "Papa's Sushiria": papas(), "Papa's Scooperia": papas(),
+    'Duck Life': duckOld(false), 'Duck Life 2': duckOld(false), 'Duck Life 3: Evolution': duckOld(true),
+    'Duck Life 4': flashHook(/^mydata$/, function (saves) {
+      var d = saves[0], races = 0, tourn = 0;
+      for (var i = 1; i <= 18; i++) if (num(d['race' + i]) > 0 || d['race' + i] === true) races++;
+      for (var j = 1; j <= 5; j++) if (num(d['tourn' + j]) > 0 || d['tourn' + j] === true) tourn++;
+      return { races: races, tournaments: tourn };
+    }),
+    'Duck Life 5: Treasure Hunt': flashHook(/^dlthv1\.1$/, function (saves) {
+      var d = saves[0];
+      return { coins: num(d.coins), best: num(d.bestdist), pet: num(d.petlevel), story: d.storydone ? 1 : 0, challenges: countTrue(d.challenges) };
+    }),
+    'Fireboy and Watergirl: Forest Temple': flashHook(/^FBCookie$/, function (saves) {
+      var st = saves[0].stats || [], done = 0, best = 0;
+      for (var i = 0; i < st.length; i++) { if (num(st[i]) >= 1) done++; if (num(st[i]) >= 3) best++; }
+      return { levels: done, perfect: best };
+    }),
+    'Bloons TD 2': flashHook(/^bloonstd2$/, function (saves) {
+      var d = saves[0]; return { bronze: d.bronze ? 1 : 0, silver: d.silver ? 1 : 0, gold: d.gold ? 1 : 0 };
+    }),
     /* ---- batch 1 ---- */
     '2048': { interval: 4000, poll: function () {
       var g = lsJson('gameState'), tile = 0;
@@ -295,6 +448,6 @@ window.MistHooks = (function () {
         }, function () {}); } catch (e) {}
       } };
     },
-    _parsePrefs: parsePrefs
+    _parsePrefs: parsePrefs, _parseSol: parseSol, _flashSaves: flashSaves
   };
 })();

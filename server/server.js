@@ -328,12 +328,8 @@ const HOOK_RANKS = {   // anything not listed is common
   'Cookie Clicker': { click1000: 'rare', bake1m: 'rare', bld100: 'rare', bake1b: 'epic', bld500: 'epic', cps1m: 'epic', golden50: 'epic', ach50: 'epic', ascend: 'epic', bake1t: 'legendary' },
   'Slope': { s100: 'rare', s200: 'epic', s400: 'legendary' },
 };
-/* Basic achievements every game gets, tracked by the server from play sessions. */
-const GENERIC_ACH = [
-  { id: 'days3', icon: '📆', name: 'Coming Back', desc: 'Play this game on 3 different days.', stat: '_days', goal: 3, rank: 'common', basic: true },
-  { id: 'days7', icon: '🗓️', name: 'Weekly Habit', desc: 'Play this game on 7 different days.', stat: '_days', goal: 7, rank: 'rare', basic: true },
-  { id: 'launch25', icon: '🔁', name: 'Frequent Flyer', desc: 'Launch this game 25 times.', stat: '_launches', goal: 25, rank: 'rare', basic: true },
-];
+/* (The visit-based basics - days played / launches - were removed; every game's extra achievements are game-specific.) */
+const GENERIC_ACH = [];
 const HOOK_ACH = {
   'Eaglercraft': [
     { id: 'wood', icon: '🪵', name: 'Getting Wood', desc: 'Punch a tree until a block of wood pops out.', stat: 'mineWood', goal: 1 },
@@ -408,6 +404,209 @@ const HOOK_ACH = {
   "Five Nights at Freddy's 3": fnafNights(6),
   "Five Nights at Freddy's 4": fnafNights(6),
   'FNAF: Sister Location': fnafNights(5),
+  /* ---- batch 2 (Flash) ---- */
+  'Papa\'s Pizzeria': [
+    { id: 'rank5', icon: '🍕', name: 'Slice of Life', desc: 'Reach rank 5 in Papa’s Pizzeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Dough Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '👑', name: 'Pizza Legend', desc: 'Reach the top rank (30).', stat: 'rank', goal: 30, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving pizzas.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+  ],
+  'Papa\'s Burgeria': [
+    { id: 'rank5', icon: '🍔', name: 'Flipping Out', desc: 'Reach rank 5 in Papa’s Burgeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Grill Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Burger Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Burger Baron', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving burgers.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Taco Mia!': [
+    { id: 'rank5', icon: '🌮', name: 'Taco Tuesday', desc: 'Reach rank 5 in Papa’s Taco Mia!.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Salsa Supreme', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Taco Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Taco Titan', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving tacos.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Freezeria': [
+    { id: 'rank5', icon: '🍨', name: 'Brain Freeze', desc: 'Reach rank 5 in Papa’s Freezeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Blend Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Sundae Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Sundae Supreme', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving sundaes.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Pancakeria': [
+    { id: 'rank5', icon: '🥞', name: 'Short Stack', desc: 'Reach rank 5 in Papa’s Pancakeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Flapjack Pro', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Pancake Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Pancake Royalty', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving pancakes.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Wingeria': [
+    { id: 'rank5', icon: '🍗', name: 'Winging It', desc: 'Reach rank 5 in Papa’s Wingeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Sauce Boss', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Wing Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Wing Commander', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving wings.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Hot Doggeria': [
+    { id: 'rank5', icon: '🌭', name: 'Top Dog Rookie', desc: 'Reach rank 5 in Papa’s Hot Doggeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Ballpark Pro', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Hot Dog Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Top Dog', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving hot dogs.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Cupcakeria': [
+    { id: 'rank5', icon: '🧁', name: 'Sprinkle Starter', desc: 'Reach rank 5 in Papa’s Cupcakeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Frosting Pro', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Cupcake Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Cupcake Queen', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving cupcakes.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Pastaria': [
+    { id: 'rank5', icon: '🍝', name: 'Al Dente', desc: 'Reach rank 5 in Papa’s Pastaria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Sauce Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Pasta Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Pasta Maestro', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving pasta dishes.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Donuteria': [
+    { id: 'rank5', icon: '🍩', name: 'Glazed Over', desc: 'Reach rank 5 in Papa’s Donuteria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Fry Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Donut Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Donut Royalty', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving donuts.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Cheeseria': [
+    { id: 'rank5', icon: '🧀', name: 'Melted', desc: 'Reach rank 5 in Papa’s Cheeseria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Cheese Whiz', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Cheese Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Big Cheese', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving grilled cheese.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Bakeria': [
+    { id: 'rank5', icon: '🥧', name: 'Easy as Pie', desc: 'Reach rank 5 in Papa’s Bakeria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Crust Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Pie Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Pie Perfection', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving pies.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Sushiria': [
+    { id: 'rank5', icon: '🍣', name: 'Rolling Along', desc: 'Reach rank 5 in Papa’s Sushiria.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Rice Master', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Sushi Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Sushi Sensei', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving sushi rolls.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Papa\'s Scooperia': [
+    { id: 'rank5', icon: '🍪', name: 'Scoop Starter', desc: 'Reach rank 5 in Papa’s Scooperia.', stat: 'rank', goal: 5, rank: 'common' },
+    { id: 'rank15', icon: '⭐', name: 'Scoop Pro', desc: 'Reach rank 15.', stat: 'rank', goal: 15, rank: 'rare' },
+    { id: 'rank30', icon: '🏅', name: 'Cookie Expert', desc: 'Reach rank 30.', stat: 'rank', goal: 30, rank: 'epic' },
+    { id: 'rank60', icon: '👑', name: 'Scooperia Legend', desc: 'Reach rank 60.', stat: 'rank', goal: 60, rank: 'legendary' },
+    { id: 'day10', icon: '📅', name: 'Open for Business', desc: 'Make it to day 10.', stat: 'day', goal: 10, rank: 'common' },
+    { id: 'day50', icon: '🗓️', name: 'Regular Customers', desc: 'Make it to day 50 serving cookie sundaes.', stat: 'day', goal: 50, rank: 'rare' },
+    { id: 'day100', icon: '🏪', name: 'Local Legend', desc: 'Make it to day 100.', stat: 'day', goal: 100, rank: 'epic' },
+    { id: 'badge10', icon: '🎖️', name: 'Badge Collector', desc: 'Earn 10 of the game’s badges.', stat: 'badges', goal: 10, rank: 'rare' },
+    { id: 'badge50', icon: '🏆', name: 'Decorated Chef', desc: 'Earn 50 of the game’s badges.', stat: 'badges', goal: 50, rank: 'epic' },
+  ],
+  'Duck Life': [
+    { id: 'lv200', icon: '🐣', name: 'Fledgling', desc: 'Get every skill (run, swim, fly) to level 200.', stat: 'low', goal: 200, rank: 'common' },
+    { id: 'lv800', icon: '🦆', name: 'Athletic Duck', desc: 'Get every skill to level 800.', stat: 'low', goal: 800, rank: 'rare' },
+    { id: 'lv1500', icon: '🏆', name: 'Champion Duck', desc: 'Get every skill to level 1500.', stat: 'low', goal: 1500, rank: 'epic' },
+    { id: 'one1000', icon: '💪', name: 'Specialist', desc: 'Get one skill to level 1000.', stat: 'top', goal: 1000, rank: 'common' },
+    { id: 'money500', icon: '🪙', name: 'Seed Money', desc: 'Have 500 coins.', stat: 'money', goal: 500, rank: 'common' },
+  ],
+  'Duck Life 2': [
+    { id: 'race3', icon: '🏁', name: 'Off the Mark', desc: 'Win 3 races.', stat: 'race', goal: 3, rank: 'common' },
+    { id: 'race8', icon: '🥈', name: 'Contender', desc: 'Win 8 races.', stat: 'race', goal: 8, rank: 'rare' },
+    { id: 'race14', icon: '🏆', name: 'World Champion', desc: 'Win every race.', stat: 'race', goal: 14, rank: 'legendary' },
+    { id: 'lv500', icon: '🦆', name: 'Well Trained', desc: 'Get run, swim and fly to level 500.', stat: 'low', goal: 500, rank: 'rare' },
+    { id: 'one1000', icon: '💪', name: 'Specialist', desc: 'Get one skill to level 1000.', stat: 'top', goal: 1000, rank: 'common' },
+    { id: 'money1k', icon: '🪙', name: 'Nest Egg', desc: 'Have 1,000 coins.', stat: 'money', goal: 1000, rank: 'common' },
+  ],
+  'Duck Life 3: Evolution': [
+    { id: 'race3', icon: '🏁', name: 'First Steps', desc: 'Win 3 races.', stat: 'race', goal: 3, rank: 'common' },
+    { id: 'race10', icon: '🧬', name: 'Evolving', desc: 'Win 10 races.', stat: 'race', goal: 10, rank: 'rare' },
+    { id: 'race19', icon: '🏆', name: 'Ultimate Duck', desc: 'Win every race.', stat: 'race', goal: 19, rank: 'legendary' },
+    { id: 'lv500', icon: '🦆', name: 'All-Rounder', desc: 'Get run, swim, fly and climb to level 500.', stat: 'low', goal: 500, rank: 'rare' },
+    { id: 'lv1500', icon: '💎', name: 'Peak Performance', desc: 'Get every skill to level 1500.', stat: 'low', goal: 1500, rank: 'epic' },
+    { id: 'money1k', icon: '🪙', name: 'Nest Egg', desc: 'Have 1,000 coins.', stat: 'money', goal: 1000, rank: 'common' },
+  ],
+  'Duck Life 4': [
+    { id: 'r1', icon: '🏁', name: 'Hatched a Win', desc: 'Win your first race.', stat: 'races', goal: 1, rank: 'common' },
+    { id: 'r9', icon: '🥈', name: 'Halfway There', desc: 'Win 9 races.', stat: 'races', goal: 9, rank: 'rare' },
+    { id: 'r18', icon: '🏆', name: 'Race Master', desc: 'Win all 18 races.', stat: 'races', goal: 18, rank: 'epic' },
+    { id: 't1', icon: '🎪', name: 'Tournament Winner', desc: 'Win a tournament.', stat: 'tournaments', goal: 1, rank: 'rare' },
+    { id: 't5', icon: '👑', name: 'Grand Champion', desc: 'Win all 5 tournaments.', stat: 'tournaments', goal: 5, rank: 'legendary' },
+  ],
+  'Duck Life 5: Treasure Hunt': [
+    { id: 'c1k', icon: '🪙', name: 'Treasure Finder', desc: 'Have 1,000 coins.', stat: 'coins', goal: 1000, rank: 'common' },
+    { id: 'c10k', icon: '💰', name: 'Treasure Hoarder', desc: 'Have 10,000 coins.', stat: 'coins', goal: 10000, rank: 'rare' },
+    { id: 'd1k', icon: '🏃', name: 'Long Run', desc: 'Reach a best distance of 1,000.', stat: 'best', goal: 1000, rank: 'common' },
+    { id: 'd5k', icon: '🚀', name: 'Marathon Duck', desc: 'Reach a best distance of 5,000.', stat: 'best', goal: 5000, rank: 'epic' },
+    { id: 'pet5', icon: '🐾', name: 'Pet Trainer', desc: 'Get your pet to level 5.', stat: 'pet', goal: 5, rank: 'rare' },
+    { id: 'story', icon: '🗺️', name: 'Treasure Found', desc: 'Finish the story.', stat: 'story', goal: 1, rank: 'legendary' },
+  ],
+  'Fireboy and Watergirl: Forest Temple': [
+    { id: 'l1', icon: '🔥', name: 'Into the Temple', desc: 'Finish your first level.', stat: 'levels', goal: 1, rank: 'common' },
+    { id: 'l10', icon: '💧', name: 'Teamwork', desc: 'Finish 10 levels.', stat: 'levels', goal: 10, rank: 'common' },
+    { id: 'l20', icon: '🌿', name: 'Deep in the Forest', desc: 'Finish 20 levels.', stat: 'levels', goal: 20, rank: 'rare' },
+    { id: 'l32', icon: '🏛️', name: 'Temple Conquered', desc: 'Finish all 32 levels.', stat: 'levels', goal: 32, rank: 'epic' },
+    { id: 'p5', icon: '💎', name: 'Flawless', desc: 'Get the top grade on 5 levels.', stat: 'perfect', goal: 5, rank: 'rare' },
+    { id: 'p32', icon: '👑', name: 'Perfect Temple', desc: 'Get the top grade on every level.', stat: 'perfect', goal: 32, rank: 'legendary' },
+  ],
+  'Bloons TD 2': [
+    { id: 'bronze', icon: '🥉', name: 'Bronze Defender', desc: 'Earn the bronze medal.', stat: 'bronze', goal: 1, rank: 'common' },
+    { id: 'silver', icon: '🥈', name: 'Silver Defender', desc: 'Earn the silver medal.', stat: 'silver', goal: 1, rank: 'rare' },
+    { id: 'gold', icon: '🥇', name: 'Gold Defender', desc: 'Earn the gold medal.', stat: 'gold', goal: 1, rank: 'epic' },
+  ],
   /* ---- batch 1 ---- */
   '2048': [
     { id: 't256', icon: '🟨', name: 'Getting Started', desc: 'Make a 256 tile.', stat: 'tile', goal: 256, rank: 'common' },
@@ -491,13 +690,13 @@ const HOOK_ACH = {
 };
 for (const [g, defs] of Object.entries(HOOK_ACH)) for (const a of defs) if (!a.rank) a.rank = (HOOK_RANKS[g] || {})[a.id] || 'common';
 const achDefs = game => GENERIC_ACH.concat(HOOK_ACH[game] || []);
-/* Count a launch / play day for a game (called when a play session starts). */
-function noteSession(uid, game, now) {
-  const all = db.gstats[uid] || (db.gstats[uid] = {}), st = all[game] || (all[game] = {});
-  st._launches = (st._launches || 0) + 1;
-  const day = dayKey(now); if (st._lastDay !== day) { st._lastDay = day; st._days = (st._days || 0) + 1; }
-  saveDbSoon(); checkHookAch(uid, game);
-}
+// Drop the removed visit-based achievements from existing accounts.
+(function dropVisitAch() {
+  let n = 0;
+  for (const games of Object.values(db.hookAch)) for (const got of Object.values(games)) for (const id of ['days3', 'days7', 'launch25']) if (got[id]) { delete got[id]; n++; }
+  for (const games of Object.values(db.gstats)) for (const st of Object.values(games)) { delete st._launches; delete st._days; delete st._lastDay; }
+  if (n) { console.log(`Removed ${n} visit achievement(s).`); saveDbSoon(); }
+})();
 function hookList(game, uid) {
   const defs = achDefs(game);
   const got = ((db.hookAch[uid] || {})[game]) || {}, st = ((db.gstats[uid] || {})[game]) || {}, r = rarity();
@@ -784,7 +983,6 @@ async function handle(req, res) {
         st.play += sec; st.perGame[game] = (st.perGame[game] || 0) + sec; saveDbSoon();
         checkGameAch(user.id, game);
       }
-      if (!prev || prev.game !== game || now - prev.at >= 150e3) noteSession(user.id, game, now);
       lastIngame.set(user.id, { game, at: now });
     } else lastIngame.delete(user.id);
     if (state !== 'offline' && markActiveDay(user.id, now)) saveDbSoon();
