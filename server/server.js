@@ -354,8 +354,9 @@ function markActiveDay(uid, now) {
 function achList(uid, withProgress) {
   const st = stats(uid), got = db.ach[uid] || {};
   return ACHIEVEMENTS.map(a => {
-    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, unlocked: got[a.id] || null, rarity: pct(rarity().general[a.id], rarity().players) };
-    if (withProgress && !o.unlocked) { o.progress = Math.min(a.goal, a.stat(st, uid)); o.goal = a.goal; o.fmt = a.fmt || null; }
+    const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, unlocked: got[a.id] || null, rarity: pct(rarity().general[a.id], rarity().players),
+      goal: a.goal, fmt: a.fmt || null };
+    if (withProgress && !o.unlocked) o.progress = Math.min(a.goal, a.stat(st, uid));
     return o;
   });
 }
@@ -382,7 +383,7 @@ async function handle(req, res) {
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 5, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');

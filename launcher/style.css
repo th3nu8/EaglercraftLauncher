@@ -430,6 +430,21 @@ button.fp-row:hover,.fp-row.sel{background:#3d4450}
 .gach-bar{margin-bottom:10px}
 .gp-ach .pach,.lcard .pach{padding:8px 10px}
 .gp-ach .pach .ach-ico,.lcard .pach .ach-ico{width:40px;height:40px;font-size:22px}
+#page-achievements{background:#1b2838}
+.ach-top{background:rgba(0,0,0,.25);border-radius:4px;padding:20px;margin-bottom:14px}
+.ach-big b{display:block;color:#fff;font-size:32px}
+.ach-big small{color:#8f98a0}
+.ach-top .pbar.big{margin:12px 0}
+.ach-split{display:flex;gap:24px;flex-wrap:wrap;color:#acb2b8;font-size:13px}
+.ach-tabs{margin:0 0 12px}
+.ach-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.ach-tools .psec-sub{margin:0;flex-basis:100%}
+.pgame-ico.small{width:110px;height:52px}
+.pach-tx small.goal{color:#67c1f5}
+.psec-btn{margin-left:auto;height:28px;font-size:12px}
+.old-server{background:rgba(224,90,74,.15);border-left:3px solid #e05a4a;padding:10px 14px;border-radius:3px;margin-bottom:12px;color:#dcdedf;font-size:13px}
+.old-server b{color:#ff9f93}
+.nav{font-size:17px}
 body.in-game .friends,body.in-game .chatwin{display:none!important}
 @media (max-width:860px){.chatwin{right:0;width:100%}.friends{width:100%}.nav-x{font-size:15px;padding:0 8px}}
 

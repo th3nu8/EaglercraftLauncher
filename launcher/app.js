@@ -374,6 +374,7 @@
     else if (view.page === 'settings') renderSettings();
     else if (view.page === 'users') { if (social) social.loadUsers(true); }
     else if (view.page === 'profile') { if (social) social.renderProfile(view.profileName); }
+    else if (view.page === 'achievements') { if (social) social.renderAchPage(); }
   }
   function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
 
@@ -905,7 +906,9 @@
     getEngine: function () { return engine; }, el: el, toast: toast, ago: ago, popMenu: popMenu,
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
     gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); },
-    showProfile: function (n) { go('profile', n); }
+    showProfile: function (n) { go('profile', n); },
+    showAchievements: function () { go('achievements'); },
+    gameNames: function () { return GAMES.map(function (g) { return g.name; }); }
   }) : null;
   renderAccount();
   if (social) {

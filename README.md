@@ -139,6 +139,13 @@ in the account menu to open a full profile page:
   with dates and rarity. Each game's Store and Library page also lists its 10 with your progress.
 - recently played games and friends (visible to you and your friends)
 
+### Achievements page
+
+**ACHIEVEMENTS** in the top bar lists everything with names and goals: a total like
+`17 / 3,470` (20 general + 10 for every game in versions.json), a General tab with all 20 and a
+Game achievements tab with every game (search, sort by progress or A–Z, click a game for its 10).
+If the launcher says *Your Mist server needs updating*, copy the newest `server/server.js` to the server.
+
 ### If accounts go missing
 
 The server now protects against the two ways accounts used to get lost:
