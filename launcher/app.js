@@ -243,7 +243,7 @@
     hookWatch = MistHooks.watch(gameName, gameFrame.contentWindow, function (stats) {
       if (!engine || !engine.signedIn()) return;
       engine.api('POST', '/api/game-stats', { json: { game: gameName, stats: stats } }).then(function (r) {
-        if (social && r && r.newAchievements) social.showAchievements(r.newAchievements);
+        if (social) social.handleUnlocks(r);
       }, function () {});
     });
   }

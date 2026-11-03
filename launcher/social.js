@@ -52,19 +52,48 @@ window.MistSocial = function (ctx) {
     achShowing = true;
     var host = document.getElementById('achToasts');
     if (!host) { host = el('div'); host.id = 'achToasts'; document.body.appendChild(host); }
-    var t = el('div', 'ach-toast');
-    t.appendChild(el('span', 'ach-ico', a.icon));
-    var tx = el('div', 'ach-tx'); tx.appendChild(el('small', null, 'Achievement unlocked')); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('span', null, a.desc));
+    var t = el('div', 'ach-toast' + (a.levelUp ? ' lvl-up' : ''));
+    if (a.levelUp) t.appendChild(levelBadge(a.level, 44)); else t.appendChild(el('span', 'ach-ico', a.icon));
+    var tx = el('div', 'ach-tx');
+    if (a.levelUp) { tx.appendChild(el('small', null, 'Level up!')); tx.appendChild(el('b', null, 'Level ' + a.level)); tx.appendChild(el('span', null, a.level >= LEVEL_MAX ? 'Max level. You unlocked everything!' : (a.need - a.into).toLocaleString() + ' XP to level ' + (a.level + 1))); }
+    else { tx.appendChild(el('small', null, 'Achievement unlocked · +100 XP')); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('span', null, a.desc)); }
     t.appendChild(tx); host.appendChild(t);
     requestAnimationFrame(function () { t.classList.add('show'); });
     setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); nextAch(); }, 350); }, 4500);
   }
 
+  /* ---------- XP and levels (100 XP per achievement) ---------- */
+  var LEVEL_MAX = 20, myLevel = null;
+  function levelBadge(n, size) {
+    var b = el('span', 'lvl-badge t' + Math.min(5, Math.floor((n || 0) / 4)), String(n || 0));
+    b.title = 'Level ' + (n || 0);
+    if (size) { b.style.width = b.style.height = size + 'px'; b.style.fontSize = Math.round(size * 0.42) + 'px'; }
+    return b;
+  }
+  function levelBar(info) {
+    var w = el('div', 'lvl-wrap'); w.appendChild(levelBadge(info.level, 40));
+    var tx = el('div', 'lvl-tx');
+    tx.appendChild(el('b', null, 'Level ' + info.level + (info.level >= (info.maxLevel || LEVEL_MAX) ? ' · Max' : '')));
+    var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = (info.need ? Math.round(100 * info.into / info.need) : 100) + '%'; pb.appendChild(pf); tx.appendChild(pb);
+    tx.appendChild(el('small', null, info.need ? info.into.toLocaleString() + ' / ' + info.need.toLocaleString() + ' XP to level ' + (info.level + 1) + ' · ' + info.xp.toLocaleString() + ' XP total' : info.xp.toLocaleString() + ' XP total'));
+    w.appendChild(tx); return w;
+  }
+  /* Called with the server's level info after anything that can unlock achievements. */
+  function noteLevel(info) {
+    if (!info || typeof info.level !== 'number') return;
+    if (myLevel && info.level > myLevel.level) achQueue.push({ levelUp: true, level: info.level, into: info.into, need: info.need });
+    if (achQueue.length && !achShowing) nextAch();
+    myLevel = info;
+    var host = document.getElementById('pLevel');
+    if (host) { host.textContent = ''; host.appendChild(levelBadge(info.level, 18)); }
+  }
+  function handleUnlocks(r) { if (!r) return; showAchievements(r.newAchievements); noteLevel(r.level); }
+
   /* ---------- presence ---------- */
   function beat() {
     if (!eng()) return;
     api('POST', '/api/presence', playing ? { state: 'ingame', game: playing } : { state: 'online' })
-      .then(function (r) { showAchievements(r && r.newAchievements); }, function () {});
+      .then(handleUnlocks, function () {});
   }
   function setPlaying(gameName) { playing = gameName || null; beat(); }
 
@@ -80,7 +109,7 @@ window.MistSocial = function (ctx) {
         if (f.unread > was && !(chat && chat.name === f.name)) toast('New message from ' + f.name);
         lastUnread[f.name] = f.unread;
       });
-      showAchievements(d.newAchievements);
+      handleUnlocks(d);
       data = d; render();
     }).catch(function () {});
   }
@@ -97,7 +126,8 @@ window.MistSocial = function (ctx) {
     });
   }
   function onAuthChange() {
-    seenIncoming = null; lastUnread = {};
+    seenIncoming = null; lastUnread = {}; myLevel = null;
+    var lv = document.getElementById('pLevel'); if (lv) lv.textContent = '';
     if (document.getElementById('page-users') && document.getElementById('page-users').classList.contains('active')) setTimeout(function () { loadUsers(true); }, 0);
     if (!eng()) { closeChat(); data = null; render(); return; }
     beat(); refresh();
@@ -353,6 +383,7 @@ window.MistSocial = function (ctx) {
     var big = el('div', 'ach-big'); big.appendChild(el('b', null, got.toLocaleString() + ' / ' + total.toLocaleString()));
     big.appendChild(el('small', null, 'achievements unlocked · ' + (Math.round(1000 * got / total) / 10) + '%'));
     top.appendChild(big);
+    if (pr.level) top.appendChild(levelBar(pr.level));
     var bar = el('div', 'pbar big'); var f = el('i'); f.style.width = Math.max(0.5, 100 * got / total) + '%'; bar.appendChild(f); top.appendChild(bar);
     var split = el('div', 'ach-split');
     split.appendChild(el('span', null, 'General: ' + genGot + ' / ' + general.length));
@@ -476,6 +507,7 @@ window.MistSocial = function (ctx) {
     who.appendChild(el('h1', null, pr.name));
     if (pr.state) who.appendChild(el('div', 'prof-state st-' + pr.state, stateText(pr)));
     who.appendChild(el('div', 'prof-meta', 'Member since ' + fmtDate(pr.created, true) + ' · ' + pr.friendCount + ' friend' + (pr.friendCount === 1 ? '' : 's')));
+    if (pr.level) who.appendChild(levelBar(pr.level));
     hero.appendChild(who);
     var acts = el('div', 'prof-acts');
     if (pr.isMe) {
@@ -738,7 +770,7 @@ window.MistSocial = function (ctx) {
       var c = el('div', 'ucard' + (u.relation === 'me' ? ' me' : ''));
       c.appendChild(avatar(u.name, 64, u.state || null));
       var t = el('div', 'u-t');
-      t.appendChild(el('b', null, u.name));
+      var un = el('b', null, u.name); if (typeof u.level === 'number') un.insertBefore(levelBadge(u.level, 20), un.firstChild); t.appendChild(un);
       if (u.state) t.appendChild(el('small', 'st-' + u.state, stateText(u)));
       t.appendChild(el('small', null, 'Joined ' + new Date(u.created).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) + ' · ' + u.friendCount + ' friend' + (u.friendCount === 1 ? '' : 's')));
       if (u.achievements !== undefined) t.appendChild(el('small', 'u-ach', '🏆 ' + u.achievements + ' · ' + fmtTime(u.playtime) + ' played'));
@@ -763,7 +795,7 @@ window.MistSocial = function (ctx) {
 
   return {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
-    showAchievements: showAchievements, hookDefs: function () { return hookDefs; },
+    showAchievements: showAchievements, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

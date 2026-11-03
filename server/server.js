@@ -476,13 +476,26 @@ function achList(uid, withProgress) {
     return o;
   });
 }
+/* XP and levels: every unlocked achievement is worth 100 XP. LEVELS[i] is the XP needed to go from level i to i+1;
+ * they add up to 355,500 XP = every achievement (20 general + 345 games x 10 playtime + 85 game challenges). */
+const XP_PER_ACH = 100;
+const LEVELS = [1000, 1500, 3000, 4000, 4500, 5500, 7000, 9500, 13000, 17000, 19000, 20500, 22500, 24000, 26000, 28500, 32000, 34500, 37000, 45500];
+function achCount(uid) {
+  return Object.keys(db.ach[uid] || {}).length + Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid);
+}
+function levelInfo(uid) {
+  const xp = achCount(uid) * XP_PER_ACH; let level = 0, left = xp;
+  while (level < LEVELS.length && left >= LEVELS[level]) { left -= LEVELS[level]; level++; }
+  const maxed = level >= LEVELS.length;
+  return { xp, level, maxLevel: LEVELS.length, into: maxed ? 0 : left, need: maxed ? 0 : LEVELS[level] };
+}
 function statSummary(uid) {
   const st = stats(uid), top = Object.entries(st.perGame).sort((a, b) => b[1] - a[1])[0];
   return { playtime: Math.round(st.play), games: Object.keys(st.perGame).length, topGame: top ? { name: top[0], seconds: Math.round(top[1]) } : null,
     streak: st.lastDay === dayKey(Date.now()) || st.lastDay === dayKey(Date.now() - 864e5) ? st.streak : 0, bestStreak: st.best, daysActive: st.days,
     achievements: Object.keys(db.ach[uid] || {}).length, achievementsTotal: ACHIEVEMENTS.length,
     gameBadges: Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid),
-    gameBadgesTotal: Object.keys(st.perGame).length * GAME_TIERS.length };
+    gameBadgesTotal: Object.keys(st.perGame).length * GAME_TIERS.length, level: levelInfo(uid) };
 }
 const lastIngame = new Map(); // uid -> { game, at } for playtime counting
 
@@ -617,7 +630,7 @@ async function handle(req, res) {
     const friends = me.friends.map(id => friendView(user.id, id)).filter(Boolean)
       .sort((a, b) => order[a.state] - order[b.state] || (b.state === 'offline' ? b.lastSeen - a.lastSeen : 0) || a.name.localeCompare(b.name));
     const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
-    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id) });
+    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id), level: levelInfo(user.id) });
   }
 
   if (req.method === 'POST' && p === '/api/presence') {
@@ -644,7 +657,7 @@ async function handle(req, res) {
     }
     if (now - (me.lastSeen || 0) > 5 * 60e3 || state === 'offline') { me.lastSeen = now; dirty = true; }
     if (dirty) saveDb();
-    return send(res, 200, { ok: true, newAchievements: takeNewAch(user.id) });
+    return send(res, 200, { ok: true, newAchievements: takeNewAch(user.id), level: levelInfo(user.id) });
   }
 
   if (req.method === 'POST' && p.startsWith('/api/friends/')) {
@@ -697,7 +710,7 @@ async function handle(req, res) {
     const users = all.slice(page * per, page * per + per).map(u => {
       const isMe = u.id === user.id, isFriend = me.friends.includes(u.id);
       const out = { name: u.name, created: u.created, friendCount: soc(u.id).friends.length,
-        achievements: Object.keys(db.ach[u.id] || {}).length + Object.values(db.gameAch[u.id] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(u.id),
+        achievements: achCount(u.id), level: levelInfo(u.id).level,
         playtime: Math.round(stats(u.id).play),
         relation: isMe ? 'me' : isFriend ? 'friend' : me.outgoing.includes(u.id) ? 'requested' : me.incoming.includes(u.id) ? 'requestedYou' : 'none' };
       if (isMe || isFriend) { const pr = presenceOf(u.id); out.state = pr.state; out.game = pr.game; out.lastSeen = pr.lastSeen; }
@@ -730,7 +743,7 @@ async function handle(req, res) {
       if (n > (st[k] || 0)) { st[k] = n; changed = true; }  // stats only go up
     }
     if (changed) { saveDbSoon(); checkHookAch(user.id, game); }
-    return send(res, 200, { ok: true, newAchievements: takeNewAch(user.id) });
+    return send(res, 200, { ok: true, newAchievements: takeNewAch(user.id), level: levelInfo(user.id) });
   }
 
   if (req.method === 'GET' && p === '/api/hook-defs') {
@@ -745,7 +758,7 @@ async function handle(req, res) {
     const out = { name: other.name, created: other.created, friendCount: soc(other.id).friends.length, isMe, isFriend,
       requested: soc(user.id).outgoing.includes(other.id), requestedYou: soc(user.id).incoming.includes(other.id) };
     if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
-    out.stats = statSummary(other.id);
+    out.stats = statSummary(other.id); out.level = out.stats.level;
     out.achievements = achList(other.id, isMe);
     out.games = gameList(other.id, isMe);
     out.players = Object.keys(db.users).length;
