@@ -13,8 +13,8 @@ window.MistHooks = (function () {
     return new Promise(function (res) {
       var fresh = false, r = indexedDB.open(name);
       r.onupgradeneeded = function () { fresh = true; r.transaction.abort(); };
-      r.onsuccess = function () { res(r.result); };
-      r.onerror = function (e) { if (fresh) e.preventDefault(); res(null); };
+      r.onsuccess = function () { var db = r.result; db.onversionchange = function () { db.close(); }; setTimeout(function () { try { db.close(); } catch (e) {} }, 3000); res(db); };
+      r.onerror = function (e) { e.preventDefault(); res(null); };
     });
   }
   function dbNames() { return indexedDB.databases ? indexedDB.databases().then(function (l) { return l.map(function (d) { return d.name; }); }).catch(function () { return []; }) : Promise.resolve([]); }

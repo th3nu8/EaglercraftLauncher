@@ -122,7 +122,7 @@ window.EaglerSync = (function () {
     return new Promise(function (res, rej) {
       var fresh = false, r = indexedDB.open(name);
       r.onupgradeneeded = function () { fresh = true; r.transaction.abort(); }; // don't create missing DBs
-      r.onsuccess = function () { res(r.result); };
+      r.onsuccess = function () { var db = r.result; db.onversionchange = function () { db.close(); }; res(db); };
       r.onerror = function (e) { if (fresh) { e.preventDefault(); res(null); } else rej(r.error); };
     });
   }
@@ -151,31 +151,55 @@ window.EaglerSync = (function () {
       }, function (e) { db.close(); throw e; });
     });
   }
-  function deleteDb(name) {
+  /* Empty a save database before restoring. Deleting it would be tidier, but the browser refuses or stalls
+   * when anything still has it open (a game that hasn't fully unloaded, another tab), and a stalled delete
+   * blocks every later open. Clearing its stores works even with other connections open. */
+  function deleteDb(name) { return clearDb(name); }
+  function clearDb(name) {
+    return openExisting(name).then(function (db) {
+      if (!db) return;
+      var names = Array.prototype.slice.call(db.objectStoreNames);
+      if (!names.length) { db.close(); return; }
+      return new Promise(function (res, rej) {
+        var tx = db.transaction(names, 'readwrite');
+        names.forEach(function (n) { tx.objectStore(n).clear(); });
+        tx.oncomplete = function () { db.close(); res(); };
+        tx.onerror = tx.onabort = function () { db.close(); rej(tx.error); };
+      });
+    }).catch(function (e) {
+      throw new Error('Couldn’t replace the saves in "' + name + '"' + (e && e.message ? ' (' + e.message + ')' : '') + '. Close other tabs using these games, reload, and try again.');
+    });
+  }
+  function openDbAt(name, version, onUpgrade) {
     return new Promise(function (res, rej) {
-      var r = indexedDB.deleteDatabase(name), t = setTimeout(function () {
-        rej(new Error('Saves are in use. Close the running game and try again.'));
-      }, 5000);
-      r.onsuccess = function () { clearTimeout(t); res(); };
-      r.onerror = function () { clearTimeout(t); rej(r.error); };
+      var r = version ? indexedDB.open(name, version) : indexedDB.open(name);
+      r.onupgradeneeded = function () { if (onUpgrade) onUpgrade(r.result); };
+      r.onblocked = function () { /* wait; other connections were asked to close */ };
+      r.onerror = function (e) { if (e && e.preventDefault) e.preventDefault(); clearTimeout(t); rej(r.error); };
+      r.onsuccess = function () { clearTimeout(t); res(r.result); };
+      var t = setTimeout(function () { rej(new Error('Saves for "' + name + '" are open in another tab or game. Close it, reload and try again.')); }, 10000);
     });
   }
   function createDb(d, bins) {
-    return new Promise(function (res, rej) {
-      var r = indexedDB.open(d.name, d.version || 1);
-      r.onupgradeneeded = function () {
-        var db = r.result;
-        d.stores.forEach(function (s) {
-          var opts = { autoIncrement: !!s.autoIncrement };
-          if (s.keyPath !== null && s.keyPath !== undefined) opts.keyPath = s.keyPath;
-          var os = db.createObjectStore(s.name, opts);
-          s.indexes.forEach(function (ix) { os.createIndex(ix.name, ix.keyPath, { unique: ix.unique, multiEntry: ix.multiEntry }); });
-        });
-      };
-      r.onerror = function () { rej(r.error); };
-      r.onsuccess = function () {
-        var db = r.result;
-        if (!d.stores.length) { db.close(); return res(); }
+    function makeStores(db) {
+      d.stores.forEach(function (s) {
+        if (db.objectStoreNames.contains(s.name)) return;
+        var opts = { autoIncrement: !!s.autoIncrement };
+        if (s.keyPath !== null && s.keyPath !== undefined) opts.keyPath = s.keyPath;
+        var os = db.createObjectStore(s.name, opts);
+        s.indexes.forEach(function (ix) { os.createIndex(ix.name, ix.keyPath, { unique: ix.unique, multiEntry: ix.multiEntry }); });
+      });
+    }
+    // The database may still exist (if it was cleared instead of deleted): reuse it, adding any missing stores.
+    return openExisting(d.name).catch(function () { return null; }).then(function (cur) {
+      if (!cur) return openDbAt(d.name, d.version || 1, makeStores);
+      var missing = d.stores.some(function (s) { return !cur.objectStoreNames.contains(s.name); });
+      if (!missing) return cur;
+      var v = Math.max(cur.version + 1, d.version || 1); cur.close();
+      return openDbAt(d.name, v, makeStores);
+    }).then(function (db) {
+      if (!d.stores.length) { db.close(); return; }
+      return new Promise(function (res, rej) {
         var tx = db.transaction(d.stores.map(function (s) { return s.name; }), 'readwrite');
         d.stores.forEach(function (s) {
           var os = tx.objectStore(s.name), inline = s.keyPath !== null && s.keyPath !== undefined;
@@ -186,7 +210,7 @@ window.EaglerSync = (function () {
         });
         tx.oncomplete = function () { db.close(); res(); };
         tx.onerror = tx.onabort = function () { db.close(); rej(tx.error || new Error('Restore failed.')); };
-      };
+      });
     });
   }
 
