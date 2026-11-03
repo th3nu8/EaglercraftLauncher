@@ -239,6 +239,50 @@ window.MistSocial = function (ctx) {
   /* ---------- profiles ---------- */
   function openProfile(name) { ctx.closeModal(); ctx.showProfile(name); }
 
+  /* ---------- per-game achievements (10 per game) ---------- */
+  var GAME_TIERS = [['m5','🌱','First Look','5 minutes',300],['m15','🎈','Warming Up','15 minutes',900],['m30','🎯','Getting the Hang','30 minutes',1800],
+    ['h1','🪝','Hooked','1 hour',3600],['h2','🎮','Regular','2 hours',7200],['h5','💪','Dedicated','5 hours',18000],['h10','🛡️','Veteran','10 hours',36000],
+    ['h25','⭐','Expert','25 hours',90000],['h50','🏆','Master','50 hours',180000],['h100','👑','Legend','100 hours',360000]];
+  function staticTiers(game) {
+    return GAME_TIERS.map(function (t) { return { id: t[0], icon: t[1], name: t[2], label: t[3], goal: t[4], desc: 'Play ' + game + ' for ' + t[3] + '.' }; });
+  }
+  function tierRow(t, showProgress) {
+    var row = el('div', 'pach' + (t.unlocked ? ' got' : ''));
+    row.appendChild(el('span', 'ach-ico', t.icon));
+    var tx = el('div', 'pach-tx'); tx.appendChild(el('b', null, t.name)); tx.appendChild(el('span', null, t.desc));
+    if (showProgress && !t.unlocked && t.progress !== undefined) {
+      var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = Math.round(100 * t.progress / t.goal) + '%'; pb.appendChild(pf); tx.appendChild(pb);
+      tx.appendChild(el('small', null, fmtTime(t.progress) + ' / ' + fmtTime(t.goal)));
+    }
+    row.appendChild(tx);
+    var right = el('div', 'pach-r');
+    if (t.unlocked !== undefined) right.appendChild(el('small', null, t.unlocked ? 'Unlocked ' + fmtDate(t.unlocked, true) : 'Locked'));
+    if (t.rarity !== undefined) right.appendChild(rarityEl(t.rarity));
+    row.appendChild(right);
+    return row;
+  }
+  /* Achievements panel for one game (store page and library). */
+  function renderGameAch(host, game) {
+    host.textContent = '';
+    var head = el('div', 'gach-h'); head.appendChild(el('h5', null, 'Achievements')); host.appendChild(head);
+    var list = el('div', 'plist'); host.appendChild(list);
+    function draw(tiers, summary) {
+      list.textContent = '';
+      if (summary) head.appendChild(summary);
+      tiers.forEach(function (t) { list.appendChild(tierRow(t, true)); });
+    }
+    if (!eng()) {
+      var note = el('span', 'gach-sum', '10 achievements · sign in to track them');
+      draw(staticTiers(game), note); return;
+    }
+    list.appendChild(el('div', 'fp-empty', 'Loading…'));
+    api('GET', '/api/game-achievements?game=' + encodeURIComponent(game)).then(function (r) {
+      var sum = el('span', 'gach-sum', r.unlocked + ' / ' + r.total + ' unlocked · ' + fmtTime(r.seconds) + ' played');
+      var wrap = el('div', 'pbar big gach-bar'); var f = el('i'); f.style.width = Math.round(100 * r.unlocked / r.total) + '%'; wrap.appendChild(f);
+      draw(r.tiers, sum); host.insertBefore(wrap, list);
+    }, function () { draw(staticTiers(game), el('span', 'gach-sum', '10 achievements')); });
+  }
+
   /* ---------- full profile page ---------- */
   var profSeq = 0, profFilter = 'all';
   function fmtDate(t, long) { return new Date(t).toLocaleDateString(undefined, long ? { month: 'long', day: 'numeric', year: 'numeric' } : { month: 'short', year: 'numeric' }); }
@@ -295,7 +339,7 @@ window.MistSocial = function (ctx) {
     /* stats strip */
     var s = pr.stats, strip = el('div', 'prof-stats');
     [[fmtTime(s.playtime), 'Played'], [String(s.games), 'Games'], [s.achievements + ' / ' + s.achievementsTotal, 'Achievements'],
-     [s.gameBadges + (s.gameBadgesTotal ? ' / ' + s.gameBadgesTotal : ''), 'Game badges'], [String(s.bestStreak), 'Best streak'], [String(s.daysActive), 'Days active']
+     [s.gameBadges + (s.gameBadgesTotal ? ' / ' + s.gameBadgesTotal : ''), 'Game achievements'], [String(s.bestStreak), 'Best streak'], [String(s.daysActive), 'Days active']
     ].forEach(function (x) { var c = el('div', 'pst'); c.appendChild(el('b', null, x[0])); c.appendChild(el('small', null, x[1])); strip.appendChild(c); });
     host.appendChild(strip);
 
@@ -343,9 +387,9 @@ window.MistSocial = function (ctx) {
     /* per-game achievements */
     var gsec = el('section', 'psec');
     var gh = el('div', 'psec-h'); gh.appendChild(el('h2', null, 'Game achievements'));
-    gh.appendChild(el('span', 'psec-count', s.gameBadges + ' badge' + (s.gameBadges === 1 ? '' : 's')));
+    gh.appendChild(el('span', 'psec-count', s.gameBadges + ' unlocked'));
     gsec.appendChild(gh);
-    gsec.appendChild(el('p', 'psec-sub', 'Every game has four badges for time played: 🥉 10 minutes · 🥈 1 hour · 🥇 5 hours · 💠 20 hours.'));
+    gsec.appendChild(el('p', 'psec-sub', 'Every game has 10 achievements for time played, from 5 minutes up to 100 hours. Click a game to see them all.'));
     if (!pr.games.length) gsec.appendChild(el('div', 'fp-empty', (pr.isMe ? 'You haven’t' : pr.name + ' hasn’t') + ' played any games yet.'));
     pr.games.forEach(function (g) {
       var card = el('div', 'pgame');
@@ -359,14 +403,26 @@ window.MistSocial = function (ctx) {
         info.appendChild(el('small', null, 'Next: ' + g.next.name + ' · ' + fmtTime(g.next.progress) + ' / ' + fmtTime(g.next.goal)));
       }
       card.appendChild(info);
+      var gotN = g.tiers.filter(function (t) { return t.unlocked; }).length;
+      info.appendChild(el('small', 'pgame-count', gotN + ' / ' + g.tiers.length + ' achievements'));
       var tiers = el('div', 'ptiers');
       g.tiers.forEach(function (t) {
-        var m = el('span', 'ptier ' + t.id + (t.unlocked ? ' got' : ''), t.icon);
-        m.title = t.name + ' (play ' + t.label + ')\n' + (t.unlocked ? 'Unlocked ' + fmtDate(t.unlocked, true) : 'Locked') + '\n' + t.rarity + '% of players';
+        var m = el('span', 'ptier' + (t.unlocked ? ' got' : ''), t.icon);
+        m.title = t.name + ': play ' + t.label + '\n' + (t.unlocked ? 'Unlocked ' + fmtDate(t.unlocked, true) : 'Locked') + '\n' + (t.rarity ? t.rarity + '% of players' : 'No one yet');
         tiers.appendChild(m);
       });
       card.appendChild(tiers);
+      var toggle = el('span', 'pgame-more', '▾');
+      card.appendChild(toggle);
+      var full = el('div', 'plist pgame-full');
+      g.tiers.forEach(function (t) { full.appendChild(tierRow(t, pr.isMe)); });
+      card.onclick = function (e) {
+        if (e.target.closest('.link')) return;
+        var open = full.classList.toggle('open'); toggle.textContent = open ? '▴' : '▾';
+      };
+      card.classList.add('expandable');
       gsec.appendChild(card);
+      gsec.appendChild(full);
     });
     main.appendChild(gsec);
 
@@ -539,7 +595,7 @@ window.MistSocial = function (ctx) {
   }
 
   return {
-    loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile,
+    loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

@@ -491,6 +491,7 @@
     var ul = el('ul');
     g.versions.forEach(function (v) { ul.appendChild(el('li', null, v.name + ' · ' + typeLabel(v) + (v.description ? ' · ' + v.description : ''))); });
     left.appendChild(ul);
+    if (social) { var ga = el('div', 'gp-ach'); left.appendChild(ga); social.renderGameAch(ga, g.name); }
     cols.appendChild(left);
     var right = el('div');
     var sb = el('div', 'side-box');
@@ -630,6 +631,7 @@
       news.appendChild(n);
     });
     left.appendChild(news);
+    if (social) { var la = el('div', 'lcard'); left.appendChild(la); social.renderGameAch(la, g.name); }
     var side = el('div');
     var about = el('div', 'lcard'); about.appendChild(el('h5', null, 'About'));
     about.appendChild(el('p', null, g.description || ''));

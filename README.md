@@ -134,8 +134,9 @@ in the account menu to open a full profile page:
 - stats: playtime, games, achievements, game badges, best streak, days active
 - every achievement with unlock date, **rarity** (% of players who have it) and, on your own
   profile, progress bars; filter All / Unlocked / Locked
-- **Game achievements**: each game you play earns 🥉 10 min, 🥈 1 h, 🥇 5 h and 💠 20 h badges,
-  with progress toward the next one
+- **Game achievements**: every game has 10 for time played: 🌱 5 min, 🎈 15 min, 🎯 30 min,
+  🪝 1 h, 🎮 2 h, 💪 5 h, 🛡️ 10 h, ⭐ 25 h, 🏆 50 h, 👑 100 h. Click a game on a profile to see all 10
+  with dates and rarity. Each game's Store and Library page also lists its 10 with your progress.
 - recently played games and friends (visible to you and your friends)
 
 ### If accounts go missing

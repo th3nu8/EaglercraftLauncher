@@ -259,14 +259,34 @@ function checkAch(uid) {
   if (fresh.length) { (db.achNew[uid] = db.achNew[uid] || []).push(...fresh); saveDb(); }
   return fresh;
 }
-/* Per-game achievements: four playtime tiers for every game a player plays. */
+/* Per-game achievements: ten playtime achievements for every game. */
 db.gameAch = db.gameAch || {};   // uid -> { gameName: { tierId: unlockedAt } }
+const M = 60;
 const GAME_TIERS = [
-  { id: 'bronze',   icon: '🥉', name: 'Getting Started', goal: 600,     label: '10 minutes' },
-  { id: 'silver',   icon: '🥈', name: 'Hooked',          goal: H,       label: '1 hour' },
-  { id: 'gold',     icon: '🥇', name: 'Dedicated',       goal: 5 * H,   label: '5 hours' },
-  { id: 'platinum', icon: '💠', name: 'Master',          goal: 20 * H,  label: '20 hours' },
+  { id: 'm5',   icon: '🌱', name: 'First Look',       goal: 5 * M,   label: '5 minutes' },
+  { id: 'm15',  icon: '🎈', name: 'Warming Up',       goal: 15 * M,  label: '15 minutes' },
+  { id: 'm30',  icon: '🎯', name: 'Getting the Hang', goal: 30 * M,  label: '30 minutes' },
+  { id: 'h1',   icon: '🪝', name: 'Hooked',           goal: H,       label: '1 hour' },
+  { id: 'h2',   icon: '🎮', name: 'Regular',          goal: 2 * H,   label: '2 hours' },
+  { id: 'h5',   icon: '💪', name: 'Dedicated',        goal: 5 * H,   label: '5 hours' },
+  { id: 'h10',  icon: '🛡️', name: 'Veteran',          goal: 10 * H,  label: '10 hours' },
+  { id: 'h25',  icon: '⭐', name: 'Expert',           goal: 25 * H,  label: '25 hours' },
+  { id: 'h50',  icon: '🏆', name: 'Master',           goal: 50 * H,  label: '50 hours' },
+  { id: 'h100', icon: '👑', name: 'Legend',           goal: 100 * H, label: '100 hours' },
 ];
+// Convert badges from the earlier 4-badge version (bronze/silver/gold/platinum): keep the dates
+// where a matching achievement exists, then fill in the rest from playtime.
+(function migrateOldBadges() {
+  const map = { bronze: ['m5'], silver: ['h1'], gold: ['h5'], platinum: [] };
+  let changed = 0;
+  for (const games of Object.values(db.gameAch)) for (const tiers of Object.values(games)) {
+    for (const [old, news] of Object.entries(map)) if (tiers[old]) {
+      for (const n of news) if (!tiers[n]) tiers[n] = tiers[old];
+      delete tiers[old]; changed++;
+    }
+  }
+  if (changed) console.log(`Converted ${changed} old game badge(s) to the 10-achievement system.`);
+})();
 const TIER_BY_ID = Object.fromEntries(GAME_TIERS.map(t => [t.id, t]));
 function checkGameAch(uid, game, notify = true) {
   const sec = stats(uid).perGame[game] || 0, all = db.gameAch[uid] || (db.gameAch[uid] = {}), got = all[game] || (all[game] = {});
@@ -303,6 +323,15 @@ function rarity() {
   return rarityCache;
 }
 const pct = (n, of) => Math.round(1000 * (n || 0) / Math.max(1, of)) / 10;
+function tierList(game, got, sec) {
+  const r = rarity();
+  return GAME_TIERS.map(t => {
+    const o = { id: t.id, icon: t.icon, name: t.name, desc: 'Play ' + game + ' for ' + t.label + '.', label: t.label, goal: t.goal,
+      unlocked: got[t.id] || null, rarity: pct((r.games[game] || {})[t.id], r.players) };
+    if (sec !== null && sec !== undefined && !o.unlocked) o.progress = Math.min(t.goal, Math.round(sec));
+    return o;
+  });
+}
 function gameList(uid, withProgress) {
   const st = stats(uid), all = db.gameAch[uid] || {}, r = rarity(), recent = {};
   for (const x of soc(uid).recent) recent[x.game] = x.at;
@@ -310,8 +339,7 @@ function gameList(uid, withProgress) {
     const got = all[game] || {}, next = GAME_TIERS.find(t => !got[t.id]);
     return {
       name: game, seconds: Math.round(sec), lastPlayed: recent[game] || null,
-      tiers: GAME_TIERS.map(t => ({ id: t.id, icon: t.icon, name: t.name, label: t.label, goal: t.goal, unlocked: got[t.id] || null,
-        rarity: pct((r.games[game] || {})[t.id], r.players) })),
+      tiers: tierList(game, got, withProgress ? sec : null),
       next: withProgress && next ? { name: next.name, goal: next.goal, progress: Math.min(next.goal, Math.round(sec)) } : null
     };
   });
@@ -559,6 +587,16 @@ async function handle(req, res) {
       return out;
     });
     return send(res, 200, { total, matches: all.length, page, pages: Math.max(1, Math.ceil(all.length / per)), users });
+  }
+
+  if (req.method === 'GET' && p === '/api/game-achievements') {
+    const game = String(url.searchParams.get('game') || '').slice(0, 60);
+    if (!game) return fail(res, 400, 'Missing game.');
+    const sec = stats(user.id).perGame[game] || 0, got = (db.gameAch[user.id] || {})[game] || {};
+    const tiers = tierList(game, got, sec);
+    const r = rarity();
+    return send(res, 200, { game, seconds: Math.round(sec), unlocked: tiers.filter(t => t.unlocked).length, total: tiers.length,
+      players: (r.games[game] || {}).players || 0, tiers });
   }
 
   if (req.method === 'GET' && p === '/api/profile') {

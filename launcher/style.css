@@ -406,18 +406,30 @@ button.fp-row:hover,.fp-row.sel{background:#3d4450}
 .pgame-info b{color:#fff;font-size:15px}
 .pgame-info b.link{cursor:pointer}.pgame-info b.link:hover{color:#67c1f5}
 .pgame-info small{color:#8f98a0;font-size:12px}
-.ptiers{display:flex;gap:6px;flex:none}
-.ptier{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:#0e141b;filter:grayscale(1);opacity:.35;cursor:default}
+.ptier{border-radius:50%;display:grid;place-items:center;filter:grayscale(1);opacity:.35;cursor:default}
 .ptier.got{filter:none;opacity:1}
-.ptier.bronze.got{background:radial-gradient(#7a4a22,#3b2410)}
-.ptier.silver.got{background:radial-gradient(#7d8a95,#38414a)}
-.ptier.gold.got{background:radial-gradient(#9c7a1e,#4a3a0c)}
-.ptier.platinum.got{background:radial-gradient(#2f8fae,#123d4c);box-shadow:0 0 10px rgba(103,193,245,.5)}
 .psec.side{padding:14px}
 .pside-row{display:flex;align-items:center;gap:10px;width:100%;padding:5px 4px;border-radius:2px;text-align:left}
 .pside-row.link{cursor:pointer}.pside-row.link:hover{background:rgba(255,255,255,.06)}
 .pside-ico{width:30px;height:30px;position:relative;overflow:hidden;border-radius:2px;flex:none;background:#000}
 @media (max-width:860px){.prof-cols{grid-template-columns:1fr}.prof-stats{grid-template-columns:repeat(3,1fr)}.prof-hero{flex-wrap:wrap}.pgame{flex-wrap:wrap}}
+.ptiers{display:grid;grid-template-columns:repeat(5,30px);gap:4px}
+.ptier{width:30px;height:30px;font-size:16px;background:#0e141b}
+.ptier.got{background:radial-gradient(#5b4a1a,#2a2210);box-shadow:inset 0 0 0 1px rgba(228,180,60,.5)}
+.pgame.expandable{cursor:pointer}
+.pgame.expandable:hover{background:rgba(103,193,245,.08)}
+.pgame-more{color:#8f98a0;font-size:14px;padding:0 4px}
+.pgame-count{color:#e4b43c!important}
+.pgame-full{display:none;margin:-2px 0 10px 12px;padding-left:10px;border-left:2px solid #2a3f53}
+.pgame-full.open{display:flex}
+.gp-ach{margin-top:18px}
+.gp-ach h5,.gach-h h5{margin:0}
+.gach-h{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.gp-ach .gach-h h5{font-size:14px;font-weight:400;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+.gach-sum{font-size:12px;color:#8f98a0}
+.gach-bar{margin-bottom:10px}
+.gp-ach .pach,.lcard .pach{padding:8px 10px}
+.gp-ach .pach .ach-ico,.lcard .pach .ach-ico{width:40px;height:40px;font-size:22px}
 body.in-game .friends,body.in-game .chatwin{display:none!important}
 @media (max-width:860px){.chatwin{right:0;width:100%}.friends{width:100%}.nav-x{font-size:15px;padding:0 8px}}
 
