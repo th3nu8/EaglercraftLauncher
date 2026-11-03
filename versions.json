@@ -71,10 +71,14 @@
       "description": "Polytrack, greatest racing game oat",
       "versions": [
         {
-          "id": "1.0",
+          "id": "0.6.3",
           "name": "Polytrack",
           "type": "release",
-          "file": "polytrack.html"
+          "file": "polytrack-full.html",
+          "mirror": "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/polytrack.html",
+          "notes": [
+            "Full single-file version (0.6.3). The old versions/polytrack.html only loaded the game from another site and showed a blank screen inside Mist."
+          ]
         }
       ]
     },

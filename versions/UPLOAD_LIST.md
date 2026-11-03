@@ -352,3 +352,4 @@ name shown and Mist switches to your copy automatically. No other changes needed
 | `yohoho-io.html` | YoHoHo.io | No license found |
 | `zombie-rush.html` | Zombie Rush | Commercial engine build |
 | `zrist.html` | Zrist | No license found |
+| `polytrack-full.html` | Polytrack | Publisher SDK (copy of `polytrack.html` from the pack) |
