@@ -193,7 +193,22 @@
   }
 
   var runningGame = null;
+  /* Games run under about:blank, where window.origin (the real site) differs from location.origin ("null").
+   * Engines like PixiJS then mark every image "crossOrigin=anonymous", including the in-memory blob:/data:
+   * images that packed games unzip into. Chrome allows that, but Safari (every iPad/iPhone browser) refuses
+   * those images, so the game sits on its loading spinner. This shim drops crossOrigin for blob:/data: images. */
+  var GAME_SHIM = '<script>(function(){try{var P=HTMLImageElement.prototype,co=Object.getOwnPropertyDescriptor(P,"crossOrigin"),sr=Object.getOwnPropertyDescriptor(P,"src");' +
+    'var mem=function(u){return /^(blob|data):/i.test(String(u||""))};' +
+    'Object.defineProperty(P,"crossOrigin",{configurable:true,enumerable:true,get:function(){return co.get.call(this)},set:function(v){this.__mistCO=v;if(mem(this.getAttribute("src")))return;co.set.call(this,v)}});' +
+    'Object.defineProperty(P,"src",{configurable:true,enumerable:true,get:function(){return sr.get.call(this)},set:function(v){if(mem(v)){if(this.hasAttribute("crossorigin"))this.removeAttribute("crossorigin")}else if(this.__mistCO!=null&&!this.hasAttribute("crossorigin"))co.set.call(this,this.__mistCO);sr.set.call(this,v)}});' +
+    '}catch(e){}})();<\/script>';
+  function withShim(html) {
+    var m = /<head(\s[^>]*)?>/i.exec(html) || /^\s*<!doctype[^>]*>/i.exec(html);   // keep <!DOCTYPE> first (no quirks mode)
+    if (m) return html.slice(0, m.index + m[0].length) + GAME_SHIM + html.slice(m.index + m[0].length);
+    return GAME_SHIM + html;
+  }
   function startGame(html, name, g) {
+    html = withShim(html);
     if (settings.mode === 'replace') {
       stopAutosave();
       if (social) social.setPlaying(g ? g.name : name);
