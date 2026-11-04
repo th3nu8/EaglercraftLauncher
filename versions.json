@@ -60,6 +60,31 @@
       "featured": true
     },
     {
+      "id": "counter-attack",
+      "name": "Counter Attack",
+      "developer": "Mist",
+      "image": "counter-attack.jpg",
+      "featured": true,
+      "mistApi": true,
+      "tags": [
+        "Shooter",
+        "FPS",
+        "Multiplayer",
+        "Action"
+      ],
+      "description": "Endless Red vs Blue team deathmatch. Rifle, pistol and sniper, instant respawns, and bots that fill every empty slot.",
+      "about": "Play online with other Mist players (sign in first) or offline against bots. Desktop: WASD, mouse, Space, R, 1 2 3, Tab for scores. iPad and phones get touch controls; a keyboard and trackpad also work.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Counter Attack",
+          "type": "release",
+          "file": "csattack.html",
+          "description": "Map: Depot. Online matches run on the Mist server."
+        }
+      ]
+    },
+    {
       "id": "polytrack",
       "name": "Polytrack",
       "image": "polytrack.jpg",
