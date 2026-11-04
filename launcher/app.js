@@ -919,6 +919,13 @@
 
   makeEngine();
   lastUser = engine && engine.signedIn() ? engine.user : null;
+  // Pages that block storage: games can't keep progress and nothing can be synced. Say so once.
+  if (window.EaglerSync && EaglerSync.storageBlocked && EaglerSync.storageBlocked()) {
+    var nsBar = el('div', 'nostore-bar');
+    nsBar.appendChild(el('span', null, '⚠️ This page blocks saved data, so game progress and cloud saves won’t work and you’ll be signed out when you close it. Run the Mist bookmarklet from a normal website (for example wikipedia.org) instead of a new tab or search page.'));
+    var nsX = el('button', null, '✕'); nsX.onclick = function () { nsBar.remove(); }; nsBar.appendChild(nsX);
+    document.body.appendChild(nsBar);
+  }
   social = window.MistSocial ? MistSocial({
     getEngine: function () { return engine; }, el: el, toast: toast, ago: ago, popMenu: popMenu,
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,

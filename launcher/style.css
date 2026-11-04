@@ -497,3 +497,7 @@ body.in-game #app{visibility:hidden}
 .ach-toast.r-rare{border-left-color:#3d8fd1}
 .ach-toast.r-epic{border-left-color:#9b5de5}
 .ach-toast.r-legendary{border-left-color:#ffd54f;box-shadow:0 0 18px rgba(255,213,79,.35)}
+
+.nostore-bar{position:fixed;left:0;right:0;bottom:34px;z-index:60;display:flex;gap:10px;align-items:flex-start;background:#5c3b10;color:#ffe2b0;border-top:2px solid #e09f3e;padding:10px 14px;font-size:13px;line-height:1.4}
+.nostore-bar span{flex:1}
+.nostore-bar button{background:none;border:0;color:#ffe2b0;font-size:16px;cursor:pointer}

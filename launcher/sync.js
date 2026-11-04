@@ -214,6 +214,16 @@ window.EaglerSync = (function () {
     });
   }
 
+  /* Some pages (a browser's new-tab page, sites set to block cookies/site data, private modes) deny
+   * IndexedDB/localStorage entirely. Then there's nothing to back up or restore, so syncing is skipped. */
+  var storageCheck = null;
+  function storageBlocked() {
+    if (storageCheck !== null) return storageCheck;
+    try { if (!window.indexedDB) throw 0; var r = indexedDB.open('__mist_probe'); r.onsuccess = function () { try { r.result.close(); } catch (e) {} }; r.onerror = function (e) { if (e && e.preventDefault) e.preventDefault(); };
+      localStorage.getItem('__mist_probe'); storageCheck = false; }
+    catch (e) { storageCheck = true; }
+    return storageCheck;
+  }
   function snapshot(known) {
     return listDbNames(known).then(function (names) {
       return names.reduce(function (p, n) {
@@ -360,6 +370,7 @@ window.EaglerSync = (function () {
       opts = opts || {};
       var self = this;
       if (!this.token) return Promise.resolve({ action: 'signed-out' });
+      if (storageBlocked()) { this.setStatus('synced', ''); return Promise.resolve({ action: 'no-storage' }); }
       if (this.busy) return Promise.resolve({ action: 'busy' });
       this.busy = true;
       this.setStatus('syncing', opts.allowPull === false ? 'Backing up…' : 'Syncing…');
@@ -410,7 +421,7 @@ window.EaglerSync = (function () {
 
   return {
     Engine: Engine,
-    snapshot: snapshot,
+    snapshot: snapshot, storageBlocked: storageBlocked,
     restore: restore,
     exportFile: function (known) {
       return snapshot(known).then(function (s) { return gzip(s.bytes).then(function (gz) { return { bytes: gz, records: s.records }; }); });
