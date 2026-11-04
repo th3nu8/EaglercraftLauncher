@@ -202,7 +202,11 @@
     'var mem=function(u){return /^(blob|data):/i.test(String(u||""))};' +
     'Object.defineProperty(P,"crossOrigin",{configurable:true,enumerable:true,get:function(){return co.get.call(this)},set:function(v){this.__mistCO=v;if(mem(this.getAttribute("src")))return;co.set.call(this,v)}});' +
     'Object.defineProperty(P,"src",{configurable:true,enumerable:true,get:function(){return sr.get.call(this)},set:function(v){if(mem(v)){if(this.hasAttribute("crossorigin"))this.removeAttribute("crossorigin")}else if(this.__mistCO!=null&&!this.hasAttribute("crossorigin"))co.set.call(this,this.__mistCO);sr.set.call(this,v)}});' +
-    '}catch(e){}})();<\/script>';
+    '}catch(e){}' +
+    /* Offline copies strip "get the app" store links, but some games (YoHoHo.io) hide them on mobile without
+     * checking they exist and crash during startup. Hand back a detached stand-in for those ids only. */
+    'try{var gi=Document.prototype.getElementById;Document.prototype.getElementById=function(id){var el=gi.call(this,id);if(!el&&/^app-link-/i.test(String(id))){el=this.createElement("div");el.id=id}return el}}catch(e){}' +
+    '})();<\/script>';
   /* Optional on-screen debug log for games (Settings > Debug games). Lists errors and each file the game
    * requests (images, XHR, fetch, scripts) with its state, so a stalled load shows up in a screenshot. */
   var DEBUG_SHIM = '<script>(function(){var box,list=[],pend={},n=0;' +
