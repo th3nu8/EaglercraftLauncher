@@ -135,18 +135,16 @@
             });
 
             try {
-                updateStatus("Connecting to your asset server...");
+                updateStatus("Locating local valve.zip...");
 
-                // Ensure URL uses HTTPS if your site is secure, or direct IP link
-                const zipUrl = 'https://134.195.88.52/assets/valve.zip';
-                
-                const res = await fetch(zipUrl, { mode: 'cors' });
+                const zipUrl = './valve.zip';
+                const res = await fetch(zipUrl);
 
                 if (!res.ok) {
-                    throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
+                    throw new Error(`HTTP error ${res.status}: ${res.statusText} - Make sure valve.zip is in the same folder.`);
                 }
 
-                updateStatus("Downloading archive stream (178 MB)...");
+                updateStatus("Streaming local game archive (178 MB)...");
                 const contentLength = +res.headers.get('Content-Length');
                 const reader = res.body.getReader();
                 let receivedBytes = 0;
@@ -162,13 +160,13 @@
                     if (contentLength) {
                         const percent = Math.floor((receivedBytes / contentLength) * 100);
                         updateProgress(percent);
-                        updateStatus(`Downloading... ${percent}% (${(receivedBytes / (1024 * 1024)).toFixed(1)} MB)`);
+                        updateStatus(`Loading archive... ${percent}% (${(receivedBytes / (1024 * 1024)).toFixed(1)} MB)`);
                     } else {
-                        updateStatus(`Downloaded ${(receivedBytes / (1024 * 1024)).toFixed(1)} MB...`);
+                        updateStatus(`Loaded ${(receivedBytes / (1024 * 1024)).toFixed(1)} MB...`);
                     }
                 }
 
-                // Combine stream buffers safely
+                // Combine chunks into single ArrayBuffer
                 const buffer = new Uint8Array(receivedBytes);
                 let position = 0;
                 for (let chunk of chunks) {
@@ -185,7 +183,7 @@
                 let loaded = 0;
 
                 if (totalFiles === 0) {
-                    throw new Error("The downloaded archive contains no files.");
+                    throw new Error("The local valve.zip archive is empty.");
                 }
 
                 await Promise.all(entries.map(async p => {
