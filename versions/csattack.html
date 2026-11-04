@@ -144,7 +144,7 @@
                     throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
                 }
 
-                updateStatus("Streaming game archive (178 MB)...");
+                updateStatus("Streaming game archive...");
                 const contentLength = +res.headers.get('Content-Length');
                 const reader = res.body.getReader();
                 let receivedBytes = 0;
@@ -179,27 +179,32 @@
                 const files = {};
 
                 const entries = Object.keys(zip.files);
-                let totalFiles = entries.length;
                 let loaded = 0;
 
-                if (totalFiles === 0) {
+                if (entries.length === 0) {
                     throw new Error("The downloaded archive contains no files.");
                 }
 
-                await Promise.all(entries.map(async p => {
+                for (const p of entries) {
                     const file = zip.files[p];
-                    if (file.dir) return;
-                    files[`/rodir/${p}`] = await file.async("uint8array");
+                    if (file.dir || p.endsWith('/')) continue;
+                    
+                    const cleanPath = p.replace(/^valve\//, '').replace(/^cstrike\//, '');
+                    files[`/rodir/${cleanPath}`] = await file.async("uint8array");
                     loaded++;
-                    updateProgress(Math.floor((loaded / totalFiles) * 100));
-                    updateStatus(`Extracting files... (${loaded}/${totalFiles})`);
-                }));
+                    
+                    if (entries.length > 0) {
+                        updateProgress(Math.floor((loaded / entries.length) * 100));
+                        updateStatus(`Extracting files... (${loaded}/${entries.length})`);
+                    }
+                }
 
                 updateStatus("Initializing game engine...");
 
                 Xash3D({
                     arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'], 
                     canvas,
+                    INITIAL_MEMORY: 1073741824, // Explicitly allocate 1GB virtual heap room
                     ctx: canvas.getContext('webgl2', {
                         alpha: false,
                         depth: true,
@@ -216,9 +221,18 @@
                     ],
                     onRuntimeInitialized: function () {
                         Object.keys(files).forEach(k => {
-                            const dir = k.split('/').slice(0, -1).join('/');
-                            this.FS.mkdirTree(dir);
-                            this.FS.writeFile(k, files[k]);
+                            const parts = k.split('/').filter(Boolean);
+                            const dir = '/' + parts.slice(0, -1).join('/');
+                            
+                            try {
+                                this.FS.mkdirTree(dir);
+                            } catch (e) {
+                                // Ignore existing dir errors
+                            }
+                            
+                            if (files[k] && files[k].byteLength > 0) {
+                                this.FS.writeFile(k, files[k]);
+                            }
                         });
                         this.FS.chdir('/rodir');
 
