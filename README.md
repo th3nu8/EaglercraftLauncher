@@ -301,3 +301,12 @@ Use `"mode": "sandbox"` with sandbox keys to test without real money.
 `versions/csattack.html` runs Counter-Strike 1.6 on the open-source Xash3D FWGS engine (loaded from jsDelivr), using a zip
 of the player's **own** `cstrike` + `valve` folders that they choose on their device. The zip is kept in that browser's
 storage only; nothing is uploaded to the server or the repo, and no game files are hosted by Mist.
+
+## PolyTrack leaderboards (Mist only)
+
+Games with `"mistLeaderboards": true` (PolyTrack) get a small script that sends their online leaderboard requests
+(`vps.kodub.com/v6/leaderboard`, `leaderboardUserEntry`, `recordings`, `user`) to the Mist server (`/pt/v6/...`) instead,
+so the in-game leaderboards list Mist players only, under their Mist names. The game gets a PolyTrack-only token
+(`/api/polytrack/token`), never the player's Mist sign-in. Players must be signed in to Mist for times to upload.
+Times are sanity-checked but replays aren't re-simulated like on the official server. Track of the Week and
+multiplayer are untouched.

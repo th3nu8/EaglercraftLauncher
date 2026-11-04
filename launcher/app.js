@@ -185,6 +185,8 @@
     }).then(function (html) {
       return (g.cloudSaves ? preLaunchSync() : Promise.resolve()).then(function () { return html; });
     }).then(function (html) {
+      return (g.mistLeaderboards ? ptTokenReady() : Promise.resolve()).then(function () { return html; });
+    }).then(function (html) {
       showOverlay('Launching ' + v.name, '', false); setOverlay(null, null, false, 100);
       setTimeout(function () { hideOverlay(); renderAll(); startGame(html, v.name, g); }, 120);
     }).catch(function (e) {
@@ -207,6 +209,16 @@
      * checking they exist and crash during startup. Hand back a detached stand-in for those ids only. */
     'try{var gi=Document.prototype.getElementById;Document.prototype.getElementById=function(id){var el=gi.call(this,id);if(!el&&/^app-link-/i.test(String(id))){el=this.createElement("div");el.id=id}return el}}catch(e){}' +
     '})();<\/script>';
+  /* PolyTrack: send its online leaderboard requests (vps.kodub.com/v6/...) to the Mist server, so the in-game
+   * leaderboards list Mist players only. MIST_PT is a PolyTrack-only token, not the player's Mist sign-in.
+   * Track of the Week and multiplayer still use the official servers. */
+  var PT_SHIM = '<script>(function(){var S=window.MIST_SERVER;if(!S)return;S=String(S).replace(/\\/+$/,"");var T=window.MIST_PT||"",B="https://vps.kodub.com/v6/",K=/^(leaderboard|leaderboardUserEntry|recordings|user|verifyRecordings)(\\?|$)/;' +
+    'function m(u){u=String(u);if(u.indexOf(B)!==0)return u;var r=u.slice(B.length);if(!K.test(r))return u;return S+"/pt/v6/"+r+(r.indexOf("?")<0?"?":"&")+"mist="+encodeURIComponent(T)}' +
+    /* Offline packs (like the one PolyTrack comes from) replace open/fetch later to block kodub.com. Keep our
+     * redirect first by trapping later assignments; the busy flag lets their wrapper reach the real function. */
+    'function t(O,k,x){var n=O[k],w=function(){if(w.b)return n.apply(this,arguments);var a=[].slice.call(arguments);a[x]=typeof a[x]==="string"?m(a[x]):a[x];w.b=1;try{return w.i.apply(this,a)}finally{w.b=0}};w.i=n;' +
+    'try{Object.defineProperty(O,k,{configurable:true,get:function(){return w},set:function(v){w.i=v}})}catch(e){O[k]=w}}' +
+    'try{t(XMLHttpRequest.prototype,"open",1)}catch(e){}try{if(window.fetch)t(window,"fetch",0)}catch(e){}})();<\/script>';
   /* Optional on-screen debug log for games (Settings > Debug games). Lists errors and each file the game
    * requests (images, XHR, fetch, scripts) with its state, so a stalled load shows up in a screenshot. */
   var DEBUG_SHIM = '<script>(function(){var box,list=[],pend={},n=0;' +
@@ -227,10 +239,11 @@
     var m = /<head(\s[^>]*)?>/i.exec(html) || /^\s*<!doctype[^>]*>/i.exec(html);   // keep <!DOCTYPE> first (no quirks mode)
     var srv = settings.server || defaultServer() || '';
     var mist = { MIST_SERVER: srv };
+    if (g && g.mistLeaderboards) mist.MIST_PT = ptToken || '';
     // Only Mist's own games (mistApi in versions.json) get the player's sign-in, for online play.
     if (g && g.mistApi && engine && engine.signedIn()) { mist.MIST_TOKEN = engine.token; mist.MIST_USER = engine.user; }
     var inject = '<script>' + Object.keys(mist).map(function (k) { return 'window.' + k + '=' + JSON.stringify(mist[k]).replace(/</g, '\\u003c') + ';'; }).join('') + '<\/script>' +
-      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM;
+      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM + (g && g.mistLeaderboards ? PT_SHIM : '');
     if (m) return html.slice(0, m.index + m[0].length) + inject + html.slice(m.index + m[0].length);
     return inject + html;
   }
@@ -1038,7 +1051,15 @@
   var social = null, lastUser;
   function authChanged() {
     var u = engine && engine.signedIn() ? engine.user : null;
-    if (u !== lastUser) { lastUser = u; if (social) social.onAuthChange(); }
+    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); }
+  }
+  /* PolyTrack-only token for Mist leaderboards (fetched once per sign-in). */
+  var ptToken = null, ptPromise = null;
+  function ptTokenReady() {
+    if (!engine || !engine.signedIn()) return Promise.resolve(null);
+    if (ptToken) return Promise.resolve(ptToken);
+    if (!ptPromise) ptPromise = engine.api('POST', '/api/polytrack/token').then(function (r) { ptToken = r && r.token || null; return ptToken; }, function () { ptPromise = null; return null; });
+    return ptPromise;
   }
   function friendsBox(g, cls) {
     if (!social) return null;

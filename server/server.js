@@ -331,6 +331,99 @@ setInterval(async () => {
   }
 }, 3 * 3600e3).unref();
 
+/* ---------- PolyTrack leaderboards (Mist only) ----------
+ * Mist redirects PolyTrack's online leaderboard requests (vps.kodub.com/v6/...) here, so its in-game
+ * leaderboards show Mist players only. Same request/response format as the official server. Players are
+ * identified by a PolyTrack-only token from /api/polytrack/token (never their Mist sign-in); names are
+ * their Mist account names. Times are sanity-checked but replays aren't re-simulated. */
+db.pt = db.pt || { seq: 0, tracks: {}, profiles: {} };   // tracks: trackId -> { uid -> entry }, profiles: tokenHash -> {...}
+db.meta = db.meta || {};
+if (!db.meta.ptSecret) db.meta.ptSecret = crypto.randomBytes(24).toString('hex');
+const PT_MAX_FRAMES = 60 * 60 * 1000 * 2, PT_MAX_REC = 10000;
+const ptById = new Map();      // record id -> [trackId, uid]
+for (const [tid, ents] of Object.entries(db.pt.tracks)) for (const [uid, e] of Object.entries(ents)) ptById.set(e.id, [tid, uid]);
+function ptTokenFor(uid) { return uid + '.' + crypto.createHmac('sha256', db.meta.ptSecret).update('pt:' + uid).digest('hex').slice(0, 32); }
+function ptUid(tok) {
+  const s = String(tok || ''), i = s.lastIndexOf('.'); if (i < 1) return null;
+  const uid = s.slice(0, i);
+  const want = ptTokenFor(uid);
+  if (s.length !== want.length || !crypto.timingSafeEqual(Buffer.from(s), Buffer.from(want))) return null;
+  return userById(uid) ? uid : null;
+}
+const ptHash = s => crypto.createHash('sha256').update(String(s)).digest('hex');
+function ptSorted(tid) {
+  return Object.values(db.pt.tracks[tid] || {}).sort((a, b) => a.frames - b.frames || a.at - b.at);
+}
+function ptName(uid) { const u = userById(uid); return u ? u.name : 'Player'; }
+function ptMine(list, uid, tokenHash) { return list.findIndex(e => (uid && e.uid === uid) || (!uid && tokenHash && e.tokenHash === tokenHash)); }
+function ptRead(req, limit) {
+  return new Promise((res, rej) => {
+    let size = 0; const chunks = [];
+    req.on('data', c => { size += c.length; if (size > limit) { rej(new Error('too large')); req.destroy(); } else chunks.push(c); });
+    req.on('end', () => res(new URLSearchParams(Buffer.concat(chunks).toString('utf8'))));
+    req.on('error', rej);
+  });
+}
+const ptRate = new Map();
+async function handlePolytrack(req, res, p, url) {
+  const q = url.searchParams, ep = p.slice('/pt/v6/'.length);
+  const uid = ptUid(q.get('mist'));
+  const json = (o, code) => { res.writeHead(code || 200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(o)); };
+  if (req.method === 'OPTIONS') { res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST', 'Access-Control-Allow-Headers': 'Content-Type' }); return res.end(); }
+  const tid = q.get('trackId');
+  const tidOk = t => typeof t === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(t);
+  if (req.method === 'GET' && ep === 'leaderboard') {
+    if (!tidOk(tid)) return json({ error: 'bad track' }, 400);
+    const skip = Math.max(0, Math.min(1e6, parseInt(q.get('skip'), 10) || 0)), amount = Math.max(1, Math.min(100, parseInt(q.get('amount'), 10) || 20));
+    const th = q.get('userTokenHash') || '', list = ptSorted(tid), me = ptMine(list, uid, th);
+    return json({ total: list.length,
+      entries: list.slice(skip, skip + amount).map(e => ({ id: e.id, userId: (uid && e.uid === uid) || (!uid && e.tokenHash === th) ? th : 'mist-' + ptHash(e.uid).slice(0, 16),
+        nickname: ptName(e.uid), frames: e.frames, time: new Date(e.at).toISOString(), carStyle: e.carStyle || '', verifiedState: 1, countryCode: e.countryCode || null })),
+      userEntry: me >= 0 ? { position: me + 1, frames: list[me].frames, id: list[me].id } : null });
+  }
+  if (req.method === 'GET' && ep === 'leaderboardUserEntry') {
+    if (!tidOk(tid)) return json(null);
+    const list = ptSorted(tid), me = ptMine(list, uid, q.get('userTokenHash') || '');
+    return json(me >= 0 ? { position: me + 1, frames: list[me].frames, id: list[me].id } : null);
+  }
+  if (req.method === 'GET' && ep === 'recordings') {
+    const ids = String(q.get('ids') || '').split(',').slice(0, 20).map(Number);
+    return json(ids.map(id => { const r = ptById.get(id), e = r && db.pt.tracks[r[0]] && db.pt.tracks[r[0]][r[1]];
+      return e && e.id === id ? { recording: e.recording, frames: e.frames, verifiedState: 1, carStyle: e.carStyle || '' } : null; }));
+  }
+  if (req.method === 'POST' && ep === 'leaderboard') {
+    let f; try { f = await ptRead(req, 64 * 1024); } catch (e) { return json({ error: 'too large' }, 413); }
+    if (!uid) return json(null);                       // not signed in to Mist: the game keeps the time locally only
+    const now = Date.now(), r = (ptRate.get(uid) || []).filter(t => t > now - 60e3);
+    if (r.length >= 30) return json({ error: 'slow down' }, 429);
+    r.push(now); ptRate.set(uid, r);
+    const t = f.get('trackId'), frames = Number(f.get('frames')), rec = f.get('recording') || '', car = f.get('carStyle') || '', cc = f.get('countryCode');
+    if (!tidOk(t) || !Number.isSafeInteger(frames) || frames < 100 || frames > PT_MAX_FRAMES || !rec || rec.length >= PT_MAX_REC || car.length > 1024) return json({ error: 'bad record' }, 400);
+    const ents = db.pt.tracks[t] || (db.pt.tracks[t] = {});
+    const before = ptSorted(t), prevIdx = before.findIndex(e => e.uid === uid), prev = prevIdx + 1, old = ents[uid];
+    if (old && old.frames <= frames) return json({ uploadId: old.id, previousPosition: prev, newPosition: prev });
+    if (old) ptById.delete(old.id);
+    const id = ++db.pt.seq;
+    ents[uid] = { id, uid, frames, at: now, recording: rec, carStyle: car, countryCode: cc && /^[A-Za-z]{2,3}$/.test(cc) ? cc : null, tokenHash: ptHash(f.get('userToken') || '') };
+    ptById.set(id, [t, uid]); saveDbSoon();
+    const newPos = ptSorted(t).findIndex(e => e.uid === uid) + 1;
+    return json({ uploadId: id, previousPosition: prev, newPosition: newPos });
+  }
+  if (req.method === 'GET' && ep === 'user') {
+    const th = ptHash(q.get('userToken') || ''), pr = db.pt.profiles[th];
+    if (!pr) return json(null);
+    return json({ nickname: uid ? ptName(uid).slice(0, 50) : pr.nickname, countryCode: pr.countryCode || null, carStyle: pr.carStyle || '', isVerifier: false });
+  }
+  if (req.method === 'POST' && ep === 'user') {
+    let f; try { f = await ptRead(req, 16 * 1024); } catch (e) { return json({ error: 'too large' }, 413); }
+    const th = ptHash(f.get('userToken') || ''), nick = String(f.get('nickname') || '').slice(0, 50), cc = f.get('countryCode');
+    if (nick && f.get('userToken')) { db.pt.profiles[th] = { nickname: nick, countryCode: cc && /^[A-Za-z]{2,3}$/.test(cc) ? cc : null, carStyle: String(f.get('carStyle') || '').slice(0, 1024) }; saveDbSoon(); }
+    res.writeHead(200, { 'Access-Control-Allow-Origin': '*' }); return res.end();
+  }
+  if (ep === 'verifyRecordings') { res.writeHead(403, { 'Access-Control-Allow-Origin': '*' }); return res.end(); }
+  return json({ error: 'not found' }, 404);
+}
+
 const AVATARS = ["Slime", "Ghost", "Skull", "Heart", "Cat", "Mushroom", "Robot", "Alien", "Potion", "Star", "Ninja", "Sword", "Fox", "Frog", "Penguin", "Crown", "Fire", "Bomb", "Diamond", "Shield", "Controller", "Pumpkin", "Cactus"];
 const COLORS = ['#c0392b','#e67e22','#f1c40f','#27ae60','#16a085','#2980b9','#3d5afe','#8e44ad','#d81b60','#6d4c41','#455a64','#1b1f24'];
 const AVATARS_PLUS = ["Panda", "Bunny", "Duck", "Owl", "Octopus", "Shark", "Bee", "Ladybug", "Planet", "Moon", "Sun", "Lightning", "Snowman", "Tree", "Flower", "Trophy", "Rocket", "Astronaut", "Knight", "Wizard", "Dragon", "Donut", "IceCream"];   // supporter-only avatars
@@ -1636,6 +1729,7 @@ async function handle(req, res) {
     return fail(res, 404, 'No such asset on this server.');
   }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
+  if (p.startsWith('/pt/v6/')) return handlePolytrack(req, res, p, url);
   if (req.method === 'GET' && p === '/support/done') {
     const cancelled = /cancelled=1/.test(req.url || '');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -1900,6 +1994,7 @@ async function handle(req, res) {
       looks: looksFor(rows.slice(0, 100).map(r => r.id).concat(user.id)) });
   }
 
+  if (req.method === 'POST' && p === '/api/polytrack/token') return send(res, 200, { token: ptTokenFor(user.id) });
   if (req.method === 'GET' && p === '/api/support') return send(res, 200, supportView(user.id));
   if (req.method === 'POST' && p === '/api/support/subscribe') {
     if (!paypalConfig()) return fail(res, 503, 'Supporter subscriptions aren’t set up on this server yet.');

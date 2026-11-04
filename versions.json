@@ -103,7 +103,8 @@
             "Full single-file version (0.6.3). The old versions/polytrack.html only loaded the game from another site and showed a blank screen inside Mist."
           ]
         }
-      ]
+      ],
+      "mistLeaderboards": true
     },
     {
       "id": "1-on-1-soccer",
