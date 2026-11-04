@@ -4022,7 +4022,7 @@
     {
       "id": "ovo-2",
       "name": "OvO 2",
-      "image": "ovo-2.jpg",
+      "image": "ovo-2.png",
       "tags": [
         "Platformer",
         "Parkour",
@@ -5486,7 +5486,7 @@
     {
       "id": "space-is-key",
       "name": "Space is Key",
-      "image": "space-is-key.jpg",
+      "image": "space-is-key.png",
       "tags": [
         "Platformer",
         "One Button",
@@ -5506,7 +5506,7 @@
     {
       "id": "space-is-key-2",
       "name": "Space is Key 2",
-      "image": "space-is-key-2.jpg",
+      "image": "space-is-key-2.png",
       "tags": [
         "Platformer",
         "One Button",
@@ -5746,7 +5746,7 @@
     {
       "id": "stickman-hook",
       "name": "Stickman Hook",
-      "image": "stickman-hook.jpg",
+      "image": "stickman-hook.png",
       "tags": [
         "Arcade",
         "Swinging",
@@ -6086,7 +6086,7 @@
     {
       "id": "tetrominoes",
       "name": "Tetrominoes",
-      "image": "tetrominoes.jpg",
+      "image": "tetrominoes.png",
       "tags": [
         "Puzzle",
         "Retro",
@@ -6326,7 +6326,7 @@
     {
       "id": "trivia-crack",
       "name": "Trivia Crack",
-      "image": "trivia-crack.jpg",
+      "image": "trivia-crack.png",
       "tags": [
         "Trivia",
         "Quiz",
@@ -6526,7 +6526,7 @@
     {
       "id": "vex-x3m-2",
       "name": "Vex X3M 2",
-      "image": "vex-x3m-2.jpg",
+      "image": "vex-x3m-2.png",
       "tags": [
         "Platformer",
         "Stickman",
@@ -6586,7 +6586,7 @@
     {
       "id": "we-become-what-we-behold",
       "name": "We Become What We Behold",
-      "image": "we-become-what-we-behold.jpg",
+      "image": "we-become-what-we-behold.png",
       "tags": [
         "Story",
         "Short",

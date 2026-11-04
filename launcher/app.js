@@ -390,6 +390,7 @@
     else if (view.page === 'library') renderLibrary();
     else if (view.page === 'settings') renderSettings();
     else if (view.page === 'users') { if (social) social.loadUsers(true); }
+    else if (view.page === 'leaderboard') { if (social) social.renderLeaderboard(); }
     else if (view.page === 'profile') { if (social) social.renderProfile(view.profileName); }
     else if (view.page === 'achievements') { if (social) social.renderAchPage(); }
   }

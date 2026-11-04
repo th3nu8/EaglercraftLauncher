@@ -1467,6 +1467,7 @@ function statSummary(uid) {
     gameBadges: Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid),
     gameBadgesTotal: Object.keys(st.perGame).length * GAME_TIERS.length, level: levelInfo(uid) };
 }
+let lbCache = null;
 const lastIngame = new Map(); // uid -> { game, at } for playtime counting
 
 function messageRateLimited(uid) {
@@ -1482,7 +1483,7 @@ async function handle(req, res) {
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 6, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 7, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -1714,6 +1715,26 @@ async function handle(req, res) {
     }
     if (changed) { saveDbSoon(); checkHookAch(user.id, game); }
     return send(res, 200, { ok: true, newAchievements: takeNewAch(user.id), level: levelInfo(user.id) });
+  }
+
+  if (req.method === 'GET' && p === '/api/leaderboard') {
+    // Everyone ranked by XP (level), or by achievements / playtime. Cached briefly; XP is summed per player.
+    const by = ['achievements', 'playtime'].includes(url.searchParams.get('by')) ? url.searchParams.get('by') : 'xp';
+    if (!lbCache || Date.now() - lbCache.at > 30e3) {
+      lbCache = { at: Date.now(), rows: Object.values(db.users).map(u => {
+        const li = levelInfo(u.id);
+        return { id: u.id, name: u.name, xp: li.xp, level: li.level, into: li.into, need: li.need, achievements: achCount(u.id), playtime: Math.round(stats(u.id).play) };
+      }) };
+    }
+    const key = by === 'xp' ? 'xp' : by;
+    const rows = lbCache.rows.slice().sort((a, b) => b[key] - a[key] || b.xp - a.xp || a.name.localeCompare(b.name));
+    let rank = 0, prev = null;
+    rows.forEach((r, i) => { if (r[key] !== prev) { rank = i + 1; prev = r[key]; } r.rank = rank; });
+    const friends = soc(user.id).friends;
+    const view = r => ({ rank: r.rank, name: r.name, level: r.level, xp: r.xp, into: r.into, need: r.need, achievements: r.achievements, playtime: r.playtime,
+      isMe: r.id === user.id, isFriend: friends.includes(r.id) });
+    const me = rows.find(r => r.id === user.id);
+    return send(res, 200, { by, total: rows.length, maxLevel: MAX_LEVEL, players: rows.slice(0, 100).map(view), me: me ? view(me) : null });
   }
 
   if (req.method === 'GET' && p === '/api/hook-defs') {

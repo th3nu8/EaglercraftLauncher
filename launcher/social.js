@@ -302,6 +302,75 @@ window.MistSocial = function (ctx) {
     tiers.forEach(function (t) { box.appendChild(tierRow(t, showProgress)); });
   }
 
+  /* ---------- Leaderboard ---------- */
+  var lbBy = 'xp', lbSeq = 0;
+  function renderLeaderboard() {
+    var host = $('#lbPage'); if (!host) return;
+    host.textContent = '';
+    var head = el('div', 'users-head'); head.appendChild(el('h2', null, 'Leaderboard'));
+    var tabs = el('div', 'ptabs lb-tabs');
+    [['xp', 'Level & XP'], ['achievements', 'Achievements'], ['playtime', 'Playtime']].forEach(function (t) {
+      var b = el('button', lbBy === t[0] ? 'on' : null, t[1]);
+      b.onclick = function () { lbBy = t[0]; renderLeaderboard(); };
+      tabs.appendChild(b);
+    });
+    head.appendChild(tabs); host.appendChild(head);
+    if (!eng()) {
+      var e0 = el('div', 'fp-empty'); e0.appendChild(el('p', null, 'Sign in to see the leaderboard.'));
+      var b0 = el('button', 'btn green', 'Sign in'); b0.onclick = ctx.openAccount; e0.appendChild(b0); host.appendChild(e0); return;
+    }
+    var body = el('div'); body.appendChild(el('div', 'fp-empty', 'Loading…')); host.appendChild(body);
+    var seq = ++lbSeq;
+    api('GET', '/api/leaderboard?by=' + lbBy).then(function (r) {
+      if (seq !== lbSeq) return;
+      body.textContent = '';
+      if (!r.players) { body.appendChild(oldServerNote()); return; }
+      var val = function (p) { return lbBy === 'achievements' ? p.achievements.toLocaleString() + ' achievements' : lbBy === 'playtime' ? fmtTime(p.playtime) + ' played' : p.xp.toLocaleString() + ' XP'; };
+      if (r.me) {
+        var mine = el('div', 'lb-me');
+        mine.appendChild(el('span', 'lb-me-rank', '#' + r.me.rank));
+        var mt = el('div', 'lb-me-tx'); mt.appendChild(el('b', null, 'Your rank: #' + r.me.rank + ' of ' + r.total));
+        mt.appendChild(el('small', null, 'Level ' + r.me.level + ' · ' + val(r.me))); mine.appendChild(mt);
+        if (lbBy === 'xp') mine.appendChild(levelBar({ level: r.me.level, xp: r.me.xp, into: r.me.into, need: r.me.need, maxLevel: r.maxLevel }));
+        body.appendChild(mine);
+      }
+      // podium
+      var top = r.players.slice(0, 3);
+      if (top.length) {
+        var pod = el('div', 'lb-podium');
+        [1, 0, 2].forEach(function (i) {
+          var p = top[i]; if (!p) return;
+          var c = el('div', 'lb-pod lb-pod' + (i + 1) + (p.isMe ? ' me' : ''));
+          c.appendChild(el('div', 'lb-medal', ['🥇', '🥈', '🥉'][i]));
+          var av = avatar(p.name, i === 0 ? 72 : 58); c.appendChild(av);
+          var nm = el('b', 'link', p.name); nm.onclick = function () { ctx.showProfile(p.name); }; c.appendChild(nm);
+          var lv = el('div', 'lb-pod-lv'); lv.appendChild(levelBadge(p.level, 22)); lv.appendChild(el('span', null, 'Level ' + p.level)); c.appendChild(lv);
+          c.appendChild(el('small', null, val(p)));
+          pod.appendChild(c);
+        });
+        body.appendChild(pod);
+      }
+      var list = el('div', 'lb-list');
+      r.players.forEach(function (p) {
+        var row = el('div', 'lb-row' + (p.isMe ? ' me' : '') + (p.isFriend ? ' friend' : ''));
+        row.appendChild(el('span', 'lb-rank' + (p.rank <= 3 ? ' top' : ''), '#' + p.rank));
+        row.appendChild(avatar(p.name, 36));
+        var tx = el('div', 'lb-tx');
+        var nm = el('b', 'link'); nm.appendChild(levelBadge(p.level, 20)); nm.appendChild(document.createTextNode(p.name));
+        if (p.isMe) nm.appendChild(el('span', 'lb-tag', 'You')); else if (p.isFriend) nm.appendChild(el('span', 'lb-tag fr', 'Friend'));
+        nm.onclick = function () { ctx.showProfile(p.name); }; tx.appendChild(nm);
+        if (lbBy === 'xp') { var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = (p.need ? Math.round(100 * p.into / p.need) : 100) + '%'; pb.appendChild(pf); tx.appendChild(pb); }
+        row.appendChild(tx);
+        var right = el('div', 'lb-val'); right.appendChild(el('b', null, val(p)));
+        right.appendChild(el('small', null, lbBy === 'xp' ? p.achievements.toLocaleString() + ' achievements' : 'Level ' + p.level + ' · ' + p.xp.toLocaleString() + ' XP'));
+        row.appendChild(right);
+        list.appendChild(row);
+      });
+      body.appendChild(list);
+      if (r.total > r.players.length) body.appendChild(el('p', 'psec-sub', 'Showing the top ' + r.players.length + ' of ' + r.total + ' players.'));
+    }, function (e) { if (seq === lbSeq) { body.textContent = ''; body.appendChild(el('div', 'fp-empty', e.message)); } });
+  }
+
   /* ---------- per-game achievements (7 per game) ---------- */
   var GAME_TIERS = [['m5','🌱','First Look','5 minutes',300],['m15','🎈','Warming Up','15 minutes',900],['m30','🎯','Getting the Hang','30 minutes',1800],
     ['h1','🪝','Hooked','1 hour',3600],['h2','🎮','Regular','2 hours',7200],['h5','💪','Dedicated','5 hours',18000],['h10','🛡️','Veteran','10 hours',36000]];
@@ -799,7 +868,7 @@ window.MistSocial = function (ctx) {
 
   return {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
-    showAchievements: showAchievements, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
+    showAchievements: showAchievements, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }
