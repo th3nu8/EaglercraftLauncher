@@ -135,11 +135,16 @@
 
             try {
                 updateStatus("Fetching game assets...");
-                const res = await fetch('https://cdn.jsdelivr.net/gh/th3nu8/EaglercraftLauncher@main/versions/valve.zip');
+                const res = await fetch('https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/versions/valve.zip');
+                
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch zip: ${res.statusText}`);
+                }
+
                 const buffer = await res.arrayBuffer();
 
                 updateStatus("Extracting game files...");
-                const zip = await JSZip.loadAsync(buffer);
+                const zip = await JSZip.loadAsync(buffer, { checkCRC32: false });
                 const files = {};
 
                 const entries = Object.keys(zip.files);
@@ -204,21 +209,4 @@
                             case 'cl_dlls/menu_emscripten_wasm32.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
                             case 'dlls/cs_emscripten_wasm32.so':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/dlls/cs_emscripten_wasm32.so';
-                            case 'cl_dlls/client_emscripten_wasm32.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/client_emscripten_wasm32.wasm';
-                            default:
-                                return p;
-                        }
-                    },
-                });
-            } catch (e) {
-                updateStatus("Failed to load game. Check console.");
-                console.error("Failed to load game:", e);
-            }
-        }
-
-        main();
-    </script>
-</body>
-</html>
+                                return '
