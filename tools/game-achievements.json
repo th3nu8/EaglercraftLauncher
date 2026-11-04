@@ -1674,14 +1674,22 @@
    "key": "ParkingFury_01",
    "stats": {
     "levels": ".|ge:1",
-    "stars": ".|sum",
     "perfect": ".|ge:3"
    }
   },
   "ach": [
    [
-    "l5",
+    "l1",
     "🅿️",
+    "First Spot",
+    "Complete your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🚙",
     "Parallel Parker",
     "Complete 5 levels.",
     "levels",
@@ -1689,30 +1697,30 @@
     "common"
    ],
    [
-    "l20",
-    "🚙",
-    "Valet",
-    "Complete 20 levels.",
+    "l10",
+    "🏁",
+    "Parking Pro",
+    "Complete all 10 levels.",
     "levels",
-    20,
+    10,
     "rare"
    ],
    [
-    "s45",
+    "p3",
     "⭐",
-    "Star Parker",
-    "Earn 45 stars.",
-    "stars",
-    45,
+    "Clean Park",
+    "Get 3 stars on 3 levels.",
+    "perfect",
+    3,
     "rare"
    ],
    [
-    "p20",
+    "p10",
     "👑",
-    "Perfect Park",
-    "Get 3 stars on 20 levels.",
+    "Perfect Parker",
+    "Get 3 stars on all 10 levels.",
     "perfect",
-    20,
+    10,
     "epic"
    ]
   ]
@@ -1723,14 +1731,22 @@
    "key": "ParkingFury2_01",
    "stats": {
     "levels": ".|ge:1",
-    "stars": ".|sum",
     "perfect": ".|ge:3"
    }
   },
   "ach": [
    [
-    "l5",
+    "l1",
     "🅿️",
+    "First Spot",
+    "Complete your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🚙",
     "Parallel Parker",
     "Complete 5 levels.",
     "levels",
@@ -1738,30 +1754,30 @@
     "common"
    ],
    [
-    "l20",
-    "🚙",
-    "Valet",
-    "Complete 20 levels.",
+    "l10",
+    "🏁",
+    "Parking Pro II",
+    "Complete all 10 levels.",
     "levels",
-    20,
+    10,
     "rare"
    ],
    [
-    "s45",
+    "p3",
     "⭐",
-    "Star Parker",
-    "Earn 45 stars.",
-    "stars",
-    45,
+    "Clean Park",
+    "Get 3 stars on 3 levels.",
+    "perfect",
+    3,
     "rare"
    ],
    [
-    "p20",
+    "p10",
     "👑",
-    "Perfect Park",
-    "Get 3 stars on 20 levels.",
+    "Perfect Parker",
+    "Get 3 stars on all 10 levels.",
     "perfect",
-    20,
+    10,
     "epic"
    ]
   ]
@@ -1772,14 +1788,22 @@
    "key": "ParkingFury3_01",
    "stats": {
     "levels": ".|ge:1",
-    "stars": ".|sum",
     "perfect": ".|ge:3"
    }
   },
   "ach": [
    [
-    "l5",
+    "l1",
     "🅿️",
+    "First Spot",
+    "Complete your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🚙",
     "Parallel Parker",
     "Complete 5 levels.",
     "levels",
@@ -1787,30 +1811,30 @@
     "common"
    ],
    [
-    "l20",
-    "🚙",
-    "Valet",
-    "Complete 20 levels.",
+    "l10",
+    "🏁",
+    "Parking Pro III",
+    "Complete all 10 levels.",
     "levels",
-    20,
+    10,
     "rare"
    ],
    [
-    "s45",
+    "p3",
     "⭐",
-    "Star Parker",
-    "Earn 45 stars.",
-    "stars",
-    45,
+    "Clean Park",
+    "Get 3 stars on 3 levels.",
+    "perfect",
+    3,
     "rare"
    ],
    [
-    "p20",
+    "p10",
     "👑",
-    "Perfect Park",
-    "Get 3 stars on 20 levels.",
+    "Perfect Parker",
+    "Get 3 stars on all 10 levels.",
     "perfect",
-    20,
+    10,
     "epic"
    ]
   ]
