@@ -166,7 +166,6 @@
                     }
                 }
 
-                // Combine chunks into single ArrayBuffer safely
                 const buffer = new Uint8Array(receivedBytes);
                 let position = 0;
                 for (let chunk of chunks) {
@@ -221,7 +220,6 @@
                         "filesystem_stdio.wasm",
                         "libref_gles3compat.wasm",
                         "cl_dlls/menu_emscripten_wasm32.wasm",
-                        "dlls/cs_emscripten_wasm32.wasm",
                         "cl_dlls/client_emscripten_wasm32.wasm",
                         "/rwdir/filesystem_stdio.so",
                     ],
@@ -241,6 +239,7 @@
                             }
                         });
 
+                        // Fallback check if cstrike server plugin is missing from the zip
                         try {
                             if (!files['/rodir/cstrike/liblist.gam']) {
                                 this.FS.mkdirTree('/rodir/cstrike');
@@ -271,16 +270,17 @@
                             case 'filesystem_stdio.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/filesystem_stdio.wasm';
                             case 'libref_gles3compat.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/libref_gles3compat.wasm';
+                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/xash.wasm';
                             case 'cl_dlls/menu_emscripten_wasm32.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
-                            case 'dlls/cs_emscripten_wasm32.wasm':
-                            case 'dlls/cs_emscripten_wasm32.so':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/dlls/cs_emscripten_wasm32.wasm';
                             case 'cl_dlls/client_emscripten_wasm32.wasm':
                             case 'cl_dlls/client_emscripten_wasm32.so':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/client_emscripten_wasm32.wasm';
                             default:
+                                // Route local virtual filesystem DLL requests to check the mounted drive
+                                if (p.startsWith('dlls/') || p.startsWith('cl_dlls/')) {
+                                    return p;
+                                }
                                 return p;
                         }
                     },
