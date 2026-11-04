@@ -62,6 +62,8 @@ try {
   const other = parseInt(fs.readFileSync(LOCK_FILE, 'utf8'), 10);
   if (other && other !== process.pid) {
     let alive = false; try { process.kill(other, 0); alive = true; } catch (e) { alive = e.code === 'EPERM'; }
+    // After a crash or reboot the old pid can belong to an unrelated process: only a running Mist server counts.
+    if (alive) { try { const cmd = fs.readFileSync('/proc/' + other + '/cmdline', 'utf8'); if (!/node/.test(cmd) || !/server/.test(cmd)) alive = false; } catch (e) { if (e.code === 'ENOENT') alive = false; } }
     if (alive) fatal(`Another Mist server (pid ${other}) is already using ${DATA_DIR}. Stop it first, or two servers will overwrite each other's accounts.`);
   }
 } catch (e) { /* no lock yet */ }
@@ -215,6 +217,18 @@ function unreadFrom(me, other) {
   const read = (db.reads[me] || {})[other] || 0;
   let n = 0; for (let i = list.length - 1; i >= 0 && list[i].id > read; i--) if (list[i].from !== me) n++;
   return n;
+}
+/* ---------- profile look (icon + colour) and bio ---------- */
+db.looks = db.looks || {};       // uid -> { icon, color, bio }
+const ICONS = ['🐉','🦊','🐺','🐱','🐶','🐼','🐸','🐙','🦄','🦉','🐧','🦈','🐝','🦖','🐢','🦁',
+  '👾','🤖','👽','👻','💀','🎃','🧙','🥷','🦸','🧛','🧟','🐲',
+  '🎮','🕹️','⚔️','🛡️','🏹','💎','🔥','⚡','❄️','🌙','⭐','🌈','🍀','🍕','🍩','🚀','🏎️','⚽','🏀','🎸','🎧','👑','🗡️','🧩'];
+const COLORS = ['#c0392b','#e67e22','#f1c40f','#27ae60','#16a085','#2980b9','#3d5afe','#8e44ad','#d81b60','#6d4c41','#455a64','#1b1f24'];
+function lookOf(uid) { const l = db.looks[uid]; return l && l.icon ? { i: l.icon, c: l.color || COLORS[5] } : null; }
+// Map of name -> look for the users in a response, so every avatar can show the chosen icon.
+function looksFor(uids) { const out = {}; for (const id of uids) { const u = userById(id), l = lookOf(id); if (u && l) out[u.name] = l; } return out; }
+function cleanBio(t) {
+  return String(t || '').replace(/\r/g, '').replace(/[\u0000-\u0009\u000B-\u001F\u007F]/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, 200);
 }
 function friendView(me, uid) {
   const u = userById(uid); if (!u) return null;
@@ -1483,7 +1497,7 @@ async function handle(req, res) {
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 7, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 8, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -1601,7 +1615,8 @@ async function handle(req, res) {
     const friends = me.friends.map(id => friendView(user.id, id)).filter(Boolean)
       .sort((a, b) => order[a.state] - order[b.state] || (b.state === 'offline' ? b.lastSeen - a.lastSeen : 0) || a.name.localeCompare(b.name));
     const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
-    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id), level: levelInfo(user.id) });
+    return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id), level: levelInfo(user.id),
+      looks: looksFor([user.id].concat(me.friends, me.incoming, me.outgoing)) });
   }
 
   if (req.method === 'POST' && p === '/api/presence') {
@@ -1687,7 +1702,8 @@ async function handle(req, res) {
       if (isMe || isFriend) { const pr = presenceOf(u.id); out.state = pr.state; out.game = pr.game; out.lastSeen = pr.lastSeen; }
       return out;
     });
-    return send(res, 200, { total, matches: all.length, page, pages: Math.max(1, Math.ceil(all.length / per)), users });
+    return send(res, 200, { total, matches: all.length, page, pages: Math.max(1, Math.ceil(all.length / per)), users,
+      looks: looksFor(all.slice(page * per, page * per + per).map(u => u.id)) });
   }
 
   if (req.method === 'GET' && p === '/api/game-achievements') {
@@ -1734,9 +1750,26 @@ async function handle(req, res) {
     const view = r => ({ rank: r.rank, name: r.name, level: r.level, xp: r.xp, into: r.into, need: r.need, achievements: r.achievements, playtime: r.playtime,
       isMe: r.id === user.id, isFriend: friends.includes(r.id) });
     const me = rows.find(r => r.id === user.id);
-    return send(res, 200, { by, total: rows.length, maxLevel: MAX_LEVEL, players: rows.slice(0, 100).map(view), me: me ? view(me) : null });
+    return send(res, 200, { by, total: rows.length, maxLevel: MAX_LEVEL, players: rows.slice(0, 100).map(view), me: me ? view(me) : null,
+      looks: looksFor(rows.slice(0, 100).map(r => r.id).concat(user.id)) });
   }
 
+  if (req.method === 'GET' && p === '/api/look-options') return send(res, 200, { icons: ICONS, colors: COLORS });
+  if (req.method === 'POST' && p === '/api/profile/edit') {
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const cur = db.looks[user.id] || (db.looks[user.id] = {});
+    if ('icon' in body) {
+      if (body.icon && !ICONS.includes(body.icon)) return fail(res, 400, 'Pick one of the listed icons.');
+      cur.icon = body.icon || '';
+    }
+    if ('color' in body) {
+      if (body.color && !COLORS.includes(body.color)) return fail(res, 400, 'Pick one of the listed colours.');
+      cur.color = body.color || '';
+    }
+    if ('bio' in body) cur.bio = cleanBio(body.bio);
+    saveDbSoon();
+    return send(res, 200, { ok: true, look: lookOf(user.id), bio: cur.bio || '' });
+  }
   if (req.method === 'GET' && p === '/api/hook-defs') {
     const out = {};
     const view = a => ({ id: 'h:' + a.id, icon: a.icon, name: a.name, desc: a.desc, goal: a.goal, rank: a.rank, basic: !!a.basic });
@@ -1751,6 +1784,8 @@ async function handle(req, res) {
       requested: soc(user.id).outgoing.includes(other.id), requestedYou: soc(user.id).incoming.includes(other.id) };
     if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
     out.stats = statSummary(other.id); out.level = out.stats.level;
+    out.bio = (db.looks[other.id] && db.looks[other.id].bio) || '';
+    out.looks = looksFor([other.id].concat(soc(other.id).friends));
     out.achievements = achList(other.id, isMe);
     out.games = gameList(other.id, isMe);
     out.players = Object.keys(db.users).length;

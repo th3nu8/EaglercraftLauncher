@@ -12,11 +12,24 @@ window.MistSocial = function (ctx) {
   var pollTimer = null, beatTimer = null;
 
   function eng() { var e = ctx.getEngine(); return e && e.signedIn() ? e : null; }
-  function api(method, path, json) { var e = eng(); return e ? e.api(method, path, json ? { json: json } : {}) : Promise.reject(new Error('Sign in first.')); }
+  function api(method, path, json) {
+    var e = eng(); if (!e) return Promise.reject(new Error('Sign in first.'));
+    return e.api(method, path, json ? { json: json } : {}).then(function (r) { if (r && r.looks) mergeLooks(r.looks); return r; });
+  }
+  /* Chosen profile icons, by lower-case name: { i: emoji, c: colour }. Filled from server responses. */
+  var looks = {};
+  function mergeLooks(m) { var changed = false; for (var n in m) { var k = n.toLowerCase(); if (JSON.stringify(looks[k]) !== JSON.stringify(m[n])) { looks[k] = m[n]; changed = true; } } if (changed && ctx.onLooks) ctx.onLooks(); }
+  function lookKey(name) { var l = looks[String(name).toLowerCase()]; return l ? l.i + l.c : ''; }
 
   /* ---------- avatars: 5x5 mirrored pixel face from the name ---------- */
   function hash(s) { var h = 2166136261; s = String(s).toLowerCase(); for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; return h; }
   function avatar(name, size, state) {
+    var lk = looks[String(name).toLowerCase()];
+    if (lk) {
+      var a = el('span', 'av av-icon' + (state ? ' st-' + state : ''));
+      a.style.width = a.style.height = size + 'px'; a.style.background = lk.c; a.style.fontSize = Math.round(size * 0.58) + 'px';
+      a.appendChild(el('span', null, lk.i)); return a;
+    }
     var h = hash(name), hue = h % 360, bits = h >>> 8, cells = '';
     for (var y = 0; y < 5; y++) for (var x = 0; x < 3; x++) {
       if ((bits >> (y * 3 + x)) & 1) {
@@ -302,6 +315,58 @@ window.MistSocial = function (ctx) {
     tiers.forEach(function (t) { box.appendChild(tierRow(t, showProgress)); });
   }
 
+  /* ---------- Edit profile: icon, colour, bio ---------- */
+  function openEditProfile(pr) {
+    api('GET', '/api/look-options').then(function (opt) {
+      var cur = looks[pr.name.toLowerCase()] || null;
+      var pick = { icon: cur ? cur.i : '', color: cur ? cur.c : opt.colors[5] };
+      ctx.openModal(function (box) {
+        box.classList.add('edit-prof');
+        box.appendChild(el('h3', null, 'Edit profile'));
+        var prev = el('div', 'ep-preview'), prevName = el('b', null, pr.name);
+        function drawPrev() {
+          prev.textContent = '';
+          if (pick.icon) looks[pr.name.toLowerCase()] = { i: pick.icon, c: pick.color }; else delete looks[pr.name.toLowerCase()];
+          prev.appendChild(avatar(pr.name, 72)); prev.appendChild(prevName);
+          if (cur) looks[pr.name.toLowerCase()] = cur; else delete looks[pr.name.toLowerCase()];
+          grid.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', (b.dataset.icon || '') === pick.icon); });
+          sw.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.color === pick.color); });
+          sw.classList.toggle('off', !pick.icon);
+        }
+        box.appendChild(prev);
+        box.appendChild(el('div', 'ep-label', 'Icon'));
+        var grid = el('div', 'ep-icons');
+        var def = el('button', 'ep-default'); def.dataset.icon = ''; def.title = 'Default pixel avatar';
+        var save = looks[pr.name.toLowerCase()]; delete looks[pr.name.toLowerCase()]; def.appendChild(avatar(pr.name, 30)); if (save) looks[pr.name.toLowerCase()] = save;
+        def.onclick = function () { pick.icon = ''; drawPrev(); }; grid.appendChild(def);
+        opt.icons.forEach(function (ic) { var b = el('button', null, ic); b.dataset.icon = ic; b.onclick = function () { pick.icon = ic; drawPrev(); }; grid.appendChild(b); });
+        box.appendChild(grid);
+        box.appendChild(el('div', 'ep-label', 'Background colour'));
+        var sw = el('div', 'ep-colors');
+        opt.colors.forEach(function (c) { var b = el('button'); b.dataset.color = c; b.style.background = c; b.onclick = function () { pick.color = c; drawPrev(); }; sw.appendChild(b); });
+        box.appendChild(sw);
+        box.appendChild(el('div', 'ep-label', 'Bio'));
+        var ta = document.createElement('textarea'); ta.className = 'ep-bio'; ta.maxLength = 200; ta.rows = 3; ta.placeholder = 'Say something about yourself (200 characters)'; ta.value = pr.bio || '';
+        var cnt = el('small', 'ep-count'); function upd() { cnt.textContent = ta.value.length + ' / 200'; } ta.oninput = upd; upd();
+        box.appendChild(ta); box.appendChild(cnt);
+        var err = el('p', 'm-err'); box.appendChild(err);
+        var acts = el('div', 'm-actions');
+        acts.appendChild(ctx.button('ghost', 'Cancel', null, ctx.closeModal));
+        var go = ctx.button('green', 'Save', null, function () {
+          go.disabled = true; err.textContent = '';
+          api('POST', '/api/profile/edit', { icon: pick.icon, color: pick.color, bio: ta.value }).then(function (r) {
+            if (r.look) looks[pr.name.toLowerCase()] = r.look; else delete looks[pr.name.toLowerCase()];
+            ctx.closeModal(); toast('Profile updated');
+            if (ctx.onLooks) ctx.onLooks();
+            renderProfile(pr.name);
+          }, function (e) { err.textContent = e.message; go.disabled = false; });
+        });
+        acts.appendChild(go); box.appendChild(acts);
+        drawPrev();
+      });
+    }, function (e) { toast(e.message); });
+  }
+
   /* ---------- Leaderboard ---------- */
   var lbBy = 'xp', lbSeq = 0;
   function renderLeaderboard() {
@@ -579,12 +644,15 @@ window.MistSocial = function (ctx) {
     hero.appendChild(avatar(pr.name, 132, pr.state || null));
     var who = el('div', 'prof-who');
     who.appendChild(el('h1', null, pr.name));
+    if (pr.bio) who.appendChild(el('p', 'prof-bio', pr.bio));
+    else if (pr.isMe) who.appendChild(el('p', 'prof-bio empty', 'No bio yet. Click Edit profile to add one.'));
     if (pr.state) who.appendChild(el('div', 'prof-state st-' + pr.state, stateText(pr)));
     who.appendChild(el('div', 'prof-meta', 'Member since ' + fmtDate(pr.created, true) + ' · ' + pr.friendCount + ' friend' + (pr.friendCount === 1 ? '' : 's')));
     if (pr.level) who.appendChild(levelBar(pr.level));
     hero.appendChild(who);
     var acts = el('div', 'prof-acts');
     if (pr.isMe) {
+      acts.appendChild(ctx.button('green', 'Edit profile', null, function () { openEditProfile(pr); }));
       acts.appendChild(ctx.button('', 'Friends & chat', null, function () { togglePanel(true); }));
     } else if (pr.isFriend) {
       acts.appendChild(ctx.button('green', 'Message', null, function () { openChat(pr.name); }));
@@ -868,7 +936,7 @@ window.MistSocial = function (ctx) {
 
   return {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
-    showAchievements: showAchievements, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
+    showAchievements: showAchievements, lookKey: lookKey, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

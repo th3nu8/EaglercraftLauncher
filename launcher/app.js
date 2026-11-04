@@ -697,7 +697,7 @@
     if (!engine.signedIn()) { $('#pname').textContent = 'Sign in'; $('#psub').textContent = 'Sync saves across sites'; return; }
     var st = engine.status;
     $('#pname').textContent = engine.user;
-    if (social && av.dataset.user !== engine.user) { av.dataset.user = engine.user; av.innerHTML = social.avatar(engine.user, 32).innerHTML; av.classList.add('has-id'); }
+    if (social && av.dataset.user !== engine.user + social.lookKey(engine.user)) { av.dataset.user = engine.user + social.lookKey(engine.user); av.textContent = ''; av.appendChild(social.avatar(engine.user, 32)); av.classList.add('has-id'); }
     dot.classList.add(st.state === 'idle' ? 'synced' : st.state);
     $('#psub').textContent = st.state === 'syncing' ? (st.message || 'Syncing…') : st.state === 'conflict' ? 'Saves need attention' :
       st.state === 'error' ? 'Sync failed, will retry' : 'Synced ' + ago(st.lastSync).toLowerCase();
@@ -928,7 +928,7 @@
     document.body.appendChild(nsBar);
   }
   social = window.MistSocial ? MistSocial({
-    getEngine: function () { return engine; }, el: el, toast: toast, ago: ago, popMenu: popMenu,
+    getEngine: function () { return engine; }, onLooks: function () { renderAccount(); }, el: el, toast: toast, ago: ago, popMenu: popMenu,
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
     gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); },
     showProfile: function (n) { go('profile', n); },
