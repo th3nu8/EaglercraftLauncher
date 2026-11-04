@@ -135,22 +135,16 @@
             });
 
             try {
-                updateStatus("Connecting to repository for valve.zip...");
+                updateStatus("Connecting to asset mirror...");
                 
-                // Fetch with a timeout check
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-                const res = await fetch('https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/versions/valve.zip', {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
+                // Using jsDelivr CDN to bypass GitHub LFS redirect restrictions
+                const res = await fetch('https://cdn.jsdelivr.net/gh/th3nu8/EaglercraftLauncher@main/versions/valve.zip');
 
                 if (!res.ok) {
                     throw new Error(`HTTP error status: ${res.status}`);
                 }
 
-                updateStatus("Downloading zip file into memory...");
+                updateStatus("Downloading game archive...");
                 const buffer = await res.arrayBuffer();
 
                 updateStatus("Unpacking archive structures...");
@@ -219,7 +213,7 @@
                             case 'filesystem_stdio.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/filesystem_stdio.wasm';
                             case 'libref_gles3compat.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/libref_gles3compat.wasm';
+                                return 'https://cdn.jsdelivr.net/npm/libref_gles3compat@latest/dist/libref_gles3compat.wasm';
                             case 'cl_dlls/menu_emscripten_wasm32.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
                             case 'dlls/cs_emscripten_wasm32.so':
