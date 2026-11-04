@@ -224,6 +224,7 @@ fi
 
 systemctl daemon-reload
 systemctl enable -q cs16-server.service cs16-relay.service
+systemctl reset-failed cs16-server.service cs16-relay.service 2>/dev/null || true
 systemctl restart cs16-server.service cs16-relay.service
 
 sleep 3
