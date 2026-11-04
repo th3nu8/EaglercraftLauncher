@@ -260,6 +260,7 @@
     if (!g || g.cloudSaves) startAutosave();
     if (social) social.setPlaying(g ? g.name : name);
     startHooks(g);
+    if (social && g) social.maybeAskSupport();
     gameStart = Date.now();
     hookOverlayKeys();
     var b = $('#mistBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 3000);
@@ -872,6 +873,7 @@
       if (st.state === 'conflict') stack.appendChild(button('green', 'Fix save conflict', null, function () { closeModal(); runSync(true); }));
       stack.appendChild(button('', 'My profile & achievements', null, function () { closeModal(); go('profile', engine.user); }));
       stack.appendChild(button('', 'Friends & chat', null, function () { closeModal(); social.togglePanel(true); }));
+      stack.appendChild(button('', '💛 Support Mist', '$5/month: gold outline, extra avatars, +2,500 XP', function () { closeModal(); social.openSupport(); }));
       stack.appendChild(button('', 'Sync now', null, function () { if (gameFrame) { toast('Return to the library first'); return; } closeModal(); runSync(true); }));
       stack.appendChild(button('', 'Change password', null, openChangePassword));
       stack.appendChild(button('', 'Sign out', 'Worlds already on this site stay here.', function () { engine.signOut().then(function () { closeModal(); toast('Signed out'); }); }));
@@ -1067,6 +1069,7 @@
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
     gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); },
     showProfile: function (n) { go('profile', n); },
+    storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
     showAchievements: function () { go('achievements'); },
     gameNames: function () { return GAMES.map(function (g) { return g.name; }); }
   }) : null;

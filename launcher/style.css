@@ -580,3 +580,22 @@ body.in-game #app{visibility:hidden}
 .ep-avatars button{padding:2px;border-radius:5px;border:2px solid transparent;background:rgba(255,255,255,.05);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .ep-avatars button.on{border-color:#67c1f5;background:rgba(103,193,245,.18)}
 .av svg{width:100%;height:100%;display:block}
+
+/* ---------- Mist Supporter ---------- */
+.av.gold{border-color:#ffc83d!important;box-shadow:0 0 0 1px #ffe08a,0 0 10px rgba(255,200,61,.55);filter:none}
+.sup-badge{display:inline-block;margin-left:12px;padding:3px 9px;border-radius:12px;background:linear-gradient(135deg,#ffd54f,#e0a000);color:#2a1d00;font-size:12px;font-weight:800;vertical-align:middle;letter-spacing:.02em}
+.sup-box{text-align:center;max-width:440px}
+.sup-heart{font-size:44px;line-height:1;margin-top:4px}
+.sup-box h3{margin:6px 0 4px}
+.sup-lead{font-size:15px;color:#fff;margin:6px 0 12px}
+.sup-perks{list-style:none;margin:0 0 12px;padding:0;text-align:left;display:grid;gap:8px}
+.sup-perks li{display:flex;gap:10px;align-items:flex-start;background:rgba(255,200,61,.07);border:1px solid rgba(255,200,61,.18);border-radius:6px;padding:8px 10px;font-size:13px;color:#dcdedf}
+.sup-small{font-size:12px;color:#8f98a0;margin:10px 0 0}
+.rank.r-supporter{background:linear-gradient(135deg,rgba(255,213,79,.35),rgba(224,160,0,.3));color:#ffe08a;box-shadow:0 0 10px rgba(255,213,79,.35)}
+.ach-toast.r-supporter{border-left-color:#ffc83d;box-shadow:0 0 22px rgba(255,200,61,.45)}
+.ep-plus-h{grid-column:1/-1;font-size:12px;color:#ffd54f;margin:8px 0 2px;font-weight:700}
+.ep-avatars button{position:relative}
+.ep-avatars button.locked .av{filter:grayscale(.7) brightness(.6)}
+.ep-avatars button .lock{position:absolute;right:2px;bottom:2px;font-size:12px;font-style:normal}
+.m-box.edit-prof,.m-box.sup-box{max-height:calc(100vh - 40px);overflow:auto}
+.edit-prof .ep-avatars{grid-template-columns:repeat(auto-fill,minmax(46px,1fr))}

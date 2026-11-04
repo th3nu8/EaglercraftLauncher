@@ -287,3 +287,19 @@ An original endless Red vs Blue shooter (no third-party game files).
 - Build the single file Mist loads: `node tools/build-counter-attack.js` → `versions/csattack.html` (bundles Three.js r149, MIT).
 - Online matches run on the save server (`/api/ca/join`, `/api/ca/tick`, `/api/ca/leave`). Copy `counter-attack-sim.js` next to `server.js` on the server; without it the game still works offline vs bots.
 - Games marked `"mistApi": true` in versions.json get the player's Mist sign-in (`window.MIST_TOKEN`, `MIST_USER`); other games only get `MIST_SERVER`.
+
+## Mist Supporter ($5/month through PayPal)
+
+Supporters get a gold avatar outline, 23 extra avatars and the Mist Supporter achievement (+2,500 XP while subscribed).
+Mist asks on every 5th game launch (never for supporters) and from the account menu (💛 Support Mist).
+
+Setup on the server: create a PayPal Business account, then a REST app at developer.paypal.com (Live). Put its keys in
+`/opt/eaglercraft-saves/paypal.json` and restart the service:
+
+```json
+{ "clientId": "YOUR_CLIENT_ID", "secret": "YOUR_SECRET", "mode": "live" }
+```
+
+The server creates the $5/month plan on first use, tags each subscription with the player's account, and checks it with
+PayPal when they subscribe and every 3 hours. Perks stop when a cancelled or unpaid subscription's paid month runs out.
+Use `"mode": "sandbox"` with sandbox keys to test without real money.

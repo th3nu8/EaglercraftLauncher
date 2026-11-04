@@ -221,9 +221,96 @@ function unreadFrom(me, other) {
 /* ---------- profile look (icon + colour) and bio ---------- */
 db.looks = db.looks || {};       // uid -> { icon, color, bio }
 // Pre-made 12x12 pixel-art avatars (drawn in launcher/social.js, PIXEL_PRESETS).
+/* ---------- Mist Supporter: $5/month PayPal subscription ----------
+ * Perks while active (or until the last paid month runs out): gold outline, the supporter avatars and the
+ * Mist Supporter achievement (+2500 XP). PayPal keys go in paypal.json next to server.js:
+ *   { "clientId": "...", "secret": "...", "mode": "live" }      (mode "sandbox" for testing)
+ * The server creates the product and $5/month plan on first use, then checks subscriptions with PayPal. */
+db.support = db.support || {};     // uid -> { sub, status, since, paidThrough, checked, created }
+db.meta = db.meta || {};
+const SUPPORTER_ACH = { icon: '💛', name: 'Mist Supporter', desc: 'Support Mist with $5/month. Counts while you’re subscribed.' };
+const SUPPORT_PRICE = process.env.SUPPORT_PRICE || '5.00', SUPPORT_CURRENCY = process.env.SUPPORT_CURRENCY || 'USD';
+function paypalConfig() {
+  let c = null;
+  try { c = JSON.parse(fs.readFileSync(path.join(__dirname, 'paypal.json'), 'utf8')); } catch (e) {}
+  if (!c && process.env.PAYPAL_CLIENT_ID) c = { clientId: process.env.PAYPAL_CLIENT_ID, secret: process.env.PAYPAL_SECRET, mode: process.env.PAYPAL_MODE };
+  if (!c || !c.clientId || !c.secret) return null;
+  c.mode = c.mode === 'sandbox' ? 'sandbox' : 'live';
+  c.api = process.env.PAYPAL_API || (c.mode === 'sandbox' ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com');
+  return c;
+}
+function isSupporter(uid) {
+  const s = db.support && db.support[uid];
+  return !!s && (s.status === 'ACTIVE' || (s.paidThrough || 0) > Date.now() || (s.manualUntil || 0) > Date.now());
+}
+function supporterCount() { return Object.keys(db.support || {}).filter(isSupporter).length; }
+let ppToken = null;
+async function paypal(method, p, body) {
+  const c = paypalConfig(); if (!c) throw new Error('PayPal isn’t set up on this server.');
+  if (!ppToken || ppToken.exp < Date.now() || ppToken.key !== c.clientId) {
+    const r = await fetch(c.api + '/v1/oauth2/token', { method: 'POST', headers: { Authorization: 'Basic ' + Buffer.from(c.clientId + ':' + c.secret).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=client_credentials' });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.access_token) throw new Error('PayPal sign-in failed (' + r.status + '). Check paypal.json.');
+    ppToken = { token: j.access_token, exp: Date.now() + (j.expires_in - 60) * 1000, key: c.clientId };
+  }
+  const r = await fetch(c.api + p, { method, headers: { Authorization: 'Bearer ' + ppToken.token, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: body ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error('PayPal: ' + (j.message || j.error_description || r.status)); e.status = r.status; throw e; }
+  return j;
+}
+async function supportPlan() {
+  const c = paypalConfig(), key = 'paypalPlan:' + c.mode + ':' + c.clientId.slice(0, 12) + ':' + SUPPORT_PRICE + SUPPORT_CURRENCY;
+  if (db.meta[key]) return db.meta[key];
+  const prod = await paypal('POST', '/v1/catalogs/products', { name: 'Mist Supporter', description: 'Monthly support for the Mist game launcher', type: 'SERVICE', category: 'SOFTWARE' });
+  const plan = await paypal('POST', '/v1/billing/plans', { product_id: prod.id, name: 'Mist Supporter (monthly)', status: 'ACTIVE',
+    billing_cycles: [{ frequency: { interval_unit: 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 1, total_cycles: 0, pricing_scheme: { fixed_price: { value: SUPPORT_PRICE, currency_code: SUPPORT_CURRENCY } } }],
+    payment_preferences: { auto_bill_outstanding: true, payment_failure_threshold: 1 } });
+  db.meta[key] = plan.id; saveDbSoon();
+  console.log('PayPal: created plan', plan.id);
+  return plan.id;
+}
+async function refreshSupport(uid) {
+  const s = db.support[uid]; if (!s || !s.sub) return s;
+  const was = isSupporter(uid);
+  const j = await paypal('GET', '/v1/billing/subscriptions/' + encodeURIComponent(s.sub));
+  if (j.custom_id && j.custom_id !== uid) throw new Error('That subscription belongs to another account.');
+  s.status = j.status; s.checked = Date.now();
+  const last = j.billing_info && j.billing_info.last_payment && Date.parse(j.billing_info.last_payment.time);
+  const next = j.billing_info && j.billing_info.next_billing_time && Date.parse(j.billing_info.next_billing_time);
+  if (j.status === 'ACTIVE' && next) s.paidThrough = Math.max(s.paidThrough || 0, next + 864e5);   // a day of grace for the renewal
+  else if (last) s.paidThrough = Math.max(s.paidThrough || 0, last + 31 * 864e5);
+  const now = isSupporter(uid);
+  if (now && !s.since) s.since = Date.now();
+  if (now && !was) { (db.achNew[uid] = db.achNew[uid] || []).push('supporter'); lbCache = null; }
+  if (!now && was) { s.since = null; lbCache = null; }
+  saveDbSoon();
+  return s;
+}
+function supportView(uid) {
+  const s = db.support[uid] || {}, c = paypalConfig();
+  return { enabled: !!c, price: '$' + SUPPORT_PRICE.replace(/\.00$/, '') + '/month', supporter: isSupporter(uid), status: s.status || null,
+    paidThrough: s.paidThrough || null, since: s.since || null, pending: s.status === 'APPROVAL_PENDING' || s.status === 'APPROVED', xp: SUPPORTER_XP,
+    manage: c && c.mode === 'sandbox' ? 'https://www.sandbox.paypal.com/myaccount/autopay/' : 'https://www.paypal.com/myaccount/autopay/' };
+}
+// Re-check subscriptions every 3 hours (renewals, cancellations, failed payments).
+setInterval(async () => {
+  if (!paypalConfig()) return;
+  for (const [uid, s] of Object.entries(db.support)) {
+    if (!s.sub) continue;
+    const pendingFresh = (s.status === 'APPROVAL_PENDING' || s.status === 'APPROVED') && Date.now() - (s.created || 0) < 3 * 864e5;
+    if (s.status === 'ACTIVE' || pendingFresh || (s.paidThrough || 0) > Date.now() - 864e5) { try { await refreshSupport(uid); } catch (e) {} }
+  }
+}, 3 * 3600e3).unref();
+
 const AVATARS = ["Slime", "Ghost", "Skull", "Heart", "Cat", "Mushroom", "Robot", "Alien", "Potion", "Star", "Ninja", "Sword", "Fox", "Frog", "Penguin", "Crown", "Fire", "Bomb", "Diamond", "Shield", "Controller", "Pumpkin", "Cactus"];
 const COLORS = ['#c0392b','#e67e22','#f1c40f','#27ae60','#16a085','#2980b9','#3d5afe','#8e44ad','#d81b60','#6d4c41','#455a64','#1b1f24'];
-function lookOf(uid) { const l = db.looks[uid]; return l && l.avatar && AVATARS.includes(l.avatar) ? { k: l.avatar, c: l.color || COLORS[11] } : null; }
+const AVATARS_PLUS = ["Panda", "Bunny", "Duck", "Owl", "Octopus", "Shark", "Bee", "Ladybug", "Planet", "Moon", "Sun", "Lightning", "Snowman", "Tree", "Flower", "Trophy", "Rocket", "Astronaut", "Knight", "Wizard", "Dragon", "Donut", "IceCream"];   // supporter-only avatars
+function lookOf(uid) {
+  const l = db.looks[uid], sup = isSupporter(uid);
+  const ok = l && l.avatar && (AVATARS.includes(l.avatar) || (sup && AVATARS_PLUS.includes(l.avatar)));
+  const o = ok ? { k: l.avatar, c: l.color || COLORS[11] } : null;
+  return sup ? Object.assign(o || {}, { s: 1 }) : o;
+}
 // Drop the old emoji icons (replaced by pixel art).
 (function dropEmojiIcons() { try { for (const l of Object.values(db.looks)) if (l) { delete l.icon; delete l.px; } } catch (e) {} })();
 // Map of name -> look for the users in a response, so every avatar can show the chosen icon.
@@ -323,6 +410,7 @@ function takeNewAch(uid) {
       const [, tier, ...rest] = id.split(':'), game = rest.join(':'), t = TIER_BY_ID[tier];
       return t && { id, icon: t.icon, name: game + ': ' + t.name, desc: 'Play ' + game + ' for ' + t.label + '.', game, rank: t.rank, xp: RANK_XP[t.rank] };
     }
+    if (id === 'supporter') return { id, icon: SUPPORTER_ACH.icon, name: SUPPORTER_ACH.name, desc: SUPPORTER_ACH.desc, rank: 'supporter', xp: SUPPORTER_XP };
     const a = ACH_BY_ID[id]; return a && { id: a.id, icon: a.icon, name: a.name, desc: a.desc, rank: a.rank, xp: RANK_XP[a.rank] };
   }).filter(Boolean);
 }
@@ -1432,16 +1520,21 @@ function markActiveDay(uid, now) {
 }
 function achList(uid, withProgress) {
   const st = stats(uid), got = db.ach[uid] || {};
-  return ACHIEVEMENTS.map(a => {
+  const list = ACHIEVEMENTS.map(a => {
     const o = { id: a.id, icon: a.icon, name: a.name, desc: a.desc, rank: a.rank, unlocked: got[a.id] || null, rarity: pct(rarity().general[a.id], rarity().players),
       goal: a.goal, fmt: a.fmt || null };
     if (withProgress && !o.unlocked) o.progress = Math.min(a.goal, a.stat(st, uid));
     return o;
   });
+  const sup = db.support[uid];
+  list.push({ id: 'supporter', icon: SUPPORTER_ACH.icon, name: SUPPORTER_ACH.name, desc: SUPPORTER_ACH.desc, rank: 'supporter', xp: SUPPORTER_XP,
+    unlocked: isSupporter(uid) ? (sup.since || Date.now()) : null, goal: 1, fmt: null, rarity: pct(supporterCount(), rarity().players) });
+  return list;
 }
 /* XP and levels. Each achievement gives XP by rarity. There are 50 levels; they are rescaled automatically so that
  * level 50 means every achievement for every game in versions.json is unlocked. */
 const RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000 };
+const SUPPORTER_XP = 2500;
 /* ---------- Counter Attack (online team deathmatch) ---------- */
 let CA = null;
 try { CA = require('./counter-attack-sim.js'); } catch (e) { console.log('Counter Attack: counter-attack-sim.js not found next to server.js, online matches are off.'); }
@@ -1502,7 +1595,7 @@ function achCount(uid) {
   return Object.keys(db.ach[uid] || {}).length + Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid);
 }
 function userXp(uid) {
-  let xp = 0;
+  let xp = isSupporter(uid) ? SUPPORTER_XP : 0;
   for (const id of Object.keys(db.ach[uid] || {})) if (ACH_BY_ID[id]) xp += RANK_XP[ACH_BY_ID[id].rank];
   for (const tiers of Object.values(db.gameAch[uid] || {})) for (const id of Object.keys(tiers)) if (TIER_BY_ID[id]) xp += RANK_XP[TIER_BY_ID[id].rank];
   for (const [g, got] of Object.entries(db.hookAch[uid] || {})) { const defs = achDefs(g); for (const id of Object.keys(got)) { const a = defs.find(x => x.id === id); if (a) xp += RANK_XP[a.rank]; } }
@@ -1538,7 +1631,14 @@ async function handle(req, res) {
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 9, counterAttack: !!CA, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (req.method === 'GET' && p === '/support/done') {
+    const cancelled = /cancelled=1/.test(req.url || '');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    return res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mist</title><body style="margin:0;height:100vh;display:grid;place-items:center;background:#1b2838;color:#dcdedf;font:16px system-ui,sans-serif;text-align:center;padding:0 20px"><div><div style="font-size:48px">' +
+      (cancelled ? '👋' : '💛') + '</div><h2>' + (cancelled ? 'No problem' : 'Thank you for supporting Mist!') + '</h2><p>' +
+      (cancelled ? 'Nothing was charged. You can close this tab.' : 'You can close this tab and go back to Mist. Your perks turn on in a few seconds.') + '</p></div>');
+  }
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 10, counterAttack: !!CA, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -1814,12 +1914,34 @@ async function handle(req, res) {
     }
     return fail(res, 404, 'Not found.');
   }
+  if (req.method === 'GET' && p === '/api/support') return send(res, 200, supportView(user.id));
+  if (req.method === 'POST' && p === '/api/support/subscribe') {
+    if (!paypalConfig()) return fail(res, 503, 'Supporter subscriptions aren’t set up on this server yet.');
+    if ((db.support[user.id] || {}).status === 'ACTIVE') return fail(res, 400, 'You’re already a supporter. Thank you!');
+    try {
+      const plan = await supportPlan();
+      const host = req.headers['x-forwarded-host'] || req.headers.host, proto = String(req.headers['x-forwarded-proto'] || 'https').split(',')[0];
+      const back = proto + '://' + host + '/support/done';
+      const sub = await paypal('POST', '/v1/billing/subscriptions', { plan_id: plan, custom_id: user.id,
+        application_context: { brand_name: 'Mist', user_action: 'SUBSCRIBE_NOW', shipping_preference: 'NO_SHIPPING', return_url: back, cancel_url: back + '?cancelled=1' } });
+      const link = (sub.links || []).find(l => l.rel === 'approve');
+      if (!link) throw new Error('PayPal didn’t return a checkout link.');
+      const cur = db.support[user.id] || (db.support[user.id] = {});
+      cur.sub = sub.id; cur.status = sub.status || 'APPROVAL_PENDING'; cur.created = Date.now(); saveDbSoon();
+      return send(res, 200, { url: link.href });
+    } catch (e) { return fail(res, 502, e.message); }
+  }
+  if (req.method === 'POST' && p === '/api/support/check') {
+    try { if (paypalConfig()) await refreshSupport(user.id); } catch (e) { return fail(res, 502, e.message); }
+    return send(res, 200, Object.assign(supportView(user.id), { newAchievements: takeNewAch(user.id), level: levelInfo(user.id) }));
+  }
   if (req.method === 'GET' && p === '/api/look-options') return send(res, 200, { colors: COLORS });
   if (req.method === 'POST' && p === '/api/profile/edit') {
     let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
     const cur = db.looks[user.id] || (db.looks[user.id] = {});
     if ('avatar' in body) {
-      if (body.avatar && !AVATARS.includes(body.avatar)) return fail(res, 400, 'Pick one of the listed avatars.');
+      if (body.avatar && AVATARS_PLUS.includes(body.avatar) && !isSupporter(user.id)) return fail(res, 403, 'That avatar is for Mist supporters.');
+      if (body.avatar && !AVATARS.includes(body.avatar) && !AVATARS_PLUS.includes(body.avatar)) return fail(res, 400, 'Pick one of the listed avatars.');
       cur.avatar = body.avatar || '';
     }
     if ('color' in body) {
@@ -1845,6 +1967,7 @@ async function handle(req, res) {
     if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
     out.stats = statSummary(other.id); out.level = out.stats.level;
     out.bio = (db.looks[other.id] && db.looks[other.id].bio) || '';
+    out.supporter = isSupporter(other.id);
     out.looks = looksFor([other.id].concat(soc(other.id).friends));
     out.achievements = achList(other.id, isMe);
     out.games = gameList(other.id, isMe);

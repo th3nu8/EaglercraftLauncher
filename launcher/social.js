@@ -47,8 +47,32 @@ window.MistSocial = function (ctx) {
     Shield: ['.3333333333.','.3aaaaaaaa3.','.3aaa77aaa3.','.3aaa77aaa3.','.3a777777a3.','.3a777777a3.','.3aaa77aaa3.','..3aa77aa3..','..3aaaaaa3..','...3aaaa3...','....3aa3....','.....33.....'],
     Controller: ['............','............','..44444444..','.4444444444.','441444444544','411144448484','441444444a44','444444444444','4444....4444','.44......44.','............','............'],
     Pumpkin: ['.....99.....','.....9......','..66666666..','.6666666666.','.6116666116.','.6116666116.','.6666116666.','.6666666666.','.6111111116.','.6616116166.','..66666666..','............'],
-    Cactus: ['.....dd.....','....8888....','....8988....','.88.8888....','.88.8898.88.','.8888888.88.','....8888888.','....8988....','....8888....','..eeeeeeee..','...eeeeee...','...eeeeee...']
+    Cactus: ['.....dd.....','....8888....','....8988....','.88.8888....','.88.8898.88.','.8888888.88.','....8888888.','....8988....','....8888....','..eeeeeeee..','...eeeeee...','...eeeeee...'],
+    Panda: ['............','.11......11.','.111....111.','..22222222..','.2222222222.','.2112222112.','.2122222212.','.2222112222.','.2222222222.','..22211222..','...222222...','............'],
+    Bunny: ['..22....22..','..2d2..2d2..','..2d2..2d2..','..2d2..2d2..','..22222222..','.2222222222.','.2212222122.','.2222222222.','.2222dd2222.','.2222222222.','..22222222..','............'],
+    Duck: ['............','....7777....','...777777...','...771777...','...77777666.','...7777766..','..77777777..','.7777777777.','.7777777777.','.7777777777.','..77777777..','....6..6....'],
+    Owl: ['............','.e........e.','.ee......ee.','.eeeeeeeeee.','.e2221e222e.','.e2112e2112.','.e2222e2222.','.eeeee6eeeee','.eefffffeee.','.eefffffeee.','..eeeeeeee..','...6....6...'],
+    Octopus: ['............','....cccc....','..cccccccc..','.cccccccccc.','.cc22cc22cc.','.cc21cc21cc.','.cccccccccc.','.cccccccccc.','.c.cc.cc.cc.','.c.c..c..c..','c..c..c..c..','............'],
+    Shark: ['............','.....3......','....33......','...3333.....','.33333333..3','3333333333.3','3313333333.3','33333333333.','.2222222233.','..22222233..','...333333...','............'],
+    Bee: ['............','..22....22..','.2222..2222.','..22.11.22..','....1111....','...777777...','..11111111..','..77777777..','..11111111..','...777777...','....1111....','.....11.....'],
+    Ladybug: ['............','.....11.....','...111111...','..55511555..','.5515515155.','.5555115555.','.5155115515.','.5555115555.','.5515515155.','..55511555..','...555555...','............'],
+    Planet: ['............','............','....cccc....','..cccccccc..','.cccdcccccc.','666666666666','.6cccccccc6.','.cccccdcccc.','..cccccccc..','....cccc....','............','............'],
+    Moon: ['............','....7777....','..777777....','.77777......','.7777.......','.7777.......','.7777.......','.77777......','..777777....','...7777777..','....777777..','............'],
+    Sun: ['.....7......','.7...7...7..','..7.777.7...','...77777....','.777777777..','7777777777.7','.777777777..','...77777....','..7.777.7...','.7...7...7..','.....7......','............'],
+    Lightning: ['............','.......777..','......777...','.....777....','....777.....','...77777777.','....77777...','......777...','.....777....','....77......','...77.......','............'],
+    Snowman: ['....1111....','...111111...','....2222....','...221122...','...222622...','....2222....','..22222222..','.2221222222.','.2222222222.','.2221222222.','..22222222..','............'],
+    Tree: ['.....88.....','....8888....','...888888...','....8888....','...888888...','..88888888..','...888888...','..88888888..','.8888888888.','.....ee.....','.....ee.....','....eeee....'],
+    Flower: ['............','....dd......','...dddd.....','..dd77dd....','...dddd.....','....dd......','.....8......','.....8.88...','..88.8888...','...888......','.....8......','.....8......'],
+    Trophy: ['............','.7777777777.','77.777777.77','.7.777777.7.','..77777777..','...777777...','....7777....','.....77.....','.....77.....','...777777...','...eeeeee...','...eeeeee...'],
+    Rocket: ['.....55.....','....5225....','....2222....','....2aa2....','....2aa2....','....2222....','...522225...','..55222255..','..5.2222.5..','....6..6....','....7667....','.....77.....'],
+    Astronaut: ['............','...222222...','..22222222..','.2244444422.','.2244444422.','.2244a44422.','.2224444222.','..22222222..','.2222552222.','.2222222222.','.22.2222.22.','....22.22...'],
+    Knight: ['............','....3333....','...333333...','..33333333..','..33333333..','..31111113..','..33333333..','..33311333..','..33333333..','...333333...','..44444444..','............'],
+    Wizard: ['.....cc.....','....ccc.....','....cc7c....','...cccccc...','...cc7ccc...','..cccccccc..','.cccccccccc.','...ffffff...','...f1ff1f...','...ffffff...','..22222222..','...222222...'],
+    Dragon: ['............','.9........9.','.99......99.','..88888888..','.8888888888.','.8818888188.','.8888888888.','..88888888..','..81888818..','..88888888..','...2.22.2...','............'],
+    Donut: ['............','...eeeeee...','..edddddde..','.edd5ddadde.','.dd7dd..ddd.','.ddd....ddd.','.dda....d5d.','.edd....dde.','.eddd5ddade.','..edddddde..','...eeeeee...','............'],
+    IceCream: ['............','....dddd....','...dddddd...','..dd2ddddd..','..dddddddd..','..d2dddd2d..','..eeeeeeee..','...e6ee6e...','...eeeeee...','....e66e....','....eeee....','.....ee.....']
   };
+  var PLUS_AVATARS = ['Panda', 'Bunny', 'Duck', 'Owl', 'Octopus', 'Shark', 'Bee', 'Ladybug', 'Planet', 'Moon', 'Sun', 'Lightning', 'Snowman', 'Tree', 'Flower', 'Trophy', 'Rocket', 'Astronaut', 'Knight', 'Wizard', 'Dragon', 'Donut', 'IceCream'];   // supporter-only avatars
   function presetPx(rows) { return rows.map(function (r) { return (r + '............').slice(0, 12).replace(/\./g, '0'); }).join(''); }
 
   /* Chosen profile avatars, by lower-case name: { k: preset name, c: background colour }. Filled from server responses. */
@@ -59,6 +83,11 @@ window.MistSocial = function (ctx) {
   /* ---------- avatars: 5x5 mirrored pixel face from the name ---------- */
   function hash(s) { var h = 2166136261; s = String(s).toLowerCase(); for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; return h; }
   function avatar(name, size, state) {
+    var a = baseAvatar(name, size, state), lk = looks[String(name).toLowerCase()];
+    if (lk && lk.s) { a.classList.add('gold'); a.title = name + ' · Mist Supporter'; }
+    return a;
+  }
+  function baseAvatar(name, size, state) {
     var lk = looks[String(name).toLowerCase()];
     if (lk && lk.k && PIXEL_PRESETS[lk.k]) { var a = el('span', 'av' + (state ? ' st-' + state : '')); a.style.width = a.style.height = size + 'px'; a.innerHTML = pixelSvg(presetPx(PIXEL_PRESETS[lk.k]), lk.c); return a; }
     var h = hash(name), hue = h % 360, bits = h >>> 8, cells = '';
@@ -321,6 +350,7 @@ window.MistSocial = function (ctx) {
     var units = [['friends', 'friend', 'friends'], ['msg', 'message sent', 'messages sent'], ['games', 'different game', 'different games'],
       ['streak', 'day in a row', 'days in a row'], ['days', 'day active', 'days active'], ['cloud', 'cloud backup', 'cloud backups']];
     if (id === 'welcome') return 'create an account';
+    if (id === 'supporter') return 'an active Mist Supporter subscription';
     for (var i = 0; i < units.length; i++) if (id.indexOf(units[i][0]) === 0) return a.goal + ' ' + (a.goal === 1 ? units[i][1] : units[i][2]);
     return String(a.goal);
   }
@@ -336,7 +366,7 @@ window.MistSocial = function (ctx) {
   function extraCount(n) { return genericDefs.length + (hookDefs[n] ? hookDefs[n].length : 0); }
 
   /* Rarity: common / rare / epic / legendary, each worth a set amount of XP. */
-  var RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000 };
+  var RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000, supporter: 2500 };
   function rankEl(rank) {
     rank = RANK_XP[rank] ? rank : 'common';
     return el('span', 'rank r-' + rank, rank.charAt(0).toUpperCase() + rank.slice(1) + ' · ' + RANK_XP[rank] + ' XP');
@@ -351,7 +381,7 @@ window.MistSocial = function (ctx) {
   function openEditProfile(pr) {
     api('GET', '/api/look-options').then(function (opt) {
       var key = pr.name.toLowerCase(), cur = looks[key] || null;
-      var pick = { k: cur ? cur.k : '', c: cur ? cur.c : opt.colors[11] };
+      var pick = { k: cur ? cur.k : '', c: cur ? cur.c : opt.colors[11] }, supporter = !!(cur && cur.s) || !!pr.supporter;
       ctx.openModal(function (box) {
         box.classList.add('edit-prof');
         box.appendChild(el('h3', null, 'Edit profile'));
@@ -366,8 +396,11 @@ window.MistSocial = function (ctx) {
           t.appendChild(el('small', null, pick.k ? pick.k : 'Default avatar')); prev.appendChild(t);
           grid.textContent = '';
           [''].concat(Object.keys(PIXEL_PRESETS)).forEach(function (k) {
-            var b = el('button', pick.k === k ? 'on' : null); b.title = k || 'Default (from your name)';
-            b.appendChild(face(k, 44)); b.onclick = function () { pick.k = k; draw(); }; grid.appendChild(b);
+            var plusOnly = PLUS_AVATARS.indexOf(k) >= 0, locked = plusOnly && !supporter;
+            if (plusOnly && k === PLUS_AVATARS[0]) grid.appendChild(el('div', 'ep-plus-h', '💛 Supporter avatars' + (supporter ? '' : ' · $5/month')));
+            var b = el('button', (pick.k === k ? 'on' : '') + (locked ? ' locked' : '')); b.title = (k || 'Default (from your name)') + (locked ? ' (supporters only)' : '');
+            b.appendChild(face(k, 44)); if (locked) b.appendChild(el('i', 'lock', '🔒'));
+            b.onclick = function () { if (locked) { ctx.closeModal(); openSupport(); return; } pick.k = k; draw(); }; grid.appendChild(b);
           });
           sw.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.color === pick.c); });
           sw.classList.toggle('off', !pick.k);
@@ -677,7 +710,7 @@ window.MistSocial = function (ctx) {
     hero.style.background = 'linear-gradient(120deg,hsl(' + hue + ',45%,24%),hsl(' + ((hue + 40) % 360) + ',40%,14%) 60%,#16202d)';
     hero.appendChild(avatar(pr.name, 132, pr.state || null));
     var who = el('div', 'prof-who');
-    who.appendChild(el('h1', null, pr.name));
+    var h1 = el('h1', null, pr.name); if (pr.supporter) h1.appendChild(el('span', 'sup-badge', '💛 Supporter')); who.appendChild(h1);
     if (pr.bio) who.appendChild(el('p', 'prof-bio', pr.bio));
     else if (pr.isMe) who.appendChild(el('p', 'prof-bio empty', 'No bio yet. Click Edit profile to add one.'));
     if (pr.state) who.appendChild(el('div', 'prof-state st-' + pr.state, stateText(pr)));
@@ -1021,6 +1054,95 @@ window.MistSocial = function (ctx) {
     host.appendChild(list);
   }
 
+  /* ---------- Mist Supporter ($5/month through PayPal) ---------- */
+  var supportInfo = null;
+  function loadSupport() { if (!eng()) return Promise.resolve(null); return api('GET', '/api/support').then(function (r) { supportInfo = r; return r; }, function () { return null; }); }
+  function perksList() {
+    var ul = el('ul', 'sup-perks');
+    [['🟡', 'Gold outline on your avatar everywhere in Mist'], ['🎨', PLUS_AVATARS.length + ' extra supporter-only avatars (twice as many)'],
+     ['💛', 'Mist Supporter achievement: +2,500 XP while you’re subscribed'], ['🚀', 'Helps keep the Mist server running']].forEach(function (p) {
+      var li = el('li'); li.appendChild(el('span', null, p[0])); li.appendChild(el('span', null, p[1])); ul.appendChild(li);
+    });
+    return ul;
+  }
+  function fmtDay(t) { return new Date(t).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }); }
+  function openSupport(fromLaunch) {
+    ctx.openModal(function (box) {
+      box.classList.add('sup-box');
+      box.appendChild(el('div', 'sup-heart', '💛'));
+      box.appendChild(el('h3', null, 'Support Mist'));
+      var body = el('div'); box.appendChild(body);
+      function draw(info) {
+        body.textContent = '';
+        if (info && info.supporter) {
+          body.appendChild(el('p', 'sup-lead', 'You’re a Mist Supporter. Thank you!'));
+          body.appendChild(perksList());
+          if (info.paidThrough) body.appendChild(el('p', 'sup-small', (info.status === 'ACTIVE' ? 'Renews monthly. Paid through ' : 'Cancelled. Perks last until ') + fmtDay(info.paidThrough) + '.'));
+          var a = el('div', 'm-actions');
+          var man = ctx.button('ghost', 'Manage or cancel in PayPal', null, function () { window.open(info.manage, '_blank'); });
+          a.appendChild(man); a.appendChild(ctx.button('green', 'Close', null, ctx.closeModal)); body.appendChild(a);
+          return;
+        }
+        body.appendChild(el('p', 'sup-lead', (fromLaunch ? 'Enjoying Mist? ' : '') + 'Become a supporter for ' + ((info && info.price) || '$5/month') + '.'));
+        body.appendChild(perksList());
+        var err = el('p', 'm-err'); var acts = el('div', 'm-actions');
+        acts.appendChild(ctx.button('ghost', fromLaunch ? 'Not now' : 'Close', null, ctx.closeModal));
+        if (!eng()) {
+          acts.appendChild(ctx.button('green', 'Sign in first', null, function () { ctx.closeModal(); ctx.openAccount(); }));
+        } else if (info && !info.enabled) {
+          err.textContent = 'Supporter subscriptions aren’t switched on for this server yet.';
+        } else {
+          var go = ctx.button('green', 'Subscribe with PayPal', null, function () {
+            go.disabled = true; err.textContent = '';
+            // open the tab right away (popup blockers), then point it at PayPal
+            var w = null; try { w = window.open('', '_blank'); } catch (e) {}
+            api('POST', '/api/support/subscribe').then(function (r) {
+              if (w) { try { w.location.href = r.url; } catch (e) { w = null; } }
+              if (!w) window.open(r.url, '_blank');
+              waiting();
+            }, function (e) { if (w) try { w.close(); } catch (x) {} err.textContent = e.message; go.disabled = false; });
+          });
+          acts.appendChild(go);
+        }
+        body.appendChild(err); body.appendChild(acts);
+        body.appendChild(el('p', 'sup-small', 'Paid monthly through PayPal. Cancel any time in PayPal; perks last until the end of the month you paid for.'));
+      }
+      var poll = null;
+      function check(quiet) {
+        return api('POST', '/api/support/check').then(function (r) {
+          supportInfo = r; handleUnlocks(r);
+          if (r.supporter) { clearInterval(poll); window.removeEventListener('focus', onFocus); refresh(); if (ctx.onLooks) ctx.onLooks(); draw(r); toast('Thank you for supporting Mist! 💛'); }
+          else if (!quiet) toast('PayPal hasn’t confirmed it yet. Finish in the PayPal tab, then try again.');
+        }, function (e) { if (!quiet) toast(e.message); });
+      }
+      function onFocus() { check(true); }
+      function waiting() {
+        body.textContent = '';
+        body.appendChild(el('p', 'sup-lead', 'Finish subscribing in the PayPal tab.'));
+        body.appendChild(el('p', 'sup-small', 'When you’re done, come back here. Your perks turn on automatically.'));
+        var a = el('div', 'm-actions');
+        a.appendChild(ctx.button('ghost', 'Cancel', null, function () { clearInterval(poll); window.removeEventListener('focus', onFocus); ctx.closeModal(); }));
+        a.appendChild(ctx.button('green', 'I’ve subscribed', null, function () { check(false); }));
+        body.appendChild(a);
+        clearInterval(poll); var n = 0; poll = setInterval(function () { if (++n > 60 || !document.body.contains(body)) { clearInterval(poll); return; } check(true); }, 5000);
+        window.addEventListener('focus', onFocus);
+      }
+      body.appendChild(el('div', 'fp-empty', 'Loading…'));
+      loadSupport().then(function (info) { draw(info || { enabled: true, price: '$5/month' }); });
+    });
+  }
+  /* Ask now and then when a game starts (every 5th launch), never for supporters. */
+  function maybeAskSupport() {
+    var n = (+ctx.storeGet('launches', 0) || 0) + 1; ctx.storeSet('launches', n);
+    if (n % 5) return;
+    var lk = eng() && looks[eng().user.toLowerCase()];
+    if (lk && lk.s) return;
+    (eng() ? loadSupport() : Promise.resolve(null)).then(function (info) {
+      if (info && (info.supporter || !info.enabled)) return;
+      setTimeout(function () { openSupport(true); }, 1200);
+    });
+  }
+
   function friendsWhoPlay(gameName) {
     if (!data) return [];
     return data.friends.filter(function (f) { return (f.state === 'ingame' && f.game === gameName) || (f.recent || []).indexOf(gameName) >= 0; });
@@ -1030,6 +1152,7 @@ window.MistSocial = function (ctx) {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
     showAchievements: showAchievements, lookKey: lookKey, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
     overlayMe: overlayMe, overlayFriends: overlayFriends, closeChat: closeChat,
+    openSupport: openSupport, maybeAskSupport: maybeAskSupport,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }
