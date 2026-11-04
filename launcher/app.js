@@ -223,14 +223,19 @@
     'var F=window.fetch;if(F)window.fetch=function(r){var d=track("fetch",r&&r.url||r);return F.apply(this,arguments).then(function(res){d(res.ok,"status "+res.status);return res},function(e){d(false,e&&e.message);throw e})};' +
     'var P=HTMLImageElement.prototype,sd=Object.getOwnPropertyDescriptor(P,"src");Object.defineProperty(P,"src",{configurable:true,enumerable:true,get:function(){return sd.get.call(this)},set:function(v){var im=this;if(v&&!im.__mt&&!/^data:/i.test(v)){im.__mt=1;var d=track("img",v);im.addEventListener("load",function(){d(true,im.naturalWidth+"x"+im.naturalHeight)});im.addEventListener("error",function(){d(false,"crossOrigin="+im.crossOrigin)})}sd.set.call(this,v)}});' +
     'document.addEventListener("DOMContentLoaded",ui);log("debug on")})();<\/script>';
-  function withShim(html) {
+  function withShim(html, g) {
     var m = /<head(\s[^>]*)?>/i.exec(html) || /^\s*<!doctype[^>]*>/i.exec(html);   // keep <!DOCTYPE> first (no quirks mode)
-    var inject = (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM;
+    var srv = settings.server || defaultServer() || '';
+    var mist = { MIST_SERVER: srv };
+    // Only Mist's own games (mistApi in versions.json) get the player's sign-in, for online play.
+    if (g && g.mistApi && engine && engine.signedIn()) { mist.MIST_TOKEN = engine.token; mist.MIST_USER = engine.user; }
+    var inject = '<script>' + Object.keys(mist).map(function (k) { return 'window.' + k + '=' + JSON.stringify(mist[k]).replace(/</g, '\\u003c') + ';'; }).join('') + '<\/script>' +
+      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM;
     if (m) return html.slice(0, m.index + m[0].length) + inject + html.slice(m.index + m[0].length);
     return inject + html;
   }
   function startGame(html, name, g) {
-    html = withShim(html);
+    html = withShim(html, g);
     if (settings.mode === 'replace') {
       stopAutosave();
       if (social) social.setPlaying(g ? g.name : name);
