@@ -135,7 +135,7 @@
 
             try {
                 updateStatus("Fetching game assets...");
-                const res = await fetch('./valve.zip');
+                const res = await fetch('https://github.com/th3nu8/EaglercraftLauncher/blob/main/versions/valve.zip');
                 const buffer = await res.arrayBuffer();
 
                 updateStatus("Extracting game files...");
