@@ -1,0 +1,17 @@
+{
+  "listen": { "host": "127.0.0.1", "port": 27080 },
+  "trustProxy": true,
+  "allowedOrigins": [],
+  "maxConnsPerIp": 4,
+  "maxConnsTotal": 64,
+  "maxPacketBytes": 8192,
+  "maxPacketsPerSecond": 1500,
+  "idleTimeoutMs": 60000,
+  "servers": [
+    {
+      "name": "PDC CS 1.6",
+      "virtual": "10.27.0.1:27015",
+      "target": "127.0.0.1:27015"
+    }
+  ]
+}
