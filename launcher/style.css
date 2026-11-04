@@ -529,20 +529,22 @@ body.in-game #app{visibility:hidden}
 .acct-text{min-width:60px}
 @media (max-width:1250px){.nav{padding-left:10px;padding-right:10px}}
 
-.av-icon{display:inline-flex;align-items:center;justify-content:center;line-height:1;overflow:hidden;flex:none}
-.av-icon span{transform:translateY(2%)}
 .prof-bio{color:#dfe6ec;font-size:14px;line-height:1.45;margin:8px 0 0;max-width:560px;white-space:pre-wrap;word-break:break-word}
 .prof-bio.empty{color:#8f98a0;font-style:italic}
 .edit-prof{max-width:520px}
 .ep-preview{display:flex;align-items:center;gap:14px;margin:6px 0 10px}
 .ep-preview b{color:#fff;font-size:18px}
 .ep-label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8f98a0;margin:10px 0 6px}
-.ep-icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:6px;max-height:190px;overflow:auto;padding:2px}
-.ep-icons button{height:40px;font-size:22px;border-radius:4px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;border:2px solid transparent;cursor:pointer}
-.ep-icons button.on{border-color:#67c1f5;background:rgba(103,193,245,.2)}
 .ep-colors{display:flex;flex-wrap:wrap;gap:8px}
 .ep-colors.off{opacity:.35;pointer-events:none}
 .ep-colors button{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer}
 .ep-colors button.on{border-color:#fff}
 .ep-bio{width:100%;box-sizing:border-box;background:#0e141b;color:#dfe6ec;border:1px solid #3a4553;border-radius:3px;padding:8px;font:inherit;resize:vertical}
 .ep-count{display:block;text-align:right;color:#8f98a0;font-size:11px}
+
+.ep-preview{display:flex;align-items:center;gap:14px;margin:6px 0 4px}
+.ep-preview div{display:flex;flex-direction:column}.ep-preview small{color:#8f98a0}
+.ep-avatars{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.ep-avatars button{padding:2px;border-radius:5px;border:2px solid transparent;background:rgba(255,255,255,.05);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ep-avatars button.on{border-color:#67c1f5;background:rgba(103,193,245,.18)}
+.av svg{width:100%;height:100%;display:block}

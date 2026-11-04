@@ -220,11 +220,12 @@ function unreadFrom(me, other) {
 }
 /* ---------- profile look (icon + colour) and bio ---------- */
 db.looks = db.looks || {};       // uid -> { icon, color, bio }
-const ICONS = ['🐉','🦊','🐺','🐱','🐶','🐼','🐸','🐙','🦄','🦉','🐧','🦈','🐝','🦖','🐢','🦁',
-  '👾','🤖','👽','👻','💀','🎃','🧙','🥷','🦸','🧛','🧟','🐲',
-  '🎮','🕹️','⚔️','🛡️','🏹','💎','🔥','⚡','❄️','🌙','⭐','🌈','🍀','🍕','🍩','🚀','🏎️','⚽','🏀','🎸','🎧','👑','🗡️','🧩'];
+// Pre-made 12x12 pixel-art avatars (drawn in launcher/social.js, PIXEL_PRESETS).
+const AVATARS = ["Slime", "Ghost", "Skull", "Heart", "Cat", "Mushroom", "Robot", "Alien", "Potion", "Star", "Ninja", "Sword", "Fox", "Frog", "Penguin", "Crown", "Fire", "Bomb", "Diamond", "Shield", "Controller", "Pumpkin", "Cactus"];
 const COLORS = ['#c0392b','#e67e22','#f1c40f','#27ae60','#16a085','#2980b9','#3d5afe','#8e44ad','#d81b60','#6d4c41','#455a64','#1b1f24'];
-function lookOf(uid) { const l = db.looks[uid]; return l && l.icon ? { i: l.icon, c: l.color || COLORS[5] } : null; }
+function lookOf(uid) { const l = db.looks[uid]; return l && l.avatar && AVATARS.includes(l.avatar) ? { k: l.avatar, c: l.color || COLORS[11] } : null; }
+// Drop the old emoji icons (replaced by pixel art).
+(function dropEmojiIcons() { try { for (const l of Object.values(db.looks)) if (l) { delete l.icon; delete l.px; } } catch (e) {} })();
 // Map of name -> look for the users in a response, so every avatar can show the chosen icon.
 function looksFor(uids) { const out = {}; for (const id of uids) { const u = userById(id), l = lookOf(id); if (u && l) out[u.name] = l; } return out; }
 function cleanBio(t) {
@@ -1754,13 +1755,13 @@ async function handle(req, res) {
       looks: looksFor(rows.slice(0, 100).map(r => r.id).concat(user.id)) });
   }
 
-  if (req.method === 'GET' && p === '/api/look-options') return send(res, 200, { icons: ICONS, colors: COLORS });
+  if (req.method === 'GET' && p === '/api/look-options') return send(res, 200, { colors: COLORS });
   if (req.method === 'POST' && p === '/api/profile/edit') {
     let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
     const cur = db.looks[user.id] || (db.looks[user.id] = {});
-    if ('icon' in body) {
-      if (body.icon && !ICONS.includes(body.icon)) return fail(res, 400, 'Pick one of the listed icons.');
-      cur.icon = body.icon || '';
+    if ('avatar' in body) {
+      if (body.avatar && !AVATARS.includes(body.avatar)) return fail(res, 400, 'Pick one of the listed avatars.');
+      cur.avatar = body.avatar || '';
     }
     if ('color' in body) {
       if (body.color && !COLORS.includes(body.color)) return fail(res, 400, 'Pick one of the listed colours.');

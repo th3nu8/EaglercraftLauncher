@@ -16,20 +16,51 @@ window.MistSocial = function (ctx) {
     var e = eng(); if (!e) return Promise.reject(new Error('Sign in first.'));
     return e.api(method, path, json ? { json: json } : {}).then(function (r) { if (r && r.looks) mergeLooks(r.looks); return r; });
   }
-  /* Chosen profile icons, by lower-case name: { i: emoji, c: colour }. Filled from server responses. */
+  /* ---------- pixel-art avatars: 12x12, 144 palette indices (0 = background colour) ---------- */
+  var PALETTE = [null, '#000000', '#ffffff', '#9aa4ad', '#5b6670', '#e74c3c', '#f39c12', '#f1c40f', '#2ecc71', '#1e8449', '#3498db', '#1f4e9c', '#9b59b6', '#ff79c6', '#a0522d', '#f5cba7'];
+  function pixelSvg(px, bg) {
+    var rects = '';
+    for (var i = 0; i < 144; i++) { var c = parseInt(px[i], 16); if (c) rects += '<rect x="' + (i % 12) + '" y="' + Math.floor(i / 12) + '" width="1.02" height="1.02" fill="' + PALETTE[c] + '"/>'; }
+    return '<svg viewBox="0 0 12 12" shape-rendering="crispEdges"><rect width="12" height="12" fill="' + (bg || '#1b1f24') + '"/>' + rects + '</svg>';
+  }
+  // Starting points for the editor ('.' = background).
+  var PIXEL_PRESETS = {
+    Slime: ['............','............','....8888....','..88888888..','.8888888888.','.8821882188.','.8822882288.','.8888888888.','.8888111888.','.9888888889.','..99999999..','............'],
+    Ghost: ['............','....2222....','..22222222..','.2222222222.','.2211221122.','.2211221122.','.2222222222.','.22dd22dd22.','.2222222222.','.2222222222.','.22.2222.22.','.2...22...2.'],
+    Skull: ['............','...222222...','..22222222..','.2222222222.','.2211221122.','.2211221122.','.2222112222.','..22222222..','...2.22.2...','...222222...','....2..2....','............'],
+    Heart: ['............','..55....55..','.5555..5555.','555255555555','552555555555','555555555555','.5555555555.','..55555555..','...555555...','....5555....','.....55.....','............'],
+    Cat: ['............','.6........6.','.66......66.','.6666666666.','.6666666666.','.6616666166.','.6666666666.','.6666dd6666.','.6661dd1666.','.6666666666.','..66666666..','............'],
+    Mushroom: ['............','....5555....','..55225525..','.5555555555.','.5255555525.','555555225555','.5555555555.','....ffff....','....f1f1....','....ffff....','...ffffff...','............'],
+    Robot: ['.....33.....','.....55.....','..33333333..','..34444443..','..34a44a43..','..34444443..','..34111143..','..33333333..','.3333333333.','.3.333333.3.','...33..33...','...44..44...'],
+    Alien: ['............','...888888...','..88888888..','.8888888888.','.8111881118.','.8121881218.','.8888888888.','..88811888..','...888888...','....8888....','............','............'],
+    Potion: ['.....ee.....','.....ee.....','....3333....','.....33.....','....3333....','...3cccc3...','..3cccccc3..','..3cc2ccc3..','..3cccccc3..','..3cccccc3..','...333333...','............'],
+    Star: ['.....77.....','.....77.....','....7777....','777777777777','.7777777777.','..77777777..','..77777777..','.7777..7777.','.777....777.','.77......77.','............','............'],
+    Ninja: ['............','...111111...','..11111111..','.1111111111.','.55555555555','.11ff11ff11.','.1111111111.','.1111111111.','..11111111..','...111111...','..1......1..','............'],
+    Sword: ['..........33','.........323','........323.','.......323..','......323...','.e...323....','.ee.323.....','..ee23......','...ee.......','..e.ee......','.e...ee.....','e...........'],
+    Fox: ['.6........6.','.66......66.','.666....666.','.6666666666.','666666666666','.6616666166.','.6666666666.','.6222662226.','..22211222..','...222222...','....2222....','............'],
+    Frog: ['............','.222....222.','.212....212.','.8888888888.','888888888888','888888888888','8dd888888dd8','888111111888','.8888888888.','..88888888..','.88......88.','............'],
+    Penguin: ['....1111....','...111111...','..11211211..','..11111111..','..11166111..','.1122222211.','.1222222221.','.1222222221.','.1222222221.','..12222221..','...222222...','..66....66..'],
+    Crown: ['............','............','.7...77...7.','.77..77..77.','.777.77.777.','.7777777777.','.7757757757.','.7777777777.','.7a777777a7.','.7777777777.','............','............'],
+    Fire: ['.....5......','....55......','....555..5..','...5555.55..','..55565555..','..55666655..','.5566676655.','.5567777655.','.5567777665.','.5566776655.','..55666655..','...555555...'],
+    Bomb: ['.........7..','........767.','.......6.7..','......6.....','....1116....','...111111...','..11211111..','..12111111..','..11111111..','..11111111..','...111111...','....1111....'],
+    Diamond: ['............','...aaaaaa...','..a2aaaa2a..','.aaaaaaaaaa.','aaaaaaaaaaaa','.baaaaaaaab.','..baaaaaab..','...baaaab...','....baab....','.....bb.....','............','............'],
+    Shield: ['.3333333333.','.3aaaaaaaa3.','.3aaa77aaa3.','.3aaa77aaa3.','.3a777777a3.','.3a777777a3.','.3aaa77aaa3.','..3aa77aa3..','..3aaaaaa3..','...3aaaa3...','....3aa3....','.....33.....'],
+    Controller: ['............','............','..44444444..','.4444444444.','441444444544','411144448484','441444444a44','444444444444','4444....4444','.44......44.','............','............'],
+    Pumpkin: ['.....99.....','.....9......','..66666666..','.6666666666.','.6116666116.','.6116666116.','.6666116666.','.6666666666.','.6111111116.','.6616116166.','..66666666..','............'],
+    Cactus: ['.....dd.....','....8888....','....8988....','.88.8888....','.88.8898.88.','.8888888.88.','....8888888.','....8988....','....8888....','..eeeeeeee..','...eeeeee...','...eeeeee...']
+  };
+  function presetPx(rows) { return rows.map(function (r) { return (r + '............').slice(0, 12).replace(/\./g, '0'); }).join(''); }
+
+  /* Chosen profile avatars, by lower-case name: { k: preset name, c: background colour }. Filled from server responses. */
   var looks = {};
   function mergeLooks(m) { var changed = false; for (var n in m) { var k = n.toLowerCase(); if (JSON.stringify(looks[k]) !== JSON.stringify(m[n])) { looks[k] = m[n]; changed = true; } } if (changed && ctx.onLooks) ctx.onLooks(); }
-  function lookKey(name) { var l = looks[String(name).toLowerCase()]; return l ? l.i + l.c : ''; }
+  function lookKey(name) { var l = looks[String(name).toLowerCase()]; return l ? l.k + l.c : ''; }
 
   /* ---------- avatars: 5x5 mirrored pixel face from the name ---------- */
   function hash(s) { var h = 2166136261; s = String(s).toLowerCase(); for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0; return h; }
   function avatar(name, size, state) {
     var lk = looks[String(name).toLowerCase()];
-    if (lk) {
-      var a = el('span', 'av av-icon' + (state ? ' st-' + state : ''));
-      a.style.width = a.style.height = size + 'px'; a.style.background = lk.c; a.style.fontSize = Math.round(size * 0.58) + 'px';
-      a.appendChild(el('span', null, lk.i)); return a;
-    }
+    if (lk && lk.k && PIXEL_PRESETS[lk.k]) { var a = el('span', 'av' + (state ? ' st-' + state : '')); a.style.width = a.style.height = size + 'px'; a.innerHTML = pixelSvg(presetPx(PIXEL_PRESETS[lk.k]), lk.c); return a; }
     var h = hash(name), hue = h % 360, bits = h >>> 8, cells = '';
     for (var y = 0; y < 5; y++) for (var x = 0; x < 3; x++) {
       if ((bits >> (y * 3 + x)) & 1) {
@@ -315,35 +346,37 @@ window.MistSocial = function (ctx) {
     tiers.forEach(function (t) { box.appendChild(tierRow(t, showProgress)); });
   }
 
-  /* ---------- Edit profile: icon, colour, bio ---------- */
+  /* ---------- Edit profile: pick a pixel-art avatar + background colour, write a bio ---------- */
   function openEditProfile(pr) {
     api('GET', '/api/look-options').then(function (opt) {
-      var cur = looks[pr.name.toLowerCase()] || null;
-      var pick = { icon: cur ? cur.i : '', color: cur ? cur.c : opt.colors[5] };
+      var key = pr.name.toLowerCase(), cur = looks[key] || null;
+      var pick = { k: cur ? cur.k : '', c: cur ? cur.c : opt.colors[11] };
       ctx.openModal(function (box) {
         box.classList.add('edit-prof');
         box.appendChild(el('h3', null, 'Edit profile'));
-        var prev = el('div', 'ep-preview'), prevName = el('b', null, pr.name);
-        function drawPrev() {
-          prev.textContent = '';
-          if (pick.icon) looks[pr.name.toLowerCase()] = { i: pick.icon, c: pick.color }; else delete looks[pr.name.toLowerCase()];
-          prev.appendChild(avatar(pr.name, 72)); prev.appendChild(prevName);
-          if (cur) looks[pr.name.toLowerCase()] = cur; else delete looks[pr.name.toLowerCase()];
-          grid.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', (b.dataset.icon || '') === pick.icon); });
-          sw.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.color === pick.color); });
-          sw.classList.toggle('off', !pick.icon);
+        var prev = el('div', 'ep-preview');
+        function face(k, size) {
+          var a = el('span', 'av'); a.style.width = a.style.height = size + 'px';
+          if (k) { a.innerHTML = pixelSvg(presetPx(PIXEL_PRESETS[k]), pick.c); return a; }
+          var save = looks[key]; delete looks[key]; a = avatar(pr.name, size); if (save) looks[key] = save; return a;
+        }
+        function draw() {
+          prev.textContent = ''; prev.appendChild(face(pick.k, 72)); var t = el('div'); t.appendChild(el('b', null, pr.name));
+          t.appendChild(el('small', null, pick.k ? pick.k : 'Default avatar')); prev.appendChild(t);
+          grid.textContent = '';
+          [''].concat(Object.keys(PIXEL_PRESETS)).forEach(function (k) {
+            var b = el('button', pick.k === k ? 'on' : null); b.title = k || 'Default (from your name)';
+            b.appendChild(face(k, 44)); b.onclick = function () { pick.k = k; draw(); }; grid.appendChild(b);
+          });
+          sw.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.dataset.color === pick.c); });
+          sw.classList.toggle('off', !pick.k);
         }
         box.appendChild(prev);
-        box.appendChild(el('div', 'ep-label', 'Icon'));
-        var grid = el('div', 'ep-icons');
-        var def = el('button', 'ep-default'); def.dataset.icon = ''; def.title = 'Default pixel avatar';
-        var save = looks[pr.name.toLowerCase()]; delete looks[pr.name.toLowerCase()]; def.appendChild(avatar(pr.name, 30)); if (save) looks[pr.name.toLowerCase()] = save;
-        def.onclick = function () { pick.icon = ''; drawPrev(); }; grid.appendChild(def);
-        opt.icons.forEach(function (ic) { var b = el('button', null, ic); b.dataset.icon = ic; b.onclick = function () { pick.icon = ic; drawPrev(); }; grid.appendChild(b); });
-        box.appendChild(grid);
+        box.appendChild(el('div', 'ep-label', 'Avatar'));
+        var grid = el('div', 'ep-avatars'); box.appendChild(grid);
         box.appendChild(el('div', 'ep-label', 'Background colour'));
         var sw = el('div', 'ep-colors');
-        opt.colors.forEach(function (c) { var b = el('button'); b.dataset.color = c; b.style.background = c; b.onclick = function () { pick.color = c; drawPrev(); }; sw.appendChild(b); });
+        opt.colors.forEach(function (c) { var b = el('button'); b.dataset.color = c; b.style.background = c; b.onclick = function () { pick.c = c; draw(); }; sw.appendChild(b); });
         box.appendChild(sw);
         box.appendChild(el('div', 'ep-label', 'Bio'));
         var ta = document.createElement('textarea'); ta.className = 'ep-bio'; ta.maxLength = 200; ta.rows = 3; ta.placeholder = 'Say something about yourself (200 characters)'; ta.value = pr.bio || '';
@@ -354,15 +387,15 @@ window.MistSocial = function (ctx) {
         acts.appendChild(ctx.button('ghost', 'Cancel', null, ctx.closeModal));
         var go = ctx.button('green', 'Save', null, function () {
           go.disabled = true; err.textContent = '';
-          api('POST', '/api/profile/edit', { icon: pick.icon, color: pick.color, bio: ta.value }).then(function (r) {
-            if (r.look) looks[pr.name.toLowerCase()] = r.look; else delete looks[pr.name.toLowerCase()];
+          api('POST', '/api/profile/edit', { avatar: pick.k, color: pick.c, bio: ta.value }).then(function (r) {
+            if (r.look) looks[key] = r.look; else delete looks[key];
             ctx.closeModal(); toast('Profile updated');
             if (ctx.onLooks) ctx.onLooks();
             renderProfile(pr.name);
           }, function (e) { err.textContent = e.message; go.disabled = false; });
         });
         acts.appendChild(go); box.appendChild(acts);
-        drawPrev();
+        draw();
       });
     }, function (e) { toast(e.message); });
   }
