@@ -1,224 +1,255 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Counter-Strike 1.6 - Browser Edition</title>
-    <style>
-        body {
-            margin: 0;
-            background: #000;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-
-        canvas {
-            width: 100vw;
-            height: 100vh;
-            top: 0;
-            left: 0;
-            position: fixed;
-            opacity: 0;
-            transition: opacity 1s ease-in;
-        }
-
-        /* Loading screen */
-        #loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            z-index: 10;
-            transition: opacity 0.5s ease-out;
-        }
-
-        #cs-title {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #ffcc00;
-            text-shadow: 2px 2px 8px #000;
-            margin-bottom: 25px;
-        }
-
-        /* Progress bar container */
-        #progress-container {
-            width: 60%;
-            height: 25px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #ffcc00;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 10px;
-            box-shadow: 0 0 10px #ffcc00;
-        }
-
-        /* Progress bar fill */
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #ffaa00, #ffcc00);
-            transition: width 0.2s ease;
-        }
-
-        /* Loading status text */
-        #loading-status {
-            margin-top: 15px;
-            font-size: 1rem;
-            text-align: center;
-        }
-
-        /* Fullscreen Button */
-        #fullscreen-btn {
-            display: none;
-            margin-top: 30px;
-            padding: 10px 20px;
-            background: #ffcc00;
-            color: #000;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        #fullscreen-btn:hover {
-            background: #ffaa00;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/raw.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Counter Attack</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;color:#dcdedf}
+  #canvas{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+  #ui{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 30%,#2a3340 0%,#0d1117 70%);z-index:5;transition:opacity .4s;overflow:auto;padding:20px 0}
+  #ui.gone{opacity:0;pointer-events:none}
+  .box{width:min(500px,90vw);text-align:center}
+  h1{margin:0 0 4px;font-size:42px;letter-spacing:.12em;font-weight:900;line-height:1}
+  h1 b{color:#ff5a4a}h1 span{color:#5a9bff}
+  .sub{color:#8f98a0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:8px 0 24px}
+  .bar{height:8px;background:#0b0f14;border:1px solid #2a2f37;border-radius:4px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff7a3d,#ffcc4d);transition:width .2s}
+  #status{margin:12px 0 0;min-height:22px;color:#b8bcbf;font-size:13px;white-space:pre-line}
+  #status.err{color:#ff8a80}
+  .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  button{font:inherit;font-weight:700;border:0;border-radius:5px;padding:11px 20px;cursor:pointer;color:#fff;background:#3d4450}
+  button.go{background:linear-gradient(180deg,#ff7a3d,#e0501c);font-size:17px;letter-spacing:.06em;padding:13px 34px}
+  button.blue{background:linear-gradient(180deg,#4b8dff,#2a62d6)}
+  button:hover{filter:brightness(1.12)}
+  .card{background:rgba(0,0,0,.28);border:1px solid #2a2f37;border-radius:8px;padding:14px 16px;text-align:left;font-size:13px;color:#b8bcbf;margin-top:16px}
+  .card b{color:#fff}
+  .card ol{margin:6px 0 0;padding-left:20px}.card li{margin:3px 0}
+  .card code{background:#0b0f14;padding:1px 5px;border-radius:3px;color:#ffcc4d}
+  .hint{margin-top:14px;font-size:12px;color:#6b7680}
+  [hidden]{display:none!important}
+</style>
 </head>
 <body>
-    <div id="loading-overlay">
-        <div id="cs-title">COUNTER-STRIKE 1.6</div>
-        <div id="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        <div id="loading-status">Preparing to load...</div>
-        <button id="fullscreen-btn">Go Fullscreen</button>
-    </div>
-    <canvas id="canvas"></canvas>
+<canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+<div id="ui"><div class="box">
+  <h1><b>COUNTER</b> <span>ATTACK</span></h1>
+  <div class="sub">Play your own copy of Counter-Strike 1.6</div>
+  <div class="bar" id="barWrap"><i id="bar"></i></div>
+  <div id="status">Starting…</div>
+  <div class="btns">
+    <button class="go" id="play" hidden>PLAY</button>
+    <button class="blue" id="pick" hidden>Choose your game files (.zip)</button>
+    <button id="change" hidden>Use different game files</button>
+    <button id="retry" hidden>Try again</button>
+  </div>
+  <div class="card" id="how" hidden>
+    <b>Counter Attack needs your own Counter-Strike 1.6 files.</b> They stay on this device. Nothing is uploaded or shared with anyone.
+    <ol>
+      <li>On a computer, open Steam, right-click <b>Counter-Strike</b> → Manage → <b>Browse local files</b>.</li>
+      <li>Select the <code>cstrike</code> and <code>valve</code> folders and zip them together (right-click → Compress / Send to → Compressed folder).</li>
+      <li>Choose that .zip here. You only do this once per device. (On iPad, save the zip to Files first.)</li>
+    </ol>
+  </div>
+  <div class="hint" id="hint">Runs on the open-source Xash3D FWGS engine. Needs a keyboard and mouse (an iPad keyboard with trackpad works).</div>
+  <input type="file" id="file" accept=".zip,application/zip,application/x-zip-compressed" hidden>
+</div></div>
+<script>
+(function () {
+  'use strict';
+  /* Engine: Xash3D FWGS (open source) and the cs16-client game code, both from npm via jsDelivr.
+   * Game data: a zip of the player's own cstrike + valve folders, chosen on this device and kept in this
+   * browser's storage. It is never uploaded anywhere. */
+  var ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.1/dist/';
+  var GAME = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist/';
+  var LIBS = {
+    'xash.wasm': ENGINE + 'xash.wasm',
+    'filesystem_stdio.wasm': ENGINE + 'filesystem_stdio.wasm',
+    'libref_webgl2.wasm': ENGINE + 'libref_webgl2.wasm',
+    'cl_dlls/menu_emscripten_wasm32.wasm': GAME + 'cl_dll/menu_emscripten_wasm32.wasm',
+    'cl_dlls/client_emscripten_wasm32.wasm': GAME + 'cl_dll/client_emscripten_wasm32.wasm',
+    'dlls/cs_emscripten_wasm32.so': GAME + 'dlls/cs_emscripten_wasm32.so'
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  function status(t, err) { var s = $('status'); s.textContent = t; s.className = err ? 'err' : ''; }
+  function bar(f) { $('bar').style.width = Math.max(0, Math.min(100, f * 100)) + '%'; }
+  function show(id, on) { $(id).hidden = !on; }
+  function only() { var keep = [].slice.call(arguments); ['play', 'pick', 'change', 'retry', 'how'].forEach(function (id) { show(id, keep.indexOf(id) >= 0); }); }
+  function mb(n) { return (n / 1048576).toFixed(0) + ' MB'; }
 
-    <script type="module">
-        import JSZip from 'https://cdn.skypack.dev/jszip@3.10.1';
+  /* ---------- keep the chosen zip (as a Blob) in this browser ---------- */
+  function idb() {
+    return new Promise(function (res, rej) {
+      var r; try { r = indexedDB.open('counter-attack', 1); } catch (e) { return rej(e); }
+      r.onupgradeneeded = function () { r.result.createObjectStore('files'); };
+      r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); };
+    });
+  }
+  function cacheGet() {
+    return idb().then(function (db) { return new Promise(function (res) {
+      var q = db.transaction('files').objectStore('files').get('assets');
+      q.onsuccess = function () { res(q.result || null); db.close(); }; q.onerror = function () { res(null); db.close(); };
+    }); }).catch(function () { return null; });
+  }
+  function cachePut(rec) {
+    return idb().then(function (db) { return new Promise(function (res) {
+      var t = db.transaction('files', 'readwrite'); t.objectStore('files').put(rec, 'assets');
+      t.oncomplete = function () { res(true); db.close(); }; t.onerror = t.onabort = function () { res(false); db.close(); };
+    }); }).catch(function () { return false; });
+  }
+  function cacheClear() { return idb().then(function (db) { return new Promise(function (res) { var t = db.transaction('files', 'readwrite'); t.objectStore('files').delete('assets'); t.oncomplete = t.onerror = function () { res(); db.close(); }; }); }).catch(function () {}); }
 
-        const loadingStatus = document.getElementById('loading-status');
-        const progressBar = document.getElementById('progress-bar');
-
-        function updateStatus(msg) {
-            loadingStatus.innerText = msg;
+  /* ---------- small zip reader (stored + deflate); reads entries straight from the Blob ---------- */
+  function u8(blob, a, b) { return blob.slice(a, b).arrayBuffer().then(function (x) { return new Uint8Array(x); }); }
+  function le16(b, o) { return b[o] | b[o + 1] << 8; }
+  function le32(b, o) { return (b[o] | b[o + 1] << 8 | b[o + 2] << 16 | b[o + 3] << 24) >>> 0; }
+  function zipEntries(blob) {
+    var tail = Math.min(blob.size, 65557);
+    return u8(blob, blob.size - tail, blob.size).then(function (t) {
+      var i = t.length - 22; while (i >= 0 && le32(t, i) !== 0x06054b50) i--;
+      if (i < 0) throw new Error('That .zip looks incomplete (its file list at the end is missing). Zip the folders again and choose the new file.');
+      var count = le16(t, i + 10), cdSize = le32(t, i + 12), cdOff = le32(t, i + 16);
+      if (cdOff === 0xffffffff || count === 0xffff) throw new Error('That .zip uses ZIP64. Zip just the cstrike and valve folders (it should be well under 4 GB).');
+      return u8(blob, cdOff, cdOff + cdSize).then(function (cd) {
+        var out = [], p = 0, dec = new TextDecoder();
+        for (var n = 0; n < count; n++) {
+          if (le32(cd, p) !== 0x02014b50) throw new Error('The .zip’s file list is damaged. Zip the folders again.');
+          var method = le16(cd, p + 10), csize = le32(cd, p + 20), nl = le16(cd, p + 28), xl = le16(cd, p + 30), cl = le16(cd, p + 32), lho = le32(cd, p + 42);
+          var name = dec.decode(cd.subarray(p + 46, p + 46 + nl)).replace(/\\/g, '/');
+          if (!/\/$/.test(name)) out.push({ name: name, method: method, csize: csize, lho: lho });
+          p += 46 + nl + xl + cl;
         }
+        return out;
+      });
+    });
+  }
+  function inflate(data) {
+    if (typeof DecompressionStream === 'undefined') return Promise.reject(new Error('This browser is too old to unpack the game files (needs Safari 16.4+ or a current Chrome).'));
+    return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer().then(function (x) { return new Uint8Array(x); });
+  }
+  function readEntry(blob, e) {
+    return u8(blob, e.lho, e.lho + 30).then(function (h) {
+      var start = e.lho + 30 + le16(h, 26) + le16(h, 28);
+      return u8(blob, start, start + e.csize);
+    }).then(function (raw) {
+      if (e.method === 0) return raw;
+      if (e.method === 8) return inflate(raw);
+      throw new Error(e.name + ' uses a zip compression this page can’t read (' + e.method + '). Use a normal .zip.');
+    });
+  }
+  /* Find where cstrike/ (and valve/) sit inside the zip; they may be inside a parent folder. */
+  function layout(entries) {
+    var root = null, hasValve = false, hasCs = false;
+    entries.forEach(function (e) {
+      var m = /^(.*?)(cstrike|valve)\//i.exec(e.name); if (!m) return;
+      if (root === null || m[1].length < root.length) root = m[1];
+      if (/^valve$/i.test(m[2])) hasValve = true; else hasCs = true;
+    });
+    return { root: root, valve: hasValve, cstrike: hasCs };
+  }
 
-        function updateProgress(percent) {
-            progressBar.style.width = percent + "%";
+  /* ---------- engine ---------- */
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = src; s.onload = res;
+      s.onerror = function () { rej(new Error('Couldn’t download the game engine. jsDelivr (cdn.jsdelivr.net) may be blocked on this network.')); };
+      document.head.appendChild(s);
+    });
+  }
+  function checkGameCode() {
+    // cs16-client was removed from npm in 2026; check jsDelivr still has it before a long unpack.
+    return fetch(LIBS['dlls/cs_emscripten_wasm32.so'], { method: 'HEAD', cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('The CS game code (cs16-client) isn’t available on jsDelivr any more (HTTP ' + r.status + '), so Counter Attack can’t start.');
+    }, function () { throw new Error('Couldn’t reach jsDelivr (cdn.jsdelivr.net) for the game code. It may be blocked on this network.'); });
+  }
+
+  var em = null, ARGS = ['-ref', 'webgl2', '-windowed', '-game', 'cstrike', '+_vgui_menus', '0'];
+  function boot(blob) {
+    var entries, lay;
+    only(); status('Reading your game files…'); bar(0);
+    return zipEntries(blob).catch(function (e) { e.badZip = true; throw e; }).then(function (list) {
+      entries = list; lay = layout(list);
+      if (lay.root === null || !lay.cstrike) { var e = new Error('That .zip doesn’t have a cstrike folder in it. Zip the cstrike and valve folders from your Counter-Strike install.'); e.badZip = true; throw e; }
+      status('Checking the game engine…');
+      return checkGameCode();
+    }).then(function () { return loadScript(ENGINE + 'raw.js'); }).then(function () {
+      status('Starting the engine…');
+      return window.Xash3D({
+        canvas: $('canvas'), noInitialRun: true, arguments: ARGS,
+        dynamicLibraries: ['filesystem_stdio.wasm', 'cl_dlls/menu_emscripten_wasm32.wasm', 'dlls/cs_emscripten_wasm32.so', 'cl_dlls/client_emscripten_wasm32.wasm', 'libref_webgl2.wasm'],
+        locateFile: function (p) { return LIBS[p] || p; },
+        print: function (t) { console.log('[xash]', t); }, printErr: function (t) { console.warn('[xash]', t); }
+      });
+    }).then(function (m) {
+      em = m;
+      try { em.FS.mkdir('/rwdir'); } catch (e) {}
+      try { em.FS.mkdir('/rodir'); } catch (e) {}
+      var files = entries.filter(function (e) { return e.name.indexOf(lay.root) === 0 && /^(cstrike|valve)\//i.test(e.name.slice(lay.root.length)); });
+      var made = {}, done = 0;
+      function mkdirs(dir) {
+        var parts = dir.split('/'), cur = '';
+        for (var i = 0; i < parts.length; i++) { if (!parts[i]) continue; cur += '/' + parts[i]; if (!made[cur]) { try { em.FS.mkdir(cur); } catch (e) {} made[cur] = true; } }
+      }
+      return new Promise(function (res, rej) {
+        var i = 0, active = 0, failed = false;
+        function next() {
+          if (failed) return;
+          if (i >= files.length && active === 0) return res();
+          while (active < 6 && i < files.length) (function (e) {
+            i++; active++;
+            readEntry(blob, e).then(function (data) {
+              var rel = e.name.slice(lay.root.length).replace(/^(cstrike|valve)\//i, function (m) { return m.toLowerCase(); });
+              var path = '/rodir/' + rel; mkdirs(path.slice(0, path.lastIndexOf('/')));
+              em.FS.writeFile(path, data);
+              active--; done++;
+              if (done % 25 === 0 || done === files.length) { bar(done / files.length); status('Unpacking game files… ' + done + ' / ' + files.length); }
+              next();
+            }, function (err) { failed = true; rej(err); });
+          })(files[i]);
         }
-
-        async function main() {
-            const overlay = document.getElementById('loading-overlay');
-            const canvas = document.getElementById('canvas');
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
-
-            fullscreenBtn.addEventListener('click', () => {
-                if (canvas.requestFullscreen) {
-                    canvas.requestFullscreen();
-                } else if (canvas.webkitRequestFullscreen) {
-                    canvas.webkitRequestFullscreen();
-                } else if (canvas.msRequestFullscreen) {
-                    canvas.msRequestFullscreen();
-                }
-            });
-
-            try {
-                updateStatus("Fetching game assets...");
-                const res = await fetch('./valve.zip');
-                const buffer = await res.arrayBuffer();
-
-                updateStatus("Extracting game files...");
-                const zip = await JSZip.loadAsync(buffer);
-                const files = {};
-
-                const entries = Object.keys(zip.files);
-                let totalFiles = entries.length;
-                let loaded = 0;
-
-                await Promise.all(entries.map(async p => {
-                    const file = zip.files[p];
-                    if (file.dir) return;
-                    files[`/rodir/${p}`] = await file.async("uint8array");
-                    loaded++;
-                    updateProgress(Math.floor((loaded / totalFiles) * 100));
-                    updateStatus(`Loading files... (${loaded}/${totalFiles})`);
-                }));
-
-                updateStatus("Initializing game engine...");
-
-                Xash3D({
-                    arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'], 
-                    canvas,
-                    ctx: canvas.getContext('webgl2', {
-                        alpha: false,
-                        depth: true,
-                        stencil: true,
-                        antialias: true
-                    }),
-                    dynamicLibraries: [
-                        "filesystem_stdio.wasm",
-                        "libref_gles3compat.wasm",
-                        "cl_dlls/menu_emscripten_wasm32.wasm",
-                        "dlls/cs_emscripten_wasm32.so",
-                        "cl_dlls/client_emscripten_wasm32.wasm",
-                        "/rwdir/filesystem_stdio.so",
-                    ],
-                    onRuntimeInitialized: function () {
-                        Object.keys(files).forEach(k => {
-                            const dir = k.split('/').slice(0, -1).join('/');
-                            this.FS.mkdirTree(dir);
-                            this.FS.writeFile(k, files[k]);
-                        });
-                        this.FS.chdir('/rodir');
-
-                        updateProgress(100);
-                        updateStatus("Ready! Click 'Go Fullscreen' to play.");
-                        fullscreenBtn.style.display = 'inline-block';
-
-                        fullscreenBtn.addEventListener('click', () => {
-                            overlay.style.opacity = 0;
-                            setTimeout(() => overlay.remove(), 500);
-                            canvas.style.opacity = 1;
-                        });
-                    },
-                    locateFile: (p) => {
-                        switch (p) {
-                            case 'xash.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/xash.wasm';
-                            case '/rwdir/filesystem_stdio.so':
-                            case 'filesystem_stdio.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/filesystem_stdio.wasm';
-                            case 'libref_gles3compat.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/libref_gles3compat.wasm';
-                            case 'cl_dlls/menu_emscripten_wasm32.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
-                            case 'dlls/cs_emscripten_wasm32.so':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/dlls/cs_emscripten_wasm32.so';
-                            case 'cl_dlls/client_emscripten_wasm32.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/client_emscripten_wasm32.wasm';
-                            default:
-                                return p;
-                        }
-                    },
-                });
-            } catch (e) {
-                updateStatus("Failed to load game. Check console.");
-                console.error("Failed to load game:", e);
-            }
-        }
-
-        main();
-    </script>
+        next();
+      });
+    }).then(function () {
+      return fetch(ENGINE + 'valve/extras.pk3').then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (b) {
+        if (!b) return; try { em.FS.mkdir('/rodir/valve'); } catch (e) {}
+        if (!em.FS.analyzePath('/rodir/valve/extras.pk3').exists) em.FS.writeFile('/rodir/valve/extras.pk3', new Uint8Array(b));
+      }, function () {});
+    }).then(function () {
+      em.FS.chdir('/rodir');
+      bar(1); status(lay.valve ? 'Ready.' : 'Ready. (No valve folder in your zip; if the game errors, zip valve with cstrike.)');
+      only('play', 'change');
+    });
+  }
+  function start() {
+    only(); $('ui').classList.add('gone'); $('canvas').focus();
+    try { em.callMain(ARGS); } catch (e) { if (e && e.name !== 'ExitStatus' && !/unwind/i.test(String(e))) fail(e); }
+  }
+  function fail(e) {
+    console.error(e);
+    if (e && e.badZip) cacheClear();      // don't keep a zip that can't be used
+    $('ui').classList.remove('gone'); bar(0);
+    status('Counter Attack couldn’t start:\n' + (e && e.message || e), true);
+    if (em) only('retry', 'change'); else only('retry', 'change', 'pick');
+  }
+  function askForFiles(msg) { bar(0); status(msg || 'Choose a .zip of your Counter-Strike 1.6 game files to start.'); only('pick', 'how'); }
+  $('play').onclick = start;
+  $('retry').onclick = function () { location.reload(); };
+  $('pick').onclick = function () { $('file').click(); };
+  $('change').onclick = function () { cacheClear().then(function () { if (em) location.reload(); else askForFiles(); }); };
+  $('file').onchange = function () {
+    var f = this.files[0]; this.value = ''; if (!f) return;
+    only(); status('Saving your game files on this device (' + mb(f.size) + ')…');
+    cachePut({ blob: f, name: f.name, size: f.size, at: Date.now() }).then(function (saved) {
+      if (!saved) status('Couldn’t save the files in this browser, so you’ll be asked again next time. Starting anyway…');
+      return boot(f);
+    }).catch(fail);
+  };
+  if (!window.WebGL2RenderingContext) { status('This browser doesn’t support WebGL 2, which Counter Attack needs.', true); return; }
+  cacheGet().then(function (rec) {
+    if (rec && rec.blob) { status('Using your saved game files (' + (rec.name || 'game.zip') + ', ' + mb(rec.size || rec.blob.size) + ')…'); boot(rec.blob).catch(fail); }
+    else askForFiles();
+  });
+})();
+</script>
 </body>
 </html>

@@ -62,25 +62,23 @@
     {
       "id": "counter-attack",
       "name": "Counter Attack",
-      "developer": "Mist",
+      "developer": "Xash3D FWGS (engine)",
       "image": "counter-attack.jpg",
       "featured": true,
-      "mistApi": true,
       "tags": [
         "Shooter",
         "FPS",
-        "Multiplayer",
-        "Action"
+        "Bring your own files"
       ],
-      "description": "Endless Red vs Blue team deathmatch. Rifle, pistol and sniper, instant respawns, and bots that fill every empty slot.",
-      "about": "Play online with other Mist players (sign in first) or offline against bots. Desktop: WASD, mouse, Space, R, 1 2 3, Tab for scores. iPad and phones get touch controls; a keyboard and trackpad also work.",
+      "description": "Play your own copy of Counter-Strike 1.6 in Mist, on the open-source Xash3D engine. You choose your game files once; they stay on your device.",
+      "about": "Needs a .zip of the cstrike and valve folders from your own Counter-Strike 1.6 install (Steam → Browse local files). The zip is kept in this browser only and is never uploaded. Keyboard and mouse required.",
       "versions": [
         {
-          "id": "1.0",
+          "id": "byo-1",
           "name": "Counter Attack",
           "type": "release",
           "file": "csattack.html",
-          "description": "Map: Depot. Online matches run on the Mist server."
+          "description": "Loads your own CS 1.6 files from this device."
         }
       ]
     },
