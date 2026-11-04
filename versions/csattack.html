@@ -83,6 +83,28 @@
             transition: background 0.3s;
         }
 
+        #server-row {
+            display: none;
+            margin-top: 25px;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        #server-select {
+            background: #111;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.95rem;
+        }
+
+        #relay-state {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
         #fullscreen-btn:hover {
             background: #ffaa00;
         }
@@ -95,6 +117,13 @@
             <div id="progress-bar"></div>
         </div>
         <div id="loading-status">Preparing to load...</div>
+        <div id="server-row">
+            <label for="server-select">Server:</label>
+            <select id="server-select">
+                <option value="">Offline (local map)</option>
+            </select>
+            <span id="relay-state">relay: connecting…</span>
+        </div>
         <button id="fullscreen-btn">Play (Fullscreen)</button>
     </div>
     <canvas id="canvas"></canvas>
@@ -103,7 +132,16 @@
         import JSZip from 'https://cdn.skypack.dev/jszip@3.10.1';
         // Official wrapper (pinned). The raw package uses extensionless imports
         // ('./constants') that 404 in browsers, so load jsDelivr's bundled +esm build.
-        import { Xash3D } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/+esm';
+        import { Xash3D, Net } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/+esm';
+
+        // ---- Multiplayer relay ---------------------------------------------------
+        // Browsers can't send UDP, so all game traffic is tunnelled over a WebSocket
+        // to the relay on Sandpile, which forwards it to the dedicated server.
+        // Override per-page with ?relay=wss://host  (or ?relay=off to disable).
+        const RELAY_URL = new URLSearchParams(location.search).get('relay')
+            ?? 'wss://134.195.88.52/cs-relay/';
+        // Fallback list if the relay doesn't send one (it normally does on connect).
+        const DEFAULT_SERVERS = [{ name: 'PDC CS 1.6', address: '10.27.0.1:27015' }];
 
         // ---- Pinned CDN locations ------------------------------------------------
         // xash3d-fwgs 1.2.x renamed the WebGL renderer to libref_webgl2.wasm
@@ -157,6 +195,108 @@
 
         function updateProgress(percent) {
             progressBar.style.width = percent + '%';
+        }
+
+        // ---- WebSocket transport for the engine's network layer -------------------
+        // Frame: [4 bytes IPv4][2 bytes port BE][payload] — same in both directions.
+        const serverSelect = document.getElementById('server-select');
+        const relayState = document.getElementById('relay-state');
+
+        function setServers(list) {
+            const current = serverSelect.value;
+            serverSelect.querySelectorAll('option[data-remote]').forEach(o => o.remove());
+            for (const s of list) {
+                const o = document.createElement('option');
+                o.value = s.address;
+                o.textContent = `${s.name} (${s.address})`;
+                o.dataset.remote = '1';
+                serverSelect.appendChild(o);
+            }
+            // Default to the first online server when the user hasn't picked anything.
+            serverSelect.value = current || list[0]?.address || '';
+        }
+
+        function createRelayNet() {
+            let ws = null;
+            let retryMs = 1000;
+
+            const net = new Net({
+                sendto(packet) {
+                    if (!ws || ws.readyState !== WebSocket.OPEN) return; // dropped, like real UDP
+                    const frame = new Uint8Array(6 + packet.data.length);
+                    frame[0] = packet.ip[0]; frame[1] = packet.ip[1];
+                    frame[2] = packet.ip[2]; frame[3] = packet.ip[3];
+                    frame[4] = (packet.port >> 8) & 0xff;
+                    frame[5] = packet.port & 0xff;
+                    // packet.data is a view into WASM memory — copy it now.
+                    frame.set(packet.data, 6);
+                    ws.send(frame);
+                },
+            }, {
+                maxPackets: 512,
+                hostID: Math.floor(Math.random() * 60000) + 1000,
+            });
+
+            function connect() {
+                if (!RELAY_URL || RELAY_URL === 'off') {
+                    relayState.textContent = 'relay: disabled';
+                    return;
+                }
+                relayState.textContent = 'relay: connecting…';
+                ws = new WebSocket(RELAY_URL);
+                ws.binaryType = 'arraybuffer';
+
+                ws.onopen = () => {
+                    retryMs = 1000;
+                    relayState.textContent = 'relay: online';
+                };
+                ws.onmessage = (ev) => {
+                    if (typeof ev.data === 'string') {
+                        try {
+                            const msg = JSON.parse(ev.data);
+                            if (msg.type === 'servers' && Array.isArray(msg.servers)) setServers(msg.servers);
+                        } catch { /* ignore */ }
+                        return;
+                    }
+                    const buf = new Uint8Array(ev.data);
+                    if (buf.length < 7) return;
+                    net.incoming.push({
+                        ip: [buf[0], buf[1], buf[2], buf[3]],
+                        port: (buf[4] << 8) | buf[5],
+                        // Must be its own Uint8Array (no offset) — see Net.recvfrom.
+                        data: buf.slice(6),
+                    });
+                };
+                ws.onclose = (ev) => {
+                    relayState.textContent = ev.reason
+                        ? `relay: offline (${ev.reason})`
+                        : 'relay: offline — retrying';
+                    setTimeout(connect, retryMs);
+                    retryMs = Math.min(retryMs * 2, 15000);
+                };
+                ws.onerror = () => { /* onclose handles retry */ };
+            }
+
+            setServers(DEFAULT_SERVERS);
+            connect();
+            return net;
+        }
+
+        // Resolves once the engine's console is responding (so `connect` won't be lost).
+        async function waitForConsole(x, tries = 60) {
+            const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+            for (let i = 0; i < tries; i++) {
+                try {
+                    await Promise.race([
+                        x.waitLog('"developer" is', 'developer', 500),
+                        sleep(600).then(() => { throw new Error('timeout'); }),
+                    ]);
+                    return true;
+                } catch {
+                    await sleep(250);
+                }
+            }
+            return false;
         }
 
         function hasWebGL2() {
@@ -317,6 +457,9 @@
                     },
                 });
 
+                // Must be set before init(): the engine routes all sockets through it.
+                x.net = createRelayNet();
+
                 await x.init();
 
                 updateStatus('Mounting game files...');
@@ -324,11 +467,14 @@
                 x.em.FS.chdir('/rodir');
 
                 updateProgress(100);
-                updateStatus("Ready! Click 'Play' to start.");
+                updateStatus("Ready! Pick a server and click 'Play'.");
+                document.getElementById('server-row').style.display = 'flex';
                 fullscreenBtn.style.display = 'inline-block';
 
                 // Start the engine on a user click so audio + pointer lock are allowed.
-                fullscreenBtn.addEventListener('click', () => {
+                fullscreenBtn.addEventListener('click', async () => {
+                    const target = serverSelect.value;
+
                     const req = canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
                     if (req) req.call(canvas).catch?.(() => {});
 
@@ -337,7 +483,17 @@
                     setTimeout(() => overlay.remove(), 500);
 
                     x.main();
+
+                    if (target) {
+                        // Numeric IP only: the web build can't resolve hostnames.
+                        const ok = await waitForConsole(x);
+                        console.log(`[net] console ${ok ? 'ready' : 'slow to respond'}, connecting to ${target}`);
+                        x.Cmd_ExecuteString(`connect ${target}`);
+                    }
                 }, { once: true });
+
+                // Console shortcut for later: window.csConnect('10.27.0.1:27015')
+                window.csConnect = (addr) => x.Cmd_ExecuteString(`connect ${addr}`);
 
                 // Allow re-entering fullscreen later by clicking the canvas.
                 canvas.addEventListener('dblclick', () => {
