@@ -138,7 +138,7 @@
                 updateStatus("Connecting to asset mirror...");
                 
                 // Using jsDelivr CDN to bypass GitHub LFS redirect restrictions
-                const res = await fetch('https://cdn.jsdelivr.net/gh/th3nu8/EaglercraftLauncher@main/versions/valve.zip');
+                const res = await fetch('http://134.195.88.52/assets/valve.zip');
 
                 if (!res.ok) {
                     throw new Error(`HTTP error status: ${res.status}`);
