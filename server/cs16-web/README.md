@@ -15,3 +15,6 @@ Install / update on Sandpile: `bash /root/EaglercraftLauncher/server/cs16-web/se
 - The relay is published through the existing nginx at `wss://<ip>/cs-relay/` (setup adds `include /etc/nginx/snippets/cs16-relay.conf;`
   to the nginx site that proxies Mist on :3100). Pages use that as their relay URL.
 - Logs: `journalctl -fu cs16-server`, `journalctl -fu cs16-relay`. Settings: `/opt/cs16/srv/cstrike/server.cfg`.
+
+- Game mode: `deathmatch.cfg` (infinite team deathmatch, fixed loadout, respawn after 2 s). Setup copies it to
+  `/opt/cs16/srv/cstrike/` and runs it at the end of `game.cfg` and `server.cfg`. Edit the repo copy and re-run setup.

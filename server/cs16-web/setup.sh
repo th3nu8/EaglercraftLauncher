@@ -105,6 +105,13 @@ if ! grep -q "CS 1.6 browser server" "$SRV/cstrike/server.cfg" 2>/dev/null; then
     sed "s/__RCON_PASSWORD__/$RCON_PASS/" "$HERE/server.cfg" > "$SRV/cstrike/server.cfg"
     echo "    rcon_password generated: $RCON_PASS  (saved in $SRV/cstrike/server.cfg)"
 fi
+# Game mode: infinite team deathmatch with a fixed loadout (deathmatch.cfg, replaced from the repo on every run).
+# It's exec'd at the end of both game.cfg and server.cfg so its settings win whichever runs last.
+install -m 644 "$HERE/deathmatch.cfg" "$SRV/cstrike/deathmatch.cfg"
+for f in game.cfg server.cfg; do
+    touch "$SRV/cstrike/$f"
+    grep -q '^exec deathmatch.cfg' "$SRV/cstrike/$f" || printf '\nexec deathmatch.cfg\n' >> "$SRV/cstrike/$f"
+done
 chown -R "$SVC_USER:$SVC_USER" "$SRV"
 
 # --------------------------------------------------------------------------------
