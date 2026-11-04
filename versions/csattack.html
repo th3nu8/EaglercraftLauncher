@@ -189,7 +189,17 @@
                     const file = zip.files[p];
                     if (file.dir || p.endsWith('/')) continue;
                     
-                    const cleanPath = p.replace(/^valve\//, '').replace(/^cstrike\//, '');
+                    // Normalize paths: strip leading top-level wrappers if any, but maintain target folders
+                    let cleanPath = p;
+                    
+                    // If the zip root starts with a top-level folder name (e.g. valve_bundle/cstrike/...), clean the wrapper
+                    const pathParts = cleanPath.split('/').filter(Boolean);
+                    if (pathParts[0] === 'valve_bundle' || pathParts[0] === 'cs_assets') {
+                        pathParts.shift();
+                        cleanPath = pathParts.join('/');
+                    }
+
+                    // Store raw byte buffers
                     files[`/rodir/${cleanPath}`] = await file.async("uint8array");
                     loaded++;
                     
@@ -204,7 +214,7 @@
                 Xash3D({
                     arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'], 
                     canvas,
-                    INITIAL_MEMORY: 1073741824, // Explicitly allocate 1GB virtual heap room
+                    INITIAL_MEMORY: 1073741824, // 1GB virtual heap room
                     ctx: canvas.getContext('webgl2', {
                         alpha: false,
                         depth: true,
@@ -220,6 +230,7 @@
                         "/rwdir/filesystem_stdio.so",
                     ],
                     onRuntimeInitialized: function () {
+                        // Write extracted files into Emscripten virtual FS
                         Object.keys(files).forEach(k => {
                             const parts = k.split('/').filter(Boolean);
                             const dir = '/' + parts.slice(0, -1).join('/');
@@ -227,13 +238,26 @@
                             try {
                                 this.FS.mkdirTree(dir);
                             } catch (e) {
-                                // Ignore existing dir errors
+                                // Directory already exists
                             }
                             
                             if (files[k] && files[k].byteLength > 0) {
                                 this.FS.writeFile(k, files[k]);
                             }
                         });
+
+                        // Ensure a 'cstrike' folder alias exists if assets were unzipped under 'valve'
+                        try {
+                            if (!files['/rodir/cstrike/liblist.gam']) {
+                                this.FS.mkdirTree('/rodir/cstrike');
+                                // Create a fallback liblist.gam inside cstrike if missing
+                                const liblistContent = new TextEncoder().encode('game "Counter-Strike"\ngamedll "dlls/cs.so"\n');
+                                this.FS.writeFile('/rodir/cstrike/liblist.gam', liblistContent);
+                            }
+                        } catch (e) {
+                            console.warn("cstrike directory fallback check:", e);
+                        }
+
                         this.FS.chdir('/rodir');
 
                         updateProgress(100);
