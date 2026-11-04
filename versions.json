@@ -62,25 +62,23 @@
     {
       "id": "counter-attack",
       "name": "Counter Attack",
-      "developer": "Mist",
+      "developer": "Xash3D FWGS (engine)",
       "image": "counter-attack.jpg",
       "featured": true,
-      "mistApi": true,
       "tags": [
         "Shooter",
         "FPS",
-        "Multiplayer",
-        "Action"
+        "Multiplayer-ready engine"
       ],
-      "description": "Endless Red vs Blue team deathmatch. Rifle, pistol and sniper, instant respawns, and bots that fill every empty slot.",
-      "about": "Play online with other Mist players (sign in first) or offline against bots. Desktop: WASD, mouse, Space, R, 1 2 3, Tab for scores. iPad and phones get touch controls; a keyboard and trackpad also work.",
+      "description": "A Counter-Strike 1.6 style FPS in Mist, on the open-source Xash3D engine. Game files download from the Mist server once and are cached on your device.",
+      "about": "The game files download automatically from the Mist server the first time you play, and again only when they're updated. Keyboard and mouse required.",
       "versions": [
         {
-          "id": "1.0",
+          "id": "byo-1",
           "name": "Counter Attack",
           "type": "release",
           "file": "csattack.html",
-          "description": "Map: Depot. Online matches run on the Mist server."
+          "description": "Downloads its game files from the Mist server."
         }
       ]
     },

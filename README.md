@@ -79,6 +79,7 @@ service file:
 | `ALLOW_SIGNUPS` | `true`         | Set `false` once your people have accounts. |
 | `SESSION_DAYS`  | `180`          | How long a sign-in lasts. |
 | `PUBLIC_DIR`    | `./public`     | Website served at `/` (copy of the repo's `docs/`). |
+| `ASSETS_DIR`    | `./assets`     | Game asset packs served at `/assets/<name>`. Counter Attack downloads `csattack.zip` from here (a zip containing `cstrike/` and `valve/` folders). Replace the file to push an update; players re-download only when it changes. |
 
 ### 2. Give it an HTTPS address
 
@@ -279,15 +280,6 @@ uses other database names, list them in that version's `"databases": ["name"]`.
 - **Bookmarklets can't run on the browser's new-tab page** or on `chrome://` pages.
 
 
-## Counter Attack (Mist's own game)
-
-An original endless Red vs Blue shooter (no third-party game files).
-
-- Source: `games/counter-attack/game.html`; shared match logic: `server/counter-attack-sim.js` (used by the server and the browser).
-- Build the single file Mist loads: `node tools/build-counter-attack.js` → `versions/csattack.html` (bundles Three.js r149, MIT).
-- Online matches run on the save server (`/api/ca/join`, `/api/ca/tick`, `/api/ca/leave`). Copy `counter-attack-sim.js` next to `server.js` on the server; without it the game still works offline vs bots.
-- Games marked `"mistApi": true` in versions.json get the player's Mist sign-in (`window.MIST_TOKEN`, `MIST_USER`); other games only get `MIST_SERVER`.
-
 ## Mist Supporter ($5/month through PayPal)
 
 Supporters get a gold avatar outline, 23 extra avatars and the Mist Supporter achievement (+2,500 XP while subscribed).
@@ -303,3 +295,9 @@ Setup on the server: create a PayPal Business account, then a REST app at develo
 The server creates the $5/month plan on first use, tags each subscription with the player's account, and checks it with
 PayPal when they subscribe and every 3 hours. Perks stop when a cancelled or unpaid subscription's paid month runs out.
 Use `"mode": "sandbox"` with sandbox keys to test without real money.
+
+## Counter Attack (bring your own files)
+
+`versions/csattack.html` runs Counter-Strike 1.6 on the open-source Xash3D FWGS engine (loaded from jsDelivr), using a zip
+of the player's **own** `cstrike` + `valve` folders that they choose on their device. The zip is kept in that browser's
+storage only; nothing is uploaded to the server or the repo, and no game files are hosted by Mist.

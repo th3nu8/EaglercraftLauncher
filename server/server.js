@@ -38,6 +38,35 @@ async function serveStatic(req, res, p) {
   return true;
 }
 
+/* Game asset packs (e.g. Counter Attack's csattack.zip), downloaded by games running in Mist.
+ * Drop the files in ASSETS_DIR; they're served at /assets/<name> with CORS, ETag and Range support. */
+const ASSETS_DIR = path.resolve(process.env.ASSETS_DIR || path.join(__dirname, 'assets'));
+async function serveAsset(req, res, name) {
+  if (!/^[\w.-]+\.(zip|pk3|wad)$/i.test(name)) return false;
+  const file = path.join(ASSETS_DIR, name);
+  let st; try { st = await fsp.stat(file); } catch (e) { return false; }
+  if (!st.isFile()) return false;
+  const etag = '"' + st.size.toString(36) + '-' + Math.floor(st.mtimeMs).toString(36) + '"';
+  const head = Object.assign({}, CORS, {
+    'Content-Type': 'application/zip', 'Accept-Ranges': 'bytes', 'ETag': etag,
+    'Last-Modified': st.mtime.toUTCString(), 'Cache-Control': 'no-cache',
+    'Access-Control-Expose-Headers': 'ETag, Content-Length, Content-Range, Last-Modified'
+  });
+  if (req.headers['if-none-match'] === etag) { res.writeHead(304, head); return res.end(), true; }
+  let start = 0, end = st.size - 1, status = 200;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+  if (m && (m[1] || m[2])) {
+    if (m[1]) { start = +m[1]; if (m[2]) end = Math.min(+m[2], end); } else start = Math.max(0, st.size - +m[2]);
+    if (start > end) { res.writeHead(416, Object.assign(head, { 'Content-Range': 'bytes */' + st.size })); return res.end(), true; }
+    status = 206; head['Content-Range'] = 'bytes ' + start + '-' + end + '/' + st.size;
+  }
+  head['Content-Length'] = end - start + 1;
+  res.writeHead(status, head);
+  if (req.method === 'HEAD') { res.end(); return true; }
+  fs.createReadStream(file, { start, end }).pipe(res);
+  return true;
+}
+
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 
 /* ---------------- storage safety ----------------
@@ -1535,34 +1564,6 @@ function achList(uid, withProgress) {
  * level 50 means every achievement for every game in versions.json is unlocked. */
 const RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000 };
 const SUPPORTER_XP = 2500;
-/* ---------- Counter Attack (online team deathmatch) ---------- */
-let CA = null;
-try { CA = require('./counter-attack-sim.js'); } catch (e) { console.log('Counter Attack: counter-attack-sim.js not found next to server.js, online matches are off.'); }
-const CA_HUMANS = 10, CA_SIZE = 10;
-const caRooms = new Map();      // roomId -> { room, ids: Map(uid -> pid), n }
-let caSeq = 0, caTimer = null, caLast = Date.now();
-function caFind(uid) { for (const [rid, r] of caRooms) if (r.ids.has(uid)) return [rid, r]; return [null, null]; }
-function caLeave(uid) { const [rid, r] = caFind(uid); if (!r) return; r.room.remove(r.ids.get(uid)); r.ids.delete(uid); if (!r.ids.size) caRooms.delete(rid); }
-function caLoop() {
-  const now = Date.now(), dt = (now - caLast) / 1000; caLast = now;
-  for (const [rid, r] of caRooms) {
-    r.room.step(dt); r.room.flushEvents(); r.room.prune(8);
-    for (const [uid, pid] of [...r.ids]) if (!r.room.players[pid]) r.ids.delete(uid);
-    if (!r.ids.size) caRooms.delete(rid);
-  }
-  if (!caRooms.size) { clearInterval(caTimer); caTimer = null; }
-}
-function caJoin(user) {
-  caLeave(user.id);
-  let rid = null, r = null;
-  for (const [id, x] of caRooms) if (x.ids.size < CA_HUMANS) { rid = id; r = x; break; }
-  if (!r) { rid = 'r' + (++caSeq); r = { room: new CA.Room({ size: CA_SIZE }), ids: new Map(), n: 0 }; caRooms.set(rid, r); }
-  const pid = 'h' + (++r.n);
-  r.ids.set(user.id, pid); r.room.add(pid, user.name, false);
-  if (!caTimer) { caLast = Date.now(); caTimer = setInterval(caLoop, 50); }
-  return [rid, r, pid];
-}
-
 const MAX_LEVEL = 50;
 let GAME_NAMES = null, LEVELS = null;                    // from versions.json (local copy, else GitHub)
 const VERSIONS_URL = process.env.VERSIONS_URL || 'https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/versions.json';
@@ -1630,6 +1631,10 @@ async function handle(req, res) {
   const p = url.pathname;
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+  if ((req.method === 'GET' || req.method === 'HEAD') && p.startsWith('/assets/')) {
+    if (await serveAsset(req, res, decodeURIComponent(p.slice(8)))) return;
+    return fail(res, 404, 'No such asset on this server.');
+  }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
   if (req.method === 'GET' && p === '/support/done') {
     const cancelled = /cancelled=1/.test(req.url || '');
@@ -1638,7 +1643,7 @@ async function handle(req, res) {
       (cancelled ? '👋' : '💛') + '</div><h2>' + (cancelled ? 'No problem' : 'Thank you for supporting Mist!') + '</h2><p>' +
       (cancelled ? 'Nothing was charged. You can close this tab.' : 'You can close this tab and go back to Mist. Your perks turn on in a few seconds.') + '</p></div>');
   }
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 10, counterAttack: !!CA, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 10, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -1895,25 +1900,6 @@ async function handle(req, res) {
       looks: looksFor(rows.slice(0, 100).map(r => r.id).concat(user.id)) });
   }
 
-  if (req.method === 'POST' && p.startsWith('/api/ca/')) {
-    if (!CA) return fail(res, 503, 'Online matches aren’t set up on this server yet.');
-    let body; try { body = await readJson(req, 8192); } catch (e) { return fail(res, 400, 'Bad request.'); }
-    if (p === '/api/ca/join') {
-      const [rid, r, pid] = caJoin(user);
-      return send(res, 200, { room: rid, map: CA.MAP.name, snapshot: r.room.snapshot(pid, 0) });
-    }
-    if (p === '/api/ca/leave') { caLeave(user.id); return send(res, 200, { ok: true }); }
-    if (p === '/api/ca/tick') {
-      const r = caRooms.get(String(body.room || '')), pid = r && r.ids.get(user.id);
-      if (!r || !pid || !r.room.players[pid]) return send(res, 409, { error: 'Not in that match.', rejoin: true });
-      r.room.humanState(pid, body.st || {});
-      if (body.hits) r.room.humanHits(pid, body.hits);
-      const snap = r.room.snapshot(pid, +body.feed || 0); r.room.clearEvents(pid);
-      snap.room = String(body.room); snap.rooms = caRooms.size;
-      return send(res, 200, snap);
-    }
-    return fail(res, 404, 'Not found.');
-  }
   if (req.method === 'GET' && p === '/api/support') return send(res, 200, supportView(user.id));
   if (req.method === 'POST' && p === '/api/support/subscribe') {
     if (!paypalConfig()) return fail(res, 503, 'Supporter subscriptions aren’t set up on this server yet.');
