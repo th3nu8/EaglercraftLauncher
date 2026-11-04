@@ -243,11 +243,13 @@
                     return;
                 }
                 relayState.textContent = 'relay: connecting…';
+                relaySocketState = 'connecting';
                 ws = new WebSocket(RELAY_URL);
                 ws.binaryType = 'arraybuffer';
 
                 ws.onopen = () => {
                     retryMs = 1000;
+                    relaySocketState = 'online';
                     relayState.textContent = 'relay: online';
                 };
                 ws.onmessage = (ev) => {
@@ -268,6 +270,7 @@
                     });
                 };
                 ws.onclose = (ev) => {
+                    relaySocketState = `offline (code ${ev.code}${ev.reason ? ', ' + ev.reason : ''})`;
                     relayState.textContent = ev.reason
                         ? `relay: offline (${ev.reason})`
                         : 'relay: offline — retrying';
@@ -298,6 +301,29 @@
             }
             return false;
         }
+
+        // ---- Browser-console helpers (F12): csConnect('10.27.0.1:27015'), csCmd('map de_dust2'), csStatus()
+        let engineInstance = null;
+        let relaySocketState = 'not started';
+        function exposeHelpers(win) {
+            win.csCmd = (cmd) => {
+                if (!engineInstance) return 'Game not loaded yet — wait for "Ready", then click Play.';
+                if (!engineInstance.running) return 'Click Play first — the engine is not running yet.';
+                engineInstance.Cmd_ExecuteString(cmd);
+                return `sent: ${cmd}`;
+            };
+            win.csConnect = (addr = serverSelect.value || '10.27.0.1:27015') => win.csCmd(`connect ${addr}`);
+            win.csStatus = () => ({
+                relayUrl: RELAY_URL,
+                relay: relaySocketState,
+                engineLoaded: !!engineInstance,
+                engineRunning: !!engineInstance?.running,
+                servers: [...serverSelect.options].map(o => o.value).filter(Boolean),
+            });
+        }
+        exposeHelpers(window);
+        // If this page runs inside a launcher iframe, make the helpers reachable from the top console too.
+        try { if (window.top !== window) exposeHelpers(window.top); } catch { /* cross-origin parent */ }
 
         function hasWebGL2() {
             try {
@@ -425,7 +451,8 @@
                 const x = new Xash3D({
                     canvas,
                     renderer,
-                    arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'],
+                    // -console: this engine build disables the ~ console unless asked.
+                    arguments: ['-windowed', '-console', '-game', 'cstrike', '+_vgui_menus', '0'],
                     libraries: {
                         xash: URLS.xash,
                         filesystem: URLS.filesystem,
@@ -492,8 +519,7 @@
                     }
                 }, { once: true });
 
-                // Console shortcut for later: window.csConnect('10.27.0.1:27015')
-                window.csConnect = (addr) => x.Cmd_ExecuteString(`connect ${addr}`);
+                engineInstance = x;
 
                 // Allow re-entering fullscreen later by clicking the canvas.
                 canvas.addEventListener('dblclick', () => {
