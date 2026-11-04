@@ -278,12 +278,3 @@ uses other database names, list them in that version's `"databases": ["name"]`.
   everything else apply within a few minutes.
 - **Bookmarklets can't run on the browser's new-tab page** or on `chrome://` pages.
 
-
-## Counter Attack (Mist's own game)
-
-An original endless Red vs Blue shooter (no third-party game files).
-
-- Source: `games/counter-attack/game.html`; shared match logic: `server/counter-attack-sim.js` (used by the server and the browser).
-- Build the single file Mist loads: `node tools/build-counter-attack.js` → `versions/counter-attack.html` (bundles Three.js r149, MIT).
-- Online matches run on the save server (`/api/ca/join`, `/api/ca/tick`, `/api/ca/leave`). Copy `counter-attack-sim.js` next to `server.js` on the server; without it the game still works offline vs bots.
-- Games marked `"mistApi": true` in versions.json get the player's Mist sign-in (`window.MIST_TOKEN`, `MIST_USER`); other games only get `MIST_SERVER`.
