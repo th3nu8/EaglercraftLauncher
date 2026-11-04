@@ -189,17 +189,13 @@
                     const file = zip.files[p];
                     if (file.dir || p.endsWith('/')) continue;
                     
-                    // Normalize paths: strip leading top-level wrappers if any, but maintain target folders
                     let cleanPath = p;
-                    
-                    // If the zip root starts with a top-level folder name (e.g. valve_bundle/cstrike/...), clean the wrapper
                     const pathParts = cleanPath.split('/').filter(Boolean);
                     if (pathParts[0] === 'valve_bundle' || pathParts[0] === 'cs_assets') {
                         pathParts.shift();
                         cleanPath = pathParts.join('/');
                     }
 
-                    // Store raw byte buffers
                     files[`/rodir/${cleanPath}`] = await file.async("uint8array");
                     loaded++;
                     
@@ -230,7 +226,6 @@
                         "/rwdir/filesystem_stdio.so",
                     ],
                     onRuntimeInitialized: function () {
-                        // Write extracted files into Emscripten virtual FS
                         Object.keys(files).forEach(k => {
                             const parts = k.split('/').filter(Boolean);
                             const dir = '/' + parts.slice(0, -1).join('/');
@@ -246,11 +241,9 @@
                             }
                         });
 
-                        // Ensure a 'cstrike' folder alias exists if assets were unzipped under 'valve'
                         try {
                             if (!files['/rodir/cstrike/liblist.gam']) {
                                 this.FS.mkdirTree('/rodir/cstrike');
-                                // Create a fallback liblist.gam inside cstrike if missing
                                 const liblistContent = new TextEncoder().encode('game "Counter-Strike"\ngamedll "dlls/cs.so"\n');
                                 this.FS.writeFile('/rodir/cstrike/liblist.gam', liblistContent);
                             }
@@ -278,12 +271,14 @@
                             case 'filesystem_stdio.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/filesystem_stdio.wasm';
                             case 'libref_gles3compat.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/libref_gles3compat.wasm';
+                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/xash.wasm';
                             case 'cl_dlls/menu_emscripten_wasm32.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
+                            case 'dlls/cs_emscripten_wasm32.wasm':
                             case 'dlls/cs_emscripten_wasm32.so':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/dlls/cs_emscripten_wasm32.so';
                             case 'cl_dlls/client_emscripten_wasm32.wasm':
+                            case 'cl_dlls/client_emscripten_wasm32.so':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/client_emscripten_wasm32.wasm';
                             default:
                                 return p;
