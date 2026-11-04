@@ -21,7 +21,6 @@
             transition: opacity 1s ease-in;
         }
 
-        /* Loading screen */
         #loading-overlay {
             position: fixed;
             top: 0;
@@ -46,7 +45,6 @@
             margin-bottom: 25px;
         }
 
-        /* Progress bar container */
         #progress-container {
             width: 60%;
             height: 25px;
@@ -58,7 +56,6 @@
             box-shadow: 0 0 10px #ffcc00;
         }
 
-        /* Progress bar fill */
         #progress-bar {
             width: 0%;
             height: 100%;
@@ -66,14 +63,13 @@
             transition: width 0.2s ease;
         }
 
-        /* Loading status text */
         #loading-status {
             margin-top: 15px;
             font-size: 1rem;
             text-align: center;
+            max-width: 80%;
         }
 
-        /* Fullscreen Button */
         #fullscreen-btn {
             display: none;
             margin-top: 30px;
@@ -91,7 +87,6 @@
             background: #ffaa00;
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/raw.js"></script>
 </head>
 <body>
     <div id="loading-overlay">
@@ -100,194 +95,234 @@
             <div id="progress-bar"></div>
         </div>
         <div id="loading-status">Preparing to load...</div>
-        <button id="fullscreen-btn">Go Fullscreen</button>
+        <button id="fullscreen-btn">Play (Fullscreen)</button>
     </div>
     <canvas id="canvas"></canvas>
 
     <script type="module">
         import JSZip from 'https://cdn.skypack.dev/jszip@3.10.1';
+        // Official ES-module wrapper (pinned). Handles library preloading + renderer selection.
+        import { Xash3D } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist/index.js';
+
+        // ---- Pinned CDN locations ------------------------------------------------
+        // xash3d-fwgs 1.2.x renamed the WebGL renderer to libref_webgl2.wasm
+        // (libref_gles3compat.wasm no longer exists).
+        const ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist';
+        // cs16-client was unpublished from npm, so "@latest" no longer resolves.
+        // jsDelivr still serves the last release, 0.1.2 — keep it pinned.
+        const CS = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist';
+
+        const URLS = {
+            xash:       `${ENGINE}/xash.wasm`,
+            filesystem: `${ENGINE}/filesystem_stdio.wasm`,
+            webgl2:     `${ENGINE}/libref_webgl2.wasm`,
+            soft:       `${ENGINE}/libref_soft.wasm`,
+            extras:     `${ENGINE}/valve/extras.pk3`,
+            menu:       `${CS}/cl_dll/menu_emscripten_wasm32.wasm`,
+            client:     `${CS}/cl_dll/client_emscripten_wasm32.wasm`,
+            server:     `${CS}/dlls/cs_emscripten_wasm32.so`,
+        };
+
+        const ZIP_URL = 'https://134.195.88.52/assets/valve.zip';
 
         const loadingStatus = document.getElementById('loading-status');
         const progressBar = document.getElementById('progress-bar');
+        const overlay = document.getElementById('loading-overlay');
+        const canvas = document.getElementById('canvas');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
 
         function updateStatus(msg) {
             loadingStatus.innerText = msg;
-            console.log("[Status]", msg);
+            console.log('[Status]', msg);
         }
 
         function updateProgress(percent) {
-            progressBar.style.width = percent + "%";
+            progressBar.style.width = percent + '%';
+        }
+
+        function hasWebGL2() {
+            try {
+                return !!document.createElement('canvas').getContext('webgl2');
+            } catch {
+                return false;
+            }
+        }
+
+        async function downloadZip(url) {
+            const res = await fetch(url, { mode: 'cors' });
+            if (!res.ok) throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
+
+            const contentLength = +res.headers.get('Content-Length');
+            const reader = res.body.getReader();
+            const chunks = [];
+            let received = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                received += value.length;
+                const mb = (received / (1024 * 1024)).toFixed(1);
+                if (contentLength) {
+                    const pct = Math.floor((received / contentLength) * 100);
+                    updateProgress(pct);
+                    updateStatus(`Downloading... ${pct}% (${mb} MB)`);
+                } else {
+                    updateStatus(`Downloaded ${mb} MB...`);
+                }
+            }
+
+            const buffer = new Uint8Array(received);
+            let pos = 0;
+            for (const c of chunks) { buffer.set(c, pos); pos += c.length; }
+            return buffer;
+        }
+
+        async function extractZip(buffer) {
+            const zip = await JSZip.loadAsync(buffer.buffer, { checkCRC32: false });
+            const entries = Object.keys(zip.files).filter(p => !zip.files[p].dir && !p.endsWith('/'));
+            if (entries.length === 0) throw new Error('The downloaded archive contains no files.');
+
+            const files = {};
+            let loaded = 0;
+            for (const p of entries) {
+                const parts = p.split('/').filter(Boolean);
+                if (parts[0] === 'valve_bundle' || parts[0] === 'cs_assets') parts.shift();
+                files[`/rodir/${parts.join('/')}`] = await zip.files[p].async('uint8array');
+                loaded++;
+                updateProgress(Math.floor((loaded / entries.length) * 100));
+                updateStatus(`Extracting files... (${loaded}/${entries.length})`);
+            }
+            return files;
+        }
+
+        function writeFiles(FS, files) {
+            for (const [path, data] of Object.entries(files)) {
+                if (!data || data.byteLength === 0) continue;
+                const dir = path.slice(0, path.lastIndexOf('/'));
+                try { FS.mkdirTree(dir); } catch { /* exists */ }
+                FS.writeFile(path, data);
+            }
         }
 
         async function main() {
-            const overlay = document.getElementById('loading-overlay');
-            const canvas = document.getElementById('canvas');
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
-
-            fullscreenBtn.addEventListener('click', () => {
-                if (canvas.requestFullscreen) {
-                    canvas.requestFullscreen();
-                } else if (canvas.webkitRequestFullscreen) {
-                    canvas.webkitRequestFullscreen();
-                } else if (canvas.msRequestFullscreen) {
-                    canvas.msRequestFullscreen();
-                }
-            });
-
             try {
-                updateStatus("Connecting to your asset server...");
+                updateStatus('Connecting to your asset server...');
+                const buffer = await downloadZip(ZIP_URL);
 
-                const zipUrl = 'https://134.195.88.52/assets/valve.zip';
-                const res = await fetch(zipUrl, { mode: 'cors' });
+                updateStatus('Unpacking archive structures...');
+                const files = await extractZip(buffer);
 
-                if (!res.ok) {
-                    throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
-                }
-
-                updateStatus("Streaming game archive...");
-                const contentLength = +res.headers.get('Content-Length');
-                const reader = res.body.getReader();
-                let receivedBytes = 0;
-                let chunks = [];
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    chunks.push(value);
-                    receivedBytes += value.length;
-
-                    if (contentLength) {
-                        const percent = Math.floor((receivedBytes / contentLength) * 100);
-                        updateProgress(percent);
-                        updateStatus(`Downloading... ${percent}% (${(receivedBytes / (1024 * 1024)).toFixed(1)} MB)`);
-                    } else {
-                        updateStatus(`Downloaded ${(receivedBytes / (1024 * 1024)).toFixed(1)} MB...`);
+                // extras.pk3 ships with the engine (fonts, gfx the web port expects).
+                if (!files['/rodir/valve/extras.pk3']) {
+                    try {
+                        const r = await fetch(URLS.extras);
+                        if (r.ok) files['/rodir/valve/extras.pk3'] = new Uint8Array(await r.arrayBuffer());
+                    } catch (e) {
+                        console.warn('Could not fetch extras.pk3:', e);
                     }
                 }
 
-                const buffer = new Uint8Array(receivedBytes);
-                let position = 0;
-                for (let chunk of chunks) {
-                    buffer.set(chunk, position);
-                    position += chunk.length;
+                // Fallback liblist.gam so the engine knows which server DLL to load.
+                if (!files['/rodir/cstrike/liblist.gam']) {
+                    files['/rodir/cstrike/liblist.gam'] = new TextEncoder().encode(
+                        'game "Counter-Strike"\n' +
+                        'gamedll "dlls\\mp.dll"\n' +
+                        'gamedll_linux "dlls/cs.so"\n'
+                    );
                 }
 
-                updateStatus("Unpacking archive structures...");
-                const zip = await JSZip.loadAsync(buffer.buffer, { checkCRC32: false });
-                const files = {};
-
-                const entries = Object.keys(zip.files);
-                let loaded = 0;
-
-                if (entries.length === 0) {
-                    throw new Error("The downloaded archive contains no files.");
+                // Prefer engine/CS libraries bundled inside valve.zip (any folder),
+                // falling back to the pinned CDN copies if they aren't there.
+                const byName = {};
+                for (const [path, data] of Object.entries(files)) {
+                    byName[path.slice(path.lastIndexOf('/') + 1)] = data;
                 }
+                const fromZip = (name, cdnUrl) => {
+                    const data = byName[name];
+                    if (!data) return cdnUrl;
+                    console.log(`[libs] ${name} -> from valve.zip`);
+                    return URL.createObjectURL(new Blob([data], { type: 'application/wasm' }));
+                };
+                URLS.xash       = fromZip('xash.wasm', URLS.xash);
+                URLS.filesystem = fromZip('filesystem_stdio.wasm', URLS.filesystem);
+                URLS.webgl2     = fromZip('libref_webgl2.wasm', URLS.webgl2);
+                URLS.soft       = fromZip('libref_soft.wasm', URLS.soft);
+                URLS.menu       = fromZip('menu_emscripten_wasm32.wasm', URLS.menu);
+                URLS.client     = fromZip('client_emscripten_wasm32.wasm', URLS.client);
+                URLS.server     = byName['cs_emscripten_wasm32.so']
+                    ? fromZip('cs_emscripten_wasm32.so', URLS.server)
+                    : fromZip('cs_emscripten_wasm32.wasm', URLS.server);
 
-                for (const p of entries) {
-                    const file = zip.files[p];
-                    if (file.dir || p.endsWith('/')) continue;
-                    
-                    let cleanPath = p;
-                    const pathParts = cleanPath.split('/').filter(Boolean);
-                    if (pathParts[0] === 'valve_bundle' || pathParts[0] === 'cs_assets') {
-                        pathParts.shift();
-                        cleanPath = pathParts.join('/');
-                    }
+                const renderer = hasWebGL2() ? 'gles3compat' : 'soft';
+                if (renderer === 'soft') console.warn('WebGL2 unavailable — using software renderer.');
 
-                    files[`/rodir/${cleanPath}`] = await file.async("uint8array");
-                    loaded++;
-                    
-                    if (entries.length > 0) {
-                        updateProgress(Math.floor((loaded / entries.length) * 100));
-                        updateStatus(`Extracting files... (${loaded}/${entries.length})`);
-                    }
-                }
+                updateStatus('Downloading engine libraries...');
 
-                updateStatus("Initializing game engine...");
-
-                Xash3D({
-                    arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'], 
+                const x = new Xash3D({
                     canvas,
-                    INITIAL_MEMORY: 1073741824, // 1GB virtual heap room
-                    ctx: canvas.getContext('webgl2', {
-                        alpha: false,
-                        depth: true,
-                        stencil: true,
-                        antialias: true
-                    }),
-                    dynamicLibraries: [
-                        "filesystem_stdio.wasm",
-                        "libref_gles3compat.wasm",
-                        "cl_dlls/menu_emscripten_wasm32.wasm",
-                        "cl_dlls/client_emscripten_wasm32.wasm",
-                        "/rwdir/filesystem_stdio.so",
-                    ],
-                    onRuntimeInitialized: function () {
-                        Object.keys(files).forEach(k => {
-                            const parts = k.split('/').filter(Boolean);
-                            const dir = '/' + parts.slice(0, -1).join('/');
-                            
-                            try {
-                                this.FS.mkdirTree(dir);
-                            } catch (e) {
-                                // Directory already exists
-                            }
-                            
-                            if (files[k] && files[k].byteLength > 0) {
-                                this.FS.writeFile(k, files[k]);
-                            }
-                        });
-
-                        // Fallback check if cstrike server plugin is missing from the zip
-                        try {
-                            if (!files['/rodir/cstrike/liblist.gam']) {
-                                this.FS.mkdirTree('/rodir/cstrike');
-                                const liblistContent = new TextEncoder().encode('game "Counter-Strike"\ngamedll "dlls/cs.so"\n');
-                                this.FS.writeFile('/rodir/cstrike/liblist.gam', liblistContent);
-                            }
-                        } catch (e) {
-                            console.warn("cstrike directory fallback check:", e);
-                        }
-
-                        this.FS.chdir('/rodir');
-
-                        updateProgress(100);
-                        updateStatus("Ready! Click 'Go Fullscreen' to play.");
-                        fullscreenBtn.style.display = 'inline-block';
-
-                        fullscreenBtn.addEventListener('click', () => {
-                            overlay.style.opacity = 0;
-                            setTimeout(() => overlay.remove(), 500);
-                            canvas.style.opacity = 1;
-                        });
+                    renderer,
+                    arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'],
+                    libraries: {
+                        xash: URLS.xash,
+                        filesystem: URLS.filesystem,
+                        menu: URLS.menu,
+                        client: URLS.client,
+                        server: URLS.server,
+                        render: {
+                            gles3compat: URLS.webgl2,
+                            gl4es: URLS.webgl2,
+                            soft: URLS.soft,
+                        },
                     },
-                    locateFile: (p) => {
-                        switch (p) {
-                            case 'xash.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/xash.wasm';
-                            case '/rwdir/filesystem_stdio.so':
-                            case 'filesystem_stdio.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/filesystem_stdio.wasm';
-                            case 'libref_gles3compat.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/xash.wasm';
-                            case 'cl_dlls/menu_emscripten_wasm32.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
-                            case 'cl_dlls/client_emscripten_wasm32.wasm':
-                            case 'cl_dlls/client_emscripten_wasm32.so':
-                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/client_emscripten_wasm32.wasm';
-                            default:
-                                // Route local virtual filesystem DLL requests to check the mounted drive
-                                if (p.startsWith('dlls/') || p.startsWith('cl_dlls/')) {
-                                    return p;
-                                }
-                                return p;
-                        }
+                    // Preload the CS server DLL under the exact name the engine dlopen()s.
+                    // This is what fixes "can't initialize dlls/cs_emscripten_wasm32...":
+                    // Emscripten can't fetch libraries synchronously at runtime, so they
+                    // must be in this list to be fetched before the engine starts.
+                    dynamicLibraries: [
+                        'dlls/cs_emscripten_wasm32.so',
+                        '/rwdir/filesystem_stdio.so',
+                    ],
+                    filesMap: {
+                        'dlls/cs_emscripten_wasm32.so': URLS.server,
+                        'dlls/cs_emscripten_wasm32.wasm': URLS.server,
+                        '/rwdir/filesystem_stdio.so': URLS.filesystem,
+                    },
+                    module: {
+                        print: (s) => console.log('[xash]', s),
+                        printErr: (s) => console.warn('[xash]', s),
                     },
                 });
+
+                await x.init();
+
+                updateStatus('Mounting game files...');
+                writeFiles(x.em.FS, files);
+                x.em.FS.chdir('/rodir');
+
+                updateProgress(100);
+                updateStatus("Ready! Click 'Play' to start.");
+                fullscreenBtn.style.display = 'inline-block';
+
+                // Start the engine on a user click so audio + pointer lock are allowed.
+                fullscreenBtn.addEventListener('click', () => {
+                    const req = canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
+                    if (req) req.call(canvas).catch?.(() => {});
+
+                    canvas.style.opacity = 1;
+                    overlay.style.opacity = 0;
+                    setTimeout(() => overlay.remove(), 500);
+
+                    x.main();
+                }, { once: true });
+
+                // Allow re-entering fullscreen later by clicking the canvas.
+                canvas.addEventListener('dblclick', () => {
+                    if (!document.fullscreenElement) canvas.requestFullscreen?.();
+                });
             } catch (e) {
-                updateStatus("Failed to load game. Check console.");
-                console.error("Critical loading failure:", e);
+                updateStatus('Failed to load game: ' + (e?.message || e) + ' (see console)');
+                console.error('Critical loading failure:', e);
             }
         }
 
