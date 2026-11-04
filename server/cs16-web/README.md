@@ -1,7 +1,7 @@
 # CS 1.6 server + browser relay
 
 ```
-browser (Xash3D WASM)  --wss-->  Cloudflare Tunnel  -->  relay :27080  --udp-->  server :27015 (also open directly at <ip>:27015)
+browser (Xash3D WASM)  --wss-->  Cloudflare Tunnel  -->  relay :7080  --udp-->  server :27015 (also open directly at <ip>:27015)
                                   cs-relay.noobscloud.org    (Node, Sandpile)     Xash3D FWGS + ReGameDLL
 ```
 
@@ -12,5 +12,5 @@ Install / update on Sandpile: `bash /root/EaglercraftLauncher/server/cs16-web/se
   address from the relay. Setup stops the separate HLDS service (`cs16`) if it's running, since it uses the same port.
 - The relay only forwards to servers listed in `/opt/cs16/relay/config.json` (`virtual` → `target`) and limits
   connections per IP, packets per second and idle time.
-- Then point a Cloudflare Tunnel hostname (`cs-relay.noobscloud.org`) at `http://127.0.0.1:27080`.
+- Then point a Cloudflare Tunnel hostname (`cs-relay.noobscloud.org`) at `http://127.0.0.1:7080`.
 - Logs: `journalctl -fu cs16-server`, `journalctl -fu cs16-relay`. Settings: `/opt/cs16/srv/cstrike/server.cfg`.

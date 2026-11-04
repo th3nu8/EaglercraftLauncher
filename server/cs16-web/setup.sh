@@ -6,14 +6,14 @@
 # Installs:
 #   /opt/cs16/hlds    Valve's official CS 1.6 dedicated server files (SteamCMD, anonymous, app 90)
 #   /opt/cs16/srv     Xash3D FWGS dedicated server (i386) + ReGameDLL_CS, using the game files from /opt/cs16/hlds
-#   /opt/cs16/relay   WebSocket <-> UDP relay (Node.js) so browser players can join
+#   /opt/cs16/relay   WebSocket <-> UDP relay (Node.js, port 7080) so browser players can join
 #   systemd units     cs16-server.service, cs16-relay.service
 #
 # Game files come from Valve's free dedicated-server download on this machine; nothing is downloaded from or
 # published to a website. Re-running is safe: it updates binaries and keeps server.cfg and relay/config.json.
 #
 # Ports: the server listens on 0.0.0.0:$GAME_PORT (default 27015), so it's reachable directly at <ip>:27015.
-# Browsers can't send UDP, so they reach the same server through the relay (127.0.0.1:27080), which hands them the
+# Browsers can't send UDP, so they reach the same server through the relay (127.0.0.1:7080), which hands them the
 # real address (<ip>:27015). If the HLDS service from ../cs16-server.sh is running it is stopped, since it would use
 # the same port.
 
@@ -26,6 +26,7 @@ RELAY="$INSTALL_DIR/relay"
 SVC_USER="${SVC_USER:-cs16}"
 GAME_PORT="${GAME_PORT:-27015}"
 PUBLIC_IP="${PUBLIC_IP:-}"
+RELAY_PORT="${RELAY_PORT:-7080}"
 MAXPLAYERS="${MAXPLAYERS:-16}"
 START_MAP="${START_MAP:-de_dust2}"
 
@@ -113,7 +114,8 @@ say "Installing relay"
 rsync -a --exclude node_modules --exclude config.json "$HERE/relay/" "$RELAY/"
 [[ -f "$RELAY/config.json" ]] || cp "$RELAY/config.example.json" "$RELAY/config.json"
 # Point the first server at this machine: browsers see the real address, the relay forwards to the local port.
-jq --arg v "$PUBLIC_IP:$GAME_PORT" --arg t "127.0.0.1:$GAME_PORT" '.servers[0].virtual = $v | .servers[0].target = $t' \
+jq --arg v "$PUBLIC_IP:$GAME_PORT" --arg t "127.0.0.1:$GAME_PORT" --argjson rp "$RELAY_PORT" \
+    '.listen.port = $rp | .servers[0].virtual = $v | .servers[0].target = $t' \
     "$RELAY/config.json" > "$TMP/relay.json" && cp "$TMP/relay.json" "$RELAY/config.json"
 echo "    browsers join: $PUBLIC_IP:$GAME_PORT"
 (cd "$RELAY" && npm install --omit=dev --no-audit --no-fund --silent)
@@ -180,13 +182,13 @@ systemctl restart cs16-server.service cs16-relay.service
 sleep 3
 say "Status"
 echo "cs16-server: $(systemctl is-active cs16-server)    cs16-relay: $(systemctl is-active cs16-relay)"
-curl -fsS "http://127.0.0.1:$(jq -r '.listen.port // 27080' "$RELAY/config.json")/servers" && echo
+curl -fsS "http://127.0.0.1:$RELAY_PORT/servers" && echo
 
 cat <<EOF
 
 Done. Last step: add a public hostname to your Cloudflare Tunnel
   Hostname:  cs-relay.noobscloud.org
-  Service:   http://127.0.0.1:27080
+  Service:   http://127.0.0.1:$RELAY_PORT
 Then https://cs-relay.noobscloud.org/servers should show the server list.
 Direct (desktop Xash3D/CS clients):  connect $PUBLIC_IP:$GAME_PORT   (open UDP $GAME_PORT in any provider firewall)
 

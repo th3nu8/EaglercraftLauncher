@@ -1,5 +1,5 @@
 {
-  "listen": { "host": "127.0.0.1", "port": 27080 },
+  "listen": { "host": "127.0.0.1", "port": 7080 },
   "trustProxy": true,
   "allowedOrigins": [],
   "maxConnsPerIp": 4,

@@ -24,7 +24,7 @@ const CONFIG_PATH = process.env.RELAY_CONFIG || path.join(__dirname, 'config.jso
 const cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
 
 const LISTEN_HOST = cfg.listen?.host ?? '127.0.0.1';
-const LISTEN_PORT = cfg.listen?.port ?? 27080;
+const LISTEN_PORT = cfg.listen?.port ?? 7080;
 const TRUST_PROXY = cfg.trustProxy ?? true;           // read CF-Connecting-IP / X-Forwarded-For
 const ALLOWED_ORIGINS = cfg.allowedOrigins ?? [];      // [] = allow any origin
 const MAX_CONNS_PER_IP = cfg.maxConnsPerIp ?? 4;
