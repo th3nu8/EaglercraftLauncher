@@ -12,8 +12,10 @@
 # Game files come from Valve's free dedicated-server download on this machine; nothing is downloaded from or
 # published to a website. Re-running is safe: it updates binaries and keeps server.cfg and relay/config.json.
 #
-# Ports: the browser server listens on 127.0.0.1:$GAME_PORT (default 27016, so it can run next to the regular
-# HLDS server from ../cs16-server.sh on 27015). Browsers reach it only through the relay (127.0.0.1:27080).
+# Ports: the server listens on 0.0.0.0:$GAME_PORT (default 27015), so it's reachable directly at <ip>:27015.
+# Browsers can't send UDP, so they reach the same server through the relay (127.0.0.1:27080), which hands them the
+# real address (<ip>:27015). If the HLDS service from ../cs16-server.sh is running it is stopped, since it would use
+# the same port.
 
 set -euo pipefail
 
@@ -22,7 +24,8 @@ HLDS="$INSTALL_DIR/hlds"
 SRV="$INSTALL_DIR/srv"
 RELAY="$INSTALL_DIR/relay"
 SVC_USER="${SVC_USER:-cs16}"
-GAME_PORT="${GAME_PORT:-27016}"
+GAME_PORT="${GAME_PORT:-27015}"
+PUBLIC_IP="${PUBLIC_IP:-}"
 MAXPLAYERS="${MAXPLAYERS:-16}"
 START_MAP="${START_MAP:-de_dust2}"
 
@@ -105,8 +108,14 @@ chown -R "$SVC_USER:$SVC_USER" "$SRV"
 
 # --------------------------------------------------------------------------------
 say "Installing relay"
+[[ -n "$PUBLIC_IP" ]] || PUBLIC_IP="$(curl -fsS -m 5 https://api.ipify.org 2>/dev/null || true)"
+[[ "$PUBLIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || PUBLIC_IP="134.195.88.52"
 rsync -a --exclude node_modules --exclude config.json "$HERE/relay/" "$RELAY/"
-[[ -f "$RELAY/config.json" ]] || sed "s/127.0.0.1:27015/127.0.0.1:$GAME_PORT/" "$RELAY/config.example.json" > "$RELAY/config.json"
+[[ -f "$RELAY/config.json" ]] || cp "$RELAY/config.example.json" "$RELAY/config.json"
+# Point the first server at this machine: browsers see the real address, the relay forwards to the local port.
+jq --arg v "$PUBLIC_IP:$GAME_PORT" --arg t "127.0.0.1:$GAME_PORT" '.servers[0].virtual = $v | .servers[0].target = $t' \
+    "$RELAY/config.json" > "$TMP/relay.json" && cp "$TMP/relay.json" "$RELAY/config.json"
+echo "    browsers join: $PUBLIC_IP:$GAME_PORT"
 (cd "$RELAY" && npm install --omit=dev --no-audit --no-fund --silent)
 chown -R "$SVC_USER:$SVC_USER" "$RELAY"
 
@@ -122,8 +131,8 @@ User=$SVC_USER
 Group=$SVC_USER
 WorkingDirectory=$SRV
 Environment=HOME=$INSTALL_DIR
-# Bound to localhost: only the relay can reach it.
-ExecStart=$SRV/xash -game cstrike -ip 127.0.0.1 -port $GAME_PORT +maxplayers $MAXPLAYERS +map $START_MAP
+# Reachable directly at <ip>:$GAME_PORT; browser players come in through the relay from 127.0.0.1.
+ExecStart=$SRV/xash -game cstrike -ip 0.0.0.0 -port $GAME_PORT +maxplayers $MAXPLAYERS +map $START_MAP
 Restart=always
 RestartSec=3
 NoNewPrivileges=true
@@ -156,6 +165,14 @@ PrivateTmp=true
 WantedBy=multi-user.target
 EOF
 
+if systemctl list-unit-files cs16.service >/dev/null 2>&1 && systemctl is-enabled -q cs16.service 2>/dev/null; then
+    say "Stopping the separate HLDS server (cs16.service) so this one can use port $GAME_PORT"
+    systemctl disable -q --now cs16.service || true
+fi
+if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q "Status: active"; then
+    ufw allow "$GAME_PORT/udp" >/dev/null; echo "    opened UDP $GAME_PORT in ufw"
+fi
+
 systemctl daemon-reload
 systemctl enable -q cs16-server.service cs16-relay.service
 systemctl restart cs16-server.service cs16-relay.service
@@ -171,6 +188,7 @@ Done. Last step: add a public hostname to your Cloudflare Tunnel
   Hostname:  cs-relay.noobscloud.org
   Service:   http://127.0.0.1:27080
 Then https://cs-relay.noobscloud.org/servers should show the server list.
+Direct (desktop Xash3D/CS clients):  connect $PUBLIC_IP:$GAME_PORT   (open UDP $GAME_PORT in any provider firewall)
 
 Logs:   journalctl -fu cs16-server    journalctl -fu cs16-relay
 EOF
