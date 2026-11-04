@@ -1000,6 +1000,8 @@
   $('#fileIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) launchLocalFile(f); };
   $('#dlCancel').onclick = function () { if (dl && dl.ctrl) dl.ctrl.abort(); };
   $('#ovBtn').onclick = hideOverlay;
+  if (!$('#mistBtn')) { var mb = el('button', 'mist-btn', 'Mist'); mb.id = 'mistBtn'; document.body.appendChild(mb); }
+  if (!$('#mistOv')) { var mo = el('div', 'mist-ov'); mo.id = 'mistOv'; document.body.appendChild(mo); }
   $('#mistBtn').onclick = toggleMistOverlay;
   $('#modal').addEventListener('mousedown', function (e) { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('click', function (e) { if (!e.target.closest('#menuPop')) closeMenu(); });

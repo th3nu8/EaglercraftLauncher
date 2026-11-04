@@ -23,17 +23,34 @@
     doc.getElementById('m').textContent = msg;
   }
 
+  function pinCommit(win) {
+    if (window.EAGLER_LAUNCHER_BASE) return Promise.resolve();
+    var done = false;
+    return Promise.race([
+      win.fetch('https://api.github.com/repos/' + REPO.user + '/' + REPO.repo + '/commits/' + REPO.branch,
+        { headers: { Accept: 'application/vnd.github.sha' }, cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.text() : ''; })
+        .then(function (sha) {
+          sha = String(sha).trim();
+          if (!done && /^[0-9a-f]{40}$/.test(sha)) BASE = 'https://raw.githubusercontent.com/' + REPO.user + '/' + REPO.repo + '/' + sha + '/';
+        }, function () {}),
+      new Promise(function (res) { setTimeout(res, 4000); })
+    ]).then(function () { done = true; });
+  }
+
   function run(win) {
     var doc = win.document;
     splash(doc, 'Loading launcher…');
     var bust = '?t=' + Date.now();
     function get(f) {
-      return win.fetch(BASE + f + bust, { cache: 'no-store' }).then(function (r) {
+      return win.fetch(BASE + f + (/\/[0-9a-f]{40}\/$/.test(BASE) ? '' : bust), { cache: 'no-store' }).then(function (r) {
         if (!r.ok) throw new Error(f + ' returned HTTP ' + r.status + ' (check REPO in loader.js)');
         return r.text();
       });
     }
-    Promise.all([get('launcher/index.html'), get('versions.json')]).then(function (t) {
+    // Pin every file to one commit, so a push that GitHub's cache has only half picked up can't mix
+    // old and new launcher files (that shows up as a TypeError on start). Falls back to the branch.
+    pinCommit(win).then(function () { return Promise.all([get('launcher/index.html'), get('versions.json')]); }).then(function (t) {
       var html = t[0], versions;
       try { versions = JSON.parse(t[1]); }
       catch (e) { throw new Error('versions.json is not valid JSON: ' + e.message); }
