@@ -101,8 +101,9 @@
 
     <script type="module">
         import JSZip from 'https://cdn.skypack.dev/jszip@3.10.1';
-        // Official ES-module wrapper (pinned). Handles library preloading + renderer selection.
-        import { Xash3D } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist/index.js';
+        // Official wrapper (pinned). The raw package uses extensionless imports
+        // ('./constants') that 404 in browsers, so load jsDelivr's bundled +esm build.
+        import { Xash3D } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/+esm';
 
         // ---- Pinned CDN locations ------------------------------------------------
         // xash3d-fwgs 1.2.x renamed the WebGL renderer to libref_webgl2.wasm
