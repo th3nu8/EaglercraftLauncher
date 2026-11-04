@@ -134,17 +134,42 @@ in the account menu to open a full profile page:
 - stats: playtime, games, achievements, game badges, best streak, days active
 - every achievement with unlock date, **rarity** (% of players who have it) and, on your own
   profile, progress bars; filter All / Unlocked / Locked
-- **Game achievements**: every game has 10 for time played: 🌱 5 min, 🎈 15 min, 🎯 30 min,
-  🪝 1 h, 🎮 2 h, 💪 5 h, 🛡️ 10 h, ⭐ 25 h, 🏆 50 h, 👑 100 h. Click a game on a profile to see all 10
-  with dates and rarity. Each game's Store and Library page also lists its 10 with your progress.
+- **Game achievements**: every game has 7 for time played (🌱 5 min, 🎈 15 min, 🎯 30 min, 🪝 1 h,
+  🎮 2 h, 💪 5 h, 🛡️ 10 h), and many games also have their own achievements read from the game's
+  save while it runs (levels beaten, best scores, ranks, medals...). Click a game to see them all.
 - recently played games and friends (visible to you and your friends)
 
-### Achievements page
+### Achievements page, rarity and levels
 
-**ACHIEVEMENTS** in the top bar lists everything with names and goals: a total like
-`17 / 3,470` (20 general + 10 for every game in versions.json), a General tab with all 20 and a
-Game achievements tab with every game (search, sort by progress or A–Z, click a game for its 10).
-If the launcher says *Your Mist server needs updating*, copy the newest `server/server.js` to the server.
+**ACHIEVEMENTS** in the top bar lists every achievement with its goal: a General tab (20) and a
+Game achievements tab with every game (search, sort, click a game for its list).
+
+Each achievement has a rarity worth XP: **Common 100 · Rare 250 · Epic 500 · Legendary 1,000**.
+XP adds up to a level from 0 to **50**; level 50 means everything is unlocked (the curve rescales
+itself when achievements are added). Your level shows in the top bar, on profiles and on the
+Users page, and a pop-up appears when you level up.
+
+### Adding achievements for a game
+
+Game-specific achievements only work in **Inside launcher** mode, while signed in. Most games are
+described in `tools/game-achievements.json`:
+
+```json
+"Some Game": {
+  "spec": { "src": "ls", "key": "someGameSave", "stats": { "level": "progress.level", "wins": "stats.wins" } },
+  "ach": [["l10", "🏁", "Getting Going", "Reach level 10.", "level", 10, "common"]]
+}
+```
+
+- `src`: `ls` (localStorage), `flash` (Ruffle SharedObject, only saves written while the game runs
+  count), `prefs` (Unity PlayerPrefs), `lf` (localforage / Construct 3 storage, set `db`), `idbfile`
+  (a file in an engine's IndexedDB file system). `key` is a name or `/regex/`; `session: true`
+  only counts saves changed while the game runs (for games that share key names).
+- a stat is a path into the save, with optional `|len`, `|true`, `|bool`, `|sum`, `|tot`, `|cnt`,
+  `|cntge:N`, `|ge:N`, `|keys:RE`, `|truekeys:RE`, `|keymax:RE`, `|csv`. `*` steps into every entry.
+- then run `node tools/build-achievements.js`, which writes `launcher/specs.js` and the matching block
+  in `server/server.js` (update the server afterwards). Odd formats have hand-written readers in
+  `launcher/hooks.js`.
 
 ### If accounts go missing
 
