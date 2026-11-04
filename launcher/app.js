@@ -54,6 +54,7 @@
   };
   var settings = {
     mode: store.get('mode', 'iframe'),
+    debug: store.get('debugGames', 'off'),
     title: store.get('title', LAUNCHER_NAME),
     server: store.get('syncServer', '')
   };
@@ -202,10 +203,27 @@
     'Object.defineProperty(P,"crossOrigin",{configurable:true,enumerable:true,get:function(){return co.get.call(this)},set:function(v){this.__mistCO=v;if(mem(this.getAttribute("src")))return;co.set.call(this,v)}});' +
     'Object.defineProperty(P,"src",{configurable:true,enumerable:true,get:function(){return sr.get.call(this)},set:function(v){if(mem(v)){if(this.hasAttribute("crossorigin"))this.removeAttribute("crossorigin")}else if(this.__mistCO!=null&&!this.hasAttribute("crossorigin"))co.set.call(this,this.__mistCO);sr.set.call(this,v)}});' +
     '}catch(e){}})();<\/script>';
+  /* Optional on-screen debug log for games (Settings > Debug games). Lists errors and each file the game
+   * requests (images, XHR, fetch, scripts) with its state, so a stalled load shows up in a screenshot. */
+  var DEBUG_SHIM = '<script>(function(){var box,list=[],pend={},n=0;' +
+    'function ui(){if(box||!document.body)return;box=document.createElement("div");box.style.cssText="position:fixed;left:0;right:0;bottom:0;max-height:38%;overflow:auto;z-index:2147483647;background:rgba(0,0,0,.85);color:#9f9;font:11px/1.35 monospace;padding:4px 6px;white-space:pre-wrap;word-break:break-all";document.body.appendChild(box);draw()}' +
+    'function draw(){if(!box)return;var p=Object.keys(pend).map(function(k){return "⏳ WAITING "+pend[k]});box.textContent=["[Mist debug] "+navigator.userAgent.slice(0,80)].concat(p,list.slice(-40)).join("\\n")}' +
+    'function log(t){list.push(t);ui();draw()}' +
+    'function short(u){u=String(u||"");return u.length>90?u.slice(0,60)+"…"+u.slice(-25):u}' +
+    'function track(kind,u){var id=++n;pend[id]=kind+" "+short(u);draw();return function(ok,info){delete pend[id];log((ok?"✔ ":"✖ ")+kind+" "+short(u)+(info?" ("+info+")":""))}}' +
+    'window.addEventListener("error",function(e){if(e.target&&e.target!==window&&(e.target.src||e.target.href))log("✖ load failed "+e.target.tagName+" "+short(e.target.src||e.target.href));else log("✖ ERROR "+(e.message||e)+" @"+(e.filename||"").split("/").pop()+":"+e.lineno)},true);' +
+    'window.addEventListener("unhandledrejection",function(e){log("✖ REJECTED "+(e.reason&&(e.reason.message||e.reason)))});' +
+    'var ce=console.error;console.error=function(){try{log("✖ console.error "+[].map.call(arguments,function(a){return a&&a.message||String(a)}).join(" ").slice(0,200))}catch(x){}return ce.apply(console,arguments)};' +
+    'var XO=XMLHttpRequest.prototype.open,XS=XMLHttpRequest.prototype.send;XMLHttpRequest.prototype.open=function(m,u){this.__u=u;return XO.apply(this,arguments)};' +
+    'XMLHttpRequest.prototype.send=function(){var x=this,done=track("XHR",x.__u);x.addEventListener("loadend",function(){done(x.status>=200&&x.status<400||x.status===0&&!!x.response,"status "+x.status+", type "+x.responseType)});return XS.apply(this,arguments)};' +
+    'var F=window.fetch;if(F)window.fetch=function(r){var d=track("fetch",r&&r.url||r);return F.apply(this,arguments).then(function(res){d(res.ok,"status "+res.status);return res},function(e){d(false,e&&e.message);throw e})};' +
+    'var P=HTMLImageElement.prototype,sd=Object.getOwnPropertyDescriptor(P,"src");Object.defineProperty(P,"src",{configurable:true,enumerable:true,get:function(){return sd.get.call(this)},set:function(v){var im=this;if(v&&!im.__mt&&!/^data:/i.test(v)){im.__mt=1;var d=track("img",v);im.addEventListener("load",function(){d(true,im.naturalWidth+"x"+im.naturalHeight)});im.addEventListener("error",function(){d(false,"crossOrigin="+im.crossOrigin)})}sd.set.call(this,v)}});' +
+    'document.addEventListener("DOMContentLoaded",ui);log("debug on")})();<\/script>';
   function withShim(html) {
     var m = /<head(\s[^>]*)?>/i.exec(html) || /^\s*<!doctype[^>]*>/i.exec(html);   // keep <!DOCTYPE> first (no quirks mode)
-    if (m) return html.slice(0, m.index + m[0].length) + GAME_SHIM + html.slice(m.index + m[0].length);
-    return GAME_SHIM + html;
+    var inject = (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM;
+    if (m) return html.slice(0, m.index + m[0].length) + inject + html.slice(m.index + m[0].length);
+    return inject + html;
   }
   function startGame(html, name, g) {
     html = withShim(html);
@@ -684,6 +702,7 @@
   /* ---------- SETTINGS ---------- */
   function renderSettings() {
     $('#setMode').value = settings.mode;
+    $('#setDebug').value = settings.debug;
     $('#setTitle').value = settings.title;
     $('#srcInfo').textContent = CFG.base;
     $('#setServer').value = settings.server;
@@ -893,6 +912,7 @@
   document.addEventListener('click', function (e) { if (!e.target.closest('#menuPop')) closeMenu(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMenu(); closeModal(); } });
   document.addEventListener('mousemove', function (e) { $('#backBtn').classList.toggle('peek', e.clientY < 8); });
+  $('#setDebug').onchange = function () { settings.debug = this.value; store.set('debugGames', settings.debug); toast(this.value === 'on' ? 'Debug panel on for the next game you open' : 'Debug panel off'); };
   $('#setMode').onchange = function () { settings.mode = this.value; store.set('mode', settings.mode); toast('Saved'); };
   $('#setTitle').onchange = function () {
     settings.title = this.value.trim() || LAUNCHER_NAME; store.set('title', settings.title);
