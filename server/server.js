@@ -38,6 +38,35 @@ async function serveStatic(req, res, p) {
   return true;
 }
 
+/* Game asset packs (e.g. Counter Attack's csattack.zip), downloaded by games running in Mist.
+ * Drop the files in ASSETS_DIR; they're served at /assets/<name> with CORS, ETag and Range support. */
+const ASSETS_DIR = path.resolve(process.env.ASSETS_DIR || path.join(__dirname, 'assets'));
+async function serveAsset(req, res, name) {
+  if (!/^[\w.-]+\.(zip|pk3|wad)$/i.test(name)) return false;
+  const file = path.join(ASSETS_DIR, name);
+  let st; try { st = await fsp.stat(file); } catch (e) { return false; }
+  if (!st.isFile()) return false;
+  const etag = '"' + st.size.toString(36) + '-' + Math.floor(st.mtimeMs).toString(36) + '"';
+  const head = Object.assign({}, CORS, {
+    'Content-Type': 'application/zip', 'Accept-Ranges': 'bytes', 'ETag': etag,
+    'Last-Modified': st.mtime.toUTCString(), 'Cache-Control': 'no-cache',
+    'Access-Control-Expose-Headers': 'ETag, Content-Length, Content-Range, Last-Modified'
+  });
+  if (req.headers['if-none-match'] === etag) { res.writeHead(304, head); return res.end(), true; }
+  let start = 0, end = st.size - 1, status = 200;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+  if (m && (m[1] || m[2])) {
+    if (m[1]) { start = +m[1]; if (m[2]) end = Math.min(+m[2], end); } else start = Math.max(0, st.size - +m[2]);
+    if (start > end) { res.writeHead(416, Object.assign(head, { 'Content-Range': 'bytes */' + st.size })); return res.end(), true; }
+    status = 206; head['Content-Range'] = 'bytes ' + start + '-' + end + '/' + st.size;
+  }
+  head['Content-Length'] = end - start + 1;
+  res.writeHead(status, head);
+  if (req.method === 'HEAD') { res.end(); return true; }
+  fs.createReadStream(file, { start, end }).pipe(res);
+  return true;
+}
+
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 
 /* ---------------- storage safety ----------------
@@ -1602,6 +1631,10 @@ async function handle(req, res) {
   const p = url.pathname;
 
   if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+  if ((req.method === 'GET' || req.method === 'HEAD') && p.startsWith('/assets/')) {
+    if (await serveAsset(req, res, decodeURIComponent(p.slice(8)))) return;
+    return fail(res, 404, 'No such asset on this server.');
+  }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
   if (req.method === 'GET' && p === '/support/done') {
     const cancelled = /cancelled=1/.test(req.url || '');

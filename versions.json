@@ -68,17 +68,17 @@
       "tags": [
         "Shooter",
         "FPS",
-        "Bring your own files"
+        "Multiplayer-ready engine"
       ],
-      "description": "Play your own copy of Counter-Strike 1.6 in Mist, on the open-source Xash3D engine. You choose your game files once; they stay on your device.",
-      "about": "Needs a .zip of the cstrike and valve folders from your own Counter-Strike 1.6 install (Steam → Browse local files). The zip is kept in this browser only and is never uploaded. Keyboard and mouse required.",
+      "description": "A Counter-Strike 1.6 style FPS in Mist, on the open-source Xash3D engine. Game files download from the Mist server once and are cached on your device.",
+      "about": "The game files download automatically from the Mist server the first time you play, and again only when they're updated. Keyboard and mouse required.",
       "versions": [
         {
           "id": "byo-1",
           "name": "Counter Attack",
           "type": "release",
           "file": "csattack.html",
-          "description": "Loads your own CS 1.6 files from this device."
+          "description": "Downloads its game files from the Mist server."
         }
       ]
     },

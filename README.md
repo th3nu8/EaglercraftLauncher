@@ -79,6 +79,7 @@ service file:
 | `ALLOW_SIGNUPS` | `true`         | Set `false` once your people have accounts. |
 | `SESSION_DAYS`  | `180`          | How long a sign-in lasts. |
 | `PUBLIC_DIR`    | `./public`     | Website served at `/` (copy of the repo's `docs/`). |
+| `ASSETS_DIR`    | `./assets`     | Game asset packs served at `/assets/<name>`. Counter Attack downloads `csattack.zip` from here (a zip containing `cstrike/` and `valve/` folders). Replace the file to push an update; players re-download only when it changes. |
 
 ### 2. Give it an HTTPS address
 

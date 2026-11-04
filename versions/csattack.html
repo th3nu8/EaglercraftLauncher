@@ -34,21 +34,21 @@
 <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
 <div id="ui"><div class="box">
   <h1><b>COUNTER</b> <span>ATTACK</span></h1>
-  <div class="sub">Play your own copy of Counter-Strike 1.6</div>
+  <div class="sub">Counter-Strike 1.6 style FPS in your browser</div>
   <div class="bar" id="barWrap"><i id="bar"></i></div>
   <div id="status">Starting…</div>
   <div class="btns">
     <button class="go" id="play" hidden>PLAY</button>
     <button class="blue" id="pick" hidden>Choose your game files (.zip)</button>
-    <button id="change" hidden>Use different game files</button>
+    <button id="change" hidden>Re-download game files</button>
     <button id="retry" hidden>Try again</button>
   </div>
   <div class="card" id="how" hidden>
-    <b>Counter Attack needs your own Counter-Strike 1.6 files.</b> They stay on this device. Nothing is uploaded or shared with anyone.
+    <b>The Mist server doesn’t have Counter Attack’s game files right now.</b> You can load a .zip of your own instead; it stays on this device.
     <ol>
       <li>On a computer, open Steam, right-click <b>Counter-Strike</b> → Manage → <b>Browse local files</b>.</li>
       <li>Select the <code>cstrike</code> and <code>valve</code> folders and zip them together (right-click → Compress / Send to → Compressed folder).</li>
-      <li>Choose that .zip here. You only do this once per device. (On iPad, save the zip to Files first.)</li>
+      <li>Choose that .zip here. (On iPad, save the zip to Files first.)</li>
     </ol>
   </div>
   <div class="hint" id="hint">Runs on the open-source Xash3D FWGS engine. Needs a keyboard and mouse (an iPad keyboard with trackpad works).</div>
@@ -58,8 +58,12 @@
 (function () {
   'use strict';
   /* Engine: Xash3D FWGS (open source) and the cs16-client game code, both from npm via jsDelivr.
-   * Game data: a zip of the player's own cstrike + valve folders, chosen on this device and kept in this
-   * browser's storage. It is never uploaded anywhere. */
+   * Game data: a zip with cstrike/ and valve/ folders, downloaded from the Mist server
+   * (<server>/assets/csattack.zip, see server/ASSETS_DIR) and cached in this browser; it's only
+   * downloaded again when the file on the server changes. If the server has no zip, the player can
+   * choose one from their device instead. */
+  var SERVER = String(window.MIST_SERVER || '').replace(/\/+$/, '');
+  var ASSET_URL = SERVER ? SERVER + '/assets/csattack.zip' : '';
   var ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.1/dist/';
   var GAME = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist/';
   var LIBS = {
@@ -98,6 +102,48 @@
     }); }).catch(function () { return false; });
   }
   function cacheClear() { return idb().then(function (db) { return new Promise(function (res) { var t = db.transaction('files', 'readwrite'); t.objectStore('files').delete('assets'); t.oncomplete = t.onerror = function () { res(); db.close(); }; }); }).catch(function () {}); }
+
+  /* ---------- game files from the Mist server ---------- */
+  // Resolves to a Blob, or null if the server has no zip (or can't be reached and nothing is cached).
+  function fromServer(rec) {
+    var cached = rec && rec.src === 'server' && rec.blob ? rec : null;
+    if (!ASSET_URL) return Promise.resolve(cached && cached.blob);
+    status('Checking for game files on the Mist server…');
+    return fetch(ASSET_URL, { method: 'HEAD', cache: 'no-store' }).then(function (r) {
+      if (!r.ok) return cached && r.status !== 404 ? cached.blob : null;
+      var etag = r.headers.get('ETag') || '';
+      if (cached && etag && cached.etag === etag) { status('Using saved game files (' + mb(cached.size || cached.blob.size) + ')…'); return cached.blob; }
+      return download(etag);
+    }, function () {
+      if (cached) { status('Mist server unreachable; using saved game files…'); return cached.blob; }
+      return null;
+    });
+  }
+  function download(etag) {
+    status('Downloading game files…'); bar(0);
+    return fetch(ASSET_URL, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('Couldn’t download the game files from the Mist server (HTTP ' + r.status + ').');
+      var total = +r.headers.get('Content-Length') || 0, got = 0, parts = [], chunk = [], chunkBytes = 0;
+      etag = r.headers.get('ETag') || etag;
+      if (!r.body || !r.body.getReader) return r.blob().then(finish);
+      var rd = r.body.getReader();
+      function pump() {
+        return rd.read().then(function (x) {
+          if (x.done) { if (chunk.length) parts.push(new Blob(chunk)); return new Blob(parts, { type: 'application/zip' }); }
+          chunk.push(x.value); chunkBytes += x.value.length; got += x.value.length;
+          if (chunkBytes > 16777216) { parts.push(new Blob(chunk)); chunk = []; chunkBytes = 0; }   // keep memory flat-ish
+          if (total) bar(got / total);
+          status('Downloading game files… ' + mb(got) + (total ? ' / ' + mb(total) : ''));
+          return pump();
+        });
+      }
+      return pump().then(finish);
+    }, function () { throw new Error('Couldn’t reach the Mist server to download the game files.'); });
+    function finish(blob) {
+      status('Saving game files on this device (' + mb(blob.size) + ')…');
+      return cachePut({ blob: blob, name: 'csattack.zip', size: blob.size, etag: etag, src: 'server', at: Date.now() }).then(function () { return blob; });
+    }
+  }
 
   /* ---------- small zip reader (stored + deflate); reads entries straight from the Blob ---------- */
   function u8(blob, a, b) { return blob.slice(a, b).arrayBuffer().then(function (x) { return new Uint8Array(x); }); }
@@ -216,7 +262,7 @@
       }, function () {});
     }).then(function () {
       em.FS.chdir('/rodir');
-      bar(1); status(lay.valve ? 'Ready.' : 'Ready. (No valve folder in your zip; if the game errors, zip valve with cstrike.)');
+      bar(1); status(lay.valve ? 'Ready.' : 'Ready. (No valve folder in the game files; if the game errors, add valve next to cstrike.)');
       only('play', 'change');
     });
   }
@@ -231,7 +277,7 @@
     status('Counter Attack couldn’t start:\n' + (e && e.message || e), true);
     if (em) only('retry', 'change'); else only('retry', 'change', 'pick');
   }
-  function askForFiles(msg) { bar(0); status(msg || 'Choose a .zip of your Counter-Strike 1.6 game files to start.'); only('pick', 'how'); }
+  function askForFiles(msg) { bar(0); status(msg || (ASSET_URL ? 'No game files on the Mist server yet. Choose a .zip to start.' : 'Choose a .zip of the game files to start.')); only('pick', 'how'); }
   $('play').onclick = start;
   $('retry').onclick = function () { location.reload(); };
   $('pick').onclick = function () { $('file').click(); };
@@ -239,16 +285,21 @@
   $('file').onchange = function () {
     var f = this.files[0]; this.value = ''; if (!f) return;
     only(); status('Saving your game files on this device (' + mb(f.size) + ')…');
-    cachePut({ blob: f, name: f.name, size: f.size, at: Date.now() }).then(function (saved) {
+    cachePut({ blob: f, name: f.name, size: f.size, src: 'local', at: Date.now() }).then(function (saved) {
       if (!saved) status('Couldn’t save the files in this browser, so you’ll be asked again next time. Starting anyway…');
       return boot(f);
     }).catch(fail);
   };
   if (!window.WebGL2RenderingContext) { status('This browser doesn’t support WebGL 2, which Counter Attack needs.', true); return; }
   cacheGet().then(function (rec) {
-    if (rec && rec.blob) { status('Using your saved game files (' + (rec.name || 'game.zip') + ', ' + mb(rec.size || rec.blob.size) + ')…'); boot(rec.blob).catch(fail); }
-    else askForFiles();
-  });
+    // A zip the player chose themselves wins until they press "Re-download game files".
+    if (rec && rec.blob && rec.src === 'local') { status('Using your saved game files (' + (rec.name || 'game.zip') + ', ' + mb(rec.size || rec.blob.size) + ')…'); return boot(rec.blob); }
+    return fromServer(rec).then(function (blob) {
+      if (blob) return boot(blob);
+      if (rec && rec.blob && !rec.src) return boot(rec.blob);   // zip chosen before this update
+      askForFiles();
+    });
+  }).catch(fail);
 })();
 </script>
 </body>
