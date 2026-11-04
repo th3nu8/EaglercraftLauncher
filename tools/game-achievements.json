@@ -2806,7 +2806,8 @@
    "stats": {
     "level": "MyGameData.data.levelka",
     "stars": "MyGameData.data.pole_stars.data.*.*.0|tot"
-   }
+   },
+   "session": true
   },
   "ach": [
    [
@@ -3541,6 +3542,1583 @@
     "score",
     50000,
     "rare"
+   ]
+  ]
+ },
+ "Angry Birds Space": {
+  "spec": {
+   "src": "flash",
+   "key": "AngryBirdSave",
+   "stats": {
+    "levels": "MissionAy.*.score|cnt",
+    "stars": "MissionAy.*.stars|tot",
+    "score": "MissionAy.*.score|tot"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🚀",
+    "Liftoff",
+    "Clear a level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l10",
+    "🪐",
+    "Space Explorer",
+    "Clear 10 levels.",
+    "levels",
+    10,
+    "common"
+   ],
+   [
+    "l30",
+    "🌌",
+    "Galaxy Hopper",
+    "Clear 30 levels.",
+    "levels",
+    30,
+    "rare"
+   ],
+   [
+    "s60",
+    "⭐",
+    "Star Gazer",
+    "Earn 60 stars.",
+    "stars",
+    60,
+    "epic"
+   ],
+   [
+    "sc1m",
+    "👑",
+    "Space Ace",
+    "Score 1,000,000 points in total.",
+    "score",
+    1000000.0,
+    "legendary"
+   ]
+  ]
+ },
+ "Getaway Shootout": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^settings-numPlayers$/",
+   "stats": {
+    "coins": "Coins",
+    "chars": ".|truekeys:^Characters_\\d+$"
+   }
+  },
+  "ach": [
+   [
+    "c3",
+    "🕴️",
+    "New Recruit",
+    "Unlock 3 characters.",
+    "chars",
+    3,
+    "common"
+   ],
+   [
+    "c10",
+    "🎩",
+    "Gang Leader",
+    "Unlock 10 characters.",
+    "chars",
+    10,
+    "rare"
+   ],
+   [
+    "c25",
+    "👑",
+    "Full Crew",
+    "Unlock 25 characters.",
+    "chars",
+    25,
+    "epic"
+   ],
+   [
+    "m500",
+    "🪙",
+    "Getaway Cash",
+    "Have 500 coins.",
+    "coins",
+    500,
+    "rare"
+   ]
+  ]
+ },
+ "Highway Traffic": {
+  "spec": {
+   "src": "prefs",
+   "key": "/Owned$/",
+   "stats": {
+    "cars": ".|truekeys:Owned$"
+   }
+  },
+  "ach": [
+   [
+    "c2",
+    "🚗",
+    "Second Car",
+    "Own 2 cars.",
+    "cars",
+    2,
+    "common"
+   ],
+   [
+    "c5",
+    "🚓",
+    "Fleet",
+    "Own 5 cars.",
+    "cars",
+    5,
+    "rare"
+   ],
+   [
+    "c10",
+    "👑",
+    "Highway King",
+    "Own 10 cars.",
+    "cars",
+    10,
+    "epic"
+   ]
+  ]
+ },
+ "Helix Jump": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^SHOP\\d+$/",
+   "stats": {
+    "balls": ".|truekeys:^SHOP\\d+$"
+   }
+  },
+  "ach": [
+   [
+    "b2",
+    "⚪",
+    "New Ball",
+    "Unlock a new ball.",
+    "balls",
+    2,
+    "common"
+   ],
+   [
+    "b5",
+    "🔴",
+    "Ball Collector",
+    "Unlock 5 balls.",
+    "balls",
+    5,
+    "rare"
+   ],
+   [
+    "b10",
+    "👑",
+    "Helix Master",
+    "Unlock 10 balls.",
+    "balls",
+    10,
+    "epic"
+   ]
+  ]
+ },
+ "Ice Dodo": {
+  "spec": {
+   "src": "ls",
+   "key": "cup_num",
+   "fmt": "num",
+   "stats": {
+    "cups": "."
+   }
+  },
+  "ach": [
+   [
+    "c1",
+    "🏆",
+    "First Cup",
+    "Win a cup.",
+    "cups",
+    1,
+    "common"
+   ],
+   [
+    "c5",
+    "❄️",
+    "Slippery Champion",
+    "Win 5 cups.",
+    "cups",
+    5,
+    "rare"
+   ],
+   [
+    "c15",
+    "👑",
+    "Dodo Legend",
+    "Win 15 cups.",
+    "cups",
+    15,
+    "epic"
+   ]
+  ]
+ },
+ "Idle Dice": {
+  "spec": {
+   "src": "ls",
+   "key": "Idle dice_totalScore",
+   "fmt": "num",
+   "stats": {
+    "score": "."
+   }
+  },
+  "ach": [
+   [
+    "s1m",
+    "🎲",
+    "Lucky Roll",
+    "Earn 1 million points.",
+    "score",
+    1000000.0,
+    "common"
+   ],
+   [
+    "s1b",
+    "🎰",
+    "High Roller",
+    "Earn 1 billion points.",
+    "score",
+    1000000000.0,
+    "rare"
+   ],
+   [
+    "s1t",
+    "💎",
+    "Dice Tycoon",
+    "Earn 1 trillion points.",
+    "score",
+    1000000000000.0,
+    "epic"
+   ],
+   [
+    "s1q",
+    "👑",
+    "Infinite Luck",
+    "Earn 1 quadrillion points.",
+    "score",
+    1000000000000000.0,
+    "legendary"
+   ]
+  ]
+ },
+ "Johnny Trigger": {
+  "spec": {
+   "src": "ls",
+   "key": "/^(user_info1|hight_score1)$/",
+   "all": true,
+   "stats": {
+    "level": "user_info1.game_db.NumGates",
+    "gold": "user_info1.game_db.NumGolds",
+    "skins": "user_info1.game_db.NumLocks|true"
+   }
+  },
+  "ach": [
+   [
+    "l10",
+    "🔫",
+    "Trigger Happy",
+    "Reach level 10.",
+    "level",
+    10,
+    "common"
+   ],
+   [
+    "l50",
+    "🕶️",
+    "Hitman",
+    "Reach level 50.",
+    "level",
+    50,
+    "rare"
+   ],
+   [
+    "l150",
+    "👑",
+    "Johnny Legend",
+    "Reach level 150.",
+    "level",
+    150,
+    "epic"
+   ],
+   [
+    "s5",
+    "🎨",
+    "Wardrobe",
+    "Unlock 5 characters.",
+    "skins",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Moto X3M": {
+  "spec": {
+   "src": "ls",
+   "key": "/^mx3m.*(sf2|_gm)$/",
+   "session": true,
+   "stats": {
+    "levels": "invsav|truekeys:^r_\\d+_r$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏍️",
+    "Rev It Up",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🔥",
+    "Flip Master",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "l22",
+    "👑",
+    "Moto Legend",
+    "Complete all 22 levels.",
+    "levels",
+    22,
+    "epic"
+   ]
+  ]
+ },
+ "Moto X3M 2": {
+  "spec": {
+   "src": "ls",
+   "key": "/^mx3m.*(sf2|_gm)$/",
+   "session": true,
+   "stats": {
+    "levels": "invsav|truekeys:^r_\\d+_r$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏍️",
+    "Rev It Up",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🔥",
+    "Flip Master",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "l22",
+    "👑",
+    "Moto Legend II",
+    "Complete all 22 levels.",
+    "levels",
+    22,
+    "epic"
+   ]
+  ]
+ },
+ "Moto X3M 3": {
+  "spec": {
+   "src": "ls",
+   "key": "/^mx3m.*(sf2|_gm)$/",
+   "session": true,
+   "stats": {
+    "levels": "invsav|truekeys:^r_\\d+_r$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏍️",
+    "Rev It Up",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🔥",
+    "Flip Master",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "l22",
+    "👑",
+    "Moto Legend III",
+    "Complete all 22 levels.",
+    "levels",
+    22,
+    "epic"
+   ]
+  ]
+ },
+ "Moto X3M: Pool Party": {
+  "spec": {
+   "src": "ls",
+   "key": "/^mx3m.*(sf2|_gm)$/",
+   "session": true,
+   "stats": {
+    "levels": "invsav|truekeys:^r_\\d+_r$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏍️",
+    "Rev It Up",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🔥",
+    "Flip Master",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "l22",
+    "👑",
+    "Pool Party Pro",
+    "Complete all 22 levels.",
+    "levels",
+    22,
+    "epic"
+   ]
+  ]
+ },
+ "Moto X3M: Spooky Land": {
+  "spec": {
+   "src": "ls",
+   "key": "/^mx3m.*(sf2|_gm)$/",
+   "session": true,
+   "stats": {
+    "levels": "invsav|truekeys:^r_\\d+_r$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏍️",
+    "Rev It Up",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🔥",
+    "Flip Master",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "l22",
+    "👑",
+    "Spooky Rider",
+    "Complete all 22 levels.",
+    "levels",
+    22,
+    "epic"
+   ]
+  ]
+ },
+ "Moto X3M: Winter": {
+  "spec": {
+   "src": "ls",
+   "key": "/^mx3m.*(sf2|_gm)$/",
+   "session": true,
+   "stats": {
+    "levels": "invsav|truekeys:^r_\\d+_r$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏍️",
+    "Rev It Up",
+    "Complete 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l12",
+    "🔥",
+    "Flip Master",
+    "Complete 12 levels.",
+    "levels",
+    12,
+    "rare"
+   ],
+   [
+    "l22",
+    "👑",
+    "Winter Rider",
+    "Complete all 22 levels.",
+    "levels",
+    22,
+    "epic"
+   ]
+  ]
+ },
+ "Plonky": {
+  "spec": {
+   "src": "lf",
+   "db": "c3-localstorage-1g7gr0zpzy8",
+   "key": "/^MyGameData$/",
+   "session": true,
+   "stats": {
+    "level": "MyGameData.data.levelka",
+    "stars": "MyGameData.data.pole_stars.data.*.*.0|tot"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🟢",
+    "Bouncy Start",
+    "Reach level 5.",
+    "level",
+    5,
+    "common"
+   ],
+   [
+    "l20",
+    "🎈",
+    "Plonky Pro",
+    "Reach level 20.",
+    "level",
+    20,
+    "rare"
+   ],
+   [
+    "l52",
+    "👑",
+    "Plonky Legend",
+    "Reach level 52.",
+    "level",
+    52,
+    "epic"
+   ],
+   [
+    "s50",
+    "⭐",
+    "Star Bouncer",
+    "Earn 50 stars.",
+    "stars",
+    50,
+    "rare"
+   ]
+  ]
+ },
+ "Snow Rider 3D": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^Plays$/",
+   "session": true,
+   "stats": {
+    "plays": "Plays",
+    "skin": "CurrentSkin|bool"
+   }
+  },
+  "ach": [
+   [
+    "p10",
+    "🛷",
+    "Sledder",
+    "Go sledding 10 times.",
+    "plays",
+    10,
+    "common"
+   ],
+   [
+    "p50",
+    "❄️",
+    "Snow Day",
+    "Go sledding 50 times.",
+    "plays",
+    50,
+    "rare"
+   ],
+   [
+    "p200",
+    "🏔️",
+    "Winter Legend",
+    "Go sledding 200 times.",
+    "plays",
+    200,
+    "epic"
+   ],
+   [
+    "skin",
+    "🎨",
+    "New Ride",
+    "Switch to a different sled.",
+    "skin",
+    1,
+    "common"
+   ]
+  ]
+ },
+ "Snow Road": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^Plays$/",
+   "session": true,
+   "stats": {
+    "plays": "Plays",
+    "skin": "CurrentSkin|bool"
+   }
+  },
+  "ach": [
+   [
+    "p10",
+    "🏂",
+    "Downhill",
+    "Ride 10 times.",
+    "plays",
+    10,
+    "common"
+   ],
+   [
+    "p50",
+    "⛷️",
+    "Snow Day",
+    "Ride 50 times.",
+    "plays",
+    50,
+    "rare"
+   ],
+   [
+    "p200",
+    "🏔️",
+    "Mountain Legend",
+    "Ride 200 times.",
+    "plays",
+    200,
+    "epic"
+   ],
+   [
+    "skin",
+    "🎨",
+    "Fresh Look",
+    "Switch to a different skin.",
+    "skin",
+    1,
+    "common"
+   ]
+  ]
+ },
+ "State.io": {
+  "spec": {
+   "src": "ls",
+   "key": "myStateIo",
+   "stats": {
+    "wins": "wins",
+    "level": "absoluteLevelNum",
+    "coins": "coins"
+   }
+  },
+  "ach": [
+   [
+    "w1",
+    "🗺️",
+    "First Conquest",
+    "Win a battle.",
+    "wins",
+    1,
+    "common"
+   ],
+   [
+    "w25",
+    "⚔️",
+    "Warlord",
+    "Win 25 battles.",
+    "wins",
+    25,
+    "rare"
+   ],
+   [
+    "w100",
+    "👑",
+    "Emperor",
+    "Win 100 battles.",
+    "wins",
+    100,
+    "epic"
+   ],
+   [
+    "l50",
+    "🌍",
+    "World Domination",
+    "Reach level 50.",
+    "level",
+    50,
+    "rare"
+   ]
+  ]
+ },
+ "Speed Stars": {
+  "spec": {
+   "src": "prefs",
+   "key": "/^Total Score$/",
+   "stats": {
+    "score": "Total Score"
+   }
+  },
+  "ach": [
+   [
+    "s1k",
+    "🏃",
+    "Off the Blocks",
+    "Reach a total score of 1,000.",
+    "score",
+    1000,
+    "common"
+   ],
+   [
+    "s10k",
+    "⚡",
+    "Sprinter",
+    "Reach a total score of 10,000.",
+    "score",
+    10000,
+    "rare"
+   ],
+   [
+    "s50k",
+    "🥇",
+    "Olympian",
+    "Reach a total score of 50,000.",
+    "score",
+    50000,
+    "epic"
+   ],
+   [
+    "s200k",
+    "👑",
+    "Speed Star",
+    "Reach a total score of 200,000.",
+    "score",
+    200000,
+    "legendary"
+   ]
+  ]
+ },
+ "Stick Fighter": {
+  "spec": {
+   "src": "lf",
+   "db": "c3-localstorage-1z9m1ne6hwnkq",
+   "key": "/^(characters|coins)$/",
+   "stats": {
+    "chars": "characters|csv",
+    "coins": "coins"
+   }
+  },
+  "ach": [
+   [
+    "c2",
+    "🥋",
+    "New Fighter",
+    "Unlock a second fighter.",
+    "chars",
+    2,
+    "common"
+   ],
+   [
+    "c4",
+    "🤺",
+    "Dojo",
+    "Unlock 4 fighters.",
+    "chars",
+    4,
+    "rare"
+   ],
+   [
+    "c6",
+    "👑",
+    "Full Roster",
+    "Unlock all 6 fighters.",
+    "chars",
+    6,
+    "epic"
+   ],
+   [
+    "m500",
+    "🪙",
+    "Prize Money",
+    "Have 500 coins.",
+    "coins",
+    500,
+    "rare"
+   ]
+  ]
+ },
+ "Super Liquid Soccer": {
+  "spec": {
+   "src": "idbfile",
+   "db": "/userfs",
+   "key": "/slsstats\\.stat$/",
+   "stats": {
+    "wins": "wins",
+    "played": "games_played",
+    "goals": "goals_for",
+    "cups": "amcups",
+    "cups2": "procups",
+    "cups3": "globalcups"
+   }
+  },
+  "ach": [
+   [
+    "w1",
+    "⚽",
+    "First Win",
+    "Win a match.",
+    "wins",
+    1,
+    "common"
+   ],
+   [
+    "w25",
+    "🥅",
+    "Winning Streak",
+    "Win 25 matches.",
+    "wins",
+    25,
+    "rare"
+   ],
+   [
+    "g100",
+    "🎯",
+    "Goal Machine",
+    "Score 100 goals.",
+    "goals",
+    100,
+    "rare"
+   ],
+   [
+    "ac",
+    "🏆",
+    "Amateur Champion",
+    "Win the amateur cup.",
+    "cups",
+    1,
+    "common"
+   ],
+   [
+    "pc",
+    "🥇",
+    "Pro Champion",
+    "Win the pro cup.",
+    "cups2",
+    1,
+    "epic"
+   ],
+   [
+    "gc",
+    "👑",
+    "World Champion",
+    "Win the global cup.",
+    "cups3",
+    1,
+    "legendary"
+   ]
+  ]
+ },
+ "Crazy Cattle 3D": {
+  "spec": {
+   "src": "idbfile",
+   "db": "/userfs",
+   "key": "/crazysavefile\\.tres$/",
+   "fmt": "kv",
+   "stats": {
+    "beaten": "beatenlevels",
+    "unlocked": "saveunlockedlevels",
+    "wins": "win"
+   }
+  },
+  "ach": [
+   [
+    "b1",
+    "🐑",
+    "Baa-ttle Won",
+    "Beat a level.",
+    "beaten",
+    1,
+    "common"
+   ],
+   [
+    "b3",
+    "🐄",
+    "Stampede",
+    "Beat 3 levels.",
+    "beaten",
+    3,
+    "rare"
+   ],
+   [
+    "b6",
+    "👑",
+    "Cattle King",
+    "Beat 6 levels.",
+    "beaten",
+    6,
+    "epic"
+   ],
+   [
+    "w10",
+    "🏆",
+    "Last Sheep Standing",
+    "Win 10 rounds.",
+    "wins",
+    10,
+    "rare"
+   ]
+  ]
+ },
+ "Super Star Car": {
+  "spec": {
+   "src": "ls",
+   "key": "SDK_DATA_local",
+   "session": true,
+   "stats": {
+    "champ": "data.SAVE-FILE.champion",
+    "trophy": "data.SAVE-FILE.trophy",
+    "races": "data.SAVE-FILE.totalRace"
+   }
+  },
+  "ach": [
+   [
+    "r10",
+    "🏎️",
+    "Racer",
+    "Finish 10 races.",
+    "races",
+    10,
+    "common"
+   ],
+   [
+    "r100",
+    "🏁",
+    "Veteran Racer",
+    "Finish 100 races.",
+    "races",
+    100,
+    "rare"
+   ],
+   [
+    "c1",
+    "🥇",
+    "Champion",
+    "Win a championship.",
+    "champ",
+    1,
+    "rare"
+   ],
+   [
+    "c10",
+    "👑",
+    "Superstar",
+    "Win 10 championships.",
+    "champ",
+    10,
+    "epic"
+   ],
+   [
+    "t5",
+    "🏆",
+    "Trophy Case",
+    "Earn 5 trophies.",
+    "trophy",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Vex 4": {
+  "spec": {
+   "src": "ls",
+   "key": "v4:sg",
+   "stats": {
+    "levels": "levels.*.tt|cntge:0",
+    "ach": "achievements|true",
+    "deaths": "stats.td"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🟢",
+    "First Act",
+    "Finish your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🧗",
+    "Halfway Vexed",
+    "Finish 5 levels.",
+    "levels",
+    5,
+    "rare"
+   ],
+   [
+    "l11",
+    "🏆",
+    "Vex Champion",
+    "Finish every level.",
+    "levels",
+    11,
+    "epic"
+   ],
+   [
+    "a10",
+    "⭐",
+    "Achiever",
+    "Unlock 10 of Vex 4’s own achievements.",
+    "ach",
+    10,
+    "rare"
+   ],
+   [
+    "d100",
+    "💀",
+    "Persistent",
+    "Die 100 times.",
+    "deaths",
+    100,
+    "common"
+   ]
+  ]
+ },
+ "Vex 6": {
+  "spec": {
+   "src": "ls",
+   "key": "vex6_sg",
+   "stats": {
+    "levels": "levelsCompleted",
+    "deaths": "stats.td"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🟢",
+    "First Act",
+    "Finish your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🧗",
+    "Getting Vexed",
+    "Finish 5 levels.",
+    "levels",
+    5,
+    "rare"
+   ],
+   [
+    "l10",
+    "🏆",
+    "Vex Six Pack",
+    "Finish every level.",
+    "levels",
+    10,
+    "epic"
+   ],
+   [
+    "d100",
+    "💀",
+    "Persistent",
+    "Die 100 times.",
+    "deaths",
+    100,
+    "common"
+   ],
+   [
+    "d1000",
+    "☠️",
+    "Vexation",
+    "Die 1,000 times.",
+    "deaths",
+    1000,
+    "rare"
+   ]
+  ]
+ },
+ "Vex 7": {
+  "spec": {
+   "src": "ls",
+   "key": "vex7_sg",
+   "stats": {
+    "levels": "levelsCompleted",
+    "deaths": "stats.td"
+   }
+  },
+  "ach": [
+   [
+    "l1",
+    "🟢",
+    "First Act",
+    "Finish your first level.",
+    "levels",
+    1,
+    "common"
+   ],
+   [
+    "l5",
+    "🧗",
+    "Getting Vexed",
+    "Finish 5 levels.",
+    "levels",
+    5,
+    "rare"
+   ],
+   [
+    "l10",
+    "🏆",
+    "Lucky Seven",
+    "Finish every level.",
+    "levels",
+    10,
+    "epic"
+   ],
+   [
+    "d100",
+    "💀",
+    "Persistent",
+    "Die 100 times.",
+    "deaths",
+    100,
+    "common"
+   ],
+   [
+    "d1000",
+    "☠️",
+    "Vexation",
+    "Die 1,000 times.",
+    "deaths",
+    1000,
+    "rare"
+   ]
+  ]
+ },
+ "Vex X3M": {
+  "spec": {
+   "src": "ls",
+   "key": "Vex X3M_sgk1",
+   "stats": {
+    "levels": "lvls.*.*.stars|cnt",
+    "stars": "lvls.*.*.stars|tot",
+    "ach": "achives|true"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏃",
+    "Speedy Stickman",
+    "Finish 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "⚡",
+    "X3M Runner",
+    "Finish 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "s45",
+    "⭐",
+    "Star Chaser",
+    "Earn 45 stars.",
+    "stars",
+    45,
+    "epic"
+   ],
+   [
+    "a5",
+    "🏅",
+    "X3M Achiever",
+    "Unlock 5 of the game’s own achievements.",
+    "ach",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Vex X3M 2": {
+  "spec": {
+   "src": "ls",
+   "key": "Vex X3M 2_sgk",
+   "stats": {
+    "levels": "lvls.*.*.stars|cnt",
+    "stars": "lvls.*.*.stars|tot",
+    "ach": "achives|true"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🏃",
+    "Speedy Stickman",
+    "Finish 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "⚡",
+    "X3M Runner",
+    "Finish 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "s45",
+    "⭐",
+    "Star Chaser",
+    "Earn 45 stars.",
+    "stars",
+    45,
+    "epic"
+   ],
+   [
+    "a5",
+    "🏅",
+    "X3M Achiever",
+    "Unlock 5 of the game’s own achievements.",
+    "ach",
+    5,
+    "rare"
+   ]
+  ]
+ },
+ "Wheelie Bike": {
+  "spec": {
+   "src": "lf",
+   "db": "c3-localstorage-tpkt2hr8vun2",
+   "key": "/^whille_bike_game_st$/",
+   "stats": {
+    "levels": "whille_bike_game_st.data|keys:^best_\\d+$",
+    "coins": "whille_bike_game_st.data.coins",
+    "bikes": "whille_bike_game_st.data|truekeys:^bike\\d+$"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🚲",
+    "Wheelie Rookie",
+    "Set a record on 5 levels.",
+    "levels",
+    5,
+    "common"
+   ],
+   [
+    "l15",
+    "🔥",
+    "Wheelie Pro",
+    "Set a record on 15 levels.",
+    "levels",
+    15,
+    "rare"
+   ],
+   [
+    "b3",
+    "🏍️",
+    "Bike Collector",
+    "Unlock 3 bikes.",
+    "bikes",
+    3,
+    "rare"
+   ],
+   [
+    "c500",
+    "🪙",
+    "Coin Rider",
+    "Have 500 coins.",
+    "coins",
+    500,
+    "common"
+   ]
+  ]
+ },
+ "Zombie Rush": {
+  "spec": {
+   "src": "lf",
+   "db": "c3-localstorage-nib17xzt0cs",
+   "key": "/^ZombieRush$/",
+   "stats": {
+    "worlds": "ZombieRush.data|truekeys:^World_",
+    "skins": "ZombieRush.data|truekeys:^Skin_",
+    "sessions": "ZombieRush.data.Session"
+   }
+  },
+  "ach": [
+   [
+    "w3",
+    "🧟",
+    "Zone Clear",
+    "Unlock 3 worlds (including hard modes).",
+    "worlds",
+    3,
+    "common"
+   ],
+   [
+    "w6",
+    "💀",
+    "Horde Breaker",
+    "Unlock 6 worlds.",
+    "worlds",
+    6,
+    "rare"
+   ],
+   [
+    "w8",
+    "👑",
+    "Apocalypse Survivor",
+    "Unlock all 8 worlds.",
+    "worlds",
+    8,
+    "epic"
+   ],
+   [
+    "s5",
+    "🎭",
+    "Survivor Squad",
+    "Unlock 5 heroes.",
+    "skins",
+    5,
+    "rare"
+   ],
+   [
+    "s15",
+    "🦸",
+    "Full Roster",
+    "Unlock all 15 heroes.",
+    "skins",
+    15,
+    "legendary"
+   ]
+  ]
+ },
+ "Earn to Die 2": {
+  "spec": {
+   "src": "flash",
+   "key": "PersistentData",
+   "stats": {
+    "level": "value.*.CurrentLevel",
+    "day": "value.*.Day",
+    "dist": "value.*.MaxDistance",
+    "zombies": "value.*.MaxZombiesHit"
+   }
+  },
+  "ach": [
+   [
+    "lv2",
+    "🚚",
+    "Next Stop",
+    "Reach the second level.",
+    "level",
+    2,
+    "common"
+   ],
+   [
+    "lv4",
+    "🏙️",
+    "Almost There",
+    "Reach the fourth level.",
+    "level",
+    4,
+    "rare"
+   ],
+   [
+    "d20",
+    "📅",
+    "Survivor",
+    "Survive 20 days.",
+    "day",
+    20,
+    "common"
+   ],
+   [
+    "z100",
+    "🧟",
+    "Road Kill",
+    "Hit 100 zombies in one run.",
+    "zombies",
+    100,
+    "rare"
+   ],
+   [
+    "z500",
+    "💀",
+    "Zombie Plough",
+    "Hit 500 zombies in one run.",
+    "zombies",
+    500,
+    "epic"
+   ],
+   [
+    "dist",
+    "🏁",
+    "Long Haul",
+    "Drive 10,000 m in one run.",
+    "dist",
+    10000,
+    "epic"
+   ]
+  ]
+ },
+ "Plants vs. Zombies": {
+  "spec": {
+   "src": "flash",
+   "key": "/./",
+   "stats": {
+    "level": "saveData.level"
+   }
+  },
+  "ach": [
+   [
+    "l5",
+    "🌻",
+    "Sunflower Power",
+    "Reach level 1-5.",
+    "level",
+    5,
+    "common"
+   ],
+   [
+    "l10",
+    "🌙",
+    "Night Shift",
+    "Reach the night levels (2-1).",
+    "level",
+    11,
+    "common"
+   ],
+   [
+    "l21",
+    "🏊",
+    "Pool Party",
+    "Reach the pool levels (3-1).",
+    "level",
+    21,
+    "rare"
+   ],
+   [
+    "l31",
+    "🌫️",
+    "Into the Fog",
+    "Reach the fog levels (4-1).",
+    "level",
+    31,
+    "rare"
+   ],
+   [
+    "l41",
+    "🏠",
+    "Roof Defender",
+    "Reach the roof levels (5-1).",
+    "level",
+    41,
+    "epic"
+   ],
+   [
+    "l50",
+    "👑",
+    "Zombie Boss Slayer",
+    "Reach the final level (5-10).",
+    "level",
+    50,
+    "legendary"
+   ]
+  ]
+ },
+ "Riddle Transfer 2": {
+  "spec": {
+   "src": "flash",
+   "key": "RiddleTransfer2",
+   "stats": {
+    "cp": "Checkpoint"
+   }
+  },
+  "ach": [
+   [
+    "cp3",
+    "🚌",
+    "On the Way",
+    "Reach checkpoint 3.",
+    "cp",
+    3,
+    "common"
+   ],
+   [
+    "cp6",
+    "🧩",
+    "Puzzle Solver",
+    "Reach checkpoint 6.",
+    "cp",
+    6,
+    "rare"
+   ],
+   [
+    "cp9",
+    "🎓",
+    "Transferred Again",
+    "Reach checkpoint 9.",
+    "cp",
+    9,
+    "epic"
    ]
   ]
  }

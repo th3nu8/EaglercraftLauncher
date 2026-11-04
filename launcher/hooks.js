@@ -125,7 +125,7 @@ window.MistHooks = (function () {
   }
 
   /* ---------- Flash saves (Ruffle keeps each SharedObject in localStorage as a base64 .sol file) ---------- */
-  function parseSol(u8) {
+  function parseSol(u8, rawAmf3) {
     var dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength), i = 0;
     function u8r() { return u8[i++]; }
     function u16() { var v = dv.getUint16(i); i += 2; return v; }
@@ -197,6 +197,7 @@ window.MistHooks = (function () {
         default: throw new Error('amf3 ' + t);
       }
     }
+    if (rawAmf3) { try { return amf3(); } catch (e) { return null; } }   // a bare AMF3 value (ByteArray.writeObject)
     if (u16() !== 0x00BF) return null;
     u32(); if (str(4) !== 'TCSO') return null; i += 6;
     var name = str(u16()), ver = u32(), data = {};
@@ -285,6 +286,7 @@ window.MistHooks = (function () {
       var n;
       if (typeof v === 'string' && /^[\[{]/.test(v)) { try { v = JSON.parse(v); } catch (e) {} }
       if (!op) n = typeof v === 'boolean' ? (v ? 1 : 0) : num(v);
+      else if (op === 'csv') n = String(v || '').split(',').filter(function (x) { return num(x) > 0; }).length;   // "2,0,1" -> 2
       else if (op === 'len') n = v && typeof v === 'object' ? Object.keys(v).length : 0;
       else if (op === 'true') n = countTrue(v);
       else if (op === 'bool') n = v && v !== '0' && v !== 'false' ? 1 : 0;
@@ -326,7 +328,24 @@ window.MistHooks = (function () {
       if (spec.src === 'prefs') return readPlayerPrefs().then(function (p) {
         if (!p) return null;
         if (spec.key) { var hit = Object.keys(p).some(function (k) { return keyMatch(k, spec); }); if (!hit) return null; }
-        return compute([p]);
+        var res = compute([p]);
+        if (spec.session) { var snap = JSON.stringify(res); if (state.prefsBase === undefined) { state.prefsBase = snap; return null; } if (snap === state.prefsBase) return null; }
+        return res;
+      }).catch(function () { return null; });
+      // Engine file systems kept in IndexedDB (Godot /userfs, Emscripten /idbfs ...): read a file's text.
+      if (spec.src === 'idbfile') return openDb(spec.db || '/userfs').then(function (db) {
+        if (!db || !db.objectStoreNames.contains('FILE_DATA')) { if (db) db.close(); return null; }
+        var os = db.transaction('FILE_DATA', 'readonly').objectStore('FILE_DATA');
+        return req(os.getAllKeys()).then(function (keys) {
+          var k = keys.filter(function (x) { return spec.key.test(String(x)); })[0];
+          if (!k) { db.close(); return null; }
+          return req(db.transaction('FILE_DATA', 'readonly').objectStore('FILE_DATA').get(k)).then(function (rec) {
+            db.close(); var t = text(bytes(rec && rec.contents) || new Uint8Array(0)), d;
+            if (spec.fmt === 'kv') { d = {}; t.split(/\r?\n/).forEach(function (l) { var m = /^\s*([\w.]+)\s*=\s*"?([^"\r\n]*)"?/.exec(l); if (m) d[m[1]] = m[2]; }); }
+            else { var i = t.indexOf('{'); try { d = JSON.parse(t.slice(i)); } catch (e) { d = null; } }
+            return d ? compute([d]) : null;
+          });
+        }, function () { db.close(); return null; });
       }).catch(function () { return null; });
       if (spec.src === 'lf' && spec.key instanceof RegExp) return openDb(spec.db || 'localforage').then(function (db) {
         if (!db || !db.objectStoreNames.contains('keyvaluepairs')) { if (db) db.close(); return null; }
@@ -334,7 +353,9 @@ window.MistHooks = (function () {
         return Promise.all([req(os.getAllKeys()), req(os.getAll())]).then(function (r) {
           db.close(); var o = {}, any = false;
           r[0].forEach(function (k, i) { if (spec.key.test(String(k))) { o[k] = decode(r[1][i], spec.fmt); any = true; } });
-          return any ? compute([o]) : null;
+          if (!any) return null;
+          if (spec.session) { var snap = JSON.stringify(o); if (state.lfBase === undefined) { state.lfBase = snap; return null; } if (snap === state.lfBase) return null; }
+          return compute([o]);
         }, function () { db.close(); return null; });
       }).catch(function () { return null; });
       if (spec.src === 'lf') return readLocalforage(spec.key).then(function (v) { return v === null || v === undefined ? null : compute([decode(v, spec.fmt)]); }).catch(function () { return null; });
@@ -421,6 +442,16 @@ window.MistHooks = (function () {
         customTracks: keys.filter(function (k) { return k.indexOf('polytrack_v5_prod_track_') === 0; }).length };
     } },
     'Bloons TD 5': { interval: 8000, poll: btd5 },
+    // Learn to Fly 3 keeps its profile as base64(raw-deflate(AMF3 ProfileState)) inside the save.
+    'Learn to Fly 3': flashHook(/^profileData$/, function (saves) {
+      var str = saves[0] && saves[0].saveString; if (!str || typeof DecompressionStream === 'undefined') return null;
+      var bin = atob(str), u = new Uint8Array(bin.length); for (var j = 0; j < bin.length; j++) u[j] = bin.charCodeAt(j);
+      return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer().then(function (ab) {
+        var p = parseSol(new Uint8Array(ab), true); if (!p) return null;
+        var st = p.stats || {}, md = p.medals || {};
+        return { altitude: num(st.bestAltitude), days: num(st.totalDays), finished: num(st.totalGamesFinished), medals: countTrue(md), upgrades: num(st.totalItemUpgrades) };
+      }).catch(function () { return null; });
+    }),
     /* ---- batch 2 (Flash) ---- */
     "Papa's Pizzeria": papas(), "Papa's Burgeria": papas(), "Papa's Taco Mia!": papas(), "Papa's Freezeria": papas(),
     "Papa's Pancakeria": papas(), "Papa's Wingeria": papas(), "Papa's Hot Doggeria": papas(), "Papa's Cupcakeria": papas(),
@@ -495,12 +526,16 @@ window.MistHooks = (function () {
         jumps: star(0), attempts: star(1) };
     }),
     'Tunnel Rush': prefsHook(function (p) { return p.RecordDistance === undefined ? null : { distance: Math.floor(num(p.RecordDistance)) }; }),
-    'Snow Rider 3D': prefsHook(function (p) { return p.Plays === undefined ? null : { plays: num(p.Plays), skin: num(p.CurrentSkin) > 0 ? 1 : 0 }; }),
-    'Slope': { interval: 6000, poll: function () {
+    'Slope': { interval: 6000, poll: function (win, state) {
       return readPlayerPrefs().then(function (prefs) {
         if (!prefs) return null;
+        // Other Unity games share this prefs file, so only a best score that changes while Slope runs counts.
+        var cur = {};
+        Object.keys(prefs).forEach(function (k) { if (/best|high/i.test(k) && /score/i.test(k)) cur[k] = num(prefs[k]); });
+        if (!state.slopeBase) { state.slopeBase = cur; return null; }
         var best = 0;
-        Object.keys(prefs).forEach(function (k) { if (/best|high/i.test(k) && /score/i.test(k)) best = Math.max(best, num(prefs[k])); });
+        Object.keys(cur).forEach(function (k) { if (cur[k] !== state.slopeBase[k]) best = Math.max(best, cur[k]); });
+        if (!best) return null;
         return { best: Math.floor(best) };
       }).catch(function () { return null; });
     } },
