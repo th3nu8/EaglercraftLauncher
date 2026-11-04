@@ -145,7 +145,14 @@ PrivateTmp=true
 WantedBy=multi-user.target
 EOF
 
-NODE_BIN="$(command -v node)"
+# The relay runs as $SVC_USER with /root and /home hidden, so Node must live somewhere it can reach.
+# (nvm installs Node under /root/.nvm; in that case use a copy in $INSTALL_DIR.)
+NODE_BIN="$(readlink -f "$(command -v node)")"
+if [[ "$NODE_BIN" == /root/* || "$NODE_BIN" == /home/* ]] || ! runuser -u "$SVC_USER" -- test -x "$NODE_BIN"; then
+    install -D -m 755 "$NODE_BIN" "$INSTALL_DIR/node/bin/node"
+    NODE_BIN="$INSTALL_DIR/node/bin/node"
+    echo "    using a copy of Node.js for the relay: $NODE_BIN"
+fi
 cat > /etc/systemd/system/cs16-relay.service <<EOF
 [Unit]
 Description=CS 1.6 browser relay (WebSocket <-> UDP)
@@ -222,6 +229,9 @@ systemctl restart cs16-server.service cs16-relay.service
 sleep 3
 say "Status"
 echo "cs16-server: $(systemctl is-active cs16-server)    cs16-relay: $(systemctl is-active cs16-relay)"
+for svc in cs16-server cs16-relay; do
+    systemctl is-active -q "$svc" || { echo "--- $svc isn't running. Last log lines:"; journalctl -u "$svc" -n 12 --no-pager || true; }
+done
 curl -fsS "http://127.0.0.1:$RELAY_PORT/servers" && echo
 
 cat <<EOF
