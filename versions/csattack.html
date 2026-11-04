@@ -119,10 +119,28 @@
             webgl2:     `${ENGINE}/libref_webgl2.wasm`,
             soft:       `${ENGINE}/libref_soft.wasm`,
             extras:     `${ENGINE}/valve/extras.pk3`,
-            menu:       `${CS}/cl_dll/menu_emscripten_wasm32.wasm`,
-            client:     `${CS}/cl_dll/client_emscripten_wasm32.wasm`,
-            server:     `${CS}/dlls/cs_emscripten_wasm32.so`,
+            // cs16-client >= 0.1.0 moved files (cl_dll -> cl_dlls, server .so -> .wasm).
+            // Candidates are tried in order; the first one that exists is used.
+            menu:   [`${CS}/cl_dlls/menu_emscripten_wasm32.wasm`,
+                     `${CS}/cstrike/cl_dlls/menu_emscripten_wasm32.wasm`,
+                     `${CS}/cl_dll/menu_emscripten_wasm32.wasm`],
+            client: [`${CS}/cl_dlls/client_emscripten_wasm32.wasm`,
+                     `${CS}/cstrike/cl_dlls/client_emscripten_wasm32.wasm`,
+                     `${CS}/cl_dll/client_emscripten_wasm32.wasm`],
+            server: [`${CS}/dlls/cs_emscripten_wasm32.wasm`,
+                     `${CS}/cstrike/dlls/cs_emscripten_wasm32.wasm`,
+                     `${CS}/dlls/cs_emscripten_wasm32.so`],
         };
+
+        async function firstExisting(candidates, label) {
+            for (const url of candidates) {
+                try {
+                    const r = await fetch(url, { method: 'HEAD' });
+                    if (r.ok) { console.log(`[libs] ${label} -> ${url}`); return url; }
+                } catch { /* try next */ }
+            }
+            throw new Error(`Could not find ${label} on the CDN. Add it to valve.zip instead.`);
+        }
 
         const ZIP_URL = 'https://134.195.88.52/assets/valve.zip';
 
@@ -239,21 +257,25 @@
                 for (const [path, data] of Object.entries(files)) {
                     byName[path.slice(path.lastIndexOf('/') + 1)] = data;
                 }
-                const fromZip = (name, cdnUrl) => {
-                    const data = byName[name];
-                    if (!data) return cdnUrl;
-                    console.log(`[libs] ${name} -> from valve.zip`);
-                    return URL.createObjectURL(new Blob([data], { type: 'application/wasm' }));
+                // Returns a blob: URL if found in the zip, else the CDN URL
+                // (or the first existing URL when given a list of candidates).
+                const pick = async (names, cdn, label) => {
+                    for (const name of names) {
+                        if (byName[name]) {
+                            console.log(`[libs] ${label} -> ${name} from valve.zip`);
+                            return URL.createObjectURL(new Blob([byName[name]], { type: 'application/wasm' }));
+                        }
+                    }
+                    return Array.isArray(cdn) ? firstExisting(cdn, label) : cdn;
                 };
-                URLS.xash       = fromZip('xash.wasm', URLS.xash);
-                URLS.filesystem = fromZip('filesystem_stdio.wasm', URLS.filesystem);
-                URLS.webgl2     = fromZip('libref_webgl2.wasm', URLS.webgl2);
-                URLS.soft       = fromZip('libref_soft.wasm', URLS.soft);
-                URLS.menu       = fromZip('menu_emscripten_wasm32.wasm', URLS.menu);
-                URLS.client     = fromZip('client_emscripten_wasm32.wasm', URLS.client);
-                URLS.server     = byName['cs_emscripten_wasm32.so']
-                    ? fromZip('cs_emscripten_wasm32.so', URLS.server)
-                    : fromZip('cs_emscripten_wasm32.wasm', URLS.server);
+                updateStatus('Locating engine libraries...');
+                URLS.xash       = await pick(['xash.wasm'], URLS.xash, 'engine');
+                URLS.filesystem = await pick(['filesystem_stdio.wasm'], URLS.filesystem, 'filesystem');
+                URLS.webgl2     = await pick(['libref_webgl2.wasm'], URLS.webgl2, 'webgl2 renderer');
+                URLS.soft       = await pick(['libref_soft.wasm'], URLS.soft, 'soft renderer');
+                URLS.menu       = await pick(['menu_emscripten_wasm32.wasm'], URLS.menu, 'menu');
+                URLS.client     = await pick(['client_emscripten_wasm32.wasm'], URLS.client, 'client');
+                URLS.server     = await pick(['cs_emscripten_wasm32.wasm', 'cs_emscripten_wasm32.so'], URLS.server, 'CS server');
 
                 const renderer = hasWebGL2() ? 'gles3compat' : 'soft';
                 if (renderer === 'soft') console.warn('WebGL2 unavailable — using software renderer.');
