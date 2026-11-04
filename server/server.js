@@ -274,6 +274,7 @@ const GAME_TIERS = [
 // Convert badges from the earlier 4-badge version (bronze/silver/gold/platinum): keep the dates
 // where a matching achievement exists, then fill in the rest from playtime.
 (function migrateOldBadges() {
+  try {
   const map = { bronze: ['m5'], silver: ['h1'], gold: ['h5'], platinum: [] };
   let changed = 0;
   for (const games of Object.values(db.gameAch)) for (const tiers of Object.values(games)) {
@@ -285,6 +286,7 @@ const GAME_TIERS = [
   // The 25h/50h/100h per-game tiers were removed: drop them so counts and XP match what's shown.
   for (const games of Object.values(db.gameAch)) for (const tiers of Object.values(games)) for (const id of ['h25', 'h50', 'h100']) if (tiers[id]) { delete tiers[id]; changed++; }
   if (changed) { console.log(`Updated ${changed} old game badge(s) to the current 7-per-game set.`); saveDbSoon(); }
+  } catch (e) { console.error("Startup cleanup skipped:", e.message); }
 })();
 const TIER_BY_ID = Object.fromEntries(GAME_TIERS.map(t => [t.id, t]));
 function checkGameAch(uid, game, notify = true) {
@@ -1322,10 +1324,12 @@ for (const [g, defs] of Object.entries(HOOK_ACH)) for (const a of defs) if (!a.r
 const achDefs = game => GENERIC_ACH.concat(HOOK_ACH[game] || []);
 // Drop the removed visit-based achievements from existing accounts.
 (function dropVisitAch() {
+  try {
   let n = 0;
   for (const games of Object.values(db.hookAch)) for (const got of Object.values(games)) for (const id of ['days3', 'days7', 'launch25']) if (got[id]) { delete got[id]; n++; }
   for (const games of Object.values(db.gstats)) for (const st of Object.values(games)) { delete st._launches; delete st._days; delete st._lastDay; }
   if (n) { console.log(`Removed ${n} visit achievement(s).`); saveDbSoon(); }
+  } catch (e) { console.error("Startup cleanup skipped:", e.message); }
 })();
 function hookList(game, uid) {
   const defs = achDefs(game);
