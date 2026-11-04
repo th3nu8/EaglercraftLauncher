@@ -135,20 +135,47 @@
             });
 
             try {
-                updateStatus("Connecting to asset mirror...");
-                
-                // Using jsDelivr CDN to bypass GitHub LFS redirect restrictions
-                const res = await fetch('https://134.195.88.52/assets/valve.zip');
+                updateStatus("Connecting to asset CDN...");
+
+                const zipUrl = 'https://134.195.88.52/assets/valve.zip';
+                const res = await fetch(zipUrl);
 
                 if (!res.ok) {
-                    throw new Error(`HTTP error status: ${res.status}`);
+                    throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
                 }
 
-                updateStatus("Downloading game archive...");
-                const buffer = await res.arrayBuffer();
+                updateStatus("Streaming game archive...");
+                const contentLength = +res.headers.get('Content-Length');
+                const reader = res.body.getReader();
+                let receivedBytes = 0;
+                let chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    chunks.push(value);
+                    receivedBytes += value.length;
+
+                    if (contentLength) {
+                        const percent = Math.floor((receivedBytes / contentLength) * 100);
+                        updateProgress(percent);
+                        updateStatus(`Downloading archive... ${percent}% (${(receivedBytes / (1024 * 1024)).toFixed(1)} MB)`);
+                    } else {
+                        updateStatus(`Downloaded ${(receivedBytes / (1024 * 1024)).toFixed(1)} MB...`);
+                    }
+                }
+
+                // Combine chunks into single ArrayBuffer
+                const buffer = new Uint8Array(receivedBytes);
+                let position = 0;
+                for (let chunk of chunks) {
+                    buffer.set(chunk, position);
+                    position += chunk.length;
+                }
 
                 updateStatus("Unpacking archive structures...");
-                const zip = await JSZip.loadAsync(buffer, { checkCRC32: false });
+                const zip = await JSZip.loadAsync(buffer.buffer, { checkCRC32: false });
                 const files = {};
 
                 const entries = Object.keys(zip.files);
@@ -156,7 +183,7 @@
                 let loaded = 0;
 
                 if (totalFiles === 0) {
-                    throw new Error("The downloaded zip archive contains no files.");
+                    throw new Error("The downloaded archive is empty.");
                 }
 
                 await Promise.all(entries.map(async p => {
@@ -165,10 +192,10 @@
                     files[`/rodir/${p}`] = await file.async("uint8array");
                     loaded++;
                     updateProgress(Math.floor((loaded / totalFiles) * 100));
-                    updateStatus(`Extracting... (${loaded}/${totalFiles})`);
+                    updateStatus(`Extracting files... (${loaded}/${totalFiles})`);
                 }));
 
-                updateStatus("Initializing game engine instance...");
+                updateStatus("Initializing game engine...");
 
                 Xash3D({
                     arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'], 
@@ -213,7 +240,7 @@
                             case 'filesystem_stdio.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/filesystem_stdio.wasm';
                             case 'libref_gles3compat.wasm':
-                                return 'https://cdn.jsdelivr.net/npm/libref_gles3compat@latest/dist/libref_gles3compat.wasm';
+                                return 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@latest/dist/libref_gles3compat.wasm';
                             case 'cl_dlls/menu_emscripten_wasm32.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
                             case 'dlls/cs_emscripten_wasm32.so':
@@ -226,7 +253,7 @@
                     },
                 });
             } catch (e) {
-                updateStatus("Failed to load game. See browser console.");
+                updateStatus("Failed to load game. Check console.");
                 console.error("Critical loading failure:", e);
             }
         }
