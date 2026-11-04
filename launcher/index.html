@@ -89,7 +89,7 @@
         <h2>Settings</h2>
         <h3>Games</h3>
         <div class="srow">
-          <div><b>Launch mode</b><small>“Inside launcher” keeps a button to get back here. “Replace page” uses the whole tab and can be faster.</small></div>
+          <div><b>Launch mode</b><small>“Inside launcher” keeps the Mist overlay (friends, chat, achievements) available in games. “Replace page” uses the whole tab and can be faster.</small></div>
           <select id="setMode"><option value="iframe">Inside launcher</option><option value="replace">Replace page</option></select>
         </div>
         <div class="srow">
@@ -141,7 +141,8 @@
 <div class="modal" id="modal"><div class="m-box" id="mBox"></div></div>
 <div class="menu-pop" id="menuPop"></div>
 <div class="toast" id="toast"></div>
-<button id="backBtn" class="back-btn">◀ Library</button>
+<button id="mistBtn" class="mist-btn" title="Mist overlay (Shift+Tab)"><span class="brand-ico"></span>Mist</button>
+<div id="mistOv" class="mist-ov"></div>
 <input type="file" id="fileIn" accept=".html,.htm,text/html" hidden>
 <input type="file" id="saveIn" accept=".eglsave" hidden>
 

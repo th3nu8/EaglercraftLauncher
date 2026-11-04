@@ -196,6 +196,7 @@ window.MistSocial = function (ctx) {
   function togglePanel(force) { panelOpen = force === undefined ? !panelOpen : force; render(); if (panelOpen) refresh(); schedule(); }
   function render() {
     renderButton();
+    if (ovHost) drawOvFriends();
     if (chat) { var cf = friend(chat.name), cst = $('#chatState');
       if (cf && cst) { cst.textContent = stateText(cf); cst.className = 'st-' + cf.state; } }
     var p = $('#friendsPanel'); if (!p) return;
@@ -962,6 +963,64 @@ window.MistSocial = function (ctx) {
     $('#usersMore').onclick = function () { if (usersState.loading) return; usersState.page++; loadUsers(false); };
   }
 
+  /* ---------- in-game Mist overlay: you, friends, chat ---------- */
+  var ovHost = null, ovGame = null;
+  function overlayMe(host) {
+    host.textContent = '';
+    if (!eng()) {
+      host.appendChild(el('p', 'mo-note', ctx.getEngine() ? 'Sign in to see friends, chat and track achievements.' : 'Friends and achievements need a save server (Settings).'));
+      var b = el('button', 'btn green', ctx.getEngine() ? 'Sign in' : 'Open settings'); b.onclick = ctx.openAccount; host.appendChild(b);
+      return;
+    }
+    var me = el('div', 'mo-me'); me.appendChild(avatar(eng().user, 48, 'ingame'));
+    var t = el('div', 'fp-t'); t.appendChild(el('b', null, eng().user)); t.appendChild(el('small', 'st-ingame', playing ? 'Playing ' + playing : 'Online'));
+    me.appendChild(t); host.appendChild(me);
+    if (myLevel) host.appendChild(levelBar(myLevel));
+    else api('GET', '/api/profile?name=' + encodeURIComponent(eng().user)).then(function (pr) {
+      if (pr && pr.level && typeof pr.level.level === 'number') { myLevel = pr.level; if (host.isConnected) host.appendChild(levelBar(myLevel)); }
+    }, function () {});
+  }
+  function overlayFriends(host, game) { ovHost = host; ovGame = game; drawOvFriends(); if (eng()) refresh(); }
+  function drawOvFriends() {
+    var host = ovHost; if (!host || !host.isConnected) { ovHost = null; return; }
+    host.textContent = '';
+    var head = el('div', 'mo-h'); head.appendChild(el('h5', null, 'Friends'));
+    if (eng()) { var add = el('button', 'mini', '＋'); add.title = 'Add a friend'; add.onclick = openAddFriend; head.appendChild(add); }
+    host.appendChild(head);
+    if (!eng()) { host.appendChild(el('div', 'fp-empty', 'Sign in to see your friends.')); return; }
+    if (!data) { host.appendChild(el('div', 'fp-empty', 'Loading…')); return; }
+    var list = el('div', 'mo-list');
+    data.incoming.forEach(function (n) {
+      var r = el('div', 'fp-row req'); r.appendChild(avatar(n, 32));
+      var t = el('div', 'fp-t'); t.appendChild(el('b', null, n)); t.appendChild(el('small', null, 'wants to be friends')); r.appendChild(t);
+      var ok = el('button', 'mini ok', '✓'); ok.title = 'Accept';
+      ok.onclick = function () { api('POST', '/api/friends/accept', { username: n }).then(function () { toast('You and ' + n + ' are now friends'); refresh(); }, function (e) { toast(e.message); }); };
+      var no = el('button', 'mini', '✕'); no.title = 'Decline';
+      no.onclick = function () { api('POST', '/api/friends/decline', { username: n }).then(refresh); };
+      r.appendChild(ok); r.appendChild(no); list.appendChild(r);
+    });
+    var order = { ingame: 0, online: 1, offline: 2 };
+    var fs = data.friends.slice().sort(function (a, b) {
+      var sa = a.state === 'ingame' && a.game === ovGame ? -1 : order[a.state], sb = b.state === 'ingame' && b.game === ovGame ? -1 : order[b.state];
+      return sa - sb || a.name.localeCompare(b.name);
+    });
+    fs.forEach(function (f) {
+      var r = el('button', 'fp-row st-' + f.state + (chat && chat.name === f.name ? ' sel' : ''));
+      r.appendChild(avatar(f.name, 32, f.state));
+      var t = el('div', 'fp-t'); t.appendChild(el('b', null, f.name));
+      t.appendChild(el('small', 'st-' + f.state, f.state === 'ingame' && f.game === ovGame ? 'Playing this game too' : stateText(f))); r.appendChild(t);
+      if (f.unread) r.appendChild(el('span', 'fb-badge', String(f.unread)));
+      r.appendChild(el('span', 'mo-chat', '💬'));
+      r.onclick = function () { openChat(f.name); };
+      list.appendChild(r);
+    });
+    if (!fs.length && !data.incoming.length) {
+      var em = el('div', 'fp-empty'); em.appendChild(el('p', null, 'No friends yet.'));
+      var ab = el('button', 'btn green', 'Add a friend'); ab.onclick = openAddFriend; em.appendChild(ab); list.appendChild(em);
+    }
+    host.appendChild(list);
+  }
+
   function friendsWhoPlay(gameName) {
     if (!data) return [];
     return data.friends.filter(function (f) { return (f.state === 'ingame' && f.game === gameName) || (f.recent || []).indexOf(gameName) >= 0; });
@@ -970,6 +1029,7 @@ window.MistSocial = function (ctx) {
   return {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
     showAchievements: showAchievements, lookKey: lookKey, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
+    overlayMe: overlayMe, overlayFriends: overlayFriends, closeChat: closeChat,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

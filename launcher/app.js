@@ -255,13 +255,16 @@
     if (!g || g.cloudSaves) startAutosave();
     if (social) social.setPlaying(g ? g.name : name);
     startHooks(g);
-    var b = $('#backBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 2500);
+    gameStart = Date.now();
+    hookOverlayKeys();
+    var b = $('#mistBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 3000);
   }
   function closeGame(silent) {
     if (!gameFrame) return;
     if (!silent && !confirm('Return to the library? Unsaved progress in the running game will be lost.')) return;
     var hadSaves = !runningGame || runningGame.cloudSaves;
     stopHooks();
+    closeMistOverlay(true);
     gameFrame.remove(); gameFrame = null; runningGame = null;
     if (social) social.setPlaying(null);
     if (gameUrl) { URL.revokeObjectURL(gameUrl); gameUrl = null; }
@@ -271,6 +274,92 @@
     if (!silent && hadSaves && engine && engine.signedIn()) setTimeout(backgroundSync, 600);
     renderAll();
   }
+  /* ---------- Mist overlay: opened from the Mist tab (or Shift+Tab) while a game runs ---------- */
+  var gameStart = 0, ovTimer = null;
+  function sessionText() {
+    var s = Math.floor((Date.now() - gameStart) / 1000), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60;
+    return h ? h + 'h ' + m + 'm' : m ? m + 'm ' + (s % 60) + 's' : (s % 60) + 's';
+  }
+  function mistOverlayOpen() { return $('#mistOv').classList.contains('open'); }
+  function toggleMistOverlay() { if (mistOverlayOpen()) closeMistOverlay(); else openMistOverlay(); }
+  function closeMistOverlay(quiet) {
+    var ov = $('#mistOv'); if (!ov.classList.contains('open')) return;
+    ov.classList.remove('open'); ov.textContent = ''; clearInterval(ovTimer);
+    $('#friendsPanel').classList.remove('over-ov'); $('#chatWin').classList.remove('over-ov');
+    if (social) social.closeChat();
+    if (!quiet) setTimeout(function () { try { gameFrame && gameFrame.focus(); } catch (e) {} }, 30);
+  }
+  function openMistOverlay() {
+    if (!gameFrame) return;
+    var g = runningGame, name = g ? g.name : document.title.split(' · ')[0];
+    var ov = $('#mistOv'); ov.textContent = ''; ov.classList.add('open');
+    $('#chatWin').classList.add('over-ov');
+    ov.onmousedown = function (e) { if (e.target === ov) closeMistOverlay(); };
+    /* top bar */
+    var bar = el('div', 'mo-bar');
+    var br = el('div', 'mo-brand'); br.appendChild(el('span', 'brand-ico')); br.appendChild(el('b', null, 'MIST')); bar.appendChild(br);
+    var gi = el('div', 'mo-game');
+    if (g) { var art = el('div', 'mo-art'); artInto(art, g, 'icon'); gi.appendChild(art); }
+    var gt = el('div', 'fp-t'); gt.appendChild(el('b', null, name));
+    var sess = el('small', null, 'Playing for ' + sessionText()); gt.appendChild(sess); gi.appendChild(gt); bar.appendChild(gi);
+    var clock = el('div', 'mo-clock');
+    function tick() { sess.textContent = 'Playing for ' + sessionText(); clock.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+    tick(); clearInterval(ovTimer); ovTimer = setInterval(tick, 1000);
+    bar.appendChild(clock);
+    var x = el('button', 'mo-x', '✕'); x.title = 'Back to game (Shift+Tab)'; x.onclick = function () { closeMistOverlay(); }; bar.appendChild(x);
+    ov.appendChild(bar);
+    /* body */
+    var body = el('div', 'mo-body');
+    var left = el('div', 'mo-col mo-left');
+    var meBox = el('div', 'mo-card'); left.appendChild(meBox);
+    var acts = el('div', 'mo-card mo-acts');
+    acts.appendChild(el('h5', null, 'Game'));
+    var resume = el('button', 'btn green', '▶ Resume'); resume.onclick = function () { closeMistOverlay(); }; acts.appendChild(resume);
+    var fsOk = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    if (fsOk) {
+      var fsb = el('button', 'btn', (document.fullscreenElement || document.webkitFullscreenElement) ? '⤢ Exit fullscreen' : '⤢ Fullscreen');
+      fsb.onclick = function () {
+        var d = document, inFs = d.fullscreenElement || d.webkitFullscreenElement;
+        try {
+          if (inFs) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+          else { var r = d.documentElement; (r.requestFullscreen || r.webkitRequestFullscreen).call(r); }
+        } catch (e) { toast('Fullscreen isn’t available here'); }
+        closeMistOverlay();
+      };
+      acts.appendChild(fsb);
+    }
+    var rl = el('button', 'btn', '↻ Restart game'); rl.onclick = function () {
+      if (!confirm('Restart ' + name + '? Unsaved progress since the last save will be lost.')) return;
+      closeMistOverlay(true); var gg = runningGame; closeGame(true); if (gg) play(gg, selVersion(gg));
+    };
+    if (g) acts.appendChild(rl);
+    if (g) { var sp = el('button', 'btn', 'ⓘ Store page'); sp.onclick = function () { if (!confirm('Leave ' + name + ' and open its store page?')) return; closeMistOverlay(true); closeGame(true); go('game', g); }; acts.appendChild(sp); }
+    var lib = el('button', 'btn ghost', '◀ Quit to library'); lib.onclick = function () { closeMistOverlay(true); closeGame(false); }; acts.appendChild(lib);
+    left.appendChild(acts);
+    var notes = el('div', 'mo-card');
+    notes.appendChild(el('h5', null, 'Notes'));
+    var ta = el('textarea', 'mo-notes'); ta.placeholder = 'Codes, seeds, where you left off… (saved on this device)';
+    var nkey = 'notes:' + (g ? g.id : name);
+    ta.value = store.get(nkey, '');
+    ta.oninput = function () { store.set(nkey, ta.value); };
+    notes.appendChild(ta); left.appendChild(notes);
+    body.appendChild(left);
+    var mid = el('div', 'mo-col mo-mid'); var achBox = el('div', 'mo-card gp-ach'); mid.appendChild(achBox); body.appendChild(mid);
+    var right = el('div', 'mo-col mo-right'); var frBox = el('div', 'mo-card mo-friends'); right.appendChild(frBox); body.appendChild(right);
+    ov.appendChild(body);
+    ov.appendChild(el('div', 'mo-foot', 'Shift+Tab or the Mist tab opens and closes this overlay. The game keeps running behind it.'));
+    if (social) {
+      social.overlayMe(meBox);
+      social.overlayFriends(frBox, name);
+      if (g) social.renderGameAch(achBox, g.name); else achBox.appendChild(el('div', 'fp-empty', 'Achievements are tracked for games from the store.'));
+    } else { meBox.appendChild(el('p', 'mo-note', 'Social features aren’t loaded.')); }
+  }
+  function hookOverlayKeys() {
+    function onKey(e) { if (e.key === 'Tab' && e.shiftKey) { e.preventDefault(); e.stopPropagation(); toggleMistOverlay(); } }
+    try { gameFrame.contentWindow.addEventListener('keydown', onKey, true); } catch (e) {}
+    if (!hookOverlayKeys.top) { hookOverlayKeys.top = true; document.addEventListener('keydown', function (e) { if (gameFrame) onKey(e); }, true); }
+  }
+
   /* Game hooks: read progress from supported games while they run (launcher/hooks.js). */
   var hookWatch = null;
   function startHooks(g) {
@@ -911,11 +1000,11 @@
   $('#fileIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) launchLocalFile(f); };
   $('#dlCancel').onclick = function () { if (dl && dl.ctrl) dl.ctrl.abort(); };
   $('#ovBtn').onclick = hideOverlay;
-  $('#backBtn').onclick = function () { closeGame(false); };
+  $('#mistBtn').onclick = toggleMistOverlay;
   $('#modal').addEventListener('mousedown', function (e) { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('click', function (e) { if (!e.target.closest('#menuPop')) closeMenu(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMenu(); closeModal(); } });
-  document.addEventListener('mousemove', function (e) { $('#backBtn').classList.toggle('peek', e.clientY < 8); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMenu(); if ($('#modal').classList.contains('open')) closeModal(); else if (gameFrame && mistOverlayOpen()) closeMistOverlay(); } });
+  document.addEventListener('mousemove', function (e) { $('#mistBtn').classList.toggle('peek', e.clientY < 30); });
   $('#setDebug').onchange = function () { settings.debug = this.value; store.set('debugGames', settings.debug); toast(this.value === 'on' ? 'Debug panel on for the next game you open' : 'Debug panel off'); };
   $('#setMode').onchange = function () { settings.mode = this.value; store.set('mode', settings.mode); toast('Saved'); };
   $('#setTitle').onchange = function () {
