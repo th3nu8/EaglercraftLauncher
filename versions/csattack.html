@@ -112,6 +112,7 @@
 
         function updateStatus(msg) {
             loadingStatus.innerText = msg;
+            console.log("[Status]", msg);
         }
 
         function updateProgress(percent) {
@@ -134,16 +135,25 @@
             });
 
             try {
-                updateStatus("Fetching game assets...");
-                const res = await fetch('https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/versions/valve.zip');
+                updateStatus("Connecting to repository for valve.zip...");
                 
+                // Fetch with a timeout check
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+                const res = await fetch('https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/versions/valve.zip', {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
                 if (!res.ok) {
-                    throw new Error(`Failed to fetch zip: ${res.statusText}`);
+                    throw new Error(`HTTP error status: ${res.status}`);
                 }
 
+                updateStatus("Downloading zip file into memory...");
                 const buffer = await res.arrayBuffer();
 
-                updateStatus("Extracting game files...");
+                updateStatus("Unpacking archive structures...");
                 const zip = await JSZip.loadAsync(buffer, { checkCRC32: false });
                 const files = {};
 
@@ -151,16 +161,20 @@
                 let totalFiles = entries.length;
                 let loaded = 0;
 
+                if (totalFiles === 0) {
+                    throw new Error("The downloaded zip archive contains no files.");
+                }
+
                 await Promise.all(entries.map(async p => {
                     const file = zip.files[p];
                     if (file.dir) return;
                     files[`/rodir/${p}`] = await file.async("uint8array");
                     loaded++;
                     updateProgress(Math.floor((loaded / totalFiles) * 100));
-                    updateStatus(`Loading files... (${loaded}/${totalFiles})`);
+                    updateStatus(`Extracting... (${loaded}/${totalFiles})`);
                 }));
 
-                updateStatus("Initializing game engine...");
+                updateStatus("Initializing game engine instance...");
 
                 Xash3D({
                     arguments: ['-windowed', '-game', 'cstrike', '+_vgui_menus', '0'], 
@@ -209,4 +223,21 @@
                             case 'cl_dlls/menu_emscripten_wasm32.wasm':
                                 return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/menu_emscripten_wasm32.wasm';
                             case 'dlls/cs_emscripten_wasm32.so':
-                                return '
+                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/dlls/cs_emscripten_wasm32.so';
+                            case 'cl_dlls/client_emscripten_wasm32.wasm':
+                                return 'https://cdn.jsdelivr.net/npm/cs16-client@latest/dist/cl_dll/client_emscripten_wasm32.wasm';
+                            default:
+                                return p;
+                        }
+                    },
+                });
+            } catch (e) {
+                updateStatus("Failed to load game. See browser console.");
+                console.error("Critical loading failure:", e);
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
