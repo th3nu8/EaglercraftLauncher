@@ -67,12 +67,12 @@
     "legendary"
    ],
    [
-    "a10",
+    "a5",
     "🏅",
     "Achiever",
-    "Unlock 10 of the game’s own achievements.",
+    "Unlock 5 of the game’s own achievements.",
     "ach",
-    10,
+    5,
     "epic"
    ]
   ]
@@ -159,7 +159,7 @@
     "b4",
     "🎈",
     "Track Explorer",
-    "Earn bronze medals on 4 tracks.",
+    "Earn bronze medals on all 4 tracks.",
     "bronze",
     4,
     "rare"
@@ -183,12 +183,12 @@
     "epic"
    ],
    [
-    "g8",
+    "g4",
     "👑",
     "Bloon Master",
-    "Earn gold medals on 8 tracks.",
+    "Earn gold medals on all 4 tracks.",
     "gold",
-    8,
+    4,
     "legendary"
    ]
   ]
@@ -382,35 +382,38 @@
    "src": "flash",
    "key": "level",
    "stats": {
-    "level": "var_lev"
+    "l1": "var_lev.1",
+    "l3": "var_lev.3",
+    "l6": "var_lev.6",
+    "top": "var_lev|ge:6"
    }
   },
   "ach": [
    [
-    "l3",
+    "l1",
     "🕵️",
     "Sneaky",
-    "Reach level 3.",
-    "level",
-    3,
+    "Complete the first level.",
+    "l1",
+    2,
     "common"
    ],
    [
-    "l8",
+    "l3",
     "💰",
-    "Master Thief",
-    "Reach level 8.",
-    "level",
-    8,
+    "Smooth Criminal",
+    "Complete level 3.",
+    "l3",
+    2,
     "rare"
    ],
    [
-    "l15",
+    "l6",
     "👑",
     "The Perfect Heist",
-    "Reach level 15.",
-    "level",
-    15,
+    "Complete all 6 levels.",
+    "l6",
+    2,
     "epic"
    ]
   ]
@@ -437,12 +440,12 @@
     "common"
    ],
    [
-    "l15",
+    "l11",
     "🏦",
     "Heist Planner",
-    "Unlock 15 levels.",
+    "Unlock all 11 levels.",
     "levels",
-    15,
+    11,
     "rare"
    ],
    [
@@ -496,12 +499,12 @@
     "rare"
    ],
    [
-    "l25",
+    "l20",
     "👑",
     "Chaos Master",
-    "Complete 25 levels.",
+    "Complete all 20 levels.",
     "levels",
-    25,
+    20,
     "epic"
    ],
    [
@@ -553,12 +556,12 @@
     "common"
    ],
    [
-    "lv4",
+    "lv3",
     "🌀",
     "Spiral Runner",
-    "Unlock level 4.",
+    "Unlock the final level (3).",
     "level",
-    4,
+    3,
     "rare"
    ],
    [
@@ -846,7 +849,7 @@
     "l8",
     "💣",
     "Tank Commander",
-    "Beat 8 levels.",
+    "Beat 8 of the 15 levels.",
     "levels",
     8,
     "rare"
@@ -1088,12 +1091,12 @@
     "rare"
    ],
    [
-    "l15",
+    "l10",
     "👑",
     "Heist Legend",
-    "Reach level 15.",
+    "Reach level 10.",
     "level",
-    15,
+    10,
     "epic"
    ],
    [
@@ -1351,16 +1354,25 @@
     "Complete the final level.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
-    "s20k",
+    "s3k",
     "⭐",
     "High Scorer",
-    "Score 20,000 points across all levels.",
+    "Score 3,000 points across all levels.",
     "score",
-    20000,
+    3000,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 20 levels.",
+    "levels",
+    20,
+    "epic"
    ]
   ]
  },
@@ -1400,16 +1412,25 @@
     "Complete the final level.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
-    "s20k",
+    "s3k",
     "⭐",
     "High Scorer",
-    "Score 20,000 points across all levels.",
+    "Score 3,000 points across all levels.",
     "score",
-    20000,
+    3000,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 25 levels.",
+    "levels",
+    25,
+    "epic"
    ]
   ]
  },
@@ -1449,16 +1470,25 @@
     "Complete the final level.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
-    "s20k",
+    "s3k",
     "⭐",
     "High Scorer",
-    "Score 20,000 points across all levels.",
+    "Score 3,000 points across all levels.",
     "score",
-    20000,
+    3000,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 25 levels.",
+    "levels",
+    25,
+    "epic"
    ]
   ]
  },
@@ -1498,16 +1528,25 @@
     "Complete the final level.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
-    "s20k",
+    "s3k",
     "⭐",
     "High Scorer",
-    "Score 20,000 points across all levels.",
+    "Score 3,000 points across all levels.",
     "score",
-    20000,
+    3000,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 25 levels.",
+    "levels",
+    25,
+    "epic"
    ]
   ]
  },
@@ -1541,12 +1580,12 @@
     "rare"
    ],
    [
-    "l50",
+    "l30",
     "👑",
     "Bouncy Legend",
-    "Complete 50 levels.",
+    "Complete 30 levels.",
     "levels",
-    50,
+    30,
     "epic"
    ],
    [
@@ -1869,12 +1908,12 @@
     "rare"
    ],
    [
-    "l30",
+    "l20",
     "👑",
     "The Hardest",
-    "Reach level 30.",
+    "Reach level 20.",
     "level",
-    30,
+    20,
     "epic"
    ],
    [
@@ -2084,12 +2123,12 @@
     "epic"
    ],
    [
-    "a10",
+    "a5",
     "🏅",
     "Chill Achiever",
-    "Unlock 10 of the game’s achievements.",
+    "Unlock 5 of the game’s achievements.",
     "ach",
-    10,
+    5,
     "rare"
    ]
   ]
@@ -2122,12 +2161,12 @@
     "rare"
    ],
    [
-    "l30",
+    "l20",
     "👑",
     "Orc Chieftain",
-    "Reach level 30.",
+    "Reach level 20.",
     "level",
-    30,
+    20,
     "epic"
    ]
   ]
@@ -2363,7 +2402,7 @@
     "Complete the whole game.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
     "cup",
@@ -2373,6 +2412,15 @@
     "cups",
     1,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 25 levels.",
+    "levels",
+    25,
+    "epic"
    ]
   ]
  },
@@ -2412,7 +2460,7 @@
     "Complete the whole game.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
     "cup",
@@ -2422,6 +2470,15 @@
     "cups",
     1,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 25 levels.",
+    "levels",
+    25,
+    "epic"
    ]
   ]
  },
@@ -2461,7 +2518,7 @@
     "Complete the whole game.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
     "cup",
@@ -2471,6 +2528,15 @@
     "cups",
     1,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 30 levels.",
+    "levels",
+    30,
+    "epic"
    ]
   ]
  },
@@ -2510,7 +2576,7 @@
     "Complete the whole game.",
     "beat",
     1,
-    "epic"
+    "rare"
    ],
    [
     "cup",
@@ -2520,6 +2586,15 @@
     "cups",
     1,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "Every Level",
+    "Complete all 30 levels.",
+    "levels",
+    30,
+    "epic"
    ]
   ]
  },
@@ -2552,12 +2627,12 @@
     "rare"
    ],
    [
-    "c10",
+    "c6",
     "👑",
     "Collector",
-    "Unlock 10 cars.",
+    "Unlock 6 cars.",
     "cars",
-    10,
+    6,
     "epic"
    ]
   ]
@@ -2745,21 +2820,21 @@
     "common"
    ],
    [
-    "l25",
+    "l20",
     "🔁",
     "Deja Vu",
-    "Reach stage 25.",
+    "Reach stage 20.",
     "level",
-    25,
+    20,
     "rare"
    ],
    [
-    "l40",
+    "l30",
     "👑",
     "The Only Level, Beaten",
-    "Reach stage 40.",
+    "Reach the final stage (30).",
     "level",
-    40,
+    30,
     "epic"
    ],
    [
@@ -2803,12 +2878,12 @@
     "rare"
    ],
    [
-    "l150",
+    "l100",
     "👑",
     "Master Draftsman",
-    "Reach level 150.",
+    "Reach level 100.",
     "level",
-    150,
+    100,
     "epic"
    ],
    [
@@ -2900,12 +2975,12 @@
     "rare"
    ],
    [
-    "l16",
+    "l15",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 15 levels.",
     "levels",
-    16,
+    15,
     "epic"
    ]
   ]
@@ -2941,7 +3016,7 @@
     "l16",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 16 levels.",
     "levels",
     16,
     "epic"
@@ -2976,12 +3051,12 @@
     "rare"
    ],
    [
-    "l16",
+    "l12",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 12 levels.",
     "levels",
-    16,
+    12,
     "epic"
    ]
   ]
@@ -3105,7 +3180,7 @@
     "l16",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 16 levels.",
     "levels",
     16,
     "epic"
@@ -3143,7 +3218,7 @@
     "l16",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 16 levels.",
     "levels",
     16,
     "epic"
@@ -3216,12 +3291,12 @@
     "rare"
    ],
    [
-    "l16",
+    "l14",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 14 levels.",
     "levels",
-    16,
+    14,
     "epic"
    ]
   ]
@@ -3254,12 +3329,12 @@
     "rare"
    ],
    [
-    "l16",
+    "l15",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 15 levels.",
     "levels",
-    16,
+    15,
     "epic"
    ]
   ]
@@ -3463,12 +3538,12 @@
     "rare"
    ],
    [
-    "l16",
+    "l12",
     "👑",
     "Wheely Good",
-    "Unlock every level.",
+    "Unlock all 12 levels.",
     "levels",
-    16,
+    12,
     "epic"
    ]
   ]
@@ -3599,12 +3674,12 @@
     "common"
    ],
    [
-    "l30",
+    "l29",
     "🌌",
     "Galaxy Hopper",
-    "Clear 30 levels.",
+    "Clear all 29 levels.",
     "levels",
-    30,
+    29,
     "rare"
    ],
    [
@@ -3656,12 +3731,12 @@
     "rare"
    ],
    [
-    "c25",
+    "c15",
     "👑",
     "Full Crew",
-    "Unlock 25 characters.",
+    "Unlock 15 characters.",
     "chars",
-    25,
+    15,
     "epic"
    ],
    [
@@ -3703,12 +3778,12 @@
     "rare"
    ],
    [
-    "c10",
+    "c6",
     "👑",
     "Highway King",
-    "Own 10 cars.",
+    "Own 6 cars.",
     "cars",
-    10,
+    6,
     "epic"
    ]
   ]
@@ -3741,12 +3816,12 @@
     "rare"
    ],
    [
-    "b10",
+    "b6",
     "👑",
     "Helix Master",
-    "Unlock 10 balls.",
+    "Unlock 6 balls.",
     "balls",
-    10,
+    6,
     "epic"
    ]
   ]
@@ -3780,12 +3855,12 @@
     "rare"
    ],
    [
-    "c15",
+    "c10",
     "👑",
     "Dodo Legend",
-    "Win 15 cups.",
+    "Win 10 cups.",
     "cups",
-    15,
+    10,
     "epic"
    ]
   ]
@@ -3869,12 +3944,12 @@
     "rare"
    ],
    [
-    "l150",
+    "l100",
     "👑",
     "Johnny Legend",
-    "Reach level 150.",
+    "Reach level 100.",
     "level",
-    150,
+    100,
     "epic"
    ],
    [
@@ -3917,12 +3992,12 @@
     "rare"
    ],
    [
-    "l22",
+    "l25",
     "👑",
     "Moto Legend",
-    "Complete all 22 levels.",
+    "Complete all 25 levels.",
     "levels",
-    22,
+    25,
     "epic"
    ]
   ]
@@ -3956,12 +4031,12 @@
     "rare"
    ],
    [
-    "l22",
+    "l25",
     "👑",
     "Moto Legend II",
-    "Complete all 22 levels.",
+    "Complete all 25 levels.",
     "levels",
-    22,
+    25,
     "epic"
    ]
   ]
@@ -4112,12 +4187,12 @@
     "rare"
    ],
    [
-    "l22",
+    "l25",
     "👑",
     "Winter Rider",
-    "Complete all 22 levels.",
+    "Complete all 25 levels.",
     "levels",
-    22,
+    25,
     "epic"
    ]
   ]
@@ -4515,15 +4590,6 @@
     "Beat 3 levels.",
     "beaten",
     3,
-    "rare"
-   ],
-   [
-    "b6",
-    "👑",
-    "Cattle King",
-    "Beat 6 levels.",
-    "beaten",
-    6,
     "epic"
    ],
    [
@@ -4814,6 +4880,15 @@
     "ach",
     5,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "X3M Finisher",
+    "Finish all 16 levels.",
+    "levels",
+    16,
+    "epic"
    ]
   ]
  },
@@ -4863,6 +4938,15 @@
     "ach",
     5,
     "rare"
+   ],
+   [
+    "all",
+    "🏆",
+    "X3M Finisher",
+    "Finish all 24 levels.",
+    "levels",
+    24,
+    "epic"
    ]
   ]
  },
@@ -4965,12 +5049,12 @@
     "rare"
    ],
    [
-    "s15",
+    "s14",
     "🦸",
     "Full Roster",
-    "Unlock all 15 heroes.",
+    "Unlock all 14 heroes.",
     "skins",
-    15,
+    14,
     "legendary"
    ]
   ]
@@ -5118,30 +5202,30 @@
   },
   "ach": [
    [
-    "cp3",
+    "cp2",
     "🚌",
     "On the Way",
-    "Reach checkpoint 3.",
+    "Reach checkpoint 2.",
     "cp",
-    3,
+    2,
     "common"
    ],
    [
-    "cp6",
+    "cp4",
     "🧩",
     "Puzzle Solver",
-    "Reach checkpoint 6.",
+    "Reach checkpoint 4.",
     "cp",
-    6,
+    4,
     "rare"
    ],
    [
-    "cp9",
+    "cp5",
     "🎓",
     "Transferred Again",
-    "Reach checkpoint 9.",
+    "Reach the last checkpoint (5).",
     "cp",
-    9,
+    5,
     "epic"
    ]
   ]

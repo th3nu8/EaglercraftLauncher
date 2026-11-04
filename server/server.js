@@ -651,7 +651,7 @@ const HOOK_ACH = {
     { id: 's2500', icon: '👑', name: 'Drift Boss', desc: 'Score 2,500 points.', stat: 'score', goal: 2500, rank: 'legendary' },
     { id: 'c500', icon: '🪙', name: 'Coin Collector', desc: 'Collect 500 coins.', stat: 'coins', goal: 500, rank: 'common' },
     { id: 'car3', icon: '🏎️', name: 'Garage', desc: 'Own 3 cars.', stat: 'cars', goal: 3, rank: 'rare' },
-    { id: 'car8', icon: '🏁', name: 'Car Collector', desc: 'Own 8 cars.', stat: 'cars', goal: 8, rank: 'epic' },
+    { id: 'car6', icon: '🏁', name: 'Car Collector', desc: 'Own 6 cars.', stat: 'cars', goal: 6, rank: 'epic' },
   ],
   'Temple Run 2': [
     { id: 'g10', icon: '🏃', name: 'Runner', desc: 'Play 10 runs.', stat: 'games', goal: 10, rank: 'common' },
@@ -669,7 +669,7 @@ const HOOK_ACH = {
     { id: 'l11', icon: '🏆', name: 'Vex Champion', desc: 'Finish every level.', stat: 'levels', goal: 11, rank: 'epic' },
     { id: 'a5', icon: '⭐', name: 'Achiever', desc: 'Unlock 5 of Vex 5’s own achievements.', stat: 'achievements', goal: 5, rank: 'common' },
     { id: 'a20', icon: '🌟', name: 'Star Collector', desc: 'Unlock 20 of Vex 5’s own achievements.', stat: 'achievements', goal: 20, rank: 'epic' },
-    { id: 'a40', icon: '👑', name: 'Perfectionist', desc: 'Unlock all 40 of Vex 5’s own achievements.', stat: 'achievements', goal: 40, rank: 'legendary' },
+    { id: 'a39', icon: '👑', name: 'Perfectionist', desc: 'Unlock all 39 of Vex 5’s own achievements.', stat: 'achievements', goal: 39, rank: 'legendary' },
     { id: 'd100', icon: '💀', name: 'Persistent', desc: 'Die 100 times.', stat: 'deaths', goal: 100, rank: 'common' },
   ],
   'Idle Breakout': [
@@ -717,7 +717,7 @@ Object.assign(HOOK_ACH, {
     { id: "k100", icon: "💥", name: "Demolition", desc: "Destroy 100 obstacles.", stat: "kills", goal: 100, rank: "common" },
     { id: "l20", icon: "🚀", name: "Power Launch", desc: "Get launch power to level 20.", stat: "launch", goal: 20, rank: "rare" },
     { id: "space", icon: "🌌", name: "To Space!", desc: "Reach space.", stat: "space", goal: 1, rank: "legendary" },
-    { id: "a10", icon: "🏅", name: "Achiever", desc: "Unlock 10 of the game’s own achievements.", stat: "ach", goal: 10, rank: "epic" },
+    { id: "a5", icon: "🏅", name: "Achiever", desc: "Unlock 5 of the game’s own achievements.", stat: "ach", goal: 5, rank: "epic" },
   ],
   "Learn to Fly": [
     { id: "d5", icon: "🐧", name: "Flight School", desc: "Reach day 5.", stat: "day", goal: 5, rank: "common" },
@@ -728,10 +728,10 @@ Object.assign(HOOK_ACH, {
   ],
   "Bloons TD 3": [
     { id: "b1", icon: "🥉", name: "Pop Goes the Bloon", desc: "Earn a bronze medal on any track.", stat: "bronze", goal: 1, rank: "common" },
-    { id: "b4", icon: "🎈", name: "Track Explorer", desc: "Earn bronze medals on 4 tracks.", stat: "bronze", goal: 4, rank: "rare" },
+    { id: "b4", icon: "🎈", name: "Track Explorer", desc: "Earn bronze medals on all 4 tracks.", stat: "bronze", goal: 4, rank: "rare" },
     { id: "s1", icon: "🥈", name: "Silver Strategy", desc: "Earn a silver medal.", stat: "silver", goal: 1, rank: "rare" },
     { id: "g1", icon: "🥇", name: "Golden Monkey", desc: "Earn a gold medal.", stat: "gold", goal: 1, rank: "epic" },
-    { id: "g8", icon: "👑", name: "Bloon Master", desc: "Earn gold medals on 8 tracks.", stat: "gold", goal: 8, rank: "legendary" },
+    { id: "g4", icon: "👑", name: "Bloon Master", desc: "Earn gold medals on all 4 tracks.", stat: "gold", goal: 4, rank: "legendary" },
   ],
   "2048 Cupcakes": [
     { id: "c64", icon: "🧁", name: "Sprinkles", desc: "Bake the 64 cupcake.", stat: "tile", goal: 64, rank: "common" },
@@ -747,27 +747,27 @@ Object.assign(HOOK_ACH, {
     { id: "s50k", icon: "🍓", name: "Sweet Score", desc: "Get 50,000 points across all levels.", stat: "score", goal: 50000, rank: "rare" },
   ],
   "Bob the Robber": [
-    { id: "l3", icon: "🕵️", name: "Sneaky", desc: "Reach level 3.", stat: "level", goal: 3, rank: "common" },
-    { id: "l8", icon: "💰", name: "Master Thief", desc: "Reach level 8.", stat: "level", goal: 8, rank: "rare" },
-    { id: "l15", icon: "👑", name: "The Perfect Heist", desc: "Reach level 15.", stat: "level", goal: 15, rank: "epic" },
+    { id: "l1", icon: "🕵️", name: "Sneaky", desc: "Complete the first level.", stat: "l1", goal: 2, rank: "common" },
+    { id: "l3", icon: "💰", name: "Smooth Criminal", desc: "Complete level 3.", stat: "l3", goal: 2, rank: "rare" },
+    { id: "l6", icon: "👑", name: "The Perfect Heist", desc: "Complete all 6 levels.", stat: "l6", goal: 2, rank: "epic" },
   ],
   "Bob the Robber 2": [
     { id: "l5", icon: "🔦", name: "Break-In", desc: "Unlock 5 levels.", stat: "levels", goal: 5, rank: "common" },
-    { id: "l15", icon: "🏦", name: "Heist Planner", desc: "Unlock 15 levels.", stat: "levels", goal: 15, rank: "rare" },
+    { id: "l11", icon: "🏦", name: "Heist Planner", desc: "Unlock all 11 levels.", stat: "levels", goal: 11, rank: "rare" },
     { id: "st20", icon: "⭐", name: "Star Thief", desc: "Collect 20 stars.", stat: "stars", goal: 20, rank: "rare" },
     { id: "m10k", icon: "💵", name: "Big Score", desc: "Steal $10,000 in total.", stat: "money", goal: 10000, rank: "epic" },
   ],
   "Chaos Faction 2": [
     { id: "l1", icon: "⚔️", name: "First Blood", desc: "Complete a level.", stat: "levels", goal: 1, rank: "common" },
     { id: "l10", icon: "💥", name: "Brawler", desc: "Complete 10 levels.", stat: "levels", goal: 10, rank: "rare" },
-    { id: "l25", icon: "👑", name: "Chaos Master", desc: "Complete 25 levels.", stat: "levels", goal: 25, rank: "epic" },
+    { id: "l20", icon: "👑", name: "Chaos Master", desc: "Complete all 20 levels.", stat: "levels", goal: 20, rank: "epic" },
     { id: "w10", icon: "🔫", name: "Armory", desc: "Unlock 10 weapons.", stat: "weapons", goal: 10, rank: "rare" },
     { id: "c5", icon: "🧑‍🤝‍🧑", name: "Fighters Assemble", desc: "Unlock 5 characters.", stat: "chars", goal: 5, rank: "common" },
     { id: "a10", icon: "🏅", name: "Faction Hero", desc: "Unlock 10 of the game’s own achievements.", stat: "ach", goal: 10, rank: "epic" },
   ],
   "Fancy Pants Adventure": [
     { id: "lv2", icon: "👖", name: "Stylish Start", desc: "Unlock level 2.", stat: "level", goal: 2, rank: "common" },
-    { id: "lv4", icon: "🌀", name: "Spiral Runner", desc: "Unlock level 4.", stat: "level", goal: 4, rank: "rare" },
+    { id: "lv3", icon: "🌀", name: "Spiral Runner", desc: "Unlock the final level (3).", stat: "level", goal: 3, rank: "rare" },
     { id: "t1", icon: "🏆", name: "Trophy Hunter", desc: "Get a trophy.", stat: "trophies", goal: 1, rank: "rare" },
     { id: "t5", icon: "👑", name: "Fanciest Pants", desc: "Get all 5 trophies.", stat: "trophies", goal: 5, rank: "legendary" },
   ],
@@ -803,7 +803,7 @@ Object.assign(HOOK_ACH, {
   ],
   "Awesome Tanks": [
     { id: "l3", icon: "🛡️", name: "Rolling Out", desc: "Beat 3 levels.", stat: "levels", goal: 3, rank: "common" },
-    { id: "l8", icon: "💣", name: "Tank Commander", desc: "Beat 8 levels.", stat: "levels", goal: 8, rank: "rare" },
+    { id: "l8", icon: "💣", name: "Tank Commander", desc: "Beat 8 of the 15 levels.", stat: "levels", goal: 8, rank: "rare" },
     { id: "done", icon: "🏆", name: "Awesome!", desc: "Beat the whole game.", stat: "done", goal: 1, rank: "epic" },
     { id: "t100", icon: "💥", name: "Tank Buster", desc: "Destroy 100 enemy tanks.", stat: "tanks", goal: 100, rank: "rare" },
     { id: "c500", icon: "🪙", name: "Scrap Collector", desc: "Collect 500 coins.", stat: "coins", goal: 500, rank: "common" },
@@ -832,7 +832,7 @@ Object.assign(HOOK_ACH, {
   "Bank Robbery 3": [
     { id: "l3", icon: "🏦", name: "Inside Job", desc: "Reach level 3.", stat: "level", goal: 3, rank: "common" },
     { id: "l8", icon: "💎", name: "Vault Cracker", desc: "Reach level 8.", stat: "level", goal: 8, rank: "rare" },
-    { id: "l15", icon: "👑", name: "Heist Legend", desc: "Reach level 15.", stat: "level", goal: 15, rank: "epic" },
+    { id: "l10", icon: "👑", name: "Heist Legend", desc: "Reach level 10.", stat: "level", goal: 10, rank: "epic" },
     { id: "m5k", icon: "💰", name: "Loaded", desc: "Have $5,000.", stat: "money", goal: 5000, rank: "rare" },
   ],
   "Bit Planes": [
@@ -865,31 +865,35 @@ Object.assign(HOOK_ACH, {
   "Snail Bob": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🏡", name: "On the Move", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Home Sweet Home", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "epic" },
-    { id: "s20k", icon: "⭐", name: "High Scorer", desc: "Score 20,000 points across all levels.", stat: "score", goal: 20000, rank: "rare" },
+    { id: "beat", icon: "👑", name: "Home Sweet Home", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "rare" },
+    { id: "s3k", icon: "⭐", name: "High Scorer", desc: "Score 3,000 points across all levels.", stat: "score", goal: 3000, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 20 levels.", stat: "levels", goal: 20, rank: "epic" },
   ],
   "Snail Bob 2": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🏡", name: "On the Move", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Grandpa’s Birthday", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "epic" },
-    { id: "s20k", icon: "⭐", name: "High Scorer", desc: "Score 20,000 points across all levels.", stat: "score", goal: 20000, rank: "rare" },
+    { id: "beat", icon: "👑", name: "Grandpa’s Birthday", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "rare" },
+    { id: "s3k", icon: "⭐", name: "High Scorer", desc: "Score 3,000 points across all levels.", stat: "score", goal: 3000, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Snail Bob 3": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🏡", name: "On the Move", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Egyptian Adventure", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "epic" },
-    { id: "s20k", icon: "⭐", name: "High Scorer", desc: "Score 20,000 points across all levels.", stat: "score", goal: 20000, rank: "rare" },
+    { id: "beat", icon: "👑", name: "Egyptian Adventure", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "rare" },
+    { id: "s3k", icon: "⭐", name: "High Scorer", desc: "Score 3,000 points across all levels.", stat: "score", goal: 3000, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Snail Bob 4": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🏡", name: "On the Move", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Space Explorer", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "epic" },
-    { id: "s20k", icon: "⭐", name: "High Scorer", desc: "Score 20,000 points across all levels.", stat: "score", goal: 20000, rank: "rare" },
+    { id: "beat", icon: "👑", name: "Space Explorer", desc: "Complete the final level.", stat: "beat", goal: 1, rank: "rare" },
+    { id: "s3k", icon: "⭐", name: "High Scorer", desc: "Score 3,000 points across all levels.", stat: "score", goal: 3000, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Bouncy Motors": [
     { id: "l5", icon: "🚗", name: "Bouncing Along", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l20", icon: "🏁", name: "Road Warrior", desc: "Complete 20 levels.", stat: "levels", goal: 20, rank: "rare" },
-    { id: "l50", icon: "👑", name: "Bouncy Legend", desc: "Complete 50 levels.", stat: "levels", goal: 50, rank: "epic" },
+    { id: "l30", icon: "👑", name: "Bouncy Legend", desc: "Complete 30 levels.", stat: "levels", goal: 30, rank: "epic" },
     { id: "k100", icon: "💥", name: "Stickman Smasher", desc: "Knock over 100 stickmen.", stat: "stickmen", goal: 100, rank: "rare" },
     { id: "m5k", icon: "💰", name: "Car Fund", desc: "Have 5,000 money.", stat: "money", goal: 5000, rank: "common" },
   ],
@@ -929,7 +933,7 @@ Object.assign(HOOK_ACH, {
   "World's Hardest Game 3": [
     { id: "l5", icon: "🟥", name: "Still Hard", desc: "Reach level 5.", stat: "level", goal: 5, rank: "common" },
     { id: "l15", icon: "🟦", name: "Harder Still", desc: "Reach level 15.", stat: "level", goal: 15, rank: "rare" },
-    { id: "l30", icon: "👑", name: "The Hardest", desc: "Reach level 30.", stat: "level", goal: 30, rank: "epic" },
+    { id: "l20", icon: "👑", name: "The Hardest", desc: "Reach level 20.", stat: "level", goal: 20, rank: "epic" },
     { id: "d500", icon: "💀", name: "Determined", desc: "Die 500 times.", stat: "deaths", goal: 500, rank: "common" },
   ],
   "Hanger 2": [
@@ -955,12 +959,12 @@ Object.assign(HOOK_ACH, {
     { id: "c5k", icon: "👆", name: "Capy Clicker", desc: "Click 5,000 times.", stat: "clicks", goal: 5000, rank: "rare" },
     { id: "e1k", icon: "🦫", name: "Capybara Colony", desc: "Earn 1,000 capybaras.", stat: "capys", goal: 1000, rank: "common" },
     { id: "e1m", icon: "🌴", name: "Capybara Paradise", desc: "Earn 1,000,000 capybaras.", stat: "capys", goal: 1000000, rank: "epic" },
-    { id: "a10", icon: "🏅", name: "Chill Achiever", desc: "Unlock 10 of the game’s achievements.", stat: "ach", goal: 10, rank: "rare" },
+    { id: "a5", icon: "🏅", name: "Chill Achiever", desc: "Unlock 5 of the game’s achievements.", stat: "ach", goal: 5, rank: "rare" },
   ],
   "Choppy Orc": [
     { id: "l5", icon: "🪓", name: "Choppy Start", desc: "Reach level 5.", stat: "level", goal: 5, rank: "common" },
     { id: "l15", icon: "👹", name: "Orc Warrior", desc: "Reach level 15.", stat: "level", goal: 15, rank: "rare" },
-    { id: "l30", icon: "👑", name: "Orc Chieftain", desc: "Reach level 30.", stat: "level", goal: 30, rank: "epic" },
+    { id: "l20", icon: "👑", name: "Orc Chieftain", desc: "Reach level 20.", stat: "level", goal: 20, rank: "epic" },
   ],
   "Cleanup.io": [
     { id: "l5", icon: "🧹", name: "Tidy Up", desc: "Reach level 5.", stat: "level", goal: 5, rank: "common" },
@@ -989,31 +993,35 @@ Object.assign(HOOK_ACH, {
   "Snail Bob 5": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l15", icon: "🏡", name: "On the Move", desc: "Complete 15 levels.", stat: "levels", goal: 15, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Love Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "epic" },
+    { id: "beat", icon: "👑", name: "Love Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "rare" },
     { id: "cup", icon: "🏆", name: "Mini Champion", desc: "Win a cup in a mini-game.", stat: "cups", goal: 1, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Snail Bob 6": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l15", icon: "🏡", name: "On the Move", desc: "Complete 15 levels.", stat: "levels", goal: 15, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Winter Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "epic" },
+    { id: "beat", icon: "👑", name: "Winter Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "rare" },
     { id: "cup", icon: "🏆", name: "Mini Champion", desc: "Win a cup in a mini-game.", stat: "cups", goal: 1, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Snail Bob 7": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l15", icon: "🏡", name: "On the Move", desc: "Complete 15 levels.", stat: "levels", goal: 15, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Fantasy Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "epic" },
+    { id: "beat", icon: "👑", name: "Fantasy Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "rare" },
     { id: "cup", icon: "🏆", name: "Mini Champion", desc: "Win a cup in a mini-game.", stat: "cups", goal: 1, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 30 levels.", stat: "levels", goal: 30, rank: "epic" },
   ],
   "Snail Bob 8": [
     { id: "l5", icon: "🐌", name: "Slow and Steady", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l15", icon: "🏡", name: "On the Move", desc: "Complete 15 levels.", stat: "levels", goal: 15, rank: "rare" },
-    { id: "beat", icon: "👑", name: "Island Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "epic" },
+    { id: "beat", icon: "👑", name: "Island Story", desc: "Complete the whole game.", stat: "beat", goal: 1, rank: "rare" },
     { id: "cup", icon: "🏆", name: "Mini Champion", desc: "Win a cup in a mini-game.", stat: "cups", goal: 1, rank: "rare" },
+    { id: "all", icon: "🏆", name: "Every Level", desc: "Complete all 30 levels.", stat: "levels", goal: 30, rank: "epic" },
   ],
   "Deadly Descent": [
     { id: "c2", icon: "🚙", name: "Second Ride", desc: "Unlock a second car.", stat: "cars", goal: 2, rank: "common" },
     { id: "c5", icon: "🏎️", name: "Garage Full", desc: "Unlock 5 cars.", stat: "cars", goal: 5, rank: "rare" },
-    { id: "c10", icon: "👑", name: "Collector", desc: "Unlock 10 cars.", stat: "cars", goal: 10, rank: "epic" },
+    { id: "c6", icon: "👑", name: "Collector", desc: "Unlock 6 cars.", stat: "cars", goal: 6, rank: "epic" },
   ],
   "Death Chase": [
     { id: "c1", icon: "🚗", name: "New Wheels", desc: "Buy a new car.", stat: "cars", goal: 1, rank: "common" },
@@ -1037,14 +1045,14 @@ Object.assign(HOOK_ACH, {
   ],
   "This is the Only Level": [
     { id: "l10", icon: "🐘", name: "Same Level, New Twist", desc: "Reach stage 10.", stat: "level", goal: 10, rank: "common" },
-    { id: "l25", icon: "🔁", name: "Deja Vu", desc: "Reach stage 25.", stat: "level", goal: 25, rank: "rare" },
-    { id: "l40", icon: "👑", name: "The Only Level, Beaten", desc: "Reach stage 40.", stat: "level", goal: 40, rank: "epic" },
+    { id: "l20", icon: "🔁", name: "Deja Vu", desc: "Reach stage 20.", stat: "level", goal: 20, rank: "rare" },
+    { id: "l30", icon: "👑", name: "The Only Level, Beaten", desc: "Reach the final stage (30).", stat: "level", goal: 30, rank: "epic" },
     { id: "d100", icon: "💀", name: "Elephant Graveyard", desc: "Die 100 times.", stat: "deaths", goal: 100, rank: "common" },
   ],
   "Draw Climber": [
     { id: "l10", icon: "✏️", name: "Scribbler", desc: "Reach level 10.", stat: "level", goal: 10, rank: "common" },
     { id: "l50", icon: "🧗", name: "Climber", desc: "Reach level 50.", stat: "level", goal: 50, rank: "rare" },
-    { id: "l150", icon: "👑", name: "Master Draftsman", desc: "Reach level 150.", stat: "level", goal: 150, rank: "epic" },
+    { id: "l100", icon: "👑", name: "Master Draftsman", desc: "Reach level 100.", stat: "level", goal: 100, rank: "epic" },
     { id: "h5", icon: "🎨", name: "Character Collection", desc: "Unlock 5 characters.", stat: "heroes", goal: 5, rank: "rare" },
   ],
   "Dreadhead Parkour": [
@@ -1056,17 +1064,17 @@ Object.assign(HOOK_ACH, {
   "Wheely": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l15", icon: "👑", name: "Wheely Good", desc: "Unlock all 15 levels.", stat: "levels", goal: 15, rank: "epic" },
   ],
   "Wheely 2": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock all 16 levels.", stat: "levels", goal: 16, rank: "epic" },
   ],
   "Wheely 3": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l12", icon: "👑", name: "Wheely Good", desc: "Unlock all 12 levels.", stat: "levels", goal: 12, rank: "epic" },
   ],
   "This is the Only Level Too": [
     { id: "l10", icon: "🐘", name: "Here We Go Again", desc: "Reach stage 10.", stat: "level", goal: 10, rank: "common" },
@@ -1082,12 +1090,12 @@ Object.assign(HOOK_ACH, {
   "Wheely 4: Time Travel": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock all 16 levels.", stat: "levels", goal: 16, rank: "epic" },
   ],
   "Wheely 5: Armageddon": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock all 16 levels.", stat: "levels", goal: 16, rank: "epic" },
   ],
   "Eagle Ride": [
     { id: "j10", icon: "💎", name: "Shiny Things", desc: "Collect 10 jewels.", stat: "jewels", goal: 10, rank: "common" },
@@ -1097,12 +1105,12 @@ Object.assign(HOOK_ACH, {
   "Wheely 6: Fairytale": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l14", icon: "👑", name: "Wheely Good", desc: "Unlock all 14 levels.", stat: "levels", goal: 14, rank: "epic" },
   ],
   "Wheely 7: Detective": [
     { id: "l3", icon: "🚗", name: "Rolling", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "🚦", name: "Road Trip", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l15", icon: "👑", name: "Wheely Good", desc: "Unlock all 15 levels.", stat: "levels", goal: 15, rank: "epic" },
   ],
   "Fireboy and Watergirl 2: Light Temple": [
     { id: "l1", icon: "🔥", name: "Into the Light Temple", desc: "Finish your first level.", stat: "levels", goal: 1, rank: "common" },
@@ -1128,7 +1136,7 @@ Object.assign(HOOK_ACH, {
   "Wheely 8: Aliens": [
     { id: "l3", icon: "🛸", name: "Close Encounter", desc: "Unlock level 3.", stat: "levels", goal: 3, rank: "common" },
     { id: "l8", icon: "👽", name: "Abducted", desc: "Unlock level 8.", stat: "levels", goal: 8, rank: "rare" },
-    { id: "l16", icon: "👑", name: "Wheely Good", desc: "Unlock every level.", stat: "levels", goal: 16, rank: "epic" },
+    { id: "l12", icon: "👑", name: "Wheely Good", desc: "Unlock all 12 levels.", stat: "levels", goal: 12, rank: "epic" },
   ],
   "Bad Ice Cream 2": [
     { id: "l5", icon: "🍦", name: "Brain Freeze", desc: "Unlock 5 levels.", stat: "levels", goal: 5, rank: "common" },
@@ -1145,30 +1153,30 @@ Object.assign(HOOK_ACH, {
   "Angry Birds Space": [
     { id: "l1", icon: "🚀", name: "Liftoff", desc: "Clear a level.", stat: "levels", goal: 1, rank: "common" },
     { id: "l10", icon: "🪐", name: "Space Explorer", desc: "Clear 10 levels.", stat: "levels", goal: 10, rank: "common" },
-    { id: "l30", icon: "🌌", name: "Galaxy Hopper", desc: "Clear 30 levels.", stat: "levels", goal: 30, rank: "rare" },
+    { id: "l29", icon: "🌌", name: "Galaxy Hopper", desc: "Clear all 29 levels.", stat: "levels", goal: 29, rank: "rare" },
     { id: "s60", icon: "⭐", name: "Star Gazer", desc: "Earn 60 stars.", stat: "stars", goal: 60, rank: "epic" },
     { id: "sc1m", icon: "👑", name: "Space Ace", desc: "Score 1,000,000 points in total.", stat: "score", goal: 1000000, rank: "legendary" },
   ],
   "Getaway Shootout": [
     { id: "c3", icon: "🕴️", name: "New Recruit", desc: "Unlock 3 characters.", stat: "chars", goal: 3, rank: "common" },
     { id: "c10", icon: "🎩", name: "Gang Leader", desc: "Unlock 10 characters.", stat: "chars", goal: 10, rank: "rare" },
-    { id: "c25", icon: "👑", name: "Full Crew", desc: "Unlock 25 characters.", stat: "chars", goal: 25, rank: "epic" },
+    { id: "c15", icon: "👑", name: "Full Crew", desc: "Unlock 15 characters.", stat: "chars", goal: 15, rank: "epic" },
     { id: "m500", icon: "🪙", name: "Getaway Cash", desc: "Have 500 coins.", stat: "coins", goal: 500, rank: "rare" },
   ],
   "Highway Traffic": [
     { id: "c2", icon: "🚗", name: "Second Car", desc: "Own 2 cars.", stat: "cars", goal: 2, rank: "common" },
     { id: "c5", icon: "🚓", name: "Fleet", desc: "Own 5 cars.", stat: "cars", goal: 5, rank: "rare" },
-    { id: "c10", icon: "👑", name: "Highway King", desc: "Own 10 cars.", stat: "cars", goal: 10, rank: "epic" },
+    { id: "c6", icon: "👑", name: "Highway King", desc: "Own 6 cars.", stat: "cars", goal: 6, rank: "epic" },
   ],
   "Helix Jump": [
     { id: "b2", icon: "⚪", name: "New Ball", desc: "Unlock a new ball.", stat: "balls", goal: 2, rank: "common" },
     { id: "b5", icon: "🔴", name: "Ball Collector", desc: "Unlock 5 balls.", stat: "balls", goal: 5, rank: "rare" },
-    { id: "b10", icon: "👑", name: "Helix Master", desc: "Unlock 10 balls.", stat: "balls", goal: 10, rank: "epic" },
+    { id: "b6", icon: "👑", name: "Helix Master", desc: "Unlock 6 balls.", stat: "balls", goal: 6, rank: "epic" },
   ],
   "Ice Dodo": [
     { id: "c1", icon: "🏆", name: "First Cup", desc: "Win a cup.", stat: "cups", goal: 1, rank: "common" },
     { id: "c5", icon: "❄️", name: "Slippery Champion", desc: "Win 5 cups.", stat: "cups", goal: 5, rank: "rare" },
-    { id: "c15", icon: "👑", name: "Dodo Legend", desc: "Win 15 cups.", stat: "cups", goal: 15, rank: "epic" },
+    { id: "c10", icon: "👑", name: "Dodo Legend", desc: "Win 10 cups.", stat: "cups", goal: 10, rank: "epic" },
   ],
   "Idle Dice": [
     { id: "s1m", icon: "🎲", name: "Lucky Roll", desc: "Earn 1 million points.", stat: "score", goal: 1000000, rank: "common" },
@@ -1179,18 +1187,18 @@ Object.assign(HOOK_ACH, {
   "Johnny Trigger": [
     { id: "l10", icon: "🔫", name: "Trigger Happy", desc: "Reach level 10.", stat: "level", goal: 10, rank: "common" },
     { id: "l50", icon: "🕶️", name: "Hitman", desc: "Reach level 50.", stat: "level", goal: 50, rank: "rare" },
-    { id: "l150", icon: "👑", name: "Johnny Legend", desc: "Reach level 150.", stat: "level", goal: 150, rank: "epic" },
+    { id: "l100", icon: "👑", name: "Johnny Legend", desc: "Reach level 100.", stat: "level", goal: 100, rank: "epic" },
     { id: "s5", icon: "🎨", name: "Wardrobe", desc: "Unlock 5 characters.", stat: "skins", goal: 5, rank: "rare" },
   ],
   "Moto X3M": [
     { id: "l5", icon: "🏍️", name: "Rev It Up", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🔥", name: "Flip Master", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "l22", icon: "👑", name: "Moto Legend", desc: "Complete all 22 levels.", stat: "levels", goal: 22, rank: "epic" },
+    { id: "l25", icon: "👑", name: "Moto Legend", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Moto X3M 2": [
     { id: "l5", icon: "🏍️", name: "Rev It Up", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🔥", name: "Flip Master", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "l22", icon: "👑", name: "Moto Legend II", desc: "Complete all 22 levels.", stat: "levels", goal: 22, rank: "epic" },
+    { id: "l25", icon: "👑", name: "Moto Legend II", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Moto X3M 3": [
     { id: "l5", icon: "🏍️", name: "Rev It Up", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
@@ -1210,7 +1218,7 @@ Object.assign(HOOK_ACH, {
   "Moto X3M: Winter": [
     { id: "l5", icon: "🏍️", name: "Rev It Up", desc: "Complete 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l12", icon: "🔥", name: "Flip Master", desc: "Complete 12 levels.", stat: "levels", goal: 12, rank: "rare" },
-    { id: "l22", icon: "👑", name: "Winter Rider", desc: "Complete all 22 levels.", stat: "levels", goal: 22, rank: "epic" },
+    { id: "l25", icon: "👑", name: "Winter Rider", desc: "Complete all 25 levels.", stat: "levels", goal: 25, rank: "epic" },
   ],
   "Plonky": [
     { id: "l5", icon: "🟢", name: "Bouncy Start", desc: "Reach level 5.", stat: "level", goal: 5, rank: "common" },
@@ -1258,8 +1266,7 @@ Object.assign(HOOK_ACH, {
   ],
   "Crazy Cattle 3D": [
     { id: "b1", icon: "🐑", name: "Baa-ttle Won", desc: "Beat a level.", stat: "beaten", goal: 1, rank: "common" },
-    { id: "b3", icon: "🐄", name: "Stampede", desc: "Beat 3 levels.", stat: "beaten", goal: 3, rank: "rare" },
-    { id: "b6", icon: "👑", name: "Cattle King", desc: "Beat 6 levels.", stat: "beaten", goal: 6, rank: "epic" },
+    { id: "b3", icon: "🐄", name: "Stampede", desc: "Beat 3 levels.", stat: "beaten", goal: 3, rank: "epic" },
     { id: "w10", icon: "🏆", name: "Last Sheep Standing", desc: "Win 10 rounds.", stat: "wins", goal: 10, rank: "rare" },
   ],
   "Super Star Car": [
@@ -1295,12 +1302,14 @@ Object.assign(HOOK_ACH, {
     { id: "l15", icon: "⚡", name: "X3M Runner", desc: "Finish 15 levels.", stat: "levels", goal: 15, rank: "rare" },
     { id: "s45", icon: "⭐", name: "Star Chaser", desc: "Earn 45 stars.", stat: "stars", goal: 45, rank: "epic" },
     { id: "a5", icon: "🏅", name: "X3M Achiever", desc: "Unlock 5 of the game’s own achievements.", stat: "ach", goal: 5, rank: "rare" },
+    { id: "all", icon: "🏆", name: "X3M Finisher", desc: "Finish all 16 levels.", stat: "levels", goal: 16, rank: "epic" },
   ],
   "Vex X3M 2": [
     { id: "l5", icon: "🏃", name: "Speedy Stickman", desc: "Finish 5 levels.", stat: "levels", goal: 5, rank: "common" },
     { id: "l15", icon: "⚡", name: "X3M Runner", desc: "Finish 15 levels.", stat: "levels", goal: 15, rank: "rare" },
     { id: "s45", icon: "⭐", name: "Star Chaser", desc: "Earn 45 stars.", stat: "stars", goal: 45, rank: "epic" },
     { id: "a5", icon: "🏅", name: "X3M Achiever", desc: "Unlock 5 of the game’s own achievements.", stat: "ach", goal: 5, rank: "rare" },
+    { id: "all", icon: "🏆", name: "X3M Finisher", desc: "Finish all 24 levels.", stat: "levels", goal: 24, rank: "epic" },
   ],
   "Wheelie Bike": [
     { id: "l5", icon: "🚲", name: "Wheelie Rookie", desc: "Set a record on 5 levels.", stat: "levels", goal: 5, rank: "common" },
@@ -1313,7 +1322,7 @@ Object.assign(HOOK_ACH, {
     { id: "w6", icon: "💀", name: "Horde Breaker", desc: "Unlock 6 worlds.", stat: "worlds", goal: 6, rank: "rare" },
     { id: "w8", icon: "👑", name: "Apocalypse Survivor", desc: "Unlock all 8 worlds.", stat: "worlds", goal: 8, rank: "epic" },
     { id: "s5", icon: "🎭", name: "Survivor Squad", desc: "Unlock 5 heroes.", stat: "skins", goal: 5, rank: "rare" },
-    { id: "s15", icon: "🦸", name: "Full Roster", desc: "Unlock all 15 heroes.", stat: "skins", goal: 15, rank: "legendary" },
+    { id: "s14", icon: "🦸", name: "Full Roster", desc: "Unlock all 14 heroes.", stat: "skins", goal: 14, rank: "legendary" },
   ],
   "Earn to Die 2": [
     { id: "lv2", icon: "🚚", name: "Next Stop", desc: "Reach the second level.", stat: "level", goal: 2, rank: "common" },
@@ -1332,9 +1341,9 @@ Object.assign(HOOK_ACH, {
     { id: "l50", icon: "👑", name: "Zombie Boss Slayer", desc: "Reach the final level (5-10).", stat: "level", goal: 50, rank: "legendary" },
   ],
   "Riddle Transfer 2": [
-    { id: "cp3", icon: "🚌", name: "On the Way", desc: "Reach checkpoint 3.", stat: "cp", goal: 3, rank: "common" },
-    { id: "cp6", icon: "🧩", name: "Puzzle Solver", desc: "Reach checkpoint 6.", stat: "cp", goal: 6, rank: "rare" },
-    { id: "cp9", icon: "🎓", name: "Transferred Again", desc: "Reach checkpoint 9.", stat: "cp", goal: 9, rank: "epic" },
+    { id: "cp2", icon: "🚌", name: "On the Way", desc: "Reach checkpoint 2.", stat: "cp", goal: 2, rank: "common" },
+    { id: "cp4", icon: "🧩", name: "Puzzle Solver", desc: "Reach checkpoint 4.", stat: "cp", goal: 4, rank: "rare" },
+    { id: "cp5", icon: "🎓", name: "Transferred Again", desc: "Reach the last checkpoint (5).", stat: "cp", goal: 5, rank: "epic" },
   ],
 });
 /* GENERATED-ACHIEVEMENTS-END */

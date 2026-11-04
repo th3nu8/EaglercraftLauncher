@@ -6,7 +6,7 @@ window.MIST_SPECS = {
   "Bloons TD 3": Object.assign({"src":"flash","stats":{"bronze":".|keys:^bronze","silver":".|keys:^silver","gold":".|keys:^gold"}}, { key: "btd3" }),
   "2048 Cupcakes": Object.assign({"src":"ls","session":true,"all":true,"stats":{"tile":"gameState.grid.cells.*.*.value","best":"bestScore"}}, { key: /^(gameState|bestScore)$/ }),
   "Bad Ice Cream": Object.assign({"src":"flash","stats":{"levels":"levels_unlocked|true","score":"level_scores|sum"}}, { key: /./ }),
-  "Bob the Robber": Object.assign({"src":"flash","stats":{"level":"var_lev"}}, { key: "level" }),
+  "Bob the Robber": Object.assign({"src":"flash","stats":{"l1":"var_lev.1","l3":"var_lev.3","l6":"var_lev.6","top":"var_lev|ge:6"}}, { key: "level" }),
   "Bob the Robber 2": Object.assign({"src":"flash","stats":{"money":"totalMoney","score":"totalScore","stars":"stars|sum","levels":"levels|true"}}, { key: "bobtherobber2" }),
   "Chaos Faction 2": Object.assign({"src":"flash","stats":{"levels":"completedLevels|true","weapons":"unlockedWeapons|true","chars":"unlockedChars|true","ach":"achievements|true"}}, { key: "CF2" }),
   "Fancy Pants Adventure": Object.assign({"src":"flash","stats":{"level":"LevelSelect","trophies":"TrophyGet|true"}}, { key: "FancyPantsMan" }),
