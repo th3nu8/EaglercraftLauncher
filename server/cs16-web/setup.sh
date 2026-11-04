@@ -175,6 +175,46 @@ if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q "Status: active
     ufw allow "$GAME_PORT/udp" >/dev/null; echo "    opened UDP $GAME_PORT in ufw"
 fi
 
+# --------------------------------------------------------------------------------
+# Browsers on https:// pages may only open wss:// connections, so the relay is published through the nginx that
+# already serves Mist over HTTPS on this machine:  wss://<ip>/cs-relay/  ->  http://127.0.0.1:$RELAY_PORT
+if command -v nginx >/dev/null; then
+    say "Publishing the relay at wss://$PUBLIC_IP/cs-relay/ (nginx)"
+    mkdir -p /etc/nginx/snippets
+    cat > /etc/nginx/snippets/cs16-relay.conf <<EOF2
+location /cs-relay/ {
+    proxy_pass http://127.0.0.1:$RELAY_PORT/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host \$host;
+    proxy_set_header X-Forwarded-For \$remote_addr;
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+}
+EOF2
+    CONF="$(grep -RlE '127\.0\.0\.1:3100|localhost:3100' /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null | head -n1 || true)"
+    if [[ -z "$CONF" ]]; then
+        echo "    Couldn't find the nginx site that serves Mist (proxy to :3100). Add this line inside its HTTPS server { } block:"
+        echo "        include /etc/nginx/snippets/cs16-relay.conf;"
+    elif grep -q 'snippets/cs16-relay.conf' "$CONF"; then
+        echo "    already included in $CONF"
+    else
+        CONF="$(readlink -f "$CONF")"; cp "$CONF" "$TMP/nginx.bak"
+        # put the include right before each "location / {" in that file
+        sed -i -E 's#^([[:space:]]*)location[[:space:]]+/[[:space:]]*\{#\1include /etc/nginx/snippets/cs16-relay.conf;\n\1location / {#' "$CONF"
+        if ! grep -q 'snippets/cs16-relay.conf' "$CONF"; then
+            echo "    No 'location / {' in $CONF. Add this inside its HTTPS server { } block:  include /etc/nginx/snippets/cs16-relay.conf;"
+        elif nginx -t >/dev/null 2>&1; then
+            systemctl reload nginx && echo "    added to $CONF"
+        else
+            cp "$TMP/nginx.bak" "$CONF"; echo "    nginx rejected the change, so it was undone:"; nginx -t || true
+        fi
+    fi
+else
+    echo "    nginx isn't installed here; browsers need a wss:// address for the relay (port $RELAY_PORT)."
+fi
+
 systemctl daemon-reload
 systemctl enable -q cs16-server.service cs16-relay.service
 systemctl restart cs16-server.service cs16-relay.service
@@ -186,10 +226,8 @@ curl -fsS "http://127.0.0.1:$RELAY_PORT/servers" && echo
 
 cat <<EOF
 
-Done. Last step: add a public hostname to your Cloudflare Tunnel
-  Hostname:  cs-relay.noobscloud.org
-  Service:   http://127.0.0.1:$RELAY_PORT
-Then https://cs-relay.noobscloud.org/servers should show the server list.
+Done.
+  Browser relay:  wss://$PUBLIC_IP/cs-relay/      (check: https://$PUBLIC_IP/cs-relay/servers)
 Direct (desktop Xash3D/CS clients):  connect $PUBLIC_IP:$GAME_PORT   (open UDP $GAME_PORT in any provider firewall)
 
 Logs:   journalctl -fu cs16-server    journalctl -fu cs16-relay

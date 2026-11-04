@@ -1,8 +1,8 @@
 # CS 1.6 server + browser relay
 
 ```
-browser (Xash3D WASM)  --wss-->  Cloudflare Tunnel  -->  relay :7080  --udp-->  server :27015 (also open directly at <ip>:27015)
-                                  cs-relay.noobscloud.org    (Node, Sandpile)     Xash3D FWGS + ReGameDLL
+browser (Xash3D WASM)  --wss://<ip>/cs-relay/-->  nginx  -->  relay :7080  --udp-->  server :27015 (also open directly at <ip>:27015)
+                                                  (Node, Sandpile)     Xash3D FWGS + ReGameDLL
 ```
 
 Install / update on Sandpile: `bash /root/EaglercraftLauncher/server/cs16-web/setup.sh`
@@ -12,5 +12,6 @@ Install / update on Sandpile: `bash /root/EaglercraftLauncher/server/cs16-web/se
   address from the relay. Setup stops the separate HLDS service (`cs16`) if it's running, since it uses the same port.
 - The relay only forwards to servers listed in `/opt/cs16/relay/config.json` (`virtual` → `target`) and limits
   connections per IP, packets per second and idle time.
-- Then point a Cloudflare Tunnel hostname (`cs-relay.noobscloud.org`) at `http://127.0.0.1:7080`.
+- The relay is published through the existing nginx at `wss://<ip>/cs-relay/` (setup adds `include /etc/nginx/snippets/cs16-relay.conf;`
+  to the nginx site that proxies Mist on :3100). Pages use that as their relay URL.
 - Logs: `journalctl -fu cs16-server`, `journalctl -fu cs16-relay`. Settings: `/opt/cs16/srv/cstrike/server.cfg`.
