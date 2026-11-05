@@ -104,9 +104,29 @@ const sessions = new Map();     // sid -> session
 const sessionsPerIp = new Map();
 let nextId = 1;
 
+// ---- Per-player loopback address ---------------------------------------------
+// The game server decides "is this a reconnect of an existing player?" by comparing
+// the IP (ignoring port) plus a random client "qport". If every player arrived from
+// 127.0.0.1, a qport collision made a new player take over (kick) someone else's slot.
+// Linux routes all of 127.0.0.0/8 to loopback, so each session binds its own 127.a.b.c
+// and the server sees every player as a distinct IP.
+// Only possible when every target is on this machine (a 127.x socket can't reach other hosts).
+const UNIQUE_LOOPBACK = (cfg.uniqueLoopback ?? (process.platform === 'linux'))
+    && servers.every(sv => sv.target.ip[0] === 127);
+const usedLoopback = new Set();
+function allocLoopback() {
+    if (!UNIQUE_LOOPBACK) return undefined;
+    for (let i = 0; i < 1000; i++) {
+        const a = `127.${1 + Math.floor(Math.random() * 254)}.${Math.floor(Math.random() * 256)}.${1 + Math.floor(Math.random() * 254)}`;
+        if (!usedLoopback.has(a)) { usedLoopback.add(a); return a; }
+    }
+    return undefined;
+}
+
 function createSession(sid, ip) {
+    const bindAddr = allocLoopback();
     const s = {
-        id: nextId++, sid, ip,
+        id: nextId++, sid, ip, bindAddr,
         udp: dgram.createSocket('udp4'),
         ws: null, expireTimer: null,
         windowStart: Date.now(), windowCount: 0,
@@ -115,9 +135,10 @@ function createSession(sid, ip) {
     sessions.set(sid, s);
     sessionsPerIp.set(ip, (sessionsPerIp.get(ip) ?? 0) + 1);
 
-    s.udp.bind(0, () => {
-        // server logs only show 127.0.0.1:<port>; this line maps that port to a real IP
-        log(`#${s.id} session ${ip} -> udp :${s.udp.address().port}`);
+    s.udp.bind({ port: 0, address: bindAddr }, () => {
+        // Server logs show this address for the player; this line maps it to a real IP.
+        const a = s.udp.address();
+        log(`#${s.id} session ${ip} -> ${a.address}:${a.port}`);
     });
     s.udp.on('message', (msg, rinfo) => {
         const srv = byTarget.get(`${rinfo.address}:${rinfo.port}`);
@@ -139,6 +160,7 @@ function createSession(sid, ip) {
 function destroySession(s) {
     if (!sessions.has(s.sid)) return;
     sessions.delete(s.sid);
+    if (s.bindAddr) usedLoopback.delete(s.bindAddr);
     clearTimeout(s.expireTimer);
     try { s.udp.close(); } catch { /* already closed */ }
     try { s.ws?.terminate(); } catch { /* already closed */ }
