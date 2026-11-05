@@ -1023,6 +1023,16 @@
   if (!$('#mistBtn')) { var mb = el('button', 'mist-btn', 'Mist'); mb.id = 'mistBtn'; document.body.appendChild(mb); }
   if (!$('#mistOv')) { var mo = el('div', 'mist-ov'); mo.id = 'mistOv'; document.body.appendChild(mo); }
   $('#mistBtn').onclick = toggleMistOverlay;
+  /* Ctrl+W (crouch + forward in shooters) closes the tab. Browsers don't let pages block it, so: ask before
+   * leaving while a game runs, and in fullscreen use Keyboard Lock (Chrome/Edge) so Ctrl+W, Ctrl+T etc. go to
+   * the game instead of the browser. Holding Esc leaves fullscreen as usual. */
+  window.addEventListener('beforeunload', function (e) { if (gameFrame) { e.preventDefault(); e.returnValue = ''; return ''; } });
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (ev) {
+    document.addEventListener(ev, function () {
+      var kb = navigator.keyboard; if (!kb || !kb.lock) return;
+      try { if (document.fullscreenElement || document.webkitFullscreenElement) { var r = kb.lock(); if (r && r.catch) r.catch(function () {}); } else kb.unlock(); } catch (x) {}
+    });
+  });
   $('#modal').addEventListener('mousedown', function (e) { if (e.target.id === 'modal') closeModal(); });
   document.addEventListener('click', function (e) { if (!e.target.closest('#menuPop')) closeMenu(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMenu(); if ($('#modal').classList.contains('open')) closeModal(); else if (gameFrame && mistOverlayOpen()) closeMistOverlay(); } });
