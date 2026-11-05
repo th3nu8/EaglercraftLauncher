@@ -83,6 +83,34 @@
             transition: background 0.3s;
         }
 
+        #name-row {
+            display: none;
+            margin-top: 25px;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        #player-name {
+            background: #111;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.95rem;
+            width: 200px;
+        }
+
+        #player-name.invalid {
+            border-color: #ff4444;
+            box-shadow: 0 0 6px #ff4444;
+        }
+
+        #fullscreen-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
         #server-row {
             display: none;
             margin-top: 25px;
@@ -117,6 +145,10 @@
             <div id="progress-bar"></div>
         </div>
         <div id="loading-status">Preparing to load...</div>
+        <div id="name-row">
+            <label for="player-name">Your name:</label>
+            <input id="player-name" type="text" maxlength="24" placeholder="Enter a name" autocomplete="nickname" spellcheck="false">
+        </div>
         <div id="server-row">
             <label for="server-select">Server:</label>
             <select id="server-select">
@@ -216,9 +248,14 @@
             serverSelect.value = current || list[0]?.address || '';
         }
 
+        // One random session id per page load (base64url, 24 chars).
+        const RELAY_SID = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18))))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        let relayDrops = 0;
+
         function createRelayNet() {
             let ws = null;
-            let retryMs = 1000;
+            let retryMs = 300;
 
             const net = new Net({
                 sendto(packet) {
@@ -244,11 +281,14 @@
                 }
                 relayState.textContent = 'relay: connecting…';
                 relaySocketState = 'connecting';
-                ws = new WebSocket(RELAY_URL);
+                // Same session id on every reconnect -> relay keeps our UDP port, so the
+                // game server doesn't drop us (that was the "can look but can't move" freeze).
+                const url = RELAY_URL + (RELAY_URL.includes('?') ? '&' : '?') + 'sid=' + RELAY_SID;
+                ws = new WebSocket(url);
                 ws.binaryType = 'arraybuffer';
 
                 ws.onopen = () => {
-                    retryMs = 1000;
+                    retryMs = 300;
                     relaySocketState = 'online';
                     relayState.textContent = 'relay: online';
                 };
@@ -270,12 +310,14 @@
                     });
                 };
                 ws.onclose = (ev) => {
+                    console.warn(`[relay] websocket closed: code=${ev.code} reason="${ev.reason}" — reconnecting (session kept)`);
+                    relayDrops++;
                     relaySocketState = `offline (code ${ev.code}${ev.reason ? ', ' + ev.reason : ''})`;
                     relayState.textContent = ev.reason
                         ? `relay: offline (${ev.reason})`
                         : 'relay: offline — retrying';
                     setTimeout(connect, retryMs);
-                    retryMs = Math.min(retryMs * 2, 15000);
+                    retryMs = Math.min(retryMs * 2, 3000); // fast: the game is frozen until we're back
                 };
                 ws.onerror = () => { /* onclose handles retry */ };
             }
@@ -316,6 +358,8 @@
             win.csStatus = () => ({
                 relayUrl: RELAY_URL,
                 relay: relaySocketState,
+                relayDrops,
+                session: RELAY_SID,
                 engineLoaded: !!engineInstance,
                 engineRunning: !!engineInstance?.running,
                 servers: [...serverSelect.options].map(o => o.value).filter(Boolean),
@@ -324,6 +368,16 @@
         exposeHelpers(window);
         // If this page runs inside a launcher iframe, make the helpers reachable from the top console too.
         try { if (window.top !== window) exposeHelpers(window.top); } catch { /* cross-origin parent */ }
+
+        // Names go into a console command, so strip anything that could break out of
+        // the quotes or chain commands. 24 chars keeps it inside the scoreboard column.
+        function cleanName(raw) {
+            return String(raw || '')
+                .replace(/[\x00-\x1f\x7f"';\\%^]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, 24);
+        }
 
         function hasWebGL2() {
             try {
@@ -495,12 +549,28 @@
 
                 updateProgress(100);
                 updateStatus("Ready! Pick a server and click 'Play'.");
+                document.getElementById('name-row').style.display = 'flex';
                 document.getElementById('server-row').style.display = 'flex';
                 fullscreenBtn.style.display = 'inline-block';
+
+                // ---- Player name (required) --------------------------------------
+                const nameInput = document.getElementById('player-name');
+                try { nameInput.value = localStorage.getItem('cs16_name') || ''; } catch { /* storage blocked */ }
+                const refreshPlay = () => {
+                    const ok = cleanName(nameInput.value).length >= 2;
+                    fullscreenBtn.disabled = !ok;
+                    nameInput.classList.toggle('invalid', !ok && nameInput.value.length > 0);
+                };
+                nameInput.addEventListener('input', refreshPlay);
+                nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !fullscreenBtn.disabled) fullscreenBtn.click(); });
+                refreshPlay();
+                if (!nameInput.value) nameInput.focus();
 
                 // Start the engine on a user click so audio + pointer lock are allowed.
                 fullscreenBtn.addEventListener('click', async () => {
                     const target = serverSelect.value;
+                    const playerName = cleanName(document.getElementById('player-name').value);
+                    try { localStorage.setItem('cs16_name', playerName); } catch { /* storage blocked */ }
 
                     const req = canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
                     if (req) req.call(canvas).catch?.(() => {});
@@ -511,10 +581,11 @@
 
                     x.main();
 
+                    const ok = await waitForConsole(x);
+                    x.Cmd_ExecuteString(`name "${playerName}"`);
                     if (target) {
                         // Numeric IP only: the web build can't resolve hostnames.
-                        const ok = await waitForConsole(x);
-                        console.log(`[net] console ${ok ? 'ready' : 'slow to respond'}, connecting to ${target}`);
+                        console.log(`[net] console ${ok ? 'ready' : 'slow to respond'}, connecting to ${target} as "${playerName}"`);
                         x.Cmd_ExecuteString(`connect ${target}`);
                     }
                 }, { once: true });
