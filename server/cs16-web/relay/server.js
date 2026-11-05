@@ -373,8 +373,12 @@ wss.on('connection', (ws, req) => {
     s.lastActivity = Date.now();
     ws.send(JSON.stringify({ type: 'servers', servers: publicList, sid, rtc: !!ndc }));
 
+    // A live browser answers our pings even when no game packets flow (loading, menus, map change),
+    // so count that as activity; otherwise the idle timer cut off players who were still there.
+    ws.on('pong', () => { if (s.ws === ws) s.lastActivity = Date.now(); });
+
     ws.on('message', (data, isBinary) => {
-        if (!isBinary) return handleText(s, data.toString(), (o) => ws.send(JSON.stringify(o)));
+        if (!isBinary) { s.lastActivity = Date.now(); return handleText(s, data.toString(), (o) => ws.send(JSON.stringify(o))); }
         handleClientFrame(s, Buffer.isBuffer(data) ? data : Buffer.concat(data));
     });
 
