@@ -214,7 +214,16 @@ wss.on('connection', (ws, req) => {
     ws.send(JSON.stringify({ type: 'servers', servers: publicList, sid }));
 
     ws.on('message', (data, isBinary) => {
-        if (!isBinary) return;
+        if (!isBinary) {
+            // Latency probe from the page: echo it straight back.
+            if (data.length < 200) {
+                try {
+                    const msg = JSON.parse(data.toString());
+                    if (msg.type === 'ping' && typeof msg.t === 'number') ws.send(JSON.stringify({ type: 'pong', t: msg.t }));
+                } catch { /* ignore */ }
+            }
+            return;
+        }
         const buf = Buffer.isBuffer(data) ? data : Buffer.concat(data);
         if (buf.length < 7 || buf.length > MAX_PACKET + 6) return;
 
