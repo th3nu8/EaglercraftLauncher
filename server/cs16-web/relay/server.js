@@ -78,9 +78,6 @@ const httpServer = http.createServer((req, res) => {
 // ---- WebSocket relay ---------------------------------------------------------
 
 const wss = new WebSocketServer({ server: httpServer, maxPayload: MAX_PACKET + 6 });
-const connsPerIp = new Map();
-let totalConns = 0;
-let nextId = 1;
 
 function clientIp(req) {
     if (TRUST_PROXY) {
@@ -96,100 +93,139 @@ function log(...args) {
     console.log(new Date().toISOString(), ...args);
 }
 
+// ---- Sessions ----------------------------------------------------------------
+// A session owns the UDP socket (and therefore the source port the game server knows
+// the player by). If the WebSocket drops, the page reconnects with the same ?sid=
+// and gets the SAME UDP socket back, so the server never sees a "new" client.
+// Without this, any WebSocket blip leaves the player connected-but-frozen.
+const RESUME_MS = cfg.resumeWindowMs ?? 60_000;
+const SID_RE = /^[A-Za-z0-9_-]{16,64}$/;
+const sessions = new Map();     // sid -> session
+const sessionsPerIp = new Map();
+let nextId = 1;
+
+function createSession(sid, ip) {
+    const s = {
+        id: nextId++, sid, ip,
+        udp: dgram.createSocket('udp4'),
+        ws: null, expireTimer: null,
+        windowStart: Date.now(), windowCount: 0,
+        lastActivity: Date.now(),
+    };
+    sessions.set(sid, s);
+    sessionsPerIp.set(ip, (sessionsPerIp.get(ip) ?? 0) + 1);
+
+    s.udp.bind(0, () => {
+        // server logs only show 127.0.0.1:<port>; this line maps that port to a real IP
+        log(`#${s.id} session ${ip} -> udp :${s.udp.address().port}`);
+    });
+    s.udp.on('message', (msg, rinfo) => {
+        const srv = byTarget.get(`${rinfo.address}:${rinfo.port}`);
+        if (!srv || !s.ws || s.ws.readyState !== s.ws.OPEN) return; // dropped like real UDP
+        const frame = Buffer.allocUnsafe(6 + msg.length);
+        frame[0] = srv.virtual.ip[0]; frame[1] = srv.virtual.ip[1];
+        frame[2] = srv.virtual.ip[2]; frame[3] = srv.virtual.ip[3];
+        frame.writeUInt16BE(srv.virtual.port, 4);
+        msg.copy(frame, 6);
+        s.ws.send(frame);
+    });
+    s.udp.on('error', (e) => {
+        log(`#${s.id} udp error: ${e.message}`);
+        destroySession(s);
+    });
+    return s;
+}
+
+function destroySession(s) {
+    if (!sessions.has(s.sid)) return;
+    sessions.delete(s.sid);
+    clearTimeout(s.expireTimer);
+    try { s.udp.close(); } catch { /* already closed */ }
+    try { s.ws?.terminate(); } catch { /* already closed */ }
+    const n = (sessionsPerIp.get(s.ip) ?? 1) - 1;
+    if (n <= 0) sessionsPerIp.delete(s.ip); else sessionsPerIp.set(s.ip, n);
+    log(`#${s.id} session ended (${s.ip})`);
+}
+
 wss.on('connection', (ws, req) => {
     const ip = clientIp(req);
     const origin = req.headers.origin || '';
-    const id = nextId++;
 
     if (ALLOWED_ORIGINS.length && !ALLOWED_ORIGINS.includes(origin)) {
-        log(`#${id} reject ${ip}: origin "${origin}" not allowed`);
+        log(`reject ${ip}: origin "${origin}" not allowed`);
         return ws.close(1008, 'origin not allowed');
     }
-    if (totalConns >= MAX_CONNS_TOTAL) {
-        log(`#${id} reject ${ip}: relay full`);
-        return ws.close(1013, 'relay full');
+
+    let sid = null;
+    try { sid = new URL(req.url, 'http://x').searchParams.get('sid'); } catch { /* bad url */ }
+    if (!sid || !SID_RE.test(sid)) sid = require('crypto').randomBytes(18).toString('base64url');
+
+    let s = sessions.get(sid);
+    if (s && s.ip !== ip) {
+        // Someone else's session id: don't hand over their UDP socket.
+        log(`reject ${ip}: sid belongs to another IP`);
+        return ws.close(1008, 'invalid session');
     }
-    if ((connsPerIp.get(ip) ?? 0) >= MAX_CONNS_PER_IP) {
-        log(`#${id} reject ${ip}: too many connections from this IP`);
-        return ws.close(1008, 'too many connections');
+
+    if (s) {
+        clearTimeout(s.expireTimer);
+        s.expireTimer = null;
+        if (s.ws && s.ws !== ws) {
+            const old = s.ws;
+            s.ws = null;              // detach first so its close handler doesn't expire us
+            try { old.terminate(); } catch { /* gone */ }
+        }
+        log(`#${s.id} resumed ${ip} (same udp port — no rejoin needed)`);
+    } else {
+        if (sessions.size >= MAX_CONNS_TOTAL) {
+            log(`reject ${ip}: relay full`);
+            return ws.close(1013, 'relay full');
+        }
+        if ((sessionsPerIp.get(ip) ?? 0) >= MAX_CONNS_PER_IP) {
+            log(`reject ${ip}: too many sessions from this IP`);
+            return ws.close(1008, 'too many connections');
+        }
+        s = createSession(sid, ip);
+        log(`#${s.id} open ${ip} origin="${origin}"`);
     }
 
-    totalConns++;
-    connsPerIp.set(ip, (connsPerIp.get(ip) ?? 0) + 1);
-
-    const udp = dgram.createSocket('udp4');
-    let closed = false;
-    let lastActivity = Date.now();
-    let windowStart = Date.now();
-    let windowCount = 0;
-
-    udp.bind(0, () => {
-        // Log the UDP port so server-side logs (which only see 127.0.0.1:<port>)
-        // can be matched back to the real player IP.
-        log(`#${id} open ${ip} origin="${origin}" -> udp :${udp.address().port}`);
-    });
-
-    // Tell the page which servers it can join.
-    ws.send(JSON.stringify({ type: 'servers', servers: publicList }));
-
-    udp.on('message', (msg, rinfo) => {
-        // Only forward replies from configured targets; drop anything else.
-        const srv = byTarget.get(`${rinfo.address}:${rinfo.port}`);
-        if (!srv || ws.readyState !== ws.OPEN) return;
-        const frame = Buffer.allocUnsafe(6 + msg.length);
-        frame[0] = srv.virtual.ip[0];
-        frame[1] = srv.virtual.ip[1];
-        frame[2] = srv.virtual.ip[2];
-        frame[3] = srv.virtual.ip[3];
-        frame.writeUInt16BE(srv.virtual.port, 4);
-        msg.copy(frame, 6);
-        ws.send(frame);
-    });
-
-    udp.on('error', (e) => {
-        log(`#${id} udp error: ${e.message}`);
-        cleanup();
-    });
+    s.ws = ws;
+    s.lastActivity = Date.now();
+    ws.send(JSON.stringify({ type: 'servers', servers: publicList, sid }));
 
     ws.on('message', (data, isBinary) => {
-        if (!isBinary) return; // text frames are ignored (reserved)
+        if (!isBinary) return;
         const buf = Buffer.isBuffer(data) ? data : Buffer.concat(data);
         if (buf.length < 7 || buf.length > MAX_PACKET + 6) return;
 
         const now = Date.now();
-        lastActivity = now;
-        if (now - windowStart >= 1000) { windowStart = now; windowCount = 0; }
-        if (++windowCount > MAX_PPS) return; // drop, don't kill — bursts happen on connect
+        s.lastActivity = now;
+        if (now - s.windowStart >= 1000) { s.windowStart = now; s.windowCount = 0; }
+        if (++s.windowCount > MAX_PPS) return;
 
         const key = `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}:${buf.readUInt16BE(4)}`;
         const srv = byVirtual.get(key);
-        if (!srv) return; // not an allowlisted server
-
-        udp.send(buf.subarray(6), srv.target.port, srv.target.host);
+        if (!srv) return;
+        s.udp.send(buf.subarray(6), srv.target.port, srv.target.host);
     });
 
     const pinger = setInterval(() => {
-        if (Date.now() - lastActivity > IDLE_MS) {
-            log(`#${id} idle timeout`);
+        if (s.ws !== ws) return clearInterval(pinger);
+        if (Date.now() - s.lastActivity > IDLE_MS) {
+            log(`#${s.id} idle timeout`);
             return ws.terminate();
         }
         if (ws.readyState === ws.OPEN) ws.ping();
     }, 15_000);
 
-    function cleanup() {
-        if (closed) return;
-        closed = true;
+    ws.on('close', (code, reason) => {
         clearInterval(pinger);
-        try { udp.close(); } catch { /* already closed */ }
-        try { ws.terminate(); } catch { /* already closed */ }
-        totalConns--;
-        const n = (connsPerIp.get(ip) ?? 1) - 1;
-        if (n <= 0) connsPerIp.delete(ip); else connsPerIp.set(ip, n);
-        log(`#${id} closed ${ip}`);
-    }
-
-    ws.on('close', cleanup);
-    ws.on('error', cleanup);
+        if (s.ws !== ws) return; // replaced by a newer connection
+        s.ws = null;
+        log(`#${s.id} websocket closed (code ${code}${reason?.length ? ', ' + reason : ''}) — keeping session ${RESUME_MS / 1000}s for resume`);
+        s.expireTimer = setTimeout(() => destroySession(s), RESUME_MS);
+    });
+    ws.on('error', (e) => log(`#${s.id} websocket error: ${e.message}`));
 });
 
 httpServer.listen(LISTEN_PORT, LISTEN_HOST, () => {
