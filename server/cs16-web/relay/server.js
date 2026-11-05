@@ -27,7 +27,7 @@ const LISTEN_HOST = cfg.listen?.host ?? '127.0.0.1';
 const LISTEN_PORT = cfg.listen?.port ?? 7080;
 const TRUST_PROXY = cfg.trustProxy ?? true;           // read CF-Connecting-IP / X-Forwarded-For
 const ALLOWED_ORIGINS = cfg.allowedOrigins ?? [];      // [] = allow any origin
-const MAX_CONNS_PER_IP = cfg.maxConnsPerIp ?? 4;
+const MAX_CONNS_PER_IP = cfg.maxConnsPerIp ?? 16;   // shared school/office IPs need headroom
 const MAX_CONNS_TOTAL = cfg.maxConnsTotal ?? 64;
 const MAX_PACKET = cfg.maxPacketBytes ?? 8192;
 const MAX_PPS = cfg.maxPacketsPerSecond ?? 1500;       // per connection, browser -> server
@@ -160,12 +160,10 @@ wss.on('connection', (ws, req) => {
     try { sid = new URL(req.url, 'http://x').searchParams.get('sid'); } catch { /* bad url */ }
     if (!sid || !SID_RE.test(sid)) sid = require('crypto').randomBytes(18).toString('base64url');
 
+    // The sid is a 144-bit random secret, so it alone proves ownership. We deliberately
+    // don't require the same IP: school/office/mobile networks often rotate between
+    // several public IPs, and a reconnect from the "other" one must still resume.
     let s = sessions.get(sid);
-    if (s && s.ip !== ip) {
-        // Someone else's session id: don't hand over their UDP socket.
-        log(`reject ${ip}: sid belongs to another IP`);
-        return ws.close(1008, 'invalid session');
-    }
 
     if (s) {
         clearTimeout(s.expireTimer);
@@ -175,7 +173,7 @@ wss.on('connection', (ws, req) => {
             s.ws = null;              // detach first so its close handler doesn't expire us
             try { old.terminate(); } catch { /* gone */ }
         }
-        log(`#${s.id} resumed ${ip} (same udp port — no rejoin needed)`);
+        log(`#${s.id} resumed ${ip}${ip !== s.ip ? ` (was ${s.ip})` : ''} — same udp port, no rejoin needed`);
     } else {
         if (sessions.size >= MAX_CONNS_TOTAL) {
             log(`reject ${ip}: relay full`);
