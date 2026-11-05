@@ -141,6 +141,7 @@
 <body>
     <div id="loading-overlay">
         <div id="cs-title">COUNTER-STRIKE 1.6</div>
+        <div id="build-tag" style="font-size:0.75rem;opacity:0.5;margin-top:-18px;margin-bottom:18px;">build 2026-11-05-selfhosted</div>
         <div id="progress-container">
             <div id="progress-bar"></div>
         </div>
@@ -161,10 +162,35 @@
     <canvas id="canvas"></canvas>
 
     <script type="module">
-        import JSZip from 'https://cdn.skypack.dev/jszip@3.10.1';
-        // Official wrapper (pinned). The raw package uses extensionless imports
-        // ('./constants') that 404 in browsers, so load jsDelivr's bundled +esm build.
-        import { Xash3D, Net } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/+esm';
+        // ---- Where libraries come from -------------------------------------------
+        // Everything is self-hosted on Sandpile next to valve.zip (server/install-libs.sh puts
+        // it there), so the page doesn't depend on any outside site. Public CDNs are only a
+        // fallback. Override with ?lib=https://host/path/
+        const LIB_BASE = (new URLSearchParams(location.search).get('lib') ?? 'https://134.195.88.52/assets/cs16/').replace(/\/?$/, '/');
+        const CDN_ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist';
+        const CDN_CS = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist';
+
+        async function importFirst(urls, label) {
+            let lastErr;
+            for (const u of urls) {
+                try {
+                    const m = await import(u);
+                    console.log(`[libs] ${label} <- ${u}`);
+                    return m;
+                } catch (e) {
+                    lastErr = e;
+                    console.warn(`[libs] ${label} not available from ${u}`);
+                }
+            }
+            document.getElementById('loading-status').innerText =
+                `Couldn't load ${label} — is ${LIB_BASE} reachable? (see console)`;
+            throw lastErr;
+        }
+
+        const { default: JSZip } = await importFirst(
+            [`${LIB_BASE}jszip.js`, 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'], 'JSZip');
+        const { Xash3D, Net } = await importFirst(
+            [`${LIB_BASE}xash3d.js`, 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/+esm'], 'engine wrapper');
 
         // ---- Multiplayer relay ---------------------------------------------------
         // Browsers can't send UDP, so all game traffic is tunnelled over a WebSocket
@@ -175,31 +201,23 @@
         // Fallback list if the relay doesn't send one (it normally does on connect).
         const DEFAULT_SERVERS = [{ name: 'PDC CS 1.6', address: '10.27.0.1:27015' }];
 
-        // ---- Pinned CDN locations ------------------------------------------------
-        // xash3d-fwgs 1.2.x renamed the WebGL renderer to libref_webgl2.wasm
-        // (libref_gles3compat.wasm no longer exists).
-        const ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist';
-        // cs16-client was unpublished from npm, so "@latest" no longer resolves.
-        // jsDelivr still serves the last release, 0.1.2 — keep it pinned.
-        const CS = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist';
-
+        // Each entry: candidates tried in order (self-hosted first, CDN as fallback).
         const URLS = {
-            xash: 'https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/server/cs16-web/engine/xash-1.2.2-512mb.wasm',
-            filesystem: `${ENGINE}/filesystem_stdio.wasm`,
-            webgl2:     `${ENGINE}/libref_webgl2.wasm`,
-            soft:       `${ENGINE}/libref_soft.wasm`,
-            extras:     `${ENGINE}/valve/extras.pk3`,
-            // cs16-client >= 0.1.0 moved files (cl_dll -> cl_dlls, server .so -> .wasm).
-            // Candidates are tried in order; the first one that exists is used.
-            menu:   [`${CS}/cl_dlls/menu_emscripten_wasm32.wasm`,
-                     `${CS}/cstrike/cl_dlls/menu_emscripten_wasm32.wasm`,
-                     `${CS}/cl_dll/menu_emscripten_wasm32.wasm`],
-            client: [`${CS}/cl_dlls/client_emscripten_wasm32.wasm`,
-                     `${CS}/cstrike/cl_dlls/client_emscripten_wasm32.wasm`,
-                     `${CS}/cl_dll/client_emscripten_wasm32.wasm`],
-            server: [`${CS}/dlls/cs_emscripten_wasm32.wasm`,
-                     `${CS}/cstrike/dlls/cs_emscripten_wasm32.wasm`,
-                     `${CS}/dlls/cs_emscripten_wasm32.so`],
+            xash:       [`${LIB_BASE}xash.wasm`, `${CDN_ENGINE}/xash.wasm`],
+            filesystem: [`${LIB_BASE}filesystem_stdio.wasm`, `${CDN_ENGINE}/filesystem_stdio.wasm`],
+            webgl2:     [`${LIB_BASE}libref_webgl2.wasm`, `${CDN_ENGINE}/libref_webgl2.wasm`],
+            soft:       [`${LIB_BASE}libref_soft.wasm`, `${CDN_ENGINE}/libref_soft.wasm`],
+            extras:     [`${LIB_BASE}extras.pk3`, `${CDN_ENGINE}/valve/extras.pk3`],
+            // cs16-client was unpublished from npm; jsDelivr's cache (0.1.2) is the only public copy.
+            menu:   [`${LIB_BASE}menu_emscripten_wasm32.wasm`,
+                     `${CDN_CS}/cl_dlls/menu_emscripten_wasm32.wasm`,
+                     `${CDN_CS}/cl_dll/menu_emscripten_wasm32.wasm`],
+            client: [`${LIB_BASE}client_emscripten_wasm32.wasm`,
+                     `${CDN_CS}/cl_dlls/client_emscripten_wasm32.wasm`,
+                     `${CDN_CS}/cl_dll/client_emscripten_wasm32.wasm`],
+            server: [`${LIB_BASE}cs_emscripten_wasm32.wasm`,
+                     `${CDN_CS}/dlls/cs_emscripten_wasm32.wasm`,
+                     `${CDN_CS}/dlls/cs_emscripten_wasm32.so`],
         };
 
         async function firstExisting(candidates, label) {
@@ -209,7 +227,7 @@
                     if (r.ok) { console.log(`[libs] ${label} -> ${url}`); return url; }
                 } catch { /* try next */ }
             }
-            throw new Error(`Could not find ${label} on the CDN. Add it to valve.zip instead.`);
+            throw new Error(`Could not find ${label} on Sandpile (${LIB_BASE}) or the CDN. Run server/install-libs.sh, or add it to valve.zip.`);
         }
 
         const ZIP_URL = 'https://134.195.88.52/assets/valve.zip';
@@ -251,7 +269,23 @@
         // One random session id per page load (base64url, 24 chars).
         const RELAY_SID = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18))))
             .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        const BUILD = '2026-11-05-selfhosted';
+        console.log('[cs16] page build', BUILD);
         let relayDrops = 0;
+        // Frame rate (a slow browser/Chromebook feels exactly like network lag).
+        const fpsStats = { now: 0, min: 999, frames: 0, last: performance.now() };
+        (function fpsLoop() {
+            fpsStats.frames++;
+            const t = performance.now();
+            if (t - fpsStats.last >= 1000) {
+                fpsStats.now = Math.round(fpsStats.frames * 1000 / (t - fpsStats.last));
+                if (document.visibilityState === 'visible' && engineInstance?.running) fpsStats.min = Math.min(fpsStats.min, fpsStats.now);
+                fpsStats.frames = 0; fpsStats.last = t;
+            }
+            requestAnimationFrame(fpsLoop);
+        })();
+        let activeRenderer = 'unknown';
+        let playerNameForStats = '';
         // Round-trip time to the relay (browser <-> Sandpile). Spikes here = network path problem.
         const pingStats = { last: null, max: 0, samples: [], spikes: 0 };
         function pingSummary() {
@@ -262,15 +296,55 @@
             return { lastMs: pingStats.last, avgMs: Math.round(avg), maxMs: pingStats.max, jitterMs: Math.round(jitter), spikesOver300ms: pingStats.spikes, samples: a.length };
         }
         // Packet counters for diagnosing "lag when someone joins" — see csStatus().
-        const netStats = { tx: 0, rx: 0, txDroppedOffline: 0, rxQueueOverflow: 0, maxQueue: 0, lastRxAt: 0, longestRxGapMs: 0 };
+        const netStats = { transport: 'TCP (WebSocket)', tx: 0, rx: 0, txDroppedOffline: 0, rxQueueOverflow: 0, maxQueue: 0, lastRxAt: 0, longestRxGapMs: 0 };
 
         function createRelayNet() {
             let ws = null;
             let retryMs = 300;
+            // WebRTC data channel (UDP-like). Preferred when open; WebSocket otherwise.
+            let pc = null, dc = null, rtcTimer = null, rtcAttempts = 0;
+            const RTC_ENABLED = typeof RTCPeerConnection !== 'undefined'
+                && new URLSearchParams(location.search).get('rtc') !== 'off';
+
+            function setTransportLabel() {
+                const t = dc && dc.readyState === 'open' ? 'UDP (WebRTC)' : 'TCP (WebSocket)';
+                netStats.transport = t;
+                if (ws && ws.readyState === WebSocket.OPEN) relayState.textContent = `relay: online · ${t}`;
+                else if (dc && dc.readyState === 'open') relayState.textContent = `relay: ${t} (signalling reconnecting)`;
+            }
+
+            function onPong(msg) {
+                const rtt = Math.round(performance.now() - msg.t);
+                pingStats.last = rtt;
+                pingStats.max = Math.max(pingStats.max, rtt);
+                pingStats.samples.push(rtt);
+                if (pingStats.samples.length > 300) pingStats.samples.shift();
+                if (rtt > 300) { pingStats.spikes++; console.warn(`[net] ping spike: ${rtt} ms to relay via ${msg.via || 'ws'}`); }
+            }
+
+            // Binary frame from either transport -> engine.
+            function onFrame(data) {
+                const buf = new Uint8Array(data);
+                if (buf.length < 7) return;
+                const now = performance.now();
+                if (netStats.lastRxAt) netStats.longestRxGapMs = Math.max(netStats.longestRxGapMs, Math.round(now - netStats.lastRxAt));
+                netStats.lastRxAt = now;
+                netStats.rx++;
+                const q = net.incoming.size();
+                if (q > netStats.maxQueue) netStats.maxQueue = q;
+                if (net.incoming.isFull()) netStats.rxQueueOverflow++; // engine isn't draining fast enough
+                net.incoming.push({
+                    ip: [buf[0], buf[1], buf[2], buf[3]],
+                    port: (buf[4] << 8) | buf[5],
+                    // Must be its own Uint8Array (no offset) — see Net.recvfrom.
+                    data: buf.slice(6),
+                });
+            }
 
             const net = new Net({
                 sendto(packet) {
-                    if (!ws || ws.readyState !== WebSocket.OPEN) { netStats.txDroppedOffline++; return; } // dropped, like real UDP
+                    const useDc = dc && dc.readyState === 'open';
+                    if (!useDc && (!ws || ws.readyState !== WebSocket.OPEN)) { netStats.txDroppedOffline++; return; } // dropped, like real UDP
                     netStats.tx++;
                     const frame = new Uint8Array(6 + packet.data.length);
                     frame[0] = packet.ip[0]; frame[1] = packet.ip[1];
@@ -279,12 +353,88 @@
                     frame[5] = packet.port & 0xff;
                     // packet.data is a view into WASM memory — copy it now.
                     frame.set(packet.data, 6);
-                    ws.send(frame);
+                    if (useDc) {
+                        // Don't let a congested channel queue up stale packets (that's TCP behaviour).
+                        if (dc.bufferedAmount > 256 * 1024) { netStats.txDroppedCongested = (netStats.txDroppedCongested || 0) + 1; return; }
+                        try { dc.send(frame); return; } catch { /* fall back */ }
+                    }
+                    if (ws && ws.readyState === WebSocket.OPEN) ws.send(frame);
                 },
             }, {
                 maxPackets: 4096,   // headroom so a frame hitch doesn't overflow the queue
                 hostID: Math.floor(Math.random() * 60000) + 1000,
             });
+
+            function closeRtc() {
+                clearTimeout(rtcTimer);
+                try { dc?.close(); } catch { /* gone */ }
+                try { pc?.close(); } catch { /* gone */ }
+                dc = null; pc = null;
+                setTransportLabel();
+            }
+
+            async function startRtc() {
+                if (!RTC_ENABLED || !ws || ws.readyState !== WebSocket.OPEN) return;
+                if (dc && dc.readyState === 'open') return; // still good
+                closeRtc();
+                rtcAttempts++;
+                const sock = ws;
+                // No STUN needed in the browser: the relay has a public address, and ICE learns ours
+                // from our first packet. Add one with ?stun=stun:host:port if a network needs it.
+                const stun = new URLSearchParams(location.search).get('stun');
+                const myPc = pc = new RTCPeerConnection({ iceServers: stun ? [{ urls: stun }] : [] });
+                // ordered:false + maxRetransmits:0 = UDP semantics: never wait for a lost packet.
+                const myDc = dc = myPc.createDataChannel('game', { ordered: false, maxRetransmits: 0 });
+                myDc.binaryType = 'arraybuffer';
+                myDc.onopen = () => {
+                    clearTimeout(rtcTimer);
+                    console.log('[net] WebRTC data channel open — game traffic now uses UDP');
+                    setTransportLabel();
+                };
+                myDc.onclose = () => {
+                    if (dc !== myDc) return;
+                    console.warn('[net] WebRTC channel closed — falling back to WebSocket');
+                    dc = null;
+                    setTransportLabel();
+                    // Try again shortly (e.g. after a network change).
+                    rtcTimer = setTimeout(startRtc, 5000);
+                };
+                myDc.onmessage = (ev) => {
+                    if (typeof ev.data === 'string') {
+                        try { const m = JSON.parse(ev.data); if (m.type === 'pong') onPong(m); } catch { /* ignore */ }
+                        return;
+                    }
+                    onFrame(ev.data);
+                };
+                myPc.onicecandidate = (ev) => {
+                    if (ev.candidate && sock.readyState === WebSocket.OPEN) {
+                        sock.send(JSON.stringify({ type: 'rtc-candidate', candidate: ev.candidate.candidate, mid: ev.candidate.sdpMid }));
+                    }
+                };
+                myPc.onconnectionstatechange = () => {
+                    if (pc === myPc && myPc.connectionState === 'failed') {
+                        console.warn('[net] WebRTC failed (UDP blocked on this network?) — staying on WebSocket');
+                        closeRtc();
+                    }
+                };
+                try {
+                    const offer = await myPc.createOffer();
+                    await myPc.setLocalDescription(offer);
+                    sock.send(JSON.stringify({ type: 'rtc-offer', sdp: myPc.localDescription.sdp }));
+                } catch (e) {
+                    console.warn('[net] WebRTC offer failed:', e);
+                    closeRtc();
+                    return;
+                }
+                // Give up after 10s (UDP blocked) and stay on the WebSocket.
+                rtcTimer = setTimeout(() => {
+                    if (pc === myPc && !(dc && dc.readyState === 'open')) {
+                        console.warn('[net] WebRTC did not connect within 10s — using WebSocket');
+                        closeRtc();
+                        if (rtcAttempts < 3) rtcTimer = setTimeout(startRtc, 15000);
+                    }
+                }, 10000);
+            }
 
             function connect() {
                 if (!RELAY_URL || RELAY_URL === 'off') {
@@ -298,61 +448,80 @@
                 const url = RELAY_URL + (RELAY_URL.includes('?') ? '&' : '?') + 'sid=' + RELAY_SID;
                 ws = new WebSocket(url);
                 ws.binaryType = 'arraybuffer';
+                const sock = ws;
 
                 ws.onopen = () => {
-                    const sock = ws;
+                    // Latency probe: over the data channel when it's up (that's what the game uses).
                     const pinger = setInterval(() => {
-                        if (sock.readyState !== WebSocket.OPEN) return clearInterval(pinger);
-                        sock.send(JSON.stringify({ type: 'ping', t: performance.now() }));
+                        if (sock.readyState !== WebSocket.OPEN && !(dc && dc.readyState === 'open')) return clearInterval(pinger);
+                        const viaDc = dc && dc.readyState === 'open';
+                        const msg = JSON.stringify({ type: 'ping', t: performance.now(), via: viaDc ? 'udp' : 'ws' });
+                        try { (viaDc ? dc : sock).send(msg); } catch { /* ignore */ }
                     }, 1000);
                     retryMs = 300;
                     relaySocketState = 'online';
-                    relayState.textContent = 'relay: online';
+                    setTransportLabel();
                 };
                 ws.onmessage = (ev) => {
                     if (typeof ev.data === 'string') {
-                        try {
-                            const msg = JSON.parse(ev.data);
-                            if (msg.type === 'servers' && Array.isArray(msg.servers)) setServers(msg.servers);
-                            if (msg.type === 'pong' && typeof msg.t === 'number') {
-                                const rtt = Math.round(performance.now() - msg.t);
-                                pingStats.last = rtt;
-                                pingStats.max = Math.max(pingStats.max, rtt);
-                                pingStats.samples.push(rtt);
-                                if (pingStats.samples.length > 300) pingStats.samples.shift();
-                                if (rtt > 300) { pingStats.spikes++; console.warn(`[net] ping spike: ${rtt} ms to relay`); }
-                            }
-                        } catch { /* ignore */ }
+                        let msg;
+                        try { msg = JSON.parse(ev.data); } catch { return; }
+                        if (msg.type === 'servers') {
+                            if (Array.isArray(msg.servers)) setServers(msg.servers);
+                            if (msg.rtc) startRtc();
+                        } else if (msg.type === 'pong' && typeof msg.t === 'number') {
+                            onPong(msg);
+                        } else if (msg.type === 'rtc-answer' && pc) {
+                            pc.setRemoteDescription({ type: 'answer', sdp: msg.sdp }).catch(e => { console.warn('[net] bad answer', e); closeRtc(); });
+                        } else if (msg.type === 'rtc-candidate' && pc && msg.candidate) {
+                            pc.addIceCandidate({ candidate: msg.candidate, sdpMid: msg.mid ?? '0' }).catch(() => { /* stale */ });
+                        } else if (msg.type === 'rtc-unavailable') {
+                            console.warn('[net] relay has no WebRTC support — using WebSocket');
+                            closeRtc();
+                        }
                         return;
                     }
-                    const buf = new Uint8Array(ev.data);
-                    if (buf.length < 7) return;
-                    const now = performance.now();
-                    if (netStats.lastRxAt) netStats.longestRxGapMs = Math.max(netStats.longestRxGapMs, Math.round(now - netStats.lastRxAt));
-                    netStats.lastRxAt = now;
-                    netStats.rx++;
-                    const q = net.incoming.size();
-                    if (q > netStats.maxQueue) netStats.maxQueue = q;
-                    if (net.incoming.isFull()) netStats.rxQueueOverflow++; // engine isn't draining fast enough
-                    net.incoming.push({
-                        ip: [buf[0], buf[1], buf[2], buf[3]],
-                        port: (buf[4] << 8) | buf[5],
-                        // Must be its own Uint8Array (no offset) — see Net.recvfrom.
-                        data: buf.slice(6),
-                    });
+                    onFrame(ev.data);
                 };
                 ws.onclose = (ev) => {
                     console.warn(`[relay] websocket closed: code=${ev.code} reason="${ev.reason}" — reconnecting (session kept)`);
                     relayDrops++;
                     relaySocketState = `offline (code ${ev.code}${ev.reason ? ', ' + ev.reason : ''})`;
-                    relayState.textContent = ev.reason
-                        ? `relay: offline (${ev.reason})`
-                        : 'relay: offline — retrying';
+                    if (!(dc && dc.readyState === 'open')) {
+                        relayState.textContent = ev.reason ? `relay: offline (${ev.reason})` : 'relay: offline — retrying';
+                    } else {
+                        setTransportLabel(); // game keeps flowing over WebRTC
+                    }
                     setTimeout(connect, retryMs);
                     retryMs = Math.min(retryMs * 2, 3000); // fast: the game is frozen until we're back
                 };
                 ws.onerror = () => { /* onclose handles retry */ };
             }
+
+            // Report client-side health to the relay every 5s (visible via its /stats page on Sandpile).
+            setInterval(() => {
+                if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                const p = pingSummary();
+                ws.send(JSON.stringify({
+                    type: 'stats',
+                    build: BUILD,
+                    name: playerNameForStats,
+                    transport: netStats.transport,
+                    ping: typeof p === 'object' ? p : null,
+                    fps: fpsStats.now, fpsMin: fpsStats.min === 999 ? null : fpsStats.min,
+                    renderer: activeRenderer,
+                    tab: document.visibilityState,
+                    playing: !!engineInstance?.running,
+                    tx: netStats.tx, rx: netStats.rx,
+                    txDroppedOffline: netStats.txDroppedOffline,
+                    txDroppedCongested: netStats.txDroppedCongested || 0,
+                    rxQueueOverflow: netStats.rxQueueOverflow,
+                    longestRxGapMs: netStats.longestRxGapMs,
+                    relayDrops,
+                    ua: navigator.userAgent.replace(/^Mozilla\/5\.0 /, '').slice(0, 120),
+                    cores: navigator.hardwareConcurrency || null,
+                }));
+            }, 5000);
 
             setServers(DEFAULT_SERVERS);
             connect();
@@ -393,7 +562,10 @@
                 return 'stats reset — now reproduce the problem, then run csStatus()';
             };
             win.csStatus = () => ({
+                build: BUILD,
                 ping: pingSummary(),
+                fps: { now: fpsStats.now, min: fpsStats.min === 999 ? null : fpsStats.min },
+                renderer: activeRenderer,
                 relayUrl: RELAY_URL,
                 relay: relaySocketState,
                 relayDrops,
@@ -499,8 +671,10 @@
                 // extras.pk3 ships with the engine (fonts, gfx the web port expects).
                 if (!files['/rodir/valve/extras.pk3']) {
                     try {
-                        const r = await fetch(URLS.extras);
-                        if (r.ok) files['/rodir/valve/extras.pk3'] = new Uint8Array(await r.arrayBuffer());
+                        for (const u of URLS.extras) {
+                            const r = await fetch(u).catch(() => null);
+                            if (r && r.ok) { files['/rodir/valve/extras.pk3'] = new Uint8Array(await r.arrayBuffer()); break; }
+                        }
                     } catch (e) {
                         console.warn('Could not fetch extras.pk3:', e);
                     }
@@ -542,6 +716,7 @@
                 URLS.server     = await pick(['cs_emscripten_wasm32.wasm', 'cs_emscripten_wasm32.so'], URLS.server, 'CS server');
 
                 const renderer = hasWebGL2() ? 'gles3compat' : 'soft';
+                activeRenderer = renderer === 'soft' ? 'software (slow!)' : 'webgl2';
                 if (renderer === 'soft') console.warn('WebGL2 unavailable — using software renderer.');
 
                 updateStatus('Downloading engine libraries...');
@@ -614,6 +789,7 @@
                 fullscreenBtn.addEventListener('click', async () => {
                     const target = serverSelect.value;
                     const playerName = cleanName(document.getElementById('player-name').value);
+                    playerNameForStats = playerName;
                     try { localStorage.setItem('cs16_name', playerName); } catch { /* storage blocked */ }
 
                     const req = canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
