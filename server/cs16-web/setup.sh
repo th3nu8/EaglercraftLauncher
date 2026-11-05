@@ -127,6 +127,15 @@ jq --arg v "$PUBLIC_IP:$GAME_PORT" --arg t "127.0.0.1:$GAME_PORT" --argjson rp "
 echo "    browsers join: $PUBLIC_IP:$GAME_PORT"
 (cd "$RELAY" && npm install --omit=dev --no-audit --no-fund --silent)
 chown -R "$SVC_USER:$SVC_USER" "$RELAY"
+# WebRTC (UDP-like) transport: one UDP port for all players. Without node-datachannel it runs WebSocket-only.
+RTC_PORT="$(jq -r '.rtc.port // 27100' "$RELAY/config.json")"
+if [[ -d "$RELAY/node_modules/node-datachannel" ]]; then
+    if command -v ufw >/dev/null && ufw status 2>/dev/null | grep -q "Status: active"; then
+        ufw allow "$RTC_PORT/udp" >/dev/null && echo "    opened UDP $RTC_PORT in ufw (WebRTC)"
+    fi
+else
+    echo "    node-datachannel didn't install, so the relay runs WebSocket-only (works, but laggier on bad Wi-Fi)."
+fi
 
 # --------------------------------------------------------------------------------
 say "Writing systemd units"
@@ -247,6 +256,7 @@ cat <<EOF
 Done.
   Browser relay:  wss://$PUBLIC_IP/cs-relay/      (check: https://$PUBLIC_IP/cs-relay/servers)
 Direct (desktop Xash3D/CS clients):  connect $PUBLIC_IP:$GAME_PORT   (open UDP $GAME_PORT in any provider firewall)
+WebRTC for browser players: open UDP $RTC_PORT in any provider firewall too.
 
 Logs:   journalctl -fu cs16-server    journalctl -fu cs16-relay
 EOF

@@ -93,6 +93,112 @@ function log(...args) {
     console.log(new Date().toISOString(), ...args);
 }
 
+// ---- WebRTC (UDP-like transport) ----------------------------------------------
+// WebSocket = TCP: one lost packet on the player's Wi-Fi stalls everything behind it
+// (rubber-banding, "stuck in rocks"). An unordered, no-retransmit WebRTC data channel
+// behaves like UDP — late packets are simply skipped. The WebSocket stays as the
+// signalling channel and as an automatic fallback when UDP is blocked.
+const RTC_CFG = cfg.rtc ?? {};
+let ndc = null;
+if (RTC_CFG.enabled !== false) {
+    try {
+        ndc = require('node-datachannel');
+    } catch (e) {
+        console.warn('node-datachannel not installed — WebRTC disabled, WebSocket only. (npm install node-datachannel)');
+    }
+}
+const RTC_PORT = RTC_CFG.port ?? 27100;
+const RTC_ICE = RTC_CFG.iceServers ?? ['stun:stun.l.google.com:19302'];
+
+function rtcConfig() {
+    const c = {
+        iceServers: RTC_ICE,
+        // One UDP port for every player (only this port needs opening in the firewall).
+        enableIceUdpMux: true,
+        portRangeBegin: RTC_PORT,
+        portRangeEnd: RTC_PORT,
+        maxMessageSize: 65536,
+    };
+    if (RTC_CFG.bindAddress) c.bindAddress = RTC_CFG.bindAddress;
+    return c;
+}
+
+function closeRtc(s) {
+    try { s.dc?.close(); } catch { /* gone */ }
+    try { s.pc?.close(); } catch { /* gone */ }
+    s.dc = null;
+    s.pc = null;
+}
+
+function startRtc(s, ws, offerSdp) {
+    if (!ndc) return ws.send(JSON.stringify({ type: 'rtc-unavailable' }));
+    closeRtc(s);
+    let pc;
+    try {
+        pc = new ndc.PeerConnection(`p${s.id}`, rtcConfig());
+    } catch (e) {
+        log(`#${s.id} webrtc init failed: ${e.message}`);
+        return ws.send(JSON.stringify({ type: 'rtc-unavailable' }));
+    }
+    s.pc = pc;
+    const sendWs = (obj) => { if (s.ws && s.ws.readyState === s.ws.OPEN) s.ws.send(JSON.stringify(obj)); };
+
+    pc.onLocalDescription((sdp, type) => sendWs({ type: 'rtc-answer', sdp, sdpType: type }));
+    pc.onLocalCandidate((candidate, mid) => sendWs({ type: 'rtc-candidate', candidate, mid }));
+    pc.onStateChange((state) => {
+        if (s.pc !== pc) return;
+        if (state === 'failed' || state === 'closed') {
+            log(`#${s.id} webrtc ${state} — using WebSocket`);
+            closeRtc(s);
+        }
+    });
+    pc.onDataChannel((dc) => {
+        if (s.pc !== pc) return dc.close();
+        s.dc = dc;
+        dc.onOpen?.(() => log(`#${s.id} webrtc open (udp transport)`));
+        log(`#${s.id} webrtc data channel up (udp transport)`);
+        dc.onMessage((msg) => {
+            if (typeof msg === 'string') return handleText(s, msg, (o) => { try { dc.sendMessage(JSON.stringify(o)); } catch { /* closed */ } });
+            handleClientFrame(s, msg);
+        });
+        dc.onClosed(() => {
+            if (s.dc === dc) { s.dc = null; log(`#${s.id} webrtc channel closed — using WebSocket`); }
+        });
+    });
+    try {
+        pc.setRemoteDescription(offerSdp, 'offer');
+    } catch (e) {
+        log(`#${s.id} bad offer: ${e.message}`);
+        closeRtc(s);
+        sendWs({ type: 'rtc-unavailable' });
+    }
+}
+
+// Shared by WebSocket and data channel: browser -> game server.
+function handleClientFrame(s, buf) {
+    if (buf.length < 7 || buf.length > MAX_PACKET + 6) return;
+    const now = Date.now();
+    s.lastActivity = now;
+    if (now - s.windowStart >= 1000) { s.windowStart = now; s.windowCount = 0; }
+    if (++s.windowCount > MAX_PPS) return;
+    const key = `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}:${buf.readUInt16BE(4)}`;
+    const srv = byVirtual.get(key);
+    if (!srv) return;
+    s.udp.send(buf.subarray(6), srv.target.port, srv.target.host);
+}
+
+// Shared control messages (latency probe works on either transport).
+function handleText(s, text, reply) {
+    if (text.length > 20000) return;
+    let msg;
+    try { msg = JSON.parse(text); } catch { return; }
+    if (msg.type === 'ping' && typeof msg.t === 'number') return reply({ type: 'pong', t: msg.t, via: msg.via });
+    if (msg.type === 'rtc-offer' && typeof msg.sdp === 'string' && s.ws) return startRtc(s, s.ws, msg.sdp);
+    if (msg.type === 'rtc-candidate' && typeof msg.candidate === 'string' && s.pc) {
+        try { s.pc.addRemoteCandidate(msg.candidate, String(msg.mid ?? '0')); } catch { /* stale */ }
+    }
+}
+
 // ---- Sessions ----------------------------------------------------------------
 // A session owns the UDP socket (and therefore the source port the game server knows
 // the player by). If the WebSocket drops, the page reconnects with the same ?sid=
@@ -129,6 +235,7 @@ function createSession(sid, ip) {
         id: nextId++, sid, ip, bindAddr,
         udp: dgram.createSocket('udp4'),
         ws: null, expireTimer: null,
+        pc: null, dc: null,
         windowStart: Date.now(), windowCount: 0,
         lastActivity: Date.now(),
     };
@@ -142,13 +249,18 @@ function createSession(sid, ip) {
     });
     s.udp.on('message', (msg, rinfo) => {
         const srv = byTarget.get(`${rinfo.address}:${rinfo.port}`);
-        if (!srv || !s.ws || s.ws.readyState !== s.ws.OPEN) return; // dropped like real UDP
+        if (!srv) return;
         const frame = Buffer.allocUnsafe(6 + msg.length);
         frame[0] = srv.virtual.ip[0]; frame[1] = srv.virtual.ip[1];
         frame[2] = srv.virtual.ip[2]; frame[3] = srv.virtual.ip[3];
         frame.writeUInt16BE(srv.virtual.port, 4);
         msg.copy(frame, 6);
-        s.ws.send(frame);
+        // Prefer the UDP-like data channel; fall back to the WebSocket.
+        if (s.dc && s.dc.isOpen()) {
+            try { if (s.dc.sendMessageBinary(frame)) return; } catch { /* fall through */ }
+        }
+        if (s.ws && s.ws.readyState === s.ws.OPEN) s.ws.send(frame);
+        // else: dropped, exactly like real UDP
     });
     s.udp.on('error', (e) => {
         log(`#${s.id} udp error: ${e.message}`);
@@ -164,9 +276,21 @@ function destroySession(s) {
     clearTimeout(s.expireTimer);
     try { s.udp.close(); } catch { /* already closed */ }
     try { s.ws?.terminate(); } catch { /* already closed */ }
+    closeRtc(s);
     const n = (sessionsPerIp.get(s.ip) ?? 1) - 1;
     if (n <= 0) sessionsPerIp.delete(s.ip); else sessionsPerIp.set(s.ip, n);
     log(`#${s.id} session ended (${s.ip})`);
+}
+
+// End a session RESUME_MS after its WebSocket closed — unless the WebRTC channel is
+// still carrying game traffic (it doesn't depend on the WebSocket once it's up).
+function scheduleExpire(s) {
+    clearTimeout(s.expireTimer);
+    s.expireTimer = setTimeout(() => {
+        if (s.ws) return; // resumed meanwhile
+        if (s.dc && s.dc.isOpen() && Date.now() - s.lastActivity < IDLE_MS) return scheduleExpire(s);
+        destroySession(s);
+    }, RESUME_MS);
 }
 
 wss.on('connection', (ws, req) => {
@@ -211,31 +335,11 @@ wss.on('connection', (ws, req) => {
 
     s.ws = ws;
     s.lastActivity = Date.now();
-    ws.send(JSON.stringify({ type: 'servers', servers: publicList, sid }));
+    ws.send(JSON.stringify({ type: 'servers', servers: publicList, sid, rtc: !!ndc }));
 
     ws.on('message', (data, isBinary) => {
-        if (!isBinary) {
-            // Latency probe from the page: echo it straight back.
-            if (data.length < 200) {
-                try {
-                    const msg = JSON.parse(data.toString());
-                    if (msg.type === 'ping' && typeof msg.t === 'number') ws.send(JSON.stringify({ type: 'pong', t: msg.t }));
-                } catch { /* ignore */ }
-            }
-            return;
-        }
-        const buf = Buffer.isBuffer(data) ? data : Buffer.concat(data);
-        if (buf.length < 7 || buf.length > MAX_PACKET + 6) return;
-
-        const now = Date.now();
-        s.lastActivity = now;
-        if (now - s.windowStart >= 1000) { s.windowStart = now; s.windowCount = 0; }
-        if (++s.windowCount > MAX_PPS) return;
-
-        const key = `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}:${buf.readUInt16BE(4)}`;
-        const srv = byVirtual.get(key);
-        if (!srv) return;
-        s.udp.send(buf.subarray(6), srv.target.port, srv.target.host);
+        if (!isBinary) return handleText(s, data.toString(), (o) => ws.send(JSON.stringify(o)));
+        handleClientFrame(s, Buffer.isBuffer(data) ? data : Buffer.concat(data));
     });
 
     const pinger = setInterval(() => {
@@ -252,13 +356,14 @@ wss.on('connection', (ws, req) => {
         if (s.ws !== ws) return; // replaced by a newer connection
         s.ws = null;
         log(`#${s.id} websocket closed (code ${code}${reason?.length ? ', ' + reason : ''}) — keeping session ${RESUME_MS / 1000}s for resume`);
-        s.expireTimer = setTimeout(() => destroySession(s), RESUME_MS);
+        scheduleExpire(s);
     });
     ws.on('error', (e) => log(`#${s.id} websocket error: ${e.message}`));
 });
 
 httpServer.listen(LISTEN_PORT, LISTEN_HOST, () => {
     log(`relay listening on ${LISTEN_HOST}:${LISTEN_PORT}`);
+    log(ndc ? `webrtc enabled on udp ${RTC_PORT} (open this port in the firewall)` : 'webrtc disabled — WebSocket only');
     for (const s of servers) log(`  ${s.name}: ${s.virtual.key} -> ${s.target.key}`);
 });
 

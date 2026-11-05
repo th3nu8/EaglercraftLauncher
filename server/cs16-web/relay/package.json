@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "node-datachannel": "^0.33.6"
   }
 }
