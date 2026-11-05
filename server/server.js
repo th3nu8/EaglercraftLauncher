@@ -368,6 +368,7 @@ const ptRate = new Map();
 async function handlePolytrack(req, res, p, url) {
   const q = url.searchParams, ep = p.slice('/pt/v6/'.length);
   const uid = ptUid(q.get('mist'));
+  if (req.method === 'POST') console.log('polytrack:', ep, uid ? 'player ' + ptName(uid) : (q.get('mist') ? 'bad Mist token' : 'no Mist token (signed out?)'));
   const json = (o, code) => { res.writeHead(code || 200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(o)); };
   if (req.method === 'OPTIONS') { res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, POST', 'Access-Control-Allow-Headers': 'Content-Type' }); return res.end(); }
   const tid = q.get('trackId');
@@ -394,6 +395,7 @@ async function handlePolytrack(req, res, p, url) {
   if (req.method === 'POST' && ep === 'leaderboard') {
     let f; try { f = await ptRead(req, 64 * 1024); } catch (e) { return json({ error: 'too large' }, 413); }
     if (!uid) return json(null);                       // not signed in to Mist: the game keeps the time locally only
+    console.log('polytrack: record', ptName(uid), f.get('trackId'), f.get('frames'), 'frames,', (f.get('recording') || '').length, 'chars');
     const now = Date.now(), r = (ptRate.get(uid) || []).filter(t => t > now - 60e3);
     if (r.length >= 30) return json({ error: 'slow down' }, 429);
     r.push(now); ptRate.set(uid, r);
