@@ -13,7 +13,658 @@
 
         canvas {
             width: 100vw;
+            height: 100vh;<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Counter-Strike 1.6 - Browser Edition</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            width: 100vw;
             height: 100vh;
+            top: 0;
+            left: 0;
+            position: fixed;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            z-index: 10;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #cs-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ffcc00;
+            text-shadow: 2px 2px 8px #000;
+            margin-bottom: 25px;
+        }
+
+        #progress-container {
+            width: 60%;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+            box-shadow: 0 0 10px #ffcc00;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffaa00, #ffcc00);
+            transition: width 0.2s ease;
+        }
+
+        #loading-status {
+            margin-top: 15px;
+            font-size: 1rem;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        #fullscreen-btn {
+            display: none;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        #name-row {
+            display: none;
+            margin-top: 25px;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        #player-name {
+            background: #111;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.95rem;
+            width: 200px;
+        }
+
+        #player-name.invalid {
+            border-color: #ff4444;
+            box-shadow: 0 0 6px #ff4444;
+        }
+
+        #fullscreen-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        #server-row {
+            display: none;
+            margin-top: 25px;
+            gap: 10px;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        #server-select {
+            background: #111;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 0.95rem;
+        }
+
+        #relay-state {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        #fullscreen-btn:hover {
+            background: #ffaa00;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay">
+        <div id="cs-title">COUNTER-STRIKE 1.6</div>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="loading-status">Preparing to load...</div>
+        <div id="name-row">
+            <label for="player-name">Your name:</label>
+            <input id="player-name" type="text" maxlength="24" placeholder="Enter a name" autocomplete="nickname" spellcheck="false">
+        </div>
+        <div id="server-row">
+            <label for="server-select">Server:</label>
+            <select id="server-select">
+                <option value="">Offline (local map)</option>
+            </select>
+            <span id="relay-state">relay: connecting…</span>
+        </div>
+        <button id="fullscreen-btn">Play (Fullscreen)</button>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script type="module">
+        import JSZip from 'https://cdn.skypack.dev/jszip@3.10.1';
+        // Official wrapper (pinned). The raw package uses extensionless imports
+        // ('./constants') that 404 in browsers, so load jsDelivr's bundled +esm build.
+        import { Xash3D, Net } from 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/+esm';
+
+        // ---- Multiplayer relay ---------------------------------------------------
+        // Browsers can't send UDP, so all game traffic is tunnelled over a WebSocket
+        // to the relay on Sandpile, which forwards it to the dedicated server.
+        // Override per-page with ?relay=wss://host  (or ?relay=off to disable).
+        const RELAY_URL = new URLSearchParams(location.search).get('relay')
+            ?? 'wss://134.195.88.52/cs-relay/';
+        // Fallback list if the relay doesn't send one (it normally does on connect).
+        const DEFAULT_SERVERS = [{ name: 'PDC CS 1.6', address: '10.27.0.1:27015' }];
+
+        // ---- Pinned CDN locations ------------------------------------------------
+        // xash3d-fwgs 1.2.x renamed the WebGL renderer to libref_webgl2.wasm
+        // (libref_gles3compat.wasm no longer exists).
+        const ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist';
+        // cs16-client was unpublished from npm, so "@latest" no longer resolves.
+        // jsDelivr still serves the last release, 0.1.2 — keep it pinned.
+        const CS = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist';
+
+        const URLS = {
+            xash:       `${ENGINE}/xash.wasm`,
+            filesystem: `${ENGINE}/filesystem_stdio.wasm`,
+            webgl2:     `${ENGINE}/libref_webgl2.wasm`,
+            soft:       `${ENGINE}/libref_soft.wasm`,
+            extras:     `${ENGINE}/valve/extras.pk3`,
+            // cs16-client >= 0.1.0 moved files (cl_dll -> cl_dlls, server .so -> .wasm).
+            // Candidates are tried in order; the first one that exists is used.
+            menu:   [`${CS}/cl_dlls/menu_emscripten_wasm32.wasm`,
+                     `${CS}/cstrike/cl_dlls/menu_emscripten_wasm32.wasm`,
+                     `${CS}/cl_dll/menu_emscripten_wasm32.wasm`],
+            client: [`${CS}/cl_dlls/client_emscripten_wasm32.wasm`,
+                     `${CS}/cstrike/cl_dlls/client_emscripten_wasm32.wasm`,
+                     `${CS}/cl_dll/client_emscripten_wasm32.wasm`],
+            server: [`${CS}/dlls/cs_emscripten_wasm32.wasm`,
+                     `${CS}/cstrike/dlls/cs_emscripten_wasm32.wasm`,
+                     `${CS}/dlls/cs_emscripten_wasm32.so`],
+        };
+
+        async function firstExisting(candidates, label) {
+            for (const url of candidates) {
+                try {
+                    const r = await fetch(url, { method: 'HEAD' });
+                    if (r.ok) { console.log(`[libs] ${label} -> ${url}`); return url; }
+                } catch { /* try next */ }
+            }
+            throw new Error(`Could not find ${label} on the CDN. Add it to valve.zip instead.`);
+        }
+
+        const ZIP_URL = 'https://134.195.88.52/assets/valve.zip';
+
+        const loadingStatus = document.getElementById('loading-status');
+        const progressBar = document.getElementById('progress-bar');
+        const overlay = document.getElementById('loading-overlay');
+        const canvas = document.getElementById('canvas');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+        function updateStatus(msg) {
+            loadingStatus.innerText = msg;
+            console.log('[Status]', msg);
+        }
+
+        function updateProgress(percent) {
+            progressBar.style.width = percent + '%';
+        }
+
+        // ---- WebSocket transport for the engine's network layer -------------------
+        // Frame: [4 bytes IPv4][2 bytes port BE][payload] — same in both directions.
+        const serverSelect = document.getElementById('server-select');
+        const relayState = document.getElementById('relay-state');
+
+        function setServers(list) {
+            const current = serverSelect.value;
+            serverSelect.querySelectorAll('option[data-remote]').forEach(o => o.remove());
+            for (const s of list) {
+                const o = document.createElement('option');
+                o.value = s.address;
+                o.textContent = `${s.name} (${s.address})`;
+                o.dataset.remote = '1';
+                serverSelect.appendChild(o);
+            }
+            // Default to the first online server when the user hasn't picked anything.
+            serverSelect.value = current || list[0]?.address || '';
+        }
+
+        // One random session id per page load (base64url, 24 chars).
+        const RELAY_SID = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(18))))
+            .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        let relayDrops = 0;
+        // Round-trip time to the relay (browser <-> Sandpile). Spikes here = network path problem.
+        const pingStats = { last: null, max: 0, samples: [], spikes: 0 };
+        function pingSummary() {
+            const a = pingStats.samples;
+            if (!a.length) return 'no samples yet';
+            const avg = a.reduce((x, y) => x + y, 0) / a.length;
+            const jitter = Math.sqrt(a.reduce((x, y) => x + (y - avg) ** 2, 0) / a.length);
+            return { lastMs: pingStats.last, avgMs: Math.round(avg), maxMs: pingStats.max, jitterMs: Math.round(jitter), spikesOver300ms: pingStats.spikes, samples: a.length };
+        }
+        // Packet counters for diagnosing "lag when someone joins" — see csStatus().
+        const netStats = { tx: 0, rx: 0, txDroppedOffline: 0, rxQueueOverflow: 0, maxQueue: 0, lastRxAt: 0, longestRxGapMs: 0 };
+
+        function createRelayNet() {
+            let ws = null;
+            let retryMs = 300;
+
+            const net = new Net({
+                sendto(packet) {
+                    if (!ws || ws.readyState !== WebSocket.OPEN) { netStats.txDroppedOffline++; return; } // dropped, like real UDP
+                    netStats.tx++;
+                    const frame = new Uint8Array(6 + packet.data.length);
+                    frame[0] = packet.ip[0]; frame[1] = packet.ip[1];
+                    frame[2] = packet.ip[2]; frame[3] = packet.ip[3];
+                    frame[4] = (packet.port >> 8) & 0xff;
+                    frame[5] = packet.port & 0xff;
+                    // packet.data is a view into WASM memory — copy it now.
+                    frame.set(packet.data, 6);
+                    ws.send(frame);
+                },
+            }, {
+                maxPackets: 4096,   // headroom so a frame hitch doesn't overflow the queue
+                hostID: Math.floor(Math.random() * 60000) + 1000,
+            });
+
+            function connect() {
+                if (!RELAY_URL || RELAY_URL === 'off') {
+                    relayState.textContent = 'relay: disabled';
+                    return;
+                }
+                relayState.textContent = 'relay: connecting…';
+                relaySocketState = 'connecting';
+                // Same session id on every reconnect -> relay keeps our UDP port, so the
+                // game server doesn't drop us (that was the "can look but can't move" freeze).
+                const url = RELAY_URL + (RELAY_URL.includes('?') ? '&' : '?') + 'sid=' + RELAY_SID;
+                ws = new WebSocket(url);
+                ws.binaryType = 'arraybuffer';
+
+                ws.onopen = () => {
+                    const sock = ws;
+                    const pinger = setInterval(() => {
+                        if (sock.readyState !== WebSocket.OPEN) return clearInterval(pinger);
+                        sock.send(JSON.stringify({ type: 'ping', t: performance.now() }));
+                    }, 1000);
+                    retryMs = 300;
+                    relaySocketState = 'online';
+                    relayState.textContent = 'relay: online';
+                };
+                ws.onmessage = (ev) => {
+                    if (typeof ev.data === 'string') {
+                        try {
+                            const msg = JSON.parse(ev.data);
+                            if (msg.type === 'servers' && Array.isArray(msg.servers)) setServers(msg.servers);
+                            if (msg.type === 'pong' && typeof msg.t === 'number') {
+                                const rtt = Math.round(performance.now() - msg.t);
+                                pingStats.last = rtt;
+                                pingStats.max = Math.max(pingStats.max, rtt);
+                                pingStats.samples.push(rtt);
+                                if (pingStats.samples.length > 300) pingStats.samples.shift();
+                                if (rtt > 300) { pingStats.spikes++; console.warn(`[net] ping spike: ${rtt} ms to relay`); }
+                            }
+                        } catch { /* ignore */ }
+                        return;
+                    }
+                    const buf = new Uint8Array(ev.data);
+                    if (buf.length < 7) return;
+                    const now = performance.now();
+                    if (netStats.lastRxAt) netStats.longestRxGapMs = Math.max(netStats.longestRxGapMs, Math.round(now - netStats.lastRxAt));
+                    netStats.lastRxAt = now;
+                    netStats.rx++;
+                    const q = net.incoming.size();
+                    if (q > netStats.maxQueue) netStats.maxQueue = q;
+                    if (net.incoming.isFull()) netStats.rxQueueOverflow++; // engine isn't draining fast enough
+                    net.incoming.push({
+                        ip: [buf[0], buf[1], buf[2], buf[3]],
+                        port: (buf[4] << 8) | buf[5],
+                        // Must be its own Uint8Array (no offset) — see Net.recvfrom.
+                        data: buf.slice(6),
+                    });
+                };
+                ws.onclose = (ev) => {
+                    console.warn(`[relay] websocket closed: code=${ev.code} reason="${ev.reason}" — reconnecting (session kept)`);
+                    relayDrops++;
+                    relaySocketState = `offline (code ${ev.code}${ev.reason ? ', ' + ev.reason : ''})`;
+                    relayState.textContent = ev.reason
+                        ? `relay: offline (${ev.reason})`
+                        : 'relay: offline — retrying';
+                    setTimeout(connect, retryMs);
+                    retryMs = Math.min(retryMs * 2, 3000); // fast: the game is frozen until we're back
+                };
+                ws.onerror = () => { /* onclose handles retry */ };
+            }
+
+            setServers(DEFAULT_SERVERS);
+            connect();
+            return net;
+        }
+
+        // Resolves once the engine's console is responding (so `connect` won't be lost).
+        async function waitForConsole(x, tries = 60) {
+            const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+            for (let i = 0; i < tries; i++) {
+                try {
+                    await Promise.race([
+                        x.waitLog('"developer" is', 'developer', 500),
+                        sleep(600).then(() => { throw new Error('timeout'); }),
+                    ]);
+                    return true;
+                } catch {
+                    await sleep(250);
+                }
+            }
+            return false;
+        }
+
+        // ---- Browser-console helpers (F12): csConnect('10.27.0.1:27015'), csCmd('map de_dust2'), csStatus()
+        let engineInstance = null;
+        let relaySocketState = 'not started';
+        function exposeHelpers(win) {
+            win.csCmd = (cmd) => {
+                if (!engineInstance) return 'Game not loaded yet — wait for "Ready", then click Play.';
+                if (!engineInstance.running) return 'Click Play first — the engine is not running yet.';
+                engineInstance.Cmd_ExecuteString(cmd);
+                return `sent: ${cmd}`;
+            };
+            win.csConnect = (addr = serverSelect.value || '10.27.0.1:27015') => win.csCmd(`connect ${addr}`);
+            win.csResetStats = () => {
+                netStats.longestRxGapMs = 0; netStats.maxQueue = 0; netStats.rxQueueOverflow = 0;
+                pingStats.max = 0; pingStats.samples = []; pingStats.spikes = 0;
+                return 'stats reset — now reproduce the problem, then run csStatus()';
+            };
+            win.csStatus = () => ({
+                ping: pingSummary(),
+                relayUrl: RELAY_URL,
+                relay: relaySocketState,
+                relayDrops,
+                packets: { ...netStats, msSinceLastRx: netStats.lastRxAt ? Math.round(performance.now() - netStats.lastRxAt) : null },
+                tabVisible: document.visibilityState,
+                session: RELAY_SID,
+                engineLoaded: !!engineInstance,
+                engineRunning: !!engineInstance?.running,
+                servers: [...serverSelect.options].map(o => o.value).filter(Boolean),
+            });
+        }
+        exposeHelpers(window);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') console.warn('[net] tab hidden — the browser will throttle the game; other players will see you lag');
+        });
+
+        // If this page runs inside a launcher iframe, make the helpers reachable from the top console too.
+        try { if (window.top !== window) exposeHelpers(window.top); } catch { /* cross-origin parent */ }
+
+        // Names go into a console command, so strip anything that could break out of
+        // the quotes or chain commands. 24 chars keeps it inside the scoreboard column.
+        function cleanName(raw) {
+            return String(raw || '')
+                .replace(/[\x00-\x1f\x7f"';\\%^]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, 24);
+        }
+
+        function hasWebGL2() {
+            try {
+                return !!document.createElement('canvas').getContext('webgl2');
+            } catch {
+                return false;
+            }
+        }
+
+        async function downloadZip(url) {
+            const res = await fetch(url, { mode: 'cors' });
+            if (!res.ok) throw new Error(`HTTP error ${res.status}: ${res.statusText}`);
+
+            const contentLength = +res.headers.get('Content-Length');
+            const reader = res.body.getReader();
+            const chunks = [];
+            let received = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                received += value.length;
+                const mb = (received / (1024 * 1024)).toFixed(1);
+                if (contentLength) {
+                    const pct = Math.floor((received / contentLength) * 100);
+                    updateProgress(pct);
+                    updateStatus(`Downloading... ${pct}% (${mb} MB)`);
+                } else {
+                    updateStatus(`Downloaded ${mb} MB...`);
+                }
+            }
+
+            const buffer = new Uint8Array(received);
+            let pos = 0;
+            for (const c of chunks) { buffer.set(c, pos); pos += c.length; }
+            return buffer;
+        }
+
+        async function extractZip(buffer) {
+            const zip = await JSZip.loadAsync(buffer.buffer, { checkCRC32: false });
+            const entries = Object.keys(zip.files).filter(p => !zip.files[p].dir && !p.endsWith('/'));
+            if (entries.length === 0) throw new Error('The downloaded archive contains no files.');
+
+            const files = {};
+            let loaded = 0;
+            for (const p of entries) {
+                const parts = p.split('/').filter(Boolean);
+                if (parts[0] === 'valve_bundle' || parts[0] === 'cs_assets') parts.shift();
+                files[`/rodir/${parts.join('/')}`] = await zip.files[p].async('uint8array');
+                loaded++;
+                updateProgress(Math.floor((loaded / entries.length) * 100));
+                updateStatus(`Extracting files... (${loaded}/${entries.length})`);
+            }
+            return files;
+        }
+
+        function writeFiles(FS, files) {
+            for (const [path, data] of Object.entries(files)) {
+                if (!data || data.byteLength === 0) continue;
+                const dir = path.slice(0, path.lastIndexOf('/'));
+                try { FS.mkdirTree(dir); } catch { /* exists */ }
+                FS.writeFile(path, data);
+            }
+        }
+
+        async function main() {
+            try {
+                updateStatus('Connecting to your asset server...');
+                const buffer = await downloadZip(ZIP_URL);
+
+                updateStatus('Unpacking archive structures...');
+                const files = await extractZip(buffer);
+
+                // extras.pk3 ships with the engine (fonts, gfx the web port expects).
+                if (!files['/rodir/valve/extras.pk3']) {
+                    try {
+                        const r = await fetch(URLS.extras);
+                        if (r.ok) files['/rodir/valve/extras.pk3'] = new Uint8Array(await r.arrayBuffer());
+                    } catch (e) {
+                        console.warn('Could not fetch extras.pk3:', e);
+                    }
+                }
+
+                // Fallback liblist.gam so the engine knows which server DLL to load.
+                if (!files['/rodir/cstrike/liblist.gam']) {
+                    files['/rodir/cstrike/liblist.gam'] = new TextEncoder().encode(
+                        'game "Counter-Strike"\n' +
+                        'gamedll "dlls\\mp.dll"\n' +
+                        'gamedll_linux "dlls/cs.so"\n'
+                    );
+                }
+
+                // Prefer engine/CS libraries bundled inside valve.zip (any folder),
+                // falling back to the pinned CDN copies if they aren't there.
+                const byName = {};
+                for (const [path, data] of Object.entries(files)) {
+                    byName[path.slice(path.lastIndexOf('/') + 1)] = data;
+                }
+                // Returns a blob: URL if found in the zip, else the CDN URL
+                // (or the first existing URL when given a list of candidates).
+                const pick = async (names, cdn, label) => {
+                    for (const name of names) {
+                        if (byName[name]) {
+                            console.log(`[libs] ${label} -> ${name} from valve.zip`);
+                            return URL.createObjectURL(new Blob([byName[name]], { type: 'application/wasm' }));
+                        }
+                    }
+                    return Array.isArray(cdn) ? firstExisting(cdn, label) : cdn;
+                };
+                updateStatus('Locating engine libraries...');
+                URLS.xash       = await pick(['xash.wasm'], URLS.xash, 'engine');
+                URLS.filesystem = await pick(['filesystem_stdio.wasm'], URLS.filesystem, 'filesystem');
+                URLS.webgl2     = await pick(['libref_webgl2.wasm'], URLS.webgl2, 'webgl2 renderer');
+                URLS.soft       = await pick(['libref_soft.wasm'], URLS.soft, 'soft renderer');
+                URLS.menu       = await pick(['menu_emscripten_wasm32.wasm'], URLS.menu, 'menu');
+                URLS.client     = await pick(['client_emscripten_wasm32.wasm'], URLS.client, 'client');
+                URLS.server     = await pick(['cs_emscripten_wasm32.wasm', 'cs_emscripten_wasm32.so'], URLS.server, 'CS server');
+
+                const renderer = hasWebGL2() ? 'gles3compat' : 'soft';
+                if (renderer === 'soft') console.warn('WebGL2 unavailable — using software renderer.');
+
+                updateStatus('Downloading engine libraries...');
+
+                const x = new Xash3D({
+                    canvas,
+                    renderer,
+                    // -console: this engine build disables the ~ console unless asked.
+                    arguments: ['-windowed', '-console', '-game', 'cstrike', '+_vgui_menus', '0'],
+                    libraries: {
+                        xash: URLS.xash,
+                        filesystem: URLS.filesystem,
+                        menu: URLS.menu,
+                        client: URLS.client,
+                        server: URLS.server,
+                        render: {
+                            gles3compat: URLS.webgl2,
+                            gl4es: URLS.webgl2,
+                            soft: URLS.soft,
+                        },
+                    },
+                    // Preload the CS server DLL under the exact name the engine dlopen()s.
+                    // This is what fixes "can't initialize dlls/cs_emscripten_wasm32...":
+                    // Emscripten can't fetch libraries synchronously at runtime, so they
+                    // must be in this list to be fetched before the engine starts.
+                    dynamicLibraries: [
+                        'dlls/cs_emscripten_wasm32.so',
+                        '/rwdir/filesystem_stdio.so',
+                    ],
+                    filesMap: {
+                        'dlls/cs_emscripten_wasm32.so': URLS.server,
+                        'dlls/cs_emscripten_wasm32.wasm': URLS.server,
+                        '/rwdir/filesystem_stdio.so': URLS.filesystem,
+                    },
+                    module: {
+                        print: (s) => console.log('[xash]', s),
+                        printErr: (s) => console.warn('[xash]', s),
+                    },
+                });
+
+                // Must be set before init(): the engine routes all sockets through it.
+                x.net = createRelayNet();
+
+                await x.init();
+
+                updateStatus('Mounting game files...');
+                writeFiles(x.em.FS, files);
+                x.em.FS.chdir('/rodir');
+
+                updateProgress(100);
+                updateStatus("Ready! Pick a server and click 'Play'.");
+                document.getElementById('name-row').style.display = 'flex';
+                document.getElementById('server-row').style.display = 'flex';
+                fullscreenBtn.style.display = 'inline-block';
+
+                // ---- Player name (required) --------------------------------------
+                const nameInput = document.getElementById('player-name');
+                try { nameInput.value = localStorage.getItem('cs16_name') || ''; } catch { /* storage blocked */ }
+                const refreshPlay = () => {
+                    const ok = cleanName(nameInput.value).length >= 2;
+                    fullscreenBtn.disabled = !ok;
+                    nameInput.classList.toggle('invalid', !ok && nameInput.value.length > 0);
+                };
+                nameInput.addEventListener('input', refreshPlay);
+                nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !fullscreenBtn.disabled) fullscreenBtn.click(); });
+                refreshPlay();
+                if (!nameInput.value) nameInput.focus();
+
+                // Start the engine on a user click so audio + pointer lock are allowed.
+                fullscreenBtn.addEventListener('click', async () => {
+                    const target = serverSelect.value;
+                    const playerName = cleanName(document.getElementById('player-name').value);
+                    try { localStorage.setItem('cs16_name', playerName); } catch { /* storage blocked */ }
+
+                    const req = canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.msRequestFullscreen;
+                    if (req) req.call(canvas).catch?.(() => {});
+
+                    canvas.style.opacity = 1;
+                    overlay.style.opacity = 0;
+                    setTimeout(() => overlay.remove(), 500);
+
+                    x.main();
+
+                    const ok = await waitForConsole(x);
+                    x.Cmd_ExecuteString(`name "${playerName}"`);
+                    if (target) {
+                        // Numeric IP only: the web build can't resolve hostnames.
+                        console.log(`[net] console ${ok ? 'ready' : 'slow to respond'}, connecting to ${target} as "${playerName}"`);
+                        x.Cmd_ExecuteString(`connect ${target}`);
+                    }
+                }, { once: true });
+
+                engineInstance = x;
+
+                // Allow re-entering fullscreen later by clicking the canvas.
+                canvas.addEventListener('dblclick', () => {
+                    if (!document.fullscreenElement) canvas.requestFullscreen?.();
+                });
+            } catch (e) {
+                updateStatus('Failed to load game: ' + (e?.message || e) + ' (see console)');
+                console.error('Critical loading failure:', e);
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
             top: 0;
             left: 0;
             position: fixed;
