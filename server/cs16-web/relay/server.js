@@ -64,6 +64,28 @@ const httpServer = http.createServer((req, res) => {
         res.writeHead(200, { 'content-type': 'text/plain' });
         return res.end('ok');
     }
+    if (req.url === '/stats' || req.url === '/stats?') {
+        // Local only: refuse anything that came through a proxy (nginx/cloudflared add these headers).
+        const local = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+        if (!local || req.headers['x-forwarded-for'] || req.headers['cf-connecting-ip'] || req.headers['x-real-ip']) {
+            res.writeHead(403);
+            return res.end('stats are only available from the server itself: curl http://127.0.0.1:<port>/stats\n');
+        }
+        const now = Date.now();
+        const players = [...sessions.values()].map(x => ({
+            session: x.id,
+            name: x.client?.name || null,
+            realIp: x.ip,
+            serverSeesAs: (() => { try { const a = x.udp.address(); return `${a.address}:${a.port}`; } catch { return null; } })(),
+            connectedFor: `${Math.round((now - x.createdAt) / 1000)}s`,
+            websocket: x.ws ? 'up' : 'down',
+            webrtc: x.dc && x.dc.isOpen() ? 'up' : (x.pc ? 'connecting' : 'off'),
+            relayCounts: x.c,
+            client: x.client ? { ...x.client, reportedSecondsAgo: Math.round((now - x.clientAt) / 1000) } : 'no report yet',
+        }));
+        res.writeHead(200, { 'content-type': 'application/json' });
+        return res.end(JSON.stringify({ webrtcEnabled: !!ndc, rtcPort: RTC_PORT, players }, null, 2) + '\n');
+    }
     if (req.url === '/servers') {
         res.writeHead(200, {
             'content-type': 'application/json',
@@ -184,6 +206,7 @@ function handleClientFrame(s, buf) {
     const key = `${buf[0]}.${buf[1]}.${buf[2]}.${buf[3]}:${buf.readUInt16BE(4)}`;
     const srv = byVirtual.get(key);
     if (!srv) return;
+    s.c.toServer++;
     s.udp.send(buf.subarray(6), srv.target.port, srv.target.host);
 }
 
@@ -193,6 +216,16 @@ function handleText(s, text, reply) {
     let msg;
     try { msg = JSON.parse(text); } catch { return; }
     if (msg.type === 'ping' && typeof msg.t === 'number') return reply({ type: 'pong', t: msg.t, via: msg.via });
+    if (msg.type === 'stats') {
+        delete msg.type;
+        s.client = msg;
+        s.clientAt = Date.now();
+        const p = msg.ping;
+        if ((p && (p.maxMs > 400 || p.spikesOver300ms > 3)) || msg.rxQueueOverflow > 0 || (msg.fps && msg.fps < 25 && msg.tab === 'visible')) {
+            log(`#${s.id} client health: ${String(msg.name || '?').slice(0, 24)} ${msg.transport} ping avg ${p?.avgMs ?? '?'} max ${p?.maxMs ?? '?'} jitter ${p?.jitterMs ?? '?'} | fps ${msg.fps} | tab ${msg.tab} | overflow ${msg.rxQueueOverflow}`);
+        }
+        return;
+    }
     if (msg.type === 'rtc-offer' && typeof msg.sdp === 'string' && s.ws) return startRtc(s, s.ws, msg.sdp);
     if (msg.type === 'rtc-candidate' && typeof msg.candidate === 'string' && s.pc) {
         try { s.pc.addRemoteCandidate(msg.candidate, String(msg.mid ?? '0')); } catch { /* stale */ }
@@ -236,6 +269,8 @@ function createSession(sid, ip) {
         udp: dgram.createSocket('udp4'),
         ws: null, expireTimer: null,
         pc: null, dc: null,
+        createdAt: Date.now(), client: null, clientAt: 0,
+        c: { fromServer: 0, viaUdp: 0, viaWs: 0, dropped: 0, toServer: 0 },
         windowStart: Date.now(), windowCount: 0,
         lastActivity: Date.now(),
     };
@@ -256,11 +291,12 @@ function createSession(sid, ip) {
         frame.writeUInt16BE(srv.virtual.port, 4);
         msg.copy(frame, 6);
         // Prefer the UDP-like data channel; fall back to the WebSocket.
+        s.c.fromServer++;
         if (s.dc && s.dc.isOpen()) {
-            try { if (s.dc.sendMessageBinary(frame)) return; } catch { /* fall through */ }
+            try { if (s.dc.sendMessageBinary(frame)) { s.c.viaUdp++; return; } } catch { /* fall through */ }
         }
-        if (s.ws && s.ws.readyState === s.ws.OPEN) s.ws.send(frame);
-        // else: dropped, exactly like real UDP
+        if (s.ws && s.ws.readyState === s.ws.OPEN) { s.ws.send(frame); s.c.viaWs++; return; }
+        s.c.dropped++; // no transport up right now — dropped, exactly like real UDP
     });
     s.udp.on('error', (e) => {
         log(`#${s.id} udp error: ${e.message}`);
