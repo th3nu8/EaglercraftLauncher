@@ -83,29 +83,6 @@
       ]
     },
     {
-      "id": "gta5",
-      "name": "GTA 5",
-      "image": "gta5.jpg",
-      "tags": [
-        "Open World",
-        "Action",
-        "Driving",
-        "3D"
-      ],
-      "description": "Open-world crime and driving in the browser. Opens playgta5.com in a new tab.",
-      "versions": [
-        {
-          "id": "link",
-          "name": "GTA 5",
-          "type": "release",
-          "file": "gta5.html",
-          "notes": [
-            "Link to playgta5.com; the game runs on their site."
-          ]
-        }
-      ]
-    },
-    {
       "id": "polytrack",
       "name": "Polytrack",
       "image": "polytrack.jpg",
