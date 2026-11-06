@@ -22,7 +22,7 @@ eaglercraft-launcher/
 
 ## Install page
 
-The save server also serves this page at its own address (https://134.195.88.52/). Copy `docs/`
+The save server also serves this page at its own address (https://195.62.47.222/). Copy `docs/`
 into the server's `public/` folder (see *Run the save server* below). `docs/mist-qr.png` points there;
 `docs/mist-qr-github.png` points to the GitHub Pages copy.
 

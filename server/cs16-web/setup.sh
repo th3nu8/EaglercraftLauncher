@@ -117,7 +117,7 @@ chown -R "$SVC_USER:$SVC_USER" "$SRV"
 # --------------------------------------------------------------------------------
 say "Installing relay"
 [[ -n "$PUBLIC_IP" ]] || PUBLIC_IP="$(curl -fsS -m 5 https://api.ipify.org 2>/dev/null || true)"
-[[ "$PUBLIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || PUBLIC_IP="134.195.88.52"
+[[ "$PUBLIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] || PUBLIC_IP="195.62.47.222"
 rsync -a --exclude node_modules --exclude config.json "$HERE/relay/" "$RELAY/"
 [[ -f "$RELAY/config.json" ]] || cp "$RELAY/config.example.json" "$RELAY/config.json"
 # Point the first server at this machine: browsers see the real address, the relay forwards to the local port.
