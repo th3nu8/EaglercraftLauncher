@@ -1,17 +1,41 @@
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>GTA 5</title>
-<style>html,body{margin:0;height:100%;background:#0b0b12;color:#eee;font-family:system-ui,sans-serif}
-body{display:flex;align-items:center;justify-content:center;text-align:center}
-a.play{display:inline-block;text-decoration:none;font-size:22px;font-weight:700;padding:16px 40px;border:0;border-radius:10px;background:#2e9a4a;color:#fff;cursor:pointer}
-a.play:hover{background:#38b457}p{color:#999;max-width:460px;margin:18px auto 0;font-size:14px;line-height:1.5}</style></head>
-<body><div>
-<h1 style="margin:0 0 24px;font-size:48px">GTA 5</h1>
-<a class="play" id="play" target="_blank" rel="noopener">Play GTA 5</a>
-<p>Opens the game from the Mist server in a new tab. It needs a tab of its own to run
-(cross-origin isolation), so it can't play inside Mist. Your Mist tab stays open.</p>
-</div>
+<style>
+html,body{margin:0;height:100%;background:#0b0b12;color:#eee;font-family:system-ui,sans-serif;overflow:hidden}
+#game{position:fixed;inset:0;width:100%;height:100%;border:0;display:none}
+#tab{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center}
+a.play{display:inline-block;text-decoration:none;font-size:22px;font-weight:700;padding:16px 40px;border-radius:10px;background:#2e9a4a;color:#fff}
+a.play:hover{background:#38b457}p{color:#999;max-width:460px;margin:18px auto 0;font-size:14px;line-height:1.5}
+</style></head>
+<body>
+<iframe id="game" allow="fullscreen; pointer-lock; autoplay; gamepad; clipboard-read; clipboard-write; cross-origin-isolated" allowfullscreen></iframe>
+<div id="tab"><div>
+  <h1 style="margin:0 0 24px;font-size:48px">GTA 5</h1>
+  <a class="play" id="play" target="_blank" rel="noopener">Play GTA 5</a>
+  <p>This browser can't run GTA 5 inside Mist (it needs Chrome or Edge 137 or newer),
+  so it opens in a new tab. Your Mist tab stays open.</p>
+</div></div>
 <script>
 // Where the game is served from (serve_local.py behind serve_https.py on the Mist server).
 var GAME_URL = 'https://195.62.47.222:8001/';
-document.getElementById('play').href = GAME_URL;   // rel=noopener: the game tab needs its own context for COOP isolation
-</script></body></html>
+
+// The game needs SharedArrayBuffer. Inside Mist's frame that only works with the server's
+// Document-Isolation-Policy header, which Chromium supports from version 137.
+function chromiumVersion() {
+  var b = navigator.userAgentData && navigator.userAgentData.brands || [];
+  for (var i = 0; i < b.length; i++) if (/Chromium|Google Chrome|Microsoft Edge/.test(b[i].brand)) return +b[i].version;
+  var m = navigator.userAgent.match(/Chrom(?:e|ium)\/(\d+)/);
+  return m && !/Firefox|FxiOS/.test(navigator.userAgent) ? +m[1] : 0;
+}
+
+if (chromiumVersion() >= 137) {
+  var f = document.getElementById('game');
+  f.src = GAME_URL;
+  f.style.display = 'block';
+  f.onload = function () { try { f.focus(); } catch (e) {} };
+} else {
+  document.getElementById('play').href = GAME_URL;
+  document.getElementById('tab').style.display = 'flex';
+}
+</script>
+</body></html>

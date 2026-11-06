@@ -261,7 +261,7 @@
     runningGame = g || null;
     gameFrame = document.createElement('iframe');
     gameFrame.id = 'game';
-    gameFrame.setAttribute('allow', 'fullscreen; pointer-lock; autoplay; gamepad; clipboard-read; clipboard-write; microphone');
+    gameFrame.setAttribute('allow', 'fullscreen; pointer-lock; autoplay; gamepad; clipboard-read; clipboard-write; microphone; cross-origin-isolated');
     gameFrame.setAttribute('allowfullscreen', '');
     document.body.appendChild(gameFrame);
     // Write the game straight into the frame instead of using a blob: URL. The frame then shares
