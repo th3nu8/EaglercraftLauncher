@@ -166,7 +166,7 @@
         // Everything is self-hosted on Sandpile next to valve.zip (server/install-libs.sh puts
         // it there), so the page doesn't depend on any outside site. Public CDNs are only a
         // fallback. Override with ?lib=https://host/path/
-        const LIB_BASE = (new URLSearchParams(location.search).get('lib') ?? 'https://134.195.88.52/assets/cs16/').replace(/\/?$/, '/');
+        const LIB_BASE = (new URLSearchParams(location.search).get('lib') ?? 'https://195.62.47.222/assets/cs16/').replace(/\/?$/, '/');
         const CDN_ENGINE = 'https://cdn.jsdelivr.net/npm/xash3d-fwgs@1.2.2/dist';
         const CDN_CS = 'https://cdn.jsdelivr.net/npm/cs16-client@0.1.2/dist';
 
@@ -197,7 +197,7 @@
         // to the relay on Sandpile, which forwards it to the dedicated server.
         // Override per-page with ?relay=wss://host  (or ?relay=off to disable).
         const RELAY_URL = new URLSearchParams(location.search).get('relay')
-            ?? 'wss://134.195.88.52/cs-relay/';
+            ?? 'wss://195.62.47.222//cs-relay/';
         // Fallback list if the relay doesn't send one (it normally does on connect).
         const DEFAULT_SERVERS = [{ name: 'PDC CS 1.6', address: '10.27.0.1:27015' }];
 
@@ -233,7 +233,7 @@
             throw new Error(`Could not find ${label} on Sandpile (${LIB_BASE}) or the CDN. Run server/install-libs.sh, or add it to valve.zip.`);
         }
 
-        const ZIP_URL = 'https://134.195.88.52/assets/valve.zip';
+        const ZIP_URL = 'https://195.62.47.222/assets/valve.zip';
 
         const loadingStatus = document.getElementById('loading-status');
         const progressBar = document.getElementById('progress-bar');
