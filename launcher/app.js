@@ -245,7 +245,7 @@
     // Only Mist's own games (mistApi in versions.json) get the player's sign-in, for online play.
     if (g && g.mistApi && engine && engine.signedIn()) { mist.MIST_TOKEN = engine.token; mist.MIST_USER = engine.user; }
     var inject = '<script>' + Object.keys(mist).map(function (k) { return 'window.' + k + '=' + JSON.stringify(mist[k]).replace(/</g, '\\u003c') + ';'; }).join('') + '<\/script>' +
-      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM + (g && g.mistLeaderboards ? PT_SHIM : '');
+      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM + (g && g.mistLeaderboards ? PT_SHIM : '') + (clips ? clips.shim() : '');
     if (m) return html.slice(0, m.index + m[0].length) + inject + html.slice(m.index + m[0].length);
     return inject + html;
   }
@@ -278,6 +278,7 @@
     if (social && g) social.maybeAskSupport();
     gameStart = Date.now();
     hookOverlayKeys();
+    if (clips) clips.start(gameFrame.contentWindow, g ? g.name : name);
     var b = $('#mistBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 3000);
   }
   function closeGame(silent) {
@@ -285,6 +286,7 @@
     if (!silent && !confirm('Return to the library? Unsaved progress in the running game will be lost.')) return;
     var hadSaves = !runningGame || runningGame.cloudSaves;
     stopHooks();
+    if (clips) clips.stop();
     closeMistOverlay(true);
     gameFrame.remove(); gameFrame = null; runningGame = null;
     if (social) social.setPlaying(null);
@@ -348,6 +350,11 @@
         closeMistOverlay();
       };
       acts.appendChild(fsb);
+    }
+    if (clips && clips.supported()) {
+      var cb = el('button', 'btn', clips.enabled() ? '🎬 Save clip (' + clips.key + ')' : '🎬 Clips are off');
+      cb.onclick = function () { if (!clips.enabled()) { toast('Turn on Instant replay in Settings, then restart the game.'); return; } closeMistOverlay(); setTimeout(clips.save, 80); };
+      acts.appendChild(cb);
     }
     var rl = el('button', 'btn', '↻ Restart game'); rl.onclick = function () {
       if (!confirm('Restart ' + name + '? Unsaved progress since the last save will be lost.')) return;
@@ -818,6 +825,7 @@
   function renderSettings() {
     $('#setMode').value = settings.mode;
     $('#setDebug').value = settings.debug;
+    $('#setClips').value = store.get('clips', 'on');
     $('#setTitle').value = settings.title;
     $('#srcInfo').textContent = CFG.base;
     $('#setServer').value = settings.server;
@@ -1044,6 +1052,7 @@
   document.addEventListener('click', function (e) { if (!e.target.closest('#menuPop')) closeMenu(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeMenu(); if ($('#modal').classList.contains('open')) closeModal(); else if (gameFrame && mistOverlayOpen()) closeMistOverlay(); } });
   document.addEventListener('mousemove', function (e) { $('#mistBtn').classList.toggle('peek', e.clientY < 30); });
+  $('#setClips').onchange = function () { store.set('clips', this.value); if (this.value === 'off' && clips) clips.stop(); toast(this.value === 'on' ? 'Instant replay on for the next game you open' : 'Instant replay off'); };
   $('#setDebug').onchange = function () { settings.debug = this.value; store.set('debugGames', settings.debug); toast(this.value === 'on' ? 'Debug panel on for the next game you open' : 'Debug panel off'); };
   $('#setMode').onchange = function () { settings.mode = this.value; store.set('mode', settings.mode); toast('Saved'); };
   $('#setTitle').onchange = function () {
@@ -1173,7 +1182,7 @@
     });
   }
 
-  var social = null, lastUser;
+  var social = null, clips = null, lastUser;
   function authChanged() {
     var u = engine && engine.signedIn() ? engine.user : null;
     if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); pollAnnouncement(); }
@@ -1210,7 +1219,12 @@
     var nsX = el('button', null, '✕'); nsX.onclick = function () { nsBar.remove(); }; nsBar.appendChild(nsX);
     document.body.appendChild(nsBar);
   }
+  clips = window.MistClips ? MistClips({
+    el: el, toast: toast, ago: ago, openModal: openModal, closeModal: closeModal, button: button,
+    storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); }
+  }) : null;
   social = window.MistSocial ? MistSocial({
+    renderClips: function (host) { if (clips) clips.render(host); else host.textContent = 'Clips aren’t loaded.'; },
     getEngine: function () { return engine; }, onLooks: function () { renderAccount(); }, el: el, toast: toast, ago: ago, popMenu: popMenu,
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
     gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); },

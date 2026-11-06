@@ -1000,7 +1000,7 @@ window.MistSocial = function (ctx) {
 
   /* ---------- Social page: Friends · Activity · Forums · Players ---------- */
   var socState = { tab: 'friends', forum: { view: 'home', cat: null, id: null, page: 0, q: '' } };
-  var SOC_TABS = [['friends', '👥 Friends'], ['activity', '📰 Activity'], ['forums', '💬 Forums'], ['players', '🔎 Players']];
+  var SOC_TABS = [['friends', '👥 Friends'], ['activity', '📰 Activity'], ['forums', '💬 Forums'], ['clips', '🎬 Clips'], ['players', '🔎 Players']];
   function socialActive() { var pg = document.getElementById('page-social'); return !!pg && pg.classList.contains('active'); }
   function renderSocial(tab) {
     if (tab) socState.tab = tab;
@@ -1015,13 +1015,14 @@ window.MistSocial = function (ctx) {
       b.onclick = function () { if (t[0] === 'forums' && socState.tab === 'forums') socState.forum = { view: 'home', page: 0, q: '' }; renderSocial(t[0]); };
       tabs.appendChild(b);
     });
-    ['friends', 'activity', 'forums', 'players'].forEach(function (k) {
+    ['friends', 'activity', 'forums', 'clips', 'players'].forEach(function (k) {
       var pane = document.getElementById('soc' + k.charAt(0).toUpperCase() + k.slice(1));
       if (pane) pane.style.display = socState.tab === k ? '' : 'none';
     });
     if (socState.tab === 'friends') { drawFriends($('#socFriends')); refresh(); }
     else if (socState.tab === 'activity') drawActivity($('#socActivity'));
     else if (socState.tab === 'forums') drawForums($('#socForums'));
+    else if (socState.tab === 'clips') { if (ctx.renderClips) ctx.renderClips($('#socClips')); }
     else if (socState.tab === 'players') loadUsers(true);
   }
   function needSignIn(host, what) {

@@ -692,3 +692,17 @@ body.in-game #app{visibility:hidden}
 .fo-sel{width:100%;margin-bottom:8px}
 .adm-box .adm-q{margin-bottom:8px}
 @media (max-width:760px){.fo-cat{grid-template-columns:40px 1fr}.fo-thread{grid-template-columns:36px 1fr}.fo-cat .fo-n,.fo-cat .fo-last,.fo-thread .fo-n,.fo-thread .fo-last{display:none}.fo-pside{width:60px}}
+
+/* clips */
+.clip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.clip-card{background:rgba(0,0,0,.22);border-radius:3px;overflow:hidden;display:flex;flex-direction:column}
+.clip-thw{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer}
+.clip-th{width:100%;height:100%;object-fit:contain;display:block}
+.clip-dur{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.75);color:#fff;font-size:11px;padding:1px 5px;border-radius:2px}
+.clip-t{padding:8px 10px 0}
+.clip-t b{display:block;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clip-t small{color:#8f98a0}
+.clip-btns{display:flex;gap:6px;padding:8px 10px 10px}
+.clip-btns .btn{padding:3px 10px}
+.m-box.clip-box{width:min(900px,calc(100vw - 30px))}
+.clip-full{width:100%;max-height:70vh;background:#000;border-radius:3px}

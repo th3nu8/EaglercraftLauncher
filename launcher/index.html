@@ -71,6 +71,7 @@
         <div class="soc-pane" id="socFriends"></div>
         <div class="soc-pane" id="socActivity"></div>
         <div class="soc-pane" id="socForums"></div>
+        <div class="soc-pane" id="socClips"></div>
         <div class="soc-pane" id="socPlayers">
       <div class="users-wrap">
         <div class="users-head">
@@ -103,6 +104,10 @@
         <div class="srow">
           <div><b>Debug games</b><small>Shows a panel inside games listing errors and every file they load, so a game that’s stuck loading can be diagnosed from a screenshot.</small></div>
           <select id="setDebug"><option value="off">Off</option><option value="on">On</option></select>
+        </div>
+        <div class="srow">
+          <div><b>Instant replay</b><small>Records the last 30–45 seconds of the game you’re playing so you can save a clip with F8. Turn it off if games feel slower.</small></div>
+          <select id="setClips"><option value="on">On</option><option value="off">Off</option></select>
         </div>
         <div class="srow">
           <div><b>Window title</b><small>The text shown on this tab.</small></div>
@@ -159,6 +164,7 @@
 <script>/*EL_FILE:launcher/social.js*/</script>
 <script>/*EL_FILE:launcher/specs.js*/</script>
 <script>/*EL_FILE:launcher/hooks.js*/</script>
+<script>/*EL_FILE:launcher/clips.js*/</script>
 <script>/*EL_FILE:launcher/app.js*/</script>
 </body>
 </html>
