@@ -83,6 +83,29 @@
       ]
     },
     {
+      "id": "gta5",
+      "name": "GTA 5",
+      "image": "gta5.jpg",
+      "tags": [
+        "Open World",
+        "Action",
+        "Driving",
+        "3D"
+      ],
+      "description": "Open-world crime and driving in the browser. Streams from the Mist server.",
+      "versions": [
+        {
+          "id": "mist-server",
+          "name": "GTA 5",
+          "type": "release",
+          "file": "gta5.html",
+          "notes": [
+            "Runs from the Mist server at https://195.62.47.222:8001/ inside Mist."
+          ]
+        }
+      ]
+    },
+    {
       "id": "polytrack",
       "name": "Polytrack",
       "image": "polytrack.jpg",
