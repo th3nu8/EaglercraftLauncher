@@ -893,6 +893,10 @@
       stack.appendChild(button('', 'Change password', null, openChangePassword));
       stack.appendChild(button('', 'Sign out', 'Worlds already on this site stay here.', function () { engine.signOut().then(function () { closeModal(); toast('Signed out'); }); }));
       box.appendChild(stack);
+      engine.api('GET', '/api/me').then(function (d) {
+        if (d && d.admin && document.body.contains(stack)) stack.insertBefore(button('', '🛡 Admin dashboard', 'Announcements, bans and sign-outs', function () { openAdmin(); }), stack.firstChild);
+        if (d && d.announcement) showAnnouncement(d.announcement);
+      }, function () {});
       var a = el('div', 'm-actions'); a.appendChild(button('ghost', 'Close', null, closeModal)); box.appendChild(a);
     });
   }
@@ -1060,10 +1064,118 @@
   $('#saveIn').onchange = function () { var f = this.files[0]; this.value = ''; if (f) importSaves(f); };
   setInterval(function () { if (view.page === 'store' && featuredGames().length > 1 && !$('#featured').matches(':hover')) { view.feat = (view.feat + 1) % featuredGames().length; renderFeatured(); } }, 8000);
 
+
+  /* ---------- server-wide announcements (shown to everyone, over games too; once per browser) ---------- */
+  function showAnnouncement(a) {
+    if (!a || !a.id || store.get('annSeen', '') === a.id) return;
+    var old = document.getElementById('mistAnn'); if (old) { if (old.dataset.id === a.id) return; old.remove(); }
+    var bar = el('div', 'mist-ann'); bar.id = 'mistAnn'; bar.dataset.id = a.id;
+    bar.appendChild(el('div', 'mist-ann-ic', '📢'));
+    var body = el('div', 'mist-ann-body');
+    body.appendChild(el('div', 'mist-ann-h', 'Announcement'));
+    body.appendChild(el('div', 'mist-ann-t', a.text));
+    body.appendChild(el('div', 'mist-ann-s', (a.by ? 'From ' + a.by + ' · ' : '') + ago(a.at)));
+    bar.appendChild(body);
+    var x = el('button', 'mist-ann-x', '✕'); x.title = 'Dismiss';
+    x.onclick = function () { store.set('annSeen', a.id); bar.remove(); };
+    bar.appendChild(x);
+    document.body.appendChild(bar);
+  }
+  function pollAnnouncement() {
+    var srv = settings.server || defaultServer(); if (!srv) return;
+    fetch(srv.replace(/\/+$/, '') + '/api/announcement', { cache: 'no-store' }).then(function (r) { return r.json(); })
+      .then(function (d) {
+        var cur = document.getElementById('mistAnn');
+        if (!d.announcement) { if (cur) cur.remove(); return; }
+        showAnnouncement(d.announcement);
+      }).catch(function () {});
+  }
+
+  /* ---------- admin dashboard (only for names in the server's admins.json) ---------- */
+  function openAdmin() {
+    openModal(function (box) {
+      box.classList.add('adm-box');
+      box.appendChild(el('h3', null, '🛡 Admin dashboard'));
+      var body = el('div'); box.appendChild(body);
+      body.appendChild(el('p', null, 'Loading…'));
+      var acts = el('div', 'm-actions'); acts.appendChild(button('ghost', 'Close', null, closeModal)); box.appendChild(acts);
+      function load() {
+        engine.api('GET', '/api/admin/overview').then(draw, function (e) { body.textContent = ''; body.appendChild(el('p', 'm-err', e.message)); });
+      }
+      function draw(d) {
+        body.textContent = '';
+        body.appendChild(el('p', 'adm-stats', d.accounts + ' accounts · ' + d.online + ' online now'));
+
+        // announcement
+        var sec = el('div', 'adm-sec'); sec.appendChild(el('h4', null, 'Server-wide announcement'));
+        if (d.announcement) {
+          var cur = el('div', 'adm-cur');
+          cur.appendChild(el('div', null, d.announcement.text));
+          cur.appendChild(el('small', null, 'Sent by ' + d.announcement.by + ' · ' + ago(d.announcement.at)));
+          sec.appendChild(cur);
+        } else sec.appendChild(el('p', 'adm-muted', 'No announcement showing right now.'));
+        var ta = el('textarea', 'adm-ta'); ta.maxLength = 500; ta.placeholder = 'Type a message everyone will see…'; sec.appendChild(ta);
+        var row = el('div', 'adm-row');
+        var dur = el('select', 'adm-sel');
+        [['0', 'Until cleared'], ['1', 'For 1 hour'], ['24', 'For 1 day'], ['168', 'For 1 week']].forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; dur.appendChild(op); });
+        row.appendChild(dur);
+        var send = button('green', 'Send to everyone', null, function () {
+          var t = ta.value.trim(); if (!t) { toast('Type a message first'); return; }
+          send.disabled = true;
+          engine.api('POST', '/api/admin/announce', { json: { text: t, hours: +dur.value } }).then(function (r) {
+            toast('Announcement sent'); store.set('annSeen', ''); showAnnouncement(r.announcement); load();
+          }, function (e) { toast(e.message); send.disabled = false; });
+        });
+        row.appendChild(send);
+        if (d.announcement) row.appendChild(button('ghost', 'Clear', null, function () {
+          engine.api('POST', '/api/admin/announce', { json: { clear: true } }).then(function () {
+            toast('Announcement cleared'); var b = document.getElementById('mistAnn'); if (b) b.remove(); load();
+          }, function (e) { toast(e.message); });
+        }));
+        sec.appendChild(row); body.appendChild(sec);
+
+        // users
+        var us = el('div', 'adm-sec'); us.appendChild(el('h4', null, 'Players'));
+        var q = el('input', 'adm-q'); q.placeholder = 'Search players…'; q.spellcheck = false; us.appendChild(q);
+        var list = el('div', 'adm-list'); us.appendChild(list);
+        function act(name, action, label) {
+          if (action === 'ban' && !confirm('Ban ' + name + '? They get signed out everywhere and can’t sign in again until unbanned.')) return;
+          engine.api('POST', '/api/admin/user', { json: { name: name, action: action } }).then(function () { toast(label); load(); }, function (e) { toast(e.message); });
+        }
+        function drawList() {
+          list.textContent = '';
+          var f = q.value.trim().toLowerCase();
+          d.users.filter(function (u) { return !f || u.name.toLowerCase().indexOf(f) >= 0; }).forEach(function (u) {
+            var r = el('div', 'adm-user');
+            var nm = el('div', 'adm-name');
+            nm.appendChild(el('span', 'adm-dot' + (u.online ? ' on' : '')));
+            nm.appendChild(el('span', null, u.name));
+            if (u.admin) nm.appendChild(el('span', 'adm-tag', 'admin'));
+            if (u.banned) nm.appendChild(el('span', 'adm-tag ban', 'banned'));
+            r.appendChild(nm);
+            var b = el('div', 'adm-btns');
+            if (!u.admin) {
+              if (u.banned) b.appendChild(button('ghost', 'Unban', null, function () { act(u.name, 'unban', u.name + ' unbanned'); }));
+              else {
+                b.appendChild(button('ghost', 'Sign out', null, function () { act(u.name, 'signout', u.name + ' signed out everywhere'); }));
+                b.appendChild(button('ghost adm-danger', 'Ban', null, function () { act(u.name, 'ban', u.name + ' banned'); }));
+              }
+            }
+            r.appendChild(b); list.appendChild(r);
+          });
+          if (!list.firstChild) list.appendChild(el('p', 'adm-muted', 'No players match.'));
+        }
+        q.oninput = drawList; drawList();
+        body.appendChild(us);
+      }
+      load();
+    });
+  }
+
   var social = null, lastUser;
   function authChanged() {
     var u = engine && engine.signedIn() ? engine.user : null;
-    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); }
+    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); pollAnnouncement(); }
   }
   /* PolyTrack-only token for Mist leaderboards (fetched once per sign-in). */
   var ptToken = null, ptPromise = null;
@@ -1107,6 +1219,7 @@
     gameNames: function () { return GAMES.map(function (g) { return g.name; }); }
   }) : null;
   renderAccount();
+  pollAnnouncement(); setInterval(pollAnnouncement, 30000);
   if (social) {
     $('#friendsBtn').onclick = function () { social.togglePanel(); };
     $('#navFriends').onclick = function () { social.togglePanel(); };

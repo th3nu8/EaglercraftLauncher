@@ -3,6 +3,20 @@
  * binary blob, and syncs it with the save server using revision numbers. */
 window.EaglerSync = (function () {
   'use strict';
+
+  /* PBKDF2-SHA256(password, "mist-v1:" + lowercase name): what gets sent instead of the typed password.
+   * Needs WebCrypto (any https page); resolves null without it, and then the typed password is sent. */
+  function prehash(user, pw) {
+    var c = window.crypto && window.crypto.subtle;
+    if (!c || !window.TextEncoder) return Promise.resolve(null);
+    var enc = new TextEncoder();
+    return c.importKey('raw', enc.encode(String(pw)), 'PBKDF2', false, ['deriveBits']).then(function (k) {
+      return c.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode('mist-v1:' + String(user).trim().toLowerCase()), iterations: 100000 }, k, 256);
+    }).then(function (b) {
+      return Array.prototype.map.call(new Uint8Array(b), function (x) { return (x < 16 ? '0' : '') + x.toString(16); }).join('');
+    }).catch(function () { return null; });
+  }
+
   var DB_INCLUDE = /eagler/i;
   var DB_EXCLUDE = /resource.?packs?/i;      // resource packs are big and re-downloadable
   var LS_INCLUDE = /eagler/i;
@@ -324,8 +338,15 @@ window.EaglerSync = (function () {
       this.setStatus('signed-out', 'Signed out');
     },
     auth: function (kind, username, password) {
-      var self = this;
-      return this.api('POST', kind === 'register' ? '/api/register' : '/api/login', { json: { username: username, password: password } }).then(function (d) {
+      var self = this, path = kind === 'register' ? '/api/register' : '/api/login';
+      if (kind === 'register' && (password.length < 6 || password.length > 200)) return Promise.reject(new Error('Password must be at least 6 characters.'));
+      return prehash(username, password).then(function (h) {
+        // Only the derived key is sent. Old accounts need the typed password once (server answers 428) to upgrade.
+        return self.api('POST', path, { json: h ? { username: username, pwh: h } : { username: username, password: password } }).catch(function (e) {
+          if (e.status === 428 && h) return self.api('POST', path, { json: { username: username, pwh: h, password: password } });
+          throw e;
+        });
+      }).then(function (d) {
         self.token = d.token; self.user = d.user.name;
         self.store.set('sync:token', d.token); self.store.set('sync:user', d.user.name);
         self.setStatus('idle', '');
@@ -337,8 +358,15 @@ window.EaglerSync = (function () {
       return this.api('POST', '/api/logout').catch(function () {}).then(function () { self.forget(); });
     },
     changePassword: function (current, password) {
-      var self = this;
-      return this.api('POST', '/api/password', { json: { current: current, password: password } }).then(function (d) {
+      var self = this, u = this.user || '';
+      if (password.length < 6 || password.length > 200) return Promise.reject(new Error('Password must be at least 6 characters.'));
+      return Promise.all([prehash(u, current), prehash(u, password)]).then(function (h) {
+        var j = h[0] && h[1] ? { currentH: h[0], passwordH: h[1] } : { current: current, password: password };
+        return self.api('POST', '/api/password', { json: j }).catch(function (e) {
+          if (e.status === 428 && h[0] && h[1]) return self.api('POST', '/api/password', { json: { current: current, currentH: h[0], passwordH: h[1] } });
+          throw e;
+        });
+      }).then(function (d) {
         self.token = d.token; self.store.set('sync:token', d.token);
       });
     },

@@ -164,6 +164,52 @@ function scrypt(pw, salt) {
   return new Promise((res, rej) =>
     crypto.scrypt(pw, salt, 64, { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }, (e, k) => e ? rej(e) : res(k)));
 }
+// Passwords never travel as typed: the launcher sends PBKDF2(password, "mist-v1:" + lowercase name)
+// and the server stores scrypt() of that. Accounts made before this are upgraded the next time they
+// sign in (that one sign-in still sends the typed password, so the old hash can be checked).
+const PWH_RE = /^[0-9a-f]{64}$/;
+function prehash(pw, key) {
+  return new Promise((res, rej) => crypto.pbkdf2(String(pw), 'mist-v1:' + key, 100000, 32, 'sha256', (e, k) => e ? rej(e) : res(k.toString('hex'))));
+}
+async function setPassword(user, pwh) {
+  user.salt = crypto.randomBytes(16).toString('hex');
+  user.hash = (await scrypt(pwh, user.salt)).toString('hex');
+  user.pv = 2;
+}
+// -> { ok } or { ok: false, legacy: true } when the account still needs the typed password once
+async function checkPassword(user, key, pw, pwh) {
+  if (!user) { await scrypt('x', 'no-such-user-salt'); return { ok: false }; }
+  pwh = PWH_RE.test(String(pwh || '')) ? String(pwh) : '';
+  if (user.pv === 2) {
+    if (!pwh) { if (!pw) return { ok: false }; pwh = await prehash(pw, key); }
+    const h = await scrypt(pwh, user.salt);
+    return { ok: crypto.timingSafeEqual(h, Buffer.from(user.hash, 'hex')) };
+  }
+  if (!pw) return { ok: false, legacy: true };
+  const h = await scrypt(pw, user.salt);
+  if (!crypto.timingSafeEqual(h, Buffer.from(user.hash, 'hex'))) return { ok: false };
+  await setPassword(user, await prehash(pw, key)); await saveDb();
+  return { ok: true };
+}
+
+/* ---------------- admins + announcements ----------------
+ * admins.json (next to server.js) lists admin usernames. Edit it with mist-admin.js; no restart needed. */
+const ADMINS_FILE = path.join(__dirname, 'admins.json');
+let adminCache = { m: -1, set: new Set() };
+function adminSet() {
+  try {
+    const m = fs.statSync(ADMINS_FILE).mtimeMs;
+    if (m !== adminCache.m) adminCache = { m, set: new Set(JSON.parse(fs.readFileSync(ADMINS_FILE, 'utf8')).map(n => String(n).toLowerCase())) };
+  } catch (e) { adminCache = { m: -1, set: new Set() }; }
+  return adminCache.set;
+}
+function isAdmin(user) { return !!user && adminSet().has(user.name.toLowerCase()); }
+function currentAnnouncement() {
+  const a = db.announcement;
+  if (!a || (a.until && a.until < Date.now())) return null;
+  return { id: a.id, text: a.text, by: a.by, at: a.at };
+}
+
 async function newSession(uid) {
   const token = crypto.randomBytes(32).toString('base64url');
   db.sessions[sha256(token)] = { uid, exp: Date.now() + SESSION_DAYS * 864e5 };
@@ -176,7 +222,7 @@ function authUser(req) {
   const s = db.sessions[sha256(m[1])];
   if (!s || s.exp < Date.now()) return null;
   const user = Object.values(db.users).find(u => u.id === s.uid);
-  return user || null;
+  return user && !user.banned ? user : null;
 }
 setInterval(() => {
   let n = 0; const now = Date.now();
@@ -1739,24 +1785,23 @@ async function handle(req, res) {
       (cancelled ? '👋' : '💛') + '</div><h2>' + (cancelled ? 'No problem' : 'Thank you for supporting Mist!') + '</h2><p>' +
       (cancelled ? 'Nothing was charged. You can close this tab.' : 'You can close this tab and go back to Mist. Your perks turn on in a few seconds.') + '</p></div>');
   }
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 10, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 11, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
     let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
-    const name = String(body.username || '').trim(), pw = String(body.password || '');
+    const name = String(body.username || '').trim(), pw = String(body.password || ''), pwh = String(body.pwh || '');
     const key = name.toLowerCase();
 
     if (p === '/api/register') {
       if (storageError) return fail(res, 503, 'The server can’t save new accounts right now. Ask the owner to check the server.');
       if (!ALLOW_SIGNUPS) return fail(res, 403, 'Sign-ups are closed on this server.');
       if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) return fail(res, 400, 'Username must be 3–20 letters, numbers or underscores.');
-      if (pw.length < 6 || pw.length > 200) return fail(res, 400, 'Password must be at least 6 characters.');
+      if (!PWH_RE.test(pwh) && (pw.length < 6 || pw.length > 200)) return fail(res, 400, 'Password must be at least 6 characters.');
       if (db.users[key]) return fail(res, 409, 'That username is taken.');
-      const salt = crypto.randomBytes(16).toString('hex');
-      const hash = (await scrypt(pw, salt)).toString('hex');
+      const user = { id: crypto.randomUUID(), name, created: Date.now() };
+      await setPassword(user, PWH_RE.test(pwh) ? pwh : await prehash(pw, key));
       if (db.users[key]) return fail(res, 409, 'That username is taken.');
-      const user = { id: crypto.randomUUID(), name, salt, hash, created: Date.now() };
       db.users[key] = user;
       const token = await newSession(user.id);
       if (storageError) { // don't hand out an account that won't survive a restart
@@ -1769,11 +1814,15 @@ async function handle(req, res) {
     }
 
     const user = db.users[key];
-    const hash = await scrypt(pw, user ? user.salt : 'no-such-user-salt');
-    if (!user || !crypto.timingSafeEqual(hash, Buffer.from(user.hash, 'hex'))) return fail(res, 401, 'Wrong username or password.');
+    const chk = await checkPassword(user, key, pw, pwh);
+    if (chk.legacy) return send(res, 428, { error: 'Send the password once to upgrade this account.', legacy: true });
+    if (!chk.ok) return fail(res, 401, 'Wrong username or password.');
+    if (user.banned) return fail(res, 403, 'This account has been banned.');
     const token = await newSession(user.id);
-    return send(res, 200, { token, user: { name: user.name }, save: publicMeta(db.saves[user.id]) });
+    return send(res, 200, { token, user: { name: user.name }, save: publicMeta(db.saves[user.id]), admin: isAdmin(user), announcement: currentAnnouncement() });
   }
+
+  if (req.method === 'GET' && p === '/api/announcement') return send(res, 200, { announcement: currentAnnouncement() });
 
   const user = authUser(req);
   if (p.startsWith('/api/') && !user) return fail(res, 401, 'Signed out. Please sign in again.');
@@ -1785,18 +1834,19 @@ async function handle(req, res) {
   }
 
   if (req.method === 'GET' && p === '/api/me') {
-    return send(res, 200, { user: { name: user.name }, save: publicMeta(db.saves[user.id]) });
+    return send(res, 200, { user: { name: user.name }, save: publicMeta(db.saves[user.id]), admin: isAdmin(user), announcement: currentAnnouncement() });
   }
 
   if (req.method === 'POST' && p === '/api/password') {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
     let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
-    const cur = await scrypt(String(body.current || ''), user.salt);
-    if (!crypto.timingSafeEqual(cur, Buffer.from(user.hash, 'hex'))) return fail(res, 401, 'Current password is wrong.');
-    const pw = String(body.password || '');
-    if (pw.length < 6 || pw.length > 200) return fail(res, 400, 'Password must be at least 6 characters.');
-    user.salt = crypto.randomBytes(16).toString('hex');
-    user.hash = (await scrypt(pw, user.salt)).toString('hex');
+    const key = user.name.toLowerCase();
+    const chk = await checkPassword(user, key, String(body.current || ''), body.currentH);
+    if (chk.legacy) return send(res, 428, { error: 'Send the current password once to upgrade this account.', legacy: true });
+    if (!chk.ok) return fail(res, 401, 'Current password is wrong.');
+    const pw = String(body.password || ''), newH = String(body.passwordH || '');
+    if (!PWH_RE.test(newH) && (pw.length < 6 || pw.length > 200)) return fail(res, 400, 'Password must be at least 6 characters.');
+    await setPassword(user, PWH_RE.test(newH) ? newH : await prehash(pw, key));
     for (const [k, s] of Object.entries(db.sessions)) if (s.uid === user.id) delete db.sessions[k];
     const token = await newSession(user.id);
     return send(res, 200, { token });
@@ -1859,6 +1909,46 @@ async function handle(req, res) {
     const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
     return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id), level: levelInfo(user.id),
       looks: looksFor([user.id].concat(me.friends, me.incoming, me.outgoing)) });
+  }
+
+  if (p.startsWith('/api/admin/')) {
+    if (!isAdmin(user)) return fail(res, 403, 'Admins only.');
+    const now = Date.now();
+    const onlineNow = uid => { const pr = presence.get(uid); return !!pr && now - pr.at < 180e3; };
+    if (req.method === 'GET' && p === '/api/admin/overview') {
+      const users = Object.values(db.users).map(u => ({ name: u.name, created: u.created || 0, banned: !!u.banned, admin: isAdmin(u), online: onlineNow(u.id) }))
+        .sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
+      return send(res, 200, { accounts: users.length, online: users.filter(u => u.online).length, announcement: currentAnnouncement(), users });
+    }
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    if (req.method === 'POST' && p === '/api/admin/announce') {
+      const text = String(body.text || '').trim().slice(0, 500);
+      if (!text || body.clear) {
+        db.announcement = null; await saveDb();
+        console.log('admin: ' + user.name + ' cleared the announcement');
+        return send(res, 200, { announcement: null });
+      }
+      const hours = Math.max(0, Math.min(24 * 30, +body.hours || 0));
+      db.announcement = { id: crypto.randomBytes(6).toString('hex'), text, by: user.name, at: now, until: hours ? now + hours * 3600e3 : 0 };
+      await saveDb();
+      console.log('admin: ' + user.name + ' announced: ' + text);
+      return send(res, 200, { announcement: currentAnnouncement() });
+    }
+    if (req.method === 'POST' && p === '/api/admin/user') {
+      const target = db.users[String(body.name || '').toLowerCase()];
+      if (!target) return fail(res, 404, 'No such user.');
+      const action = String(body.action || '');
+      if ((action === 'ban' || action === 'signout') && (target.id === user.id || isAdmin(target))) return fail(res, 400, 'You can’t do that to an admin.');
+      const killSessions = () => { for (const [k, s] of Object.entries(db.sessions)) if (s.uid === target.id) delete db.sessions[k]; presence.delete(target.id); };
+      if (action === 'ban') { target.banned = { by: user.name, at: now }; killSessions(); }
+      else if (action === 'unban') delete target.banned;
+      else if (action === 'signout') killSessions();
+      else return fail(res, 400, 'Unknown action.');
+      await saveDb();
+      console.log('admin: ' + user.name + ' ' + action + ' ' + target.name);
+      return send(res, 200, { ok: true });
+    }
+    return fail(res, 404, 'Unknown admin action.');
   }
 
   if (req.method === 'POST' && p === '/api/presence') {

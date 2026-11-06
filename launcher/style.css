@@ -599,3 +599,37 @@ body.in-game #app{visibility:hidden}
 .ep-avatars button .lock{position:absolute;right:2px;bottom:2px;font-size:12px;font-style:normal}
 .m-box.edit-prof,.m-box.sup-box{max-height:calc(100vh - 40px);overflow:auto}
 .edit-prof .ep-avatars{grid-template-columns:repeat(auto-fill,minmax(46px,1fr))}
+
+/* server-wide announcement banner (sits above games too) */
+.mist-ann{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:2147483000;display:flex;gap:12px;align-items:flex-start;max-width:min(560px,calc(100vw - 28px));background:linear-gradient(135deg,#2a475e,#1b2838);border:1px solid #66c0f4;border-left:4px solid #66c0f4;border-radius:4px;padding:12px 14px;color:#dcdedf;box-shadow:0 10px 30px rgba(0,0,0,.6);animation:annIn .25s ease-out}
+@keyframes annIn{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}
+.mist-ann-ic{font-size:22px;line-height:1}
+.mist-ann-body{flex:1;min-width:0}
+.mist-ann-h{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#66c0f4;font-weight:700}
+.mist-ann-t{font-size:15px;margin:3px 0 4px;white-space:pre-wrap;word-wrap:break-word}
+.mist-ann-s{font-size:12px;color:#8f98a0}
+.mist-ann-x{background:none;border:0;color:#8f98a0;font-size:16px;cursor:pointer;padding:0 2px}
+.mist-ann-x:hover{color:#fff}
+
+/* admin dashboard */
+.m-box.adm-box{width:min(620px,calc(100vw - 30px));max-height:calc(100vh - 60px);overflow:auto}
+.adm-stats{color:#8f98a0;margin-top:0}
+.adm-sec{border-top:1px solid rgba(255,255,255,.08);padding-top:12px;margin-top:12px}
+.adm-sec h4{margin:0 0 8px;color:#fff}
+.adm-cur{background:rgba(102,192,244,.1);border-left:3px solid #66c0f4;padding:8px 10px;margin-bottom:8px;white-space:pre-wrap}
+.adm-cur small{display:block;color:#8f98a0;margin-top:4px}
+.adm-muted{color:#8f98a0;font-size:13px}
+.adm-ta{width:100%;box-sizing:border-box;min-height:70px;resize:vertical;background:#0e141b;color:#dcdedf;border:1px solid #2a3f5a;border-radius:3px;padding:8px;font:inherit}
+.adm-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.adm-sel,.adm-q{background:#0e141b;color:#dcdedf;border:1px solid #2a3f5a;border-radius:3px;padding:7px 8px;font:inherit}
+.adm-q{width:100%;box-sizing:border-box;margin-bottom:8px}
+.adm-list{max-height:280px;overflow:auto}
+.adm-user{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-name{display:flex;align-items:center;gap:6px;min-width:0}
+.adm-dot{width:8px;height:8px;border-radius:50%;background:#555;flex:none}
+.adm-dot.on{background:#57cbde}
+.adm-tag{font-size:10px;text-transform:uppercase;background:#2a475e;color:#66c0f4;padding:1px 5px;border-radius:2px}
+.adm-tag.ban{background:#4a1f1f;color:#ff7b7b}
+.adm-btns{display:flex;gap:6px;flex:none}
+.adm-btns .btn{padding:4px 10px;font-size:12px}
+.btn.adm-danger{color:#ff7b7b}
