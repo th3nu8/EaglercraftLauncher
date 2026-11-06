@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Mist</title></head>
+<!-- Opens Mist in this tab (used by "Back to library" from games that need their own tab, like GTA 5).
+     #el-blank tells loader.js to load the launcher into this page instead of opening a pop-up. -->
+<body id="el-blank" style="margin:0;background:#1b1b1b;color:#ccc;font:15px system-ui,sans-serif;padding:24px">Loading…
+<script>
+fetch('https://raw.githubusercontent.com/th3nu8/EaglercraftLauncher/main/loader.js?' + Date.now())
+  .then(function (r) { if (!r.ok) throw 'HTTP ' + r.status; return r.text(); })
+  .then(function (c) { var s = document.createElement('script'); s.textContent = c; document.body.appendChild(s); })
+  .catch(function (e) { document.body.textContent = 'Could not load Mist: ' + e; });
+</script>
+</body></html>
