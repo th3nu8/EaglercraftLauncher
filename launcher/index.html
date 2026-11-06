@@ -15,8 +15,7 @@
       <button class="nav" data-page="library">LIBRARY</button>
       <button class="nav" data-page="achievements">ACHIEVEMENTS</button>
       <button class="nav" data-page="leaderboard">LEADERBOARD</button>
-      <button class="nav" data-page="users">USERS</button>
-      <button class="nav-x" id="navFriends">FRIENDS</button>
+      <button class="nav" data-page="social">SOCIAL</button>
     </nav>
     <div class="nav-right">
       <button class="iconbtn" id="settingsBtn" title="Settings">⚙</button>
@@ -65,7 +64,14 @@
 
     <!-- USERS -->
     <section class="page" id="page-leaderboard"><div class="users-wrap" id="lbPage"></div></section>
-    <section class="page" id="page-users">
+    <!-- SOCIAL: friends, activity, forums, players -->
+    <section class="page" id="page-social">
+      <div class="soc-wrap">
+        <div class="soc-tabs" id="socTabs"></div>
+        <div class="soc-pane" id="socFriends"></div>
+        <div class="soc-pane" id="socActivity"></div>
+        <div class="soc-pane" id="socForums"></div>
+        <div class="soc-pane" id="socPlayers">
       <div class="users-wrap">
         <div class="users-head">
           <h2 id="usersTitle">Players</h2>
@@ -74,6 +80,8 @@
         </div>
         <div class="ugrid" id="usersGrid"></div>
         <div class="more-wrap"><button class="btn" id="usersMore">Show more</button></div>
+      </div>
+        </div>
       </div>
     </section>
 

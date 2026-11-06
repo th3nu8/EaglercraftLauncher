@@ -522,6 +522,7 @@
     view.page = page;
     if (page === 'game') view.game = game;
     if (page === 'profile') view.profileName = game || null;
+    if (page === 'social' && game) view.socialTab = game;
     if (page === 'library' && game !== undefined) { view.libGame = game ? game.id : null; store.set('libGame', view.libGame); }
     $$('.page').forEach(function (p) { p.classList.toggle('active', p.id === 'page-' + page); });
     $$('.nav').forEach(function (n) { n.classList.toggle('active', n.dataset.page === page || (page === 'game' && n.dataset.page === 'store')); });
@@ -536,7 +537,7 @@
     else if (view.page === 'game') renderGamePage();
     else if (view.page === 'library') renderLibrary();
     else if (view.page === 'settings') renderSettings();
-    else if (view.page === 'users') { if (social) social.loadUsers(true); }
+    else if (view.page === 'social') { if (social) social.renderSocial(view.socialTab || 'friends'); }
     else if (view.page === 'leaderboard') { if (social) social.renderLeaderboard(); }
     else if (view.page === 'profile') { if (social) social.renderProfile(view.profileName); }
     else if (view.page === 'achievements') { if (social) social.renderAchPage(); }
@@ -887,7 +888,7 @@
       var stack = el('div', 'm-stack');
       if (st.state === 'conflict') stack.appendChild(button('green', 'Fix save conflict', null, function () { closeModal(); runSync(true); }));
       stack.appendChild(button('', 'My profile & achievements', null, function () { closeModal(); go('profile', engine.user); }));
-      stack.appendChild(button('', 'Friends & chat', null, function () { closeModal(); social.togglePanel(true); }));
+      stack.appendChild(button('', 'Friends, forums & chat', null, function () { closeModal(); go('social', 'friends'); }));
       stack.appendChild(button('', '💛 Support Mist', '$5/month: gold outline, extra avatars, +2,500 XP', function () { closeModal(); social.openSupport(); }));
       stack.appendChild(button('', 'Sync now', null, function () { if (gameFrame) { toast('Return to the library first'); return; } closeModal(); runSync(true); }));
       stack.appendChild(button('', 'Change password', null, openChangePassword));
@@ -1214,6 +1215,7 @@
     openModal: openModal, closeModal: closeModal, field: field, button: button, openAccount: openAccount,
     gameByName: gameByName, artInto: artInto, showGame: function (g) { go('game', g); },
     showProfile: function (n) { go('profile', n); },
+    showSocial: function (tab) { go('social', tab || 'friends'); },
     storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
     showAchievements: function () { go('achievements'); },
     gameNames: function () { return GAMES.map(function (g) { return g.name; }); }
@@ -1221,8 +1223,7 @@
   renderAccount();
   pollAnnouncement(); setInterval(pollAnnouncement, 30000);
   if (social) {
-    $('#friendsBtn').onclick = function () { social.togglePanel(); };
-    $('#navFriends').onclick = function () { social.togglePanel(); };
+    $('#friendsBtn').onclick = function () { go('social', 'friends'); };
     social.wireUsers();
     social.start();
     var lastFriendsKey = '';

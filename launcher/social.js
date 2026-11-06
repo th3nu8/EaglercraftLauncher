@@ -188,7 +188,7 @@ window.MistSocial = function (ctx) {
   }
   function schedule() {
     clearTimeout(pollTimer);
-    pollTimer = setTimeout(function () { refresh().then(schedule); }, panelOpen ? 8000 : 20000);
+    pollTimer = setTimeout(function () { refresh().then(schedule); }, socialActive() ? 8000 : 20000);
   }
   function start() {
     refresh().then(schedule);
@@ -201,7 +201,7 @@ window.MistSocial = function (ctx) {
   function onAuthChange() {
     seenIncoming = null; lastUnread = {}; myLevel = null;
     var lv = document.getElementById('pLevel'); if (lv) lv.textContent = '';
-    if (document.getElementById('page-users') && document.getElementById('page-users').classList.contains('active')) setTimeout(function () { loadUsers(true); }, 0);
+    if (socialActive()) setTimeout(function () { renderSocial(socState.tab); }, 0);
     if (!eng()) { closeChat(); data = null; render(); return; }
     beat(); refresh();
   }
@@ -218,19 +218,21 @@ window.MistSocial = function (ctx) {
       var badge = data.incoming.length + data.friends.reduce(function (a, f) { return a + (f.unread || 0); }, 0);
       if (badge) b.appendChild(el('span', 'fb-badge', String(badge)));
     }
-    b.classList.toggle('on', panelOpen);
+    b.classList.toggle('on', socialActive());
   }
 
   /* ---------- friends panel ---------- */
-  function togglePanel(force) { panelOpen = force === undefined ? !panelOpen : force; render(); if (panelOpen) refresh(); schedule(); }
+  // Friends now live on the Social page; the old side panel opens that instead.
+  function togglePanel() { if (ctx.showSocial) ctx.showSocial('friends'); }
   function render() {
     renderButton();
     if (ovHost) drawOvFriends();
     if (chat) { var cf = friend(chat.name), cst = $('#chatState');
       if (cf && cst) { cst.textContent = stateText(cf); cst.className = 'st-' + cf.state; } }
-    var p = $('#friendsPanel'); if (!p) return;
-    p.classList.toggle('open', panelOpen);
-    if (!panelOpen) return;
+    var fh = document.getElementById('socFriends');
+    if (fh && socState.tab === 'friends' && socialActive()) drawFriends(fh);
+  }
+  function drawFriends(p) {
     p.textContent = '';
     var head = el('div', 'fp-head');
     if (!eng()) {
@@ -239,7 +241,7 @@ window.MistSocial = function (ctx) {
       var e = el('div', 'fp-empty');
       e.appendChild(el('p', null, ctx.getEngine() ? 'Sign in to add friends, see what they’re playing and chat.' : 'Friends need a save server. Set one in Settings.'));
       var b = el('button', 'btn green', ctx.getEngine() ? 'Sign in' : 'Open settings');
-      b.onclick = function () { togglePanel(false); ctx.openAccount(); };
+      b.onclick = function () { ctx.openAccount(); };
       e.appendChild(b); p.appendChild(e); return;
     }
     var me = el('button', 'fp-me');
@@ -249,8 +251,7 @@ window.MistSocial = function (ctx) {
     me.appendChild(mt); me.onclick = function () { openProfile(eng().user); };
     head.appendChild(me);
     var add = el('button', 'fp-add', '＋'); add.title = 'Add a friend'; add.onclick = openAddFriend;
-    var x = el('button', 'fp-x', '✕'); x.title = 'Close'; x.onclick = function () { togglePanel(false); };
-    head.appendChild(add); head.appendChild(x);
+    head.appendChild(add);
     p.appendChild(head);
 
     var list = el('div', 'fp-list');
@@ -996,6 +997,252 @@ window.MistSocial = function (ctx) {
     $('#usersMore').onclick = function () { if (usersState.loading) return; usersState.page++; loadUsers(false); };
   }
 
+
+  /* ---------- Social page: Friends · Activity · Forums · Players ---------- */
+  var socState = { tab: 'friends', forum: { view: 'home', cat: null, id: null, page: 0, q: '' } };
+  var SOC_TABS = [['friends', '👥 Friends'], ['activity', '📰 Activity'], ['forums', '💬 Forums'], ['players', '🔎 Players']];
+  function socialActive() { var pg = document.getElementById('page-social'); return !!pg && pg.classList.contains('active'); }
+  function renderSocial(tab) {
+    if (tab) socState.tab = tab;
+    var tabs = $('#socTabs'); if (!tabs) return;
+    tabs.textContent = '';
+    SOC_TABS.forEach(function (t) {
+      var b = el('button', 'soc-tab' + (socState.tab === t[0] ? ' on' : ''), t[1]);
+      if (t[0] === 'friends' && data) {
+        var n = data.incoming.length + data.friends.reduce(function (a, f) { return a + (f.unread || 0); }, 0);
+        if (n) b.appendChild(el('span', 'fb-badge', String(n)));
+      }
+      b.onclick = function () { if (t[0] === 'forums' && socState.tab === 'forums') socState.forum = { view: 'home', page: 0, q: '' }; renderSocial(t[0]); };
+      tabs.appendChild(b);
+    });
+    ['friends', 'activity', 'forums', 'players'].forEach(function (k) {
+      var pane = document.getElementById('soc' + k.charAt(0).toUpperCase() + k.slice(1));
+      if (pane) pane.style.display = socState.tab === k ? '' : 'none';
+    });
+    if (socState.tab === 'friends') { drawFriends($('#socFriends')); refresh(); }
+    else if (socState.tab === 'activity') drawActivity($('#socActivity'));
+    else if (socState.tab === 'forums') drawForums($('#socForums'));
+    else if (socState.tab === 'players') loadUsers(true);
+  }
+  function needSignIn(host, what) {
+    host.textContent = '';
+    var e = el('div', 'fp-empty');
+    e.appendChild(el('p', null, ctx.getEngine() ? 'Sign in to ' + what + '.' : 'This needs a save server. Set one in Settings.'));
+    var b = el('button', 'btn green', ctx.getEngine() ? 'Sign in' : 'Open settings'); b.onclick = ctx.openAccount;
+    e.appendChild(b); host.appendChild(e);
+  }
+
+  /* activity */
+  function drawActivity(host) {
+    if (!eng()) return needSignIn(host, 'see what you and your friends have been up to');
+    host.textContent = ''; host.appendChild(el('div', 'fp-empty', 'Loading…'));
+    api('GET', '/api/activity').then(function (r) {
+      host.textContent = '';
+      host.appendChild(el('h2', 'soc-h', 'Recent activity'));
+      host.appendChild(el('p', 'soc-sub', 'You and your friends over the last 30 days.'));
+      if (!r.events.length) { host.appendChild(el('div', 'fp-empty', 'Nothing yet. Play some games or add friends and their activity shows up here.')); return; }
+      var list = el('div', 'act-list');
+      r.events.forEach(function (e) {
+        var row = el('div', 'act-row');
+        var av = avatar(e.who, 40); av.style.cursor = 'pointer'; av.onclick = function () { openProfile(e.who); }; row.appendChild(av);
+        var t = el('div', 'act-t'), line = el('div');
+        var who = el('b', 'act-who', e.who); who.onclick = function () { openProfile(e.who); }; line.appendChild(who);
+        if (e.type === 'ach') { line.appendChild(document.createTextNode(' unlocked ')); line.appendChild(el('span', 'act-ach r-' + (e.rank || 'common'), e.icon + ' ' + e.name)); }
+        else if (e.type === 'gameach') { line.appendChild(document.createTextNode(' earned ')); line.appendChild(el('span', 'act-ach r-' + (e.rank || 'common'), e.icon + ' ' + e.name)); line.appendChild(document.createTextNode(' in ')); line.appendChild(gameLink(e.game)); }
+        else if (e.type === 'play') { line.appendChild(document.createTextNode(' played ')); line.appendChild(gameLink(e.game)); }
+        else if (e.type === 'joined') line.appendChild(document.createTextNode(' joined Mist 🎉'));
+        else if (e.type === 'thread') {
+          line.appendChild(document.createTextNode(' started a thread '));
+          var a = el('a', 'act-link', '“' + e.title + '”'); a.onclick = function () { openThread(e.id); }; line.appendChild(a);
+        }
+        t.appendChild(line); t.appendChild(el('small', null, ago(e.at)));
+        row.appendChild(t); list.appendChild(row);
+      });
+      host.appendChild(list);
+    }, function (e) { host.textContent = ''; host.appendChild(el('div', 'fp-empty', e.message)); });
+  }
+  function gameLink(name) {
+    var g = ctx.gameByName && ctx.gameByName(name);
+    var a = el(g ? 'a' : 'b', g ? 'act-link' : null, name);
+    if (g) a.onclick = function () { ctx.showGame(g); };
+    return a;
+  }
+
+  /* forums */
+  var forumCats = null;
+  function openThread(id) { socState.forum = { view: 'thread', id: id, page: 0, q: '' }; renderSocial('forums'); }
+  function drawForums(host) {
+    if (!eng()) return needSignIn(host, 'read and post in the forums');
+    var f = socState.forum;
+    host.textContent = ''; host.appendChild(el('div', 'fp-empty', 'Loading…'));
+    if (f.view === 'thread') return drawThread(host, f.id);
+    if (f.view === 'cat' || f.q) return drawThreadList(host);
+    api('GET', '/api/forums').then(function (r) {
+      forumCats = r.cats; host.textContent = '';
+      var head = el('div', 'fo-head'); head.appendChild(el('h2', 'soc-h', 'Forums'));
+      var q = el('input', 'store-search fo-search'); q.placeholder = 'search threads';
+      q.onkeydown = function (e) { if (e.key === 'Enter' && q.value.trim()) { socState.forum = { view: 'cat', cat: null, page: 0, q: q.value.trim() }; drawForums(host); } };
+      head.appendChild(q);
+      head.appendChild(ctx.button('green', '＋ New thread', null, function () { openNewThread(null); }));
+      host.appendChild(head);
+      var list = el('div', 'fo-cats');
+      r.cats.forEach(function (c) {
+        var row = el('div', 'fo-cat');
+        row.appendChild(el('div', 'fo-ic', c.icon));
+        var t = el('div', 'fo-ct'); t.appendChild(el('b', null, c.name)); t.appendChild(el('small', null, c.desc)); row.appendChild(t);
+        row.appendChild(el('div', 'fo-n', c.threads + ' thread' + (c.threads === 1 ? '' : 's') + '\n' + c.posts + ' post' + (c.posts === 1 ? '' : 's')));
+        var last = el('div', 'fo-last');
+        if (c.latest) {
+          var a = el('a', 'act-link', c.latest.title); a.onclick = function (e) { e.stopPropagation(); openThread(c.latest.id); };
+          last.appendChild(a); last.appendChild(el('small', null, 'by ' + c.latest.lastBy + ' · ' + ago(c.latest.last)));
+        } else last.appendChild(el('small', null, 'No threads yet'));
+        row.appendChild(last);
+        row.onclick = function () { socState.forum = { view: 'cat', cat: c.id, page: 0, q: '' }; drawForums(host); };
+        list.appendChild(row);
+      });
+      host.appendChild(list);
+    }, function (e) { host.textContent = ''; host.appendChild(el('div', 'fp-empty', e.message)); });
+  }
+  function catOf(id) { return (forumCats || []).filter(function (c) { return c.id === id; })[0] || { id: id, name: 'Forums', icon: '💬' }; }
+  function backBtn(label, fn) { var b = el('button', 'fo-back', '‹ ' + label); b.onclick = fn; return b; }
+  function drawThreadList(host) {
+    var f = socState.forum;
+    var load = forumCats ? Promise.resolve() : api('GET', '/api/forums').then(function (r) { forumCats = r.cats; });
+    load.then(function () {
+      return api('GET', '/api/forums/threads?cat=' + encodeURIComponent(f.cat || '') + '&q=' + encodeURIComponent(f.q || '') + '&page=' + f.page);
+    }).then(function (r) {
+      host.textContent = '';
+      host.appendChild(backBtn('All forums', function () { socState.forum = { view: 'home', page: 0, q: '' }; drawForums(host); }));
+      var c = f.cat ? catOf(f.cat) : null;
+      var head = el('div', 'fo-head'); head.appendChild(el('h2', 'soc-h', c ? c.icon + ' ' + c.name : 'Search: “' + f.q + '”'));
+      if (!c || !c.adminOnly || r.admin) head.appendChild(ctx.button('green', '＋ New thread', null, function () { openNewThread(f.cat); }));
+      host.appendChild(head);
+      if (!r.threads.length) { host.appendChild(el('div', 'fp-empty', f.q ? 'No threads match.' : 'No threads here yet. Start the first one!')); return; }
+      var list = el('div', 'fo-threads');
+      r.threads.forEach(function (t) {
+        var row = el('div', 'fo-thread' + (t.pinned ? ' pinned' : ''));
+        row.appendChild(avatar(t.author, 36));
+        var tt = el('div', 'fo-tt');
+        var title = el('b', null, (t.pinned ? '📌 ' : '') + (t.locked ? '🔒 ' : '') + t.title); tt.appendChild(title);
+        tt.appendChild(el('small', null, 'by ' + t.author + ' · ' + ago(t.at) + (c ? '' : ' · ' + catOf(t.cat).name)));
+        row.appendChild(tt);
+        row.appendChild(el('div', 'fo-n', t.replies + ' repl' + (t.replies === 1 ? 'y' : 'ies')));
+        var last = el('div', 'fo-last'); last.appendChild(el('small', null, 'Last: ' + t.lastBy)); last.appendChild(el('small', null, ago(t.last))); row.appendChild(last);
+        row.onclick = function () { openThread(t.id); };
+        list.appendChild(row);
+      });
+      host.appendChild(list);
+      if (r.pages > 1) {
+        var pg = el('div', 'fo-pager');
+        if (f.page > 0) pg.appendChild(ctx.button('', '‹ Newer', null, function () { f.page--; drawForums(host); }));
+        pg.appendChild(el('span', null, 'Page ' + (f.page + 1) + ' of ' + r.pages));
+        if (f.page + 1 < r.pages) pg.appendChild(ctx.button('', 'Older ›', null, function () { f.page++; drawForums(host); }));
+        host.appendChild(pg);
+      }
+    }).catch(function (e) { host.textContent = ''; host.appendChild(el('div', 'fp-empty', e.message)); });
+  }
+  function drawThread(host, id) {
+    api('GET', '/api/forums/thread?id=' + encodeURIComponent(id)).then(function (r) {
+      var t = r.thread; host.textContent = '';
+      if (!forumCats) api('GET', '/api/forums').then(function (x) { forumCats = x.cats; }, function () {});
+      host.appendChild(backBtn(catOf(t.cat).name, function () { socState.forum = { view: 'cat', cat: t.cat, page: 0, q: '' }; drawForums(host); }));
+      var head = el('div', 'fo-head');
+      head.appendChild(el('h2', 'soc-h', (t.pinned ? '📌 ' : '') + (t.locked ? '🔒 ' : '') + t.title));
+      if (r.admin) {
+        var mod = el('div', 'fo-mod');
+        function m(label, patch) { mod.appendChild(ctx.button('ghost', label, null, function () {
+          api('POST', '/api/forums/mod', Object.assign({ thread: t.id }, patch)).then(function () { drawThread(host, id); }, function (e) { toast(e.message); });
+        })); }
+        m(t.pinned ? 'Unpin' : '📌 Pin', { pinned: !t.pinned });
+        m(t.locked ? 'Unlock' : '🔒 Lock', { locked: !t.locked });
+        head.appendChild(mod);
+      }
+      host.appendChild(head);
+      var list = el('div', 'fo-posts');
+      r.posts.forEach(function (p, i) {
+        var post = el('div', 'fo-post' + (i === 0 ? ' op' : ''));
+        var side = el('div', 'fo-pside'); var av = avatar(p.author, 48); av.onclick = function () { openProfile(p.author); }; side.appendChild(av);
+        var nm = el('b', 'act-who', p.author); nm.onclick = function () { openProfile(p.author); }; side.appendChild(nm);
+        post.appendChild(side);
+        var main = el('div', 'fo-pmain');
+        main.appendChild(el('small', 'fo-pmeta', ago(p.at) + (p.edited ? ' · edited' : '') + (i === 0 ? ' · original post' : '')));
+        var txt = el('div', 'fo-text', p.text); main.appendChild(txt);
+        var bar = el('div', 'fo-pbar');
+        var like = el('button', 'fo-like' + (p.liked ? ' on' : ''), (p.liked ? '♥ ' : '♡ ') + p.likes);
+        like.onclick = function () {
+          api('POST', '/api/forums/like', { thread: t.id, post: p.id }).then(function (x) { p.liked = x.liked; p.likes = x.likes; like.className = 'fo-like' + (x.liked ? ' on' : ''); like.textContent = (x.liked ? '♥ ' : '♡ ') + x.likes; }, function (e) { toast(e.message); });
+        };
+        bar.appendChild(like);
+        if (!t.locked || r.admin) { var q = el('button', 'fo-act', 'Quote'); q.onclick = function () { var ta = $('#foReply'); if (ta) { ta.value += (ta.value ? '\n' : '') + p.text.split('\n').map(function (l) { return '> ' + l; }).join('\n') + '\n— ' + p.author + '\n\n'; ta.focus(); } }; bar.appendChild(q); }
+        if (p.mine) {
+          var ed = el('button', 'fo-act', 'Edit');
+          ed.onclick = function () {
+            var ta = el('textarea', 'adm-ta fo-ta'); ta.value = p.text; ta.maxLength = 4000;
+            main.replaceChild(ta, txt); ed.style.display = 'none';
+            var sv = ctx.button('green', 'Save', null, function () {
+              api('POST', '/api/forums/edit', { thread: t.id, post: p.id, text: ta.value }).then(function () { drawThread(host, id); }, function (e) { toast(e.message); });
+            });
+            bar.appendChild(sv); ta.focus();
+          };
+          bar.appendChild(ed);
+        }
+        if (p.mine || r.admin) {
+          var del = el('button', 'fo-act danger', i === 0 ? 'Delete thread' : 'Delete');
+          del.onclick = function () {
+            if (!confirm(i === 0 ? 'Delete this whole thread and all its replies?' : 'Delete this post?')) return;
+            api('POST', '/api/forums/delete', { thread: t.id, post: p.id }).then(function (x) {
+              toast(x.threadDeleted ? 'Thread deleted' : 'Post deleted');
+              if (x.threadDeleted) { socState.forum = { view: 'cat', cat: t.cat, page: 0, q: '' }; drawForums(host); } else drawThread(host, id);
+            }, function (e) { toast(e.message); });
+          };
+          bar.appendChild(del);
+        }
+        main.appendChild(bar); post.appendChild(main); list.appendChild(post);
+      });
+      host.appendChild(list);
+      if (t.locked && !r.admin) { host.appendChild(el('div', 'fp-empty', '🔒 This thread is locked. No new replies.')); return; }
+      var rep = el('div', 'fo-reply');
+      rep.appendChild(el('h4', null, 'Reply'));
+      var ta = el('textarea', 'adm-ta fo-ta'); ta.id = 'foReply'; ta.maxLength = 4000; ta.placeholder = 'Write a reply…'; rep.appendChild(ta);
+      var go = ctx.button('green', 'Post reply', null, function () {
+        if (!ta.value.trim()) return; go.disabled = true;
+        api('POST', '/api/forums/reply', { thread: t.id, text: ta.value }).then(function () { drawThread(host, id); }, function (e) { toast(e.message); go.disabled = false; });
+      });
+      rep.appendChild(go); host.appendChild(rep);
+    }, function (e) {
+      host.textContent = ''; host.appendChild(backBtn('All forums', function () { socState.forum = { view: 'home', page: 0, q: '' }; drawForums(host); }));
+      host.appendChild(el('div', 'fp-empty', e.message));
+    });
+  }
+  function openNewThread(cat) {
+    var load = forumCats ? Promise.resolve() : api('GET', '/api/forums').then(function (r) { forumCats = r.cats; });
+    load.then(function () {
+      return api('GET', '/api/forums/threads?cat=&page=0').then(function (r) { return r.admin; });
+    }).then(function (admin) {
+      ctx.openModal(function (box) {
+        box.classList.add('adm-box');
+        box.appendChild(el('h3', null, 'New thread'));
+        var sel = el('select', 'adm-sel fo-sel');
+        forumCats.forEach(function (c) { if (c.adminOnly && !admin) return; var o = el('option', null, c.icon + ' ' + c.name); o.value = c.id; if (c.id === cat) o.selected = true; sel.appendChild(o); });
+        if (!cat || !Array.prototype.some.call(sel.options, function (o) { return o.selected; })) { var gen = Array.prototype.filter.call(sel.options, function (o) { return o.value === 'general'; })[0]; if (gen) gen.selected = true; }
+        box.appendChild(sel);
+        var title = el('input', 'adm-q'); title.placeholder = 'Title'; title.maxLength = 80; box.appendChild(title);
+        var ta = el('textarea', 'adm-ta fo-ta'); ta.placeholder = 'What do you want to say?'; ta.maxLength = 4000; box.appendChild(ta);
+        var err = el('p', 'm-err'); box.appendChild(err);
+        var a = el('div', 'm-actions');
+        a.appendChild(ctx.button('ghost', 'Cancel', null, ctx.closeModal));
+        var go = ctx.button('green', 'Post thread', null, function () {
+          go.disabled = true; err.textContent = '';
+          api('POST', '/api/forums/thread', { cat: sel.value, title: title.value, text: ta.value }).then(function (r) {
+            ctx.closeModal(); toast('Thread posted'); openThread(r.id);
+          }, function (e) { err.textContent = e.message; go.disabled = false; });
+        });
+        a.appendChild(go); box.appendChild(a);
+        setTimeout(function () { title.focus(); }, 30);
+      });
+    }, function (e) { toast(e.message); });
+  }
+
   /* ---------- in-game Mist overlay: you, friends, chat ---------- */
   var ovHost = null, ovGame = null;
   function overlayMe(host) {
@@ -1152,7 +1399,7 @@ window.MistSocial = function (ctx) {
     loadUsers: loadUsers, wireUsers: wireUsers, renderProfile: renderProfile, renderGameAch: renderGameAch, renderAchPage: renderAchPage,
     showAchievements: showAchievements, lookKey: lookKey, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
     overlayMe: overlayMe, overlayFriends: overlayFriends, closeChat: closeChat,
-    openSupport: openSupport, maybeAskSupport: maybeAskSupport,
+    openSupport: openSupport, maybeAskSupport: maybeAskSupport, renderSocial: renderSocial, openThread: openThread,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }

@@ -204,6 +204,17 @@ function adminSet() {
   return adminCache.set;
 }
 function isAdmin(user) { return !!user && adminSet().has(user.name.toLowerCase()); }
+const FORUM_CATS = [
+  { id: 'news', name: 'News & Updates', icon: '📢', desc: 'Announcements from the Mist team.', adminOnly: true },
+  { id: 'general', name: 'General', icon: '💬', desc: 'Talk about anything Mist.' },
+  { id: 'games', name: 'Games', icon: '🎮', desc: 'Tips, high scores and favourite games.' },
+  { id: 'lfg', name: 'Looking for Group', icon: '🤝', desc: 'Find people to play with.' },
+  { id: 'help', name: 'Help & Bugs', icon: '🛠️', desc: 'Something broken? Ask here.' },
+  { id: 'ideas', name: 'Suggestions', icon: '💡', desc: 'Games and features you’d like to see.' },
+  { id: 'offtopic', name: 'Off-topic', icon: '🌀', desc: 'Everything else.' }
+];
+function forums() { return db.forums || (db.forums = { threads: {}, posts: {} }); }
+const forumLast = new Map(); // uid -> last post time (anti-spam)
 function currentAnnouncement() {
   const a = db.announcement;
   if (!a || (a.until && a.until < Date.now())) return null;
@@ -1785,7 +1796,7 @@ async function handle(req, res) {
       (cancelled ? '👋' : '💛') + '</div><h2>' + (cancelled ? 'No problem' : 'Thank you for supporting Mist!') + '</h2><p>' +
       (cancelled ? 'Nothing was charged. You can close this tab.' : 'You can close this tab and go back to Mist. Your perks turn on in a few seconds.') + '</p></div>');
   }
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 11, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 12, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -1909,6 +1920,128 @@ async function handle(req, res) {
     const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
     return send(res, 200, { me: { name: user.name }, friends, incoming: names(me.incoming), outgoing: names(me.outgoing), newAchievements: takeNewAch(user.id), level: levelInfo(user.id),
       looks: looksFor([user.id].concat(me.friends, me.incoming, me.outgoing)) });
+  }
+
+
+  /* ---------------- forums ---------------- */
+  if (p.startsWith('/api/forums')) {
+    const F = forums(), now = Date.now();
+    const nameOfUid = uid => { const u = userById(uid); return u ? u.name : 'Deleted user'; };
+    const admin = isAdmin(user);
+    const threadView = t => ({ id: t.id, cat: t.cat, title: t.title, author: nameOfUid(t.uid), at: t.at, last: t.last, lastBy: nameOfUid(t.lastUid),
+      replies: Math.max(0, (F.posts[t.id] || []).length - 1), pinned: !!t.pinned, locked: !!t.locked });
+    if (req.method === 'GET' && p === '/api/forums') {
+      const cats = FORUM_CATS.map(c => {
+        const ts = Object.values(F.threads).filter(t => t.cat === c.id);
+        const latest = ts.sort((a, b) => b.last - a.last)[0];
+        return Object.assign({}, c, { threads: ts.length, posts: ts.reduce((n, t) => n + (F.posts[t.id] || []).length, 0), latest: latest ? threadView(latest) : null });
+      });
+      return send(res, 200, { cats, admin });
+    }
+    if (req.method === 'GET' && p === '/api/forums/threads') {
+      const cat = String(url.searchParams.get('cat') || ''), q = String(url.searchParams.get('q') || '').trim().toLowerCase().slice(0, 60);
+      const page = Math.max(0, parseInt(url.searchParams.get('page'), 10) || 0), per = 30;
+      let ts = Object.values(F.threads).filter(t => (!cat || t.cat === cat) && (!q || t.title.toLowerCase().includes(q)));
+      ts.sort((a, b) => (!!b.pinned - !!a.pinned) || (b.last - a.last));
+      const pageTs = ts.slice(page * per, page * per + per);
+      return send(res, 200, { threads: pageTs.map(threadView), pages: Math.max(1, Math.ceil(ts.length / per)), page, admin,
+        looks: looksFor(pageTs.map(t => t.uid)) });
+    }
+    if (req.method === 'GET' && p === '/api/forums/thread') {
+      const t = F.threads[String(url.searchParams.get('id') || '')];
+      if (!t) return fail(res, 404, 'That thread was deleted.');
+      const posts = (F.posts[t.id] || []).map(x => ({ id: x.id, author: nameOfUid(x.uid), at: x.at, edited: x.edited || 0, text: x.text,
+        likes: (x.likes || []).length, liked: (x.likes || []).includes(user.id), mine: x.uid === user.id }));
+      return send(res, 200, { thread: threadView(t), posts, admin, mine: t.uid === user.id,
+        looks: looksFor([...new Set((F.posts[t.id] || []).map(x => x.uid))]) });
+    }
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const slow = () => { const last = forumLast.get(user.id) || 0; if (now - last < 5e3 && !admin) return true; forumLast.set(user.id, now); return false; };
+    const cleanText = v => String(v || '').replace(/\r/g, '').replace(/\n{4,}/g, '\n\n\n').trim().slice(0, 4000);
+    if (req.method === 'POST' && p === '/api/forums/thread') {
+      const cat = FORUM_CATS.find(c => c.id === body.cat);
+      if (!cat) return fail(res, 400, 'Pick a category.');
+      if (cat.adminOnly && !admin) return fail(res, 403, 'Only admins can post in ' + cat.name + '.');
+      const title = String(body.title || '').replace(/\s+/g, ' ').trim().slice(0, 80), text = cleanText(body.text);
+      if (title.length < 3) return fail(res, 400, 'Give your thread a title (3+ characters).');
+      if (!text) return fail(res, 400, 'Write something first.');
+      if (slow()) return fail(res, 429, 'Slow down a little: wait a few seconds between posts.');
+      const id = crypto.randomBytes(6).toString('hex');
+      F.threads[id] = { id, cat: cat.id, title, uid: user.id, at: now, last: now, lastUid: user.id };
+      F.posts[id] = [{ id: crypto.randomBytes(6).toString('hex'), uid: user.id, at: now, text, likes: [] }];
+      saveDbSoon();
+      return send(res, 200, { id });
+    }
+    const t = F.threads[String(body.thread || '')];
+    if (!t) return fail(res, 404, 'That thread was deleted.');
+    const list = F.posts[t.id] || (F.posts[t.id] = []);
+    const post = body.post ? list.find(x => x.id === String(body.post)) : null;
+    if (req.method === 'POST' && p === '/api/forums/reply') {
+      if (t.locked && !admin) return fail(res, 403, 'This thread is locked.');
+      const text = cleanText(body.text);
+      if (!text) return fail(res, 400, 'Write something first.');
+      if (slow()) return fail(res, 429, 'Slow down a little: wait a few seconds between posts.');
+      list.push({ id: crypto.randomBytes(6).toString('hex'), uid: user.id, at: now, text, likes: [] });
+      t.last = now; t.lastUid = user.id;
+      saveDbSoon();
+      return send(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && p === '/api/forums/like') {
+      if (!post) return fail(res, 404, 'That post was deleted.');
+      post.likes = post.likes || [];
+      const i = post.likes.indexOf(user.id);
+      if (i >= 0) post.likes.splice(i, 1); else post.likes.push(user.id);
+      saveDbSoon();
+      return send(res, 200, { likes: post.likes.length, liked: i < 0 });
+    }
+    if (req.method === 'POST' && p === '/api/forums/edit') {
+      if (!post) return fail(res, 404, 'That post was deleted.');
+      if (post.uid !== user.id) return fail(res, 403, 'You can only edit your own posts.');
+      const text = cleanText(body.text); if (!text) return fail(res, 400, 'Write something first.');
+      post.text = text; post.edited = now; saveDbSoon();
+      return send(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && p === '/api/forums/delete') {
+      const first = list[0] && (!post || post.id === list[0].id);
+      const owner = first ? t.uid : post && post.uid;
+      if (owner !== user.id && !admin) return fail(res, 403, 'You can only delete your own posts.');
+      if (first) { delete F.threads[t.id]; delete F.posts[t.id]; }
+      else if (post) list.splice(list.indexOf(post), 1);
+      else return fail(res, 404, 'That post was deleted.');
+      if (admin && owner !== user.id) console.log('admin: ' + user.name + ' deleted a forum ' + (first ? 'thread "' + t.title + '"' : 'post in "' + t.title + '"'));
+      saveDbSoon();
+      return send(res, 200, { ok: true, threadDeleted: !!first });
+    }
+    if (req.method === 'POST' && p === '/api/forums/mod') {
+      if (!admin) return fail(res, 403, 'Admins only.');
+      if ('pinned' in body) t.pinned = !!body.pinned;
+      if ('locked' in body) t.locked = !!body.locked;
+      if (body.cat && FORUM_CATS.some(c => c.id === body.cat)) t.cat = body.cat;
+      saveDbSoon();
+      console.log('admin: ' + user.name + ' moderated "' + t.title + '" ' + JSON.stringify({ pinned: t.pinned, locked: t.locked, cat: t.cat }));
+      return send(res, 200, { thread: threadView(t) });
+    }
+    return fail(res, 404, 'Unknown forum action.');
+  }
+
+  /* ---------------- activity feed: you + friends ---------------- */
+  if (req.method === 'GET' && p === '/api/activity') {
+    const me = soc(user.id), uids = [user.id].concat(me.friends), cutoff = Date.now() - 30 * 864e5, ev = [];
+    const achById = Object.fromEntries(ACHIEVEMENTS.map(a => [a.id, a]));
+    const tierById = Object.fromEntries(GAME_TIERS.map(t => [t.id, t]));
+    for (const uid of uids) {
+      const u = userById(uid); if (!u) continue;
+      for (const [id, at] of Object.entries(db.ach[uid] || {})) { const a = achById[id]; if (a && at > cutoff) ev.push({ type: 'ach', who: u.name, at, icon: a.icon, name: a.name, rank: a.rank }); }
+      for (const [game, tiers] of Object.entries(db.gameAch[uid] || {})) for (const [id, at] of Object.entries(tiers || {})) {
+        const tr = tierById[id]; if (tr && typeof at === 'number' && at > cutoff) ev.push({ type: 'gameach', who: u.name, at, icon: tr.icon, name: tr.name, game, rank: tr.rank });
+      }
+      for (const r of soc(uid).recent || []) if (r.at > cutoff) ev.push({ type: 'play', who: u.name, at: r.at, game: r.game });
+      if (uid !== user.id && u.created > cutoff && me.friends.includes(uid)) ev.push({ type: 'joined', who: u.name, at: u.created });
+    }
+    const F = forums();
+    for (const t of Object.values(F.threads)) if (uids.includes(t.uid) && t.at > cutoff) ev.push({ type: 'thread', who: (userById(t.uid) || {}).name, at: t.at, id: t.id, title: t.title, cat: t.cat });
+    ev.sort((a, b) => b.at - a.at);
+    return send(res, 200, { events: ev.slice(0, 80), looks: looksFor(uids) });
   }
 
   if (p.startsWith('/api/admin/')) {
