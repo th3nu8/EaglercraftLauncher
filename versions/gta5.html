@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>GTA 5</title>
+<style>html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif;color:#ddd}
+iframe{border:0;width:100%;height:100%;display:block}
+#msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px}</style></head>
+<body><div id="msg"></div>
+<script>
+(function () {
+  // The game runs on the Mist server, behind nginx at /gta5/ (HTTPS).
+  var base = (window.MIST_SERVER || 'https://195.62.47.222').replace(/\/+$/, '');
+  var url = base + '/gta5/';
+  var f = document.createElement('iframe');
+  f.src = url;
+  f.setAttribute('allow', 'fullscreen; pointer-lock; autoplay; gamepad; clipboard-read; clipboard-write; microphone');
+  f.setAttribute('allowfullscreen', '');
+  document.body.appendChild(f);
+  f.onload = function () { try { f.focus(); } catch (e) {} };
+  document.addEventListener('click', function () { try { f.focus(); } catch (e) {} });
+  fetch(url, { mode: 'no-cors', cache: 'no-store' }).catch(function () {
+    var m = document.getElementById('msg');
+    m.innerHTML = 'Could not reach the GTA 5 server.<br><small>' + url + '</small>';
+    m.style.display = 'flex'; f.style.display = 'none';
+  });
+})();
+</script></body></html>

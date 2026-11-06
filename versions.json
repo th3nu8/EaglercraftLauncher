@@ -83,6 +83,30 @@
       ]
     },
     {
+      "id": "gta5",
+      "name": "GTA 5",
+      "developer": "Th3Nu8",
+      "image": "gta5.jpg",
+      "tags": [
+        "Open World",
+        "Action",
+        "Driving",
+        "3D"
+      ],
+      "description": "An open-world crime and driving game made for Mist. Streams from the Mist server.",
+      "versions": [
+        {
+          "id": "live",
+          "name": "GTA 5",
+          "type": "release",
+          "file": "gta5.html",
+          "notes": [
+            "Loads live from the Mist server over HTTPS, so updates show up right away."
+          ]
+        }
+      ]
+    },
+    {
       "id": "polytrack",
       "name": "Polytrack",
       "image": "polytrack.jpg",
