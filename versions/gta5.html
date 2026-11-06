@@ -6,12 +6,12 @@ a.play{display:inline-block;text-decoration:none;font-size:22px;font-weight:700;
 a.play:hover{background:#38b457}p{color:#999;max-width:460px;margin:18px auto 0;font-size:14px;line-height:1.5}</style></head>
 <body><div>
 <h1 style="margin:0 0 24px;font-size:48px">GTA 5</h1>
-<a class="play" id="play" target="_top">Play GTA 5</a>
-<p>Loads the game from the Mist server in this tab (it needs the whole tab to run).
-Press Shift+Tab or use the Mist tab at the top to get back to the library.</p>
+<a class="play" id="play" target="_blank" rel="noopener">Play GTA 5</a>
+<p>Opens the game from the Mist server in a new tab. It needs a tab of its own to run
+(cross-origin isolation), so it can't play inside Mist. Your Mist tab stays open.</p>
 </div>
 <script>
 // Where the game is served from (serve_local.py behind serve_https.py on the Mist server).
 var GAME_URL = 'https://195.62.47.222:8001/';
-document.getElementById('play').href = GAME_URL;   // target=_top: the game must be the tab's top page for COOP/COEP isolation
+document.getElementById('play').href = GAME_URL;   // rel=noopener: the game tab needs its own context for COOP isolation
 </script></body></html>
