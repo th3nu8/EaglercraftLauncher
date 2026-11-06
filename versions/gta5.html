@@ -24,17 +24,18 @@ var frame = document.getElementById('game'), help = document.getElementById('hel
 document.getElementById('tab').href = GAME_URL;
 document.getElementById('tab').target = '_blank';
 
+var loaded = false;
+frame.onload = function () { loaded = true; try { frame.focus(); } catch (e) {} };
 function load() {
+  // Load the game straight into the frame. (A fetch() check from here gets blocked by the
+  // server's cross-origin headers, so the frame's own load event is the only reliable signal.)
+  loaded = false;
   help.style.display = 'none';
   frame.style.display = 'block';
-  // Check the server answers first, so an offline server shows a message instead of a blank frame.
-  fetch(GAME_URL, { mode: 'no-cors', cache: 'no-store' }).then(function () {
-    frame.src = GAME_URL;
-    setTimeout(function () { try { frame.focus(); } catch (e) {} }, 500);
-  }).catch(function () {
-    frame.style.display = 'none';
-    help.style.display = 'flex';
-  });
+  frame.src = GAME_URL + (GAME_URL.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now();
+  setTimeout(function () {
+    if (!loaded) { frame.style.display = 'none'; help.style.display = 'flex'; }
+  }, 15000);
 }
 document.getElementById('retry').onclick = load;
 load();
