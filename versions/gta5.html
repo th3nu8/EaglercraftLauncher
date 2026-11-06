@@ -16,10 +16,5 @@ iframe{border:0;width:100%;height:100%;display:block}
   document.body.appendChild(f);
   f.onload = function () { try { f.focus(); } catch (e) {} };
   document.addEventListener('click', function () { try { f.focus(); } catch (e) {} });
-  fetch(url, { mode: 'no-cors', cache: 'no-store' }).catch(function () {
-    var m = document.getElementById('msg');
-    m.innerHTML = 'Could not reach the GTA 5 server.<br><small>' + url + '</small>';
-    m.style.display = 'flex'; f.style.display = 'none';
-  });
 })();
 </script></body></html>
