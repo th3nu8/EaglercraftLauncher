@@ -58,6 +58,8 @@
     title: store.get('title', LAUNCHER_NAME),
     server: store.get('syncServer', '')
   };
+  // old server address saved in Settings -> fall back to the repo's current one
+  if (/134\.195\.88\.52/.test(settings.server)) { settings.server = ''; store.set('syncServer', ''); }
   var library = store.get('library', null);
   var sizes = store.get('sizes', {});           // cacheKey -> bytes
   var installed = {};                             // cacheKey -> true
