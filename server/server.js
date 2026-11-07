@@ -1740,13 +1740,9 @@ function totalXp() {
   return t;
 }
 /* Level curve: each level costs more than the last (roughly 1 : 60 from level 1 to 50), rounded to 50 XP. */
-function levels() {
-  if (LEVELS) return LEVELS;
-  const total = totalXp(), w = []; for (let i = 1; i <= MAX_LEVEL; i++) w.push(Math.pow(i + 3, 1.6));
-  const sw = w.reduce((a, b) => a + b, 0); let acc = 0;
-  LEVELS = w.map((x, i) => { if (i === MAX_LEVEL - 1) return total - acc; const v = Math.max(50, Math.round(total * x / sw / 50) * 50); acc += v; return v; });
-  return LEVELS;
-}
+/* Levels are uncapped. XP to go from level L to L+1: 1,000 (levels 0-19), 2,000 (20-49), 3,000 (50-99), 5,000 after. */
+function levelCost(l) { return l < 20 ? 1000 : l < 50 ? 2000 : l < 100 ? 3000 : 5000; }
+function levels() { const out = []; for (let i = 0; i < 150; i++) out.push(levelCost(i)); return out; }
 function achCount(uid) {
   return Object.keys(db.ach[uid] || {}).length + Object.values(db.gameAch[uid] || {}).reduce((n, g) => n + Object.keys(g).length, 0) + hookCount(uid);
 }
@@ -1758,10 +1754,9 @@ function userXp(uid) {
   return xp;
 }
 function levelInfo(uid) {
-  const L = levels(), xp = userXp(uid); let level = 0, left = xp;
-  while (level < L.length && left >= L[level]) { left -= L[level]; level++; }
-  const maxed = level >= L.length;
-  return { xp, level, maxLevel: L.length, into: maxed ? 0 : left, need: maxed ? 0 : L[level] };
+  const xp = userXp(uid); let level = 0, left = xp;
+  while (left >= levelCost(level)) { left -= levelCost(level); level++; }
+  return { xp, level, maxLevel: null, into: left, need: levelCost(level) };
 }
 function statSummary(uid) {
   const st = stats(uid), top = Object.entries(st.perGame).sort((a, b) => b[1] - a[1])[0];
@@ -2218,7 +2213,7 @@ async function handle(req, res) {
     const view = r => ({ rank: r.rank, name: r.name, level: r.level, xp: r.xp, into: r.into, need: r.need, achievements: r.achievements, playtime: r.playtime,
       isMe: r.id === user.id, isFriend: friends.includes(r.id) });
     const me = rows.find(r => r.id === user.id);
-    return send(res, 200, { by, total: rows.length, maxLevel: MAX_LEVEL, players: rows.slice(0, 100).map(view), me: me ? view(me) : null,
+    return send(res, 200, { by, total: rows.length, maxLevel: null, players: rows.slice(0, 100).map(view), me: me ? view(me) : null,
       looks: looksFor(rows.slice(0, 100).map(r => r.id).concat(user.id)) });
   }
 

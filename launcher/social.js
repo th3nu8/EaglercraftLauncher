@@ -128,17 +128,17 @@ window.MistSocial = function (ctx) {
     var t = el('div', 'ach-toast' + (a.levelUp ? ' lvl-up' : ''));
     if (a.levelUp) t.appendChild(levelBadge(a.level, 44)); else t.appendChild(el('span', 'ach-ico', a.icon));
     var tx = el('div', 'ach-tx');
-    if (a.levelUp) { tx.appendChild(el('small', null, 'Level up!')); tx.appendChild(el('b', null, 'Level ' + a.level)); tx.appendChild(el('span', null, a.level >= LEVEL_MAX ? 'Max level. You unlocked everything!' : (a.need - a.into).toLocaleString() + ' XP to level ' + (a.level + 1))); }
+    if (a.levelUp) { tx.appendChild(el('small', null, 'Level up!')); tx.appendChild(el('b', null, 'Level ' + a.level)); tx.appendChild(el('span', null, (a.need - a.into).toLocaleString() + ' XP to level ' + (a.level + 1))); }
     else { if (a.rank) t.classList.add('r-' + a.rank); tx.appendChild(el('small', null, 'Achievement unlocked · ' + (a.rank ? a.rank.charAt(0).toUpperCase() + a.rank.slice(1) + ' · ' : '') + '+' + (a.xp || 100) + ' XP')); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('span', null, a.desc)); }
     t.appendChild(tx); host.appendChild(t);
     requestAnimationFrame(function () { t.classList.add('show'); });
     setTimeout(function () { t.classList.remove('show'); setTimeout(function () { t.remove(); nextAch(); }, 350); }, 4500);
   }
 
-  /* ---------- XP and levels (100 XP per achievement) ---------- */
-  var LEVEL_MAX = 50, myLevel = null;
+  /* ---------- XP and levels: 1k XP/level to 20, 2k to 50, 3k to 100, then 5k (uncapped) ---------- */
+  var myLevel = null;   // levels are uncapped
   function levelBadge(n, size) {
-    var b = el('span', 'lvl-badge t' + Math.min(5, Math.floor((n || 0) / 10)), String(n || 0));
+    var n0 = n || 0, b = el('span', 'lvl-badge t' + (n0 < 10 ? 0 : n0 < 20 ? 1 : n0 < 35 ? 2 : n0 < 50 ? 3 : n0 < 100 ? 4 : 5), String(n0));
     b.title = 'Level ' + (n || 0);
     if (size) { b.style.width = b.style.height = size + 'px'; b.style.fontSize = Math.round(size * 0.42) + 'px'; }
     return b;
@@ -146,7 +146,7 @@ window.MistSocial = function (ctx) {
   function levelBar(info) {
     var w = el('div', 'lvl-wrap'); w.appendChild(levelBadge(info.level, 40));
     var tx = el('div', 'lvl-tx');
-    tx.appendChild(el('b', null, 'Level ' + info.level + (info.level >= (info.maxLevel || LEVEL_MAX) ? ' · Max' : '')));
+    tx.appendChild(el('b', null, 'Level ' + info.level));
     var pb = el('div', 'pbar'); var pf = el('i'); pf.style.width = (info.need ? Math.round(100 * info.into / info.need) : 100) + '%'; pb.appendChild(pf); tx.appendChild(pb);
     tx.appendChild(el('small', null, info.need ? info.into.toLocaleString() + ' / ' + info.need.toLocaleString() + ' XP to level ' + (info.level + 1) + ' · ' + info.xp.toLocaleString() + ' XP total' : info.xp.toLocaleString() + ' XP total'));
     w.appendChild(tx); return w;
