@@ -706,3 +706,4 @@ body.in-game #app{visibility:hidden}
 .clip-btns .btn{padding:3px 10px}
 .m-box.clip-box{width:min(900px,calc(100vw - 30px))}
 .clip-full{width:100%;max-height:70vh;background:#000;border-radius:3px}
+.rank.r-impossible{background:linear-gradient(135deg,rgba(255,64,129,.35),rgba(156,39,176,.35));color:#ffb3d1;box-shadow:0 0 10px rgba(255,64,129,.35)}

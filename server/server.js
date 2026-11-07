@@ -1710,6 +1710,9 @@ function achList(uid, withProgress) {
   const sup = db.support[uid];
   list.push({ id: 'supporter', icon: SUPPORTER_ACH.icon, name: SUPPORTER_ACH.name, desc: SUPPORTER_ACH.desc, rank: 'supporter', xp: SUPPORTER_XP,
     unlocked: isSupporter(uid) ? (sup.since || Date.now()) : null, goal: 1, fmt: null, rarity: pct(supporterCount(), rarity().players) });
+  // Joke achievement: shown to everyone, can never be unlocked, doesn't count toward levels.
+  list.push({ id: 'caleb-gf', icon: '💘', name: 'Get Caleb a GF', desc: 'Impossible. Don’t even try.', rank: 'impossible', xp: 1000000,
+    unlocked: null, goal: 1, progress: withProgress ? 0 : undefined, fmt: null, rarity: 0 });
   return list;
 }
 /* XP and levels. Each achievement gives XP by rarity. There are 50 levels; they are rescaled automatically so that
