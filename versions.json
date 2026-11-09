@@ -1,6 +1,6 @@
 {
   "launcherName": "Mist",
-  "syncServer": "https://195.62.47.222",
+  "syncServer": "https://mistserver.ftp.sh",
   "games": [
     {
       "id": "eaglercraft",
