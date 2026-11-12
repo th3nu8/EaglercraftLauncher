@@ -22,9 +22,11 @@ eaglercraft-launcher/
 
 ## Install page
 
-The save server also serves this page at its own address (https://195.62.47.222/). Copy `docs/`
-into the server's `public/` folder (see *Run the save server* below). `docs/mist-qr.png` points there;
-`docs/mist-qr-github.png` points to the GitHub Pages copy.
+The save server also serves this page at https://mistserver.space/getmist (its front page,
+https://mistserver.space/, is Grant Canyon from `sites/grantcanyon/`). Copy `docs/` into the server's
+`public/` folder and `sites/grantcanyon/` into `public/grantcanyon/`, or just run
+`sh server/grantcanyon-setup.sh` on the server, which does both and restarts it.
+`docs/mist-qr.png` points to /getmist; `docs/mist-qr-github.png` points to the GitHub Pages copy.
 
 `docs/index.html` is a page that installs the bookmarklet (drag-to-bookmarks button plus copy code),
 and `docs/mist-qr.png` is a QR code that opens it. Turn on GitHub Pages once
@@ -60,7 +62,8 @@ It's a single Node 18+ file with no dependencies.
 ```bash
 sudo mkdir -p /opt/eaglercraft-saves
 sudo cp server/server.js server/merge-data.js server/package.json /opt/eaglercraft-saves/
-sudo mkdir -p /opt/eaglercraft-saves/public && sudo cp docs/* /opt/eaglercraft-saves/public/
+sudo mkdir -p /opt/eaglercraft-saves/public/grantcanyon && sudo cp docs/* /opt/eaglercraft-saves/public/
+sudo cp -r sites/grantcanyon/. /opt/eaglercraft-saves/public/grantcanyon/
 sudo mkdir -p /opt/eaglercraft-saves/data && sudo chown -R www-data:www-data /opt/eaglercraft-saves
 sudo cp server/eaglercraft-saves.service /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now eaglercraft-saves
@@ -78,7 +81,7 @@ service file:
 | `MAX_SAVE_MB`   | `256`          | Largest save upload allowed per account. |
 | `ALLOW_SIGNUPS` | `true`         | Set `false` once your people have accounts. |
 | `SESSION_DAYS`  | `180`          | How long a sign-in lasts. |
-| `PUBLIC_DIR`    | `./public`     | Website served at `/` (copy of the repo's `docs/`). |
+| `PUBLIC_DIR`    | `./public`     | Website: `/` serves `grantcanyon/index.html` (copy of `sites/grantcanyon/`), `/getmist` serves `index.html` (copy of the repo's `docs/`). |
 | `ASSETS_DIR`    | `./assets`     | Game asset packs served at `/assets/<name>`. Counter Attack downloads `csattack.zip` from here (a zip containing `cstrike/` and `valve/` folders). Replace the file to push an update; players re-download only when it changes. |
 
 ### 2. Give it an HTTPS address

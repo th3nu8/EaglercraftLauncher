@@ -1785,6 +1785,11 @@ async function handle(req, res) {
     if (await serveAsset(req, res, decodeURIComponent(p.slice(8)))) return;
     return fail(res, 404, 'No such asset on this server.');
   }
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    // Front page is Grant Canyon (public/grantcanyon/); the Mist bookmark page (public/index.html) lives at /getmist.
+    if (p === '/' && await serveStatic(req, res, '/grantcanyon/index.html')) return;
+    if ((p === '/getmist' || p === '/getmist/') && await serveStatic(req, res, '/index.html')) return;
+  }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
   if (p.startsWith('/pt/v6/')) return handlePolytrack(req, res, p, url);
   if (req.method === 'GET' && p === '/support/done') {
