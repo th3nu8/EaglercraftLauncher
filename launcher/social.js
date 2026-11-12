@@ -1303,7 +1303,7 @@ window.MistSocial = function (ctx) {
     host.appendChild(list);
   }
 
-  /* ---------- Mist Supporter ($5/month through PayPal) ---------- */
+  /* ---------- Mist Supporter ($5/month or more on Patreon, linked to the Mist account) ---------- */
   var supportInfo = null;
   function loadSupport() { if (!eng()) return Promise.resolve(null); return api('GET', '/api/support').then(function (r) { supportInfo = r; return r; }, function () { return null; }); }
   function perksList() {
@@ -1323,29 +1323,31 @@ window.MistSocial = function (ctx) {
       var body = el('div'); box.appendChild(body);
       function draw(info) {
         body.textContent = '';
+        var price = (info && info.price) || '$5/month', url = (info && info.url) || 'https://www.patreon.com/ThatOneNoobie';
         if (info && info.supporter) {
           body.appendChild(el('p', 'sup-lead', 'You’re a Mist Supporter. Thank you!'));
           body.appendChild(perksList());
-          if (info.paidThrough) body.appendChild(el('p', 'sup-small', (info.status === 'ACTIVE' ? 'Renews monthly. Paid through ' : 'Cancelled. Perks last until ') + fmtDay(info.paidThrough) + '.'));
+          if (info.until) body.appendChild(el('p', 'sup-small', (info.patron === 'active_patron' ? 'Active Patreon membership. Checked again every few hours. ' : 'Perks last until ') + (info.patron === 'active_patron' ? '' : fmtDay(info.until) + '.')));
           var a = el('div', 'm-actions');
-          var man = ctx.button('ghost', 'Manage or cancel in PayPal', null, function () { window.open(info.manage, '_blank'); });
-          a.appendChild(man); a.appendChild(ctx.button('green', 'Close', null, ctx.closeModal)); body.appendChild(a);
+          a.appendChild(ctx.button('ghost', 'Manage on Patreon', null, function () { window.open(info.manage || url, '_blank'); }));
+          a.appendChild(ctx.button('green', 'Close', null, ctx.closeModal)); body.appendChild(a);
           return;
         }
-        body.appendChild(el('p', 'sup-lead', (fromLaunch ? 'Enjoying Mist? ' : '') + 'Become a supporter for ' + ((info && info.price) || '$5/month') + '.'));
+        body.appendChild(el('p', 'sup-lead', (fromLaunch ? 'Enjoying Mist? ' : '') + 'Support Mist on Patreon at ' + price + ' or more.'));
         body.appendChild(perksList());
         var err = el('p', 'm-err'); var acts = el('div', 'm-actions');
         acts.appendChild(ctx.button('ghost', fromLaunch ? 'Not now' : 'Close', null, ctx.closeModal));
+        acts.appendChild(ctx.button('', '1. Join on Patreon', null, function () { window.open(url, '_blank'); }));
         if (!eng()) {
-          acts.appendChild(ctx.button('green', 'Sign in first', null, function () { ctx.closeModal(); ctx.openAccount(); }));
+          acts.appendChild(ctx.button('green', 'Sign in to link', null, function () { ctx.closeModal(); ctx.openAccount(); }));
         } else if (info && !info.enabled) {
-          err.textContent = 'Supporter subscriptions aren’t switched on for this server yet.';
+          err.textContent = 'Linking Patreon isn’t switched on for this server yet, so perks can’t turn on automatically.';
         } else {
-          var go = ctx.button('green', 'Subscribe with PayPal', null, function () {
+          var go = ctx.button('green', info && info.linked ? 'Check again' : '2. Link my Patreon', null, function () {
             go.disabled = true; err.textContent = '';
-            // open the tab right away (popup blockers), then point it at PayPal
+            if (info && info.linked) { check(false).then(function () { go.disabled = false; }); return; }
             var w = null; try { w = window.open('', '_blank'); } catch (e) {}
-            api('POST', '/api/support/subscribe').then(function (r) {
+            api('POST', '/api/support/link').then(function (r) {
               if (w) { try { w.location.href = r.url; } catch (e) { w = null; } }
               if (!w) window.open(r.url, '_blank');
               waiting();
@@ -1354,24 +1356,29 @@ window.MistSocial = function (ctx) {
           acts.appendChild(go);
         }
         body.appendChild(err); body.appendChild(acts);
-        body.appendChild(el('p', 'sup-small', 'Paid monthly through PayPal. Cancel any time in PayPal; perks last until the end of the month you paid for.'));
+        if (info && info.linked) {
+          var pp = el('p', 'sup-small', 'Your Patreon is linked, but there’s no active ' + price + '+ membership on it yet. Used a different Patreon account? ');
+          var un = el('a', 'act-link', 'Unlink'); un.onclick = function () { api('POST', '/api/support/unlink').then(function (r) { supportInfo = r; draw(r); }, function (e) { toast(e.message); }); };
+          pp.appendChild(un); body.appendChild(pp);
+        }
+        else body.appendChild(el('p', 'sup-small', 'Join the Patreon at the ' + price + ' tier or higher, then link it here so Mist can turn your perks on. Cancel any time on Patreon; perks last through the month you paid for.'));
       }
       var poll = null;
       function check(quiet) {
         return api('POST', '/api/support/check').then(function (r) {
           supportInfo = r; handleUnlocks(r);
           if (r.supporter) { clearInterval(poll); window.removeEventListener('focus', onFocus); refresh(); if (ctx.onLooks) ctx.onLooks(); draw(r); toast('Thank you for supporting Mist! 💛'); }
-          else if (!quiet) toast('PayPal hasn’t confirmed it yet. Finish in the PayPal tab, then try again.');
+          else { if (!quiet) toast('No active Patreon membership found yet. Join on Patreon, then check again.'); if (!quiet) draw(r); }
         }, function (e) { if (!quiet) toast(e.message); });
       }
       function onFocus() { check(true); }
       function waiting() {
         body.textContent = '';
-        body.appendChild(el('p', 'sup-lead', 'Finish subscribing in the PayPal tab.'));
-        body.appendChild(el('p', 'sup-small', 'When you’re done, come back here. Your perks turn on automatically.'));
+        body.appendChild(el('p', 'sup-lead', 'Allow Mist in the Patreon tab.'));
+        body.appendChild(el('p', 'sup-small', 'When it says you’re linked, come back here. Your perks turn on automatically.'));
         var a = el('div', 'm-actions');
         a.appendChild(ctx.button('ghost', 'Cancel', null, function () { clearInterval(poll); window.removeEventListener('focus', onFocus); ctx.closeModal(); }));
-        a.appendChild(ctx.button('green', 'I’ve subscribed', null, function () { check(false); }));
+        a.appendChild(ctx.button('green', 'I’ve linked it', null, function () { check(false); }));
         body.appendChild(a);
         clearInterval(poll); var n = 0; poll = setInterval(function () { if (++n > 60 || !document.body.contains(body)) { clearInterval(poll); return; } check(true); }, 5000);
         window.addEventListener('focus', onFocus);

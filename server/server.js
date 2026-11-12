@@ -307,14 +307,14 @@ function unreadFrom(me, other) {
 /* ---------- profile look (icon + colour) and bio ---------- */
 db.looks = db.looks || {};       // uid -> { icon, color, bio }
 // Pre-made 12x12 pixel-art avatars (drawn in launcher/social.js, PIXEL_PRESETS).
-/* ---------- Mist Supporter: $5/month PayPal subscription ----------
+/* ---------- Mist Supporter (older PayPal subscriptions; new supporters use Patreon, below) ----------
  * Perks while active (or until the last paid month runs out): gold outline, the supporter avatars and the
  * Mist Supporter achievement (+2500 XP). PayPal keys go in paypal.json next to server.js:
  *   { "clientId": "...", "secret": "...", "mode": "live" }      (mode "sandbox" for testing)
  * The server creates the product and $5/month plan on first use, then checks subscriptions with PayPal. */
 db.support = db.support || {};     // uid -> { sub, status, since, paidThrough, checked, created }
 db.meta = db.meta || {};
-const SUPPORTER_ACH = { icon: '💛', name: 'Mist Supporter', desc: 'Support Mist with $5/month. Counts while you’re subscribed.' };
+const SUPPORTER_ACH = { icon: '💛', name: 'Mist Supporter', desc: 'Support Mist on Patreon ($5/month tier or higher). Counts while you’re a patron.' };
 const SUPPORT_PRICE = process.env.SUPPORT_PRICE || '5.00', SUPPORT_CURRENCY = process.env.SUPPORT_CURRENCY || 'USD';
 function paypalConfig() {
   let c = null;
@@ -326,10 +326,87 @@ function paypalConfig() {
   return c;
 }
 function isSupporter(uid) {
-  const s = db.support && db.support[uid];
+  const s = db.support && db.support[uid], pt = db.patreon && db.patreon[uid];
+  if (pt && (pt.until || 0) > Date.now()) return true;
   return !!s && (s.status === 'ACTIVE' || (s.paidThrough || 0) > Date.now() || (s.manualUntil || 0) > Date.now());
 }
-function supporterCount() { return Object.keys(db.support || {}).filter(isSupporter).length; }
+function supporterCount() { return [...new Set(Object.keys(db.support || {}).concat(Object.keys(db.patreon || {})))].filter(isSupporter).length; }
+// Call after anything that may change supporter status: unlocks the achievement / clears it.
+function supportChanged(uid, was) {
+  const now = isSupporter(uid), s = db.support[uid] || (db.support[uid] = {});
+  if (now && !s.since) s.since = Date.now();
+  if (now && !was) { (db.achNew[uid] = db.achNew[uid] || []).push('supporter'); lbCache = null; }
+  if (!now && was) { s.since = null; lbCache = null; }
+  saveDbSoon();
+}
+
+/* ---------- Mist Supporter through Patreon ----------
+ * Players join the Patreon, then press "Link my Patreon" in Mist. The server reads their membership through
+ * Patreon's API and turns perks on while they're an active patron at the $5 tier or higher.
+ * Needs a Patreon API client (patreon.com/portal/registration/register-clients) in patreon.json next to server.js:
+ *   { "clientId": "...", "clientSecret": "...", "redirect": "https://mistserver.space/support/patreon",
+ *     "url": "https://www.patreon.com/ThatOneNoobie", "minCents": 500 }                                    */
+db.patreon = db.patreon || {};     // uid -> { pid, access, refresh, exp, active, cents, until, checked }
+const PATREON_URL = 'https://www.patreon.com/ThatOneNoobie';
+function patreonConfig() {
+  let c = null;
+  try { c = JSON.parse(fs.readFileSync(path.join(__dirname, 'patreon.json'), 'utf8')); } catch (e) {}
+  if (!c && process.env.PATREON_CLIENT_ID) c = { clientId: process.env.PATREON_CLIENT_ID, clientSecret: process.env.PATREON_CLIENT_SECRET, redirect: process.env.PATREON_REDIRECT };
+  if (!c || !c.clientId || !c.clientSecret) return null;
+  c.url = c.url || PATREON_URL; c.minCents = +c.minCents || 500;
+  c.vanity = String(c.url).replace(/[?#].*$/, '').replace(/\/+$/, '').split('/').pop().toLowerCase();
+  return c;
+}
+function patreonRedirect(c, req) {
+  if (c.redirect) return c.redirect;
+  const host = req.headers['x-forwarded-host'] || req.headers.host, proto = String(req.headers['x-forwarded-proto'] || 'https').split(',')[0];
+  return proto + '://' + host + '/support/patreon';
+}
+const patreonStates = new Map();   // state -> { uid, at, redirect }
+async function patreonTokens(c, form) {
+  const r = await fetch('https://www.patreon.com/api/oauth2/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(Object.assign({ client_id: c.clientId, client_secret: c.clientSecret }, form)).toString() });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.access_token) throw new Error('Patreon sign-in failed (' + (j.error || r.status) + ').');
+  return j;
+}
+async function patreonCheck(uid) {
+  const c = patreonConfig(), pt = db.patreon[uid];
+  if (!c || !pt || !pt.access) return pt;
+  const was = isSupporter(uid);
+  if (pt.exp && pt.exp < Date.now() + 3600e3 && pt.refresh) {
+    const t = await patreonTokens(c, { grant_type: 'refresh_token', refresh_token: pt.refresh });
+    pt.access = t.access_token; pt.refresh = t.refresh_token || pt.refresh; pt.exp = Date.now() + (t.expires_in || 2592000) * 1000;
+  }
+  const q = 'include=memberships,memberships.campaign&fields%5Buser%5D=full_name' +
+    '&fields%5Bmember%5D=patron_status,currently_entitled_amount_cents,next_charge_date,last_charge_date,last_charge_status&fields%5Bcampaign%5D=vanity,url';
+  const r = await fetch('https://www.patreon.com/api/oauth2/v2/identity?' + q, { headers: { Authorization: 'Bearer ' + pt.access } });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { pt.active = false; pt.until = 0; pt.access = null; supportChanged(uid, was); throw new Error('Your Patreon link expired. Link it again.'); }
+  if (!r.ok || !j.data) throw new Error('Patreon didn’t answer (' + r.status + ').');
+  const inc = j.included || [], camp = id => inc.find(x => x.type === 'campaign' && x.id === id);
+  const members = inc.filter(x => x.type === 'member');
+  const mine = members.find(m => {
+    const cid = m.relationships && m.relationships.campaign && m.relationships.campaign.data && m.relationships.campaign.data.id;
+    if (c.campaignId) return String(cid) === String(c.campaignId);
+    const cp = cid && camp(cid), a = cp && cp.attributes || {};
+    return String(a.vanity || '').toLowerCase() === c.vanity || String(a.url || '').toLowerCase().replace(/\/+$/, '').endsWith('/' + c.vanity);
+  }) || (members.length === 1 && !c.campaignId ? members[0] : null);
+  const a = mine ? mine.attributes || {} : {};
+  pt.pid = j.data.id; pt.name = j.data.attributes && j.data.attributes.full_name || pt.name;
+  pt.cents = a.currently_entitled_amount_cents || 0; pt.status = a.patron_status || null; pt.checked = Date.now();
+  pt.active = a.patron_status === 'active_patron' && pt.cents >= c.minCents;
+  const next = Date.parse(a.next_charge_date || ''), last = Date.parse(a.last_charge_date || '');
+  if (pt.active) pt.until = Math.max(Date.now() + 2 * 864e5, (next || 0) + 864e5);       // through the next charge, plus a day
+  else pt.until = last && /paid/i.test(a.last_charge_status || '') ? last + 31 * 864e5 : 0;   // a cancelled patron keeps the month they paid for
+  supportChanged(uid, was);
+  return pt;
+}
+// Re-check linked Patreon members every 6 hours.
+setInterval(async () => {
+  if (!patreonConfig()) return;
+  for (const uid of Object.keys(db.patreon)) { try { await patreonCheck(uid); } catch (e) {} }
+}, 6 * 3600e3).unref();
 let ppToken = null;
 async function paypal(method, p, body) {
   const c = paypalConfig(); if (!c) throw new Error('PayPal isn’t set up on this server.');
@@ -373,10 +450,11 @@ async function refreshSupport(uid) {
   return s;
 }
 function supportView(uid) {
-  const s = db.support[uid] || {}, c = paypalConfig();
-  return { enabled: !!c, price: '$' + SUPPORT_PRICE.replace(/\.00$/, '') + '/month', supporter: isSupporter(uid), status: s.status || null,
-    paidThrough: s.paidThrough || null, since: s.since || null, pending: s.status === 'APPROVAL_PENDING' || s.status === 'APPROVED', xp: SUPPORTER_XP,
-    manage: c && c.mode === 'sandbox' ? 'https://www.sandbox.paypal.com/myaccount/autopay/' : 'https://www.paypal.com/myaccount/autopay/' };
+  const s = db.support[uid] || {}, c = patreonConfig(), pt = db.patreon[uid] || {};
+  return { enabled: !!c, provider: 'patreon', price: '$' + ((c ? c.minCents : 500) / 100).toFixed(2).replace(/\.00$/, '') + '/month',
+    url: c ? c.url : PATREON_URL, linked: !!pt.access, patron: pt.status || null, cents: pt.cents || 0,
+    supporter: isSupporter(uid), until: pt.until || s.paidThrough || null, since: s.since || null, xp: SUPPORTER_XP,
+    manage: 'https://www.patreon.com/settings/memberships' };
 }
 // Re-check subscriptions every 3 hours (renewals, cancellations, failed payments).
 setInterval(async () => {
@@ -1792,6 +1870,25 @@ async function handle(req, res) {
   }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
   if (p.startsWith('/pt/v6/')) return handlePolytrack(req, res, p, url);
+  if (req.method === 'GET' && p === '/support/patreon') {
+    const page = (icon, title, text) => { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end('<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mist</title><body style="margin:0;height:100vh;display:grid;place-items:center;background:#1b2838;color:#dcdedf;font:16px system-ui,sans-serif;text-align:center;padding:0 20px"><div><div style="font-size:48px">' + icon + '</div><h2>' + title + '</h2><p>' + text + '</p></div>'); };
+    const c = patreonConfig(), st = patreonStates.get(String(url.searchParams.get('state') || ''));
+    if (!c) return page('⚠️', 'Patreon isn’t set up', 'Ask the server owner to add patreon.json.');
+    if (url.searchParams.get('error') || !st || Date.now() - st.at > 15 * 60e3) return page('👋', 'Not linked', 'That link expired or was cancelled. Go back to Mist and press “Link my Patreon” again.');
+    patreonStates.delete(String(url.searchParams.get('state')));
+    try {
+      const t = await patreonTokens(c, { grant_type: 'authorization_code', code: String(url.searchParams.get('code') || ''), redirect_uri: st.redirect });
+      const was = isSupporter(st.uid);
+      db.patreon[st.uid] = { access: t.access_token, refresh: t.refresh_token, exp: Date.now() + (t.expires_in || 2592000) * 1000 };
+      const pt = await patreonCheck(st.uid);
+      // one Patreon account can only back one Mist account
+      for (const [uid, o] of Object.entries(db.patreon)) if (uid !== st.uid && o.pid && o.pid === pt.pid) { const w = isSupporter(uid); delete db.patreon[uid]; supportChanged(uid, w); }
+      supportChanged(st.uid, was);
+      return pt.active ? page('💛', 'Thank you for supporting Mist!', 'Your Patreon is linked. Close this tab and go back to Mist; your perks are on.')
+        : page('🔗', 'Patreon linked', 'We couldn’t find an active $' + (c.minCents / 100) + '+ membership yet. Join on Patreon, then press “Check again” in Mist.');
+    } catch (e) { return page('⚠️', 'Couldn’t link Patreon', String(e.message).replace(/[<>&]/g, '')); }
+  }
   if (req.method === 'GET' && p === '/support/done') {
     const cancelled = /cancelled=1/.test(req.url || '');
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -1799,7 +1896,7 @@ async function handle(req, res) {
       (cancelled ? '👋' : '💛') + '</div><h2>' + (cancelled ? 'No problem' : 'Thank you for supporting Mist!') + '</h2><p>' +
       (cancelled ? 'Nothing was charged. You can close this tab.' : 'You can close this tab and go back to Mist. Your perks turn on in a few seconds.') + '</p></div>');
   }
-  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 12, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
+  if (p === '/' || p === '/api/health') return send(res, storageError ? 503 : 200, { ok: !storageError, service: 'eaglercraft-saves', version: 13, social: true, signups: ALLOW_SIGNUPS, accounts: Object.keys(db.users).length, storage: storageError ? 'error: ' + storageError : 'ok' });
 
   if (req.method === 'POST' && (p === '/api/register' || p === '/api/login')) {
     if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
@@ -2240,8 +2337,23 @@ async function handle(req, res) {
       return send(res, 200, { url: link.href });
     } catch (e) { return fail(res, 502, e.message); }
   }
+  if (req.method === 'POST' && p === '/api/support/link') {
+    const c = patreonConfig(); if (!c) return fail(res, 503, 'Supporter perks aren’t set up on this server yet.');
+    const state = crypto.randomBytes(18).toString('hex'), redirect = patreonRedirect(c, req);
+    for (const [k, v] of patreonStates) if (Date.now() - v.at > 15 * 60e3) patreonStates.delete(k);
+    patreonStates.set(state, { uid: user.id, at: Date.now(), redirect });
+    return send(res, 200, { url: 'https://www.patreon.com/oauth2/authorize?' + new URLSearchParams({ response_type: 'code', client_id: c.clientId,
+      redirect_uri: redirect, scope: 'identity identity.memberships campaigns', state }).toString() });
+  }
+  if (req.method === 'POST' && p === '/api/support/unlink') {
+    const was = isSupporter(user.id); delete db.patreon[user.id]; supportChanged(user.id, was);
+    return send(res, 200, supportView(user.id));
+  }
   if (req.method === 'POST' && p === '/api/support/check') {
-    try { if (paypalConfig()) await refreshSupport(user.id); } catch (e) { return fail(res, 502, e.message); }
+    try {
+      if (db.patreon[user.id]) await patreonCheck(user.id);
+      else if (paypalConfig() && (db.support[user.id] || {}).sub) await refreshSupport(user.id);
+    } catch (e) { return fail(res, 502, e.message); }
     return send(res, 200, Object.assign(supportView(user.id), { newAchievements: takeNewAch(user.id), level: levelInfo(user.id) }));
   }
   if (req.method === 'GET' && p === '/api/look-options') return send(res, 200, { colors: COLORS });
