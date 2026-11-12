@@ -60,6 +60,33 @@
       "featured": true
     },
     {
+      "id": "overboost",
+      "name": "Overboost",
+      "developer": "Th3Nu8",
+      "image": "overboost.jpg",
+      "tags": [
+        "Sports",
+        "Multiplayer",
+        "Driving",
+        "3D"
+      ],
+      "description": "Car football at full throttle. Drive, jump, flip and boost the ball into the other net. 1v1, 2v2 and 3v3 online matchmaking with ratings, private lobbies, bots and free play.",
+      "versions": [
+        {
+          "id": "1.0",
+          "name": "Overboost 1.0",
+          "type": "release",
+          "file": "overboost.html",
+          "notes": [
+            "Online matchmaking, ranked ratings and leaderboard",
+            "Private lobbies with invite codes",
+            "Bots (Rookie, Pro, Elite) and free play",
+            "Keyboard, mouse, gamepad and touch controls"
+          ]
+        }
+      ]
+    },
+    {
       "id": "counter-attack",
       "name": "Counter Attack",
       "developer": "Xash3D FWGS (engine)",

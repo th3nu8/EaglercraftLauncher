@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#231a44">
+<title>Overboost</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M6 0h26l-6 32H0z%27 fill=%27%23ffc21a%27/%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%277%27 fill=%27%2317122b%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="view" aria-label="Game view"></canvas>
+
+<!-- ============================ in-game HUD ============================ -->
+<div id="hud" hidden>
+  <div id="scorebar">
+    <div class="sb tide"><b id="score0">0</b></div>
+    <div id="clock">5:00</div>
+    <div class="sb flare"><b id="score1">0</b></div>
+  </div>
+  <div id="ot" hidden>Overtime</div>
+  <div id="feed" aria-live="polite"></div>
+  <div id="tags"></div>
+  <div id="count" hidden></div>
+  <div id="banner" hidden><div id="banner-title"></div><div id="banner-sub"></div></div>
+  <div id="boost"><div id="boost-fill"></div><b id="boost-num">33</b><span>boost</span></div>
+  <div id="speed"><b id="speed-num">0</b> km/h</div>
+  <button id="camtag" type="button">Ball cam on</button>
+  <div id="netstat"></div>
+  <div id="hint"></div>
+
+  <div id="board" hidden>
+    <table>
+      <thead><tr><th>Player</th><th>Score</th><th>Goals</th><th>Assists</th><th>Saves</th><th>Shots</th><th>Ping</th></tr></thead>
+      <tbody id="board-rows"></tbody>
+    </table>
+  </div>
+
+  <div id="touch" hidden>
+    <div id="stick"><div id="stick-nub"></div></div>
+    <button class="tb" id="tb-jump" type="button">Jump</button>
+    <button class="tb" id="tb-boost" type="button">Boost</button>
+    <button class="tb small" id="tb-slide" type="button">Slide</button>
+    <button class="tb small" id="tb-cam" type="button">Cam</button>
+    <button class="tb small" id="tb-menu" type="button">Menu</button>
+    <button class="tb small" id="tb-chat" type="button">Chat</button>
+  </div>
+  <div id="chatpick" hidden></div>
+
+  <div id="pause" hidden>
+    <div class="slab">
+      <h2>Paused</h2>
+      <p id="pause-note">The match keeps running while this is open.</p>
+      <button class="plate go" id="pause-resume" type="button">Keep playing</button>
+      <button class="plate" id="pause-reset" type="button" hidden>Reset ball</button>
+      <button class="plate" id="pause-settings" type="button">Settings</button>
+      <button class="plate" id="pause-leave" type="button">Leave match</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ menus ============================ -->
+<main id="menu">
+  <h1 id="wordmark">Overboost</h1>
+
+  <section class="view" data-view="home">
+    <p class="lede">Car football at full throttle. Drive, jump, flip and boost the ball into the other net.</p>
+    <div class="stack">
+      <button class="plate go" data-go="online" id="btn-online" type="button">Play online</button>
+      <button class="plate" data-go="private" id="btn-private" type="button">Private match</button>
+      <button class="plate" data-go="bots" type="button">Play bots</button>
+      <button class="plate" id="btn-freeplay" type="button">Free play</button>
+    </div>
+    <p id="netline" class="quiet">Connecting to the game server…</p>
+    <nav class="links">
+      <button data-go="leaderboard" type="button">Leaderboard</button>
+      <button data-go="settings" type="button">Settings</button>
+      <button data-go="controls" type="button">Controls</button>
+    </nav>
+  </section>
+
+  <section class="view" data-view="online" hidden>
+    <h2>Play online</h2>
+    <p class="quiet">Pick a team size. You are matched with players near your rating. If nobody turns up, bots take the empty seats.</p>
+    <div class="sizes">
+      <button class="plate big" data-queue="1" type="button"><b>1v1</b><span id="r1">Duel</span></button>
+      <button class="plate big" data-queue="2" type="button"><b>2v2</b><span id="r2">Doubles</span></button>
+      <button class="plate big" data-queue="3" type="button"><b>3v3</b><span id="r3">Standard</span></button>
+    </div>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="queue" hidden>
+    <h2 id="queue-title">Looking for a match</h2>
+    <p class="timer" id="queue-time">0:00</p>
+    <p class="quiet" id="queue-info">Searching…</p>
+    <button class="plate" id="queue-cancel" type="button">Cancel search</button>
+  </section>
+
+  <section class="view" data-view="private" hidden>
+    <h2>Private match</h2>
+    <p class="quiet">Make a lobby and send the code to friends, or join theirs.</p>
+    <div class="stack">
+      <button class="plate go" id="lobby-create" type="button">Create a lobby</button>
+    </div>
+    <form id="join-form" class="row">
+      <input id="join-code" maxlength="5" placeholder="Lobby code" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Lobby code">
+      <button class="plate" type="submit">Join lobby</button>
+    </form>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="lobby" hidden>
+    <h2>Lobby <span id="lobby-code" class="code"></span></h2>
+    <p class="quiet" id="lobby-note">Share the code. Pick a side, then the host starts the match.</p>
+    <div class="teams">
+      <div class="team tide"><h3>Tide</h3><ul id="lobby-t0"></ul><button class="mini" data-team="0" type="button">Join Tide</button></div>
+      <div class="team flare"><h3>Flare</h3><ul id="lobby-t1"></ul><button class="mini" data-team="1" type="button">Join Flare</button></div>
+    </div>
+    <div id="lobby-config" class="opts">
+      <label>Team size <select id="lobby-size"><option value="1">1v1</option><option value="2">2v2</option><option value="3">3v3</option></select></label>
+      <label>Empty seats <select id="lobby-bots"><option value="none">Stay empty</option><option value="rookie">Rookie bots</option><option value="pro">Pro bots</option><option value="elite">Elite bots</option></select></label>
+      <label>Match length <select id="lobby-min"><option value="3">3 min</option><option value="5">5 min</option><option value="10">10 min</option></select></label>
+    </div>
+    <div class="stack">
+      <button class="plate go" id="lobby-start" type="button">Start match</button>
+      <button class="plate" id="lobby-copy" type="button">Copy invite link</button>
+    </div>
+    <button class="back" id="lobby-leave" type="button">Leave lobby</button>
+  </section>
+
+  <section class="view" data-view="bots" hidden>
+    <h2>Play bots</h2>
+    <p class="quiet">Runs on your device. No connection needed and it does not affect your rating.</p>
+    <div class="opts">
+      <label>Team size <select id="bots-size"><option value="1">1v1</option><option value="2" selected>2v2</option><option value="3">3v3</option></select></label>
+      <label>Bot skill <select id="bots-skill"><option value="rookie">Rookie</option><option value="pro" selected>Pro</option><option value="elite">Elite</option></select></label>
+      <label>Match length <select id="bots-min"><option value="3">3 min</option><option value="5" selected>5 min</option><option value="10">10 min</option></select></label>
+    </div>
+    <div class="stack"><button class="plate go" id="bots-start" type="button">Start match</button></div>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="leaderboard" hidden>
+    <h2>Leaderboard</h2>
+    <div class="tabs" id="lb-tabs">
+      <button data-lb="1" type="button">1v1</button><button data-lb="2" type="button" class="on">2v2</button><button data-lb="3" type="button">3v3</button>
+    </div>
+    <div class="scroll"><table id="lb-table"><tbody></tbody></table></div>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="settings" hidden>
+    <h2>Settings</h2>
+    <div class="scroll">
+      <div class="opts">
+        <label>Name <input id="set-name" maxlength="16" autocomplete="off" spellcheck="false"></label>
+        <label>Sound <input id="set-volume" type="range" min="0" max="100" step="1"></label>
+        <label>Graphics <select id="set-quality"><option value="high">Sharp</option><option value="low">Fast</option></select></label>
+        <label>Field of view <input id="set-fov" type="range" min="70" max="120" step="1"><output></output></label>
+        <label>Camera distance <input id="set-dist" type="range" min="180" max="420" step="5"><output></output></label>
+        <label>Camera height <input id="set-height" type="range" min="60" max="220" step="5"><output></output></label>
+        <label>Camera angle <input id="set-angle" type="range" min="-15" max="5" step="1"><output></output></label>
+        <label>Camera stiffness <input id="set-stiff" type="range" min="0" max="100" step="5"><output></output></label>
+        <label>Touch controls <select id="set-touch"><option value="auto">When I touch the screen</option><option value="on">Always</option><option value="off">Never</option></select></label>
+      </div>
+      <h3>Keys</h3>
+      <p class="quiet">Select an action, then press the key or mouse button you want.</p>
+      <div id="binds"></div>
+      <button class="mini" id="binds-reset" type="button">Restore default keys</button>
+    </div>
+    <button class="back" id="settings-back" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="controls" hidden>
+    <h2>Controls</h2>
+    <div class="scroll">
+      <table class="keys" id="keys-table"><tbody></tbody></table>
+      <h3>Moves worth knowing</h3>
+      <ul class="tips">
+        <li>Hold jump for a higher jump. Press it again in the air for a second jump.</li>
+        <li>Hold a direction and press jump in the air to flip that way. A forward flip into the ball is the hardest shot you have.</li>
+        <li>Hold slide while turning to swing the back end round without losing speed.</li>
+        <li>Small pads give 12 boost, the six big ones fill the tank. Above 80 km/h you can demolish opponents.</li>
+        <li>You can drive up the walls. Jump off them to reach high balls.</li>
+      </ul>
+    </div>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="end" hidden>
+    <h2 id="end-title">Full time</h2>
+    <p class="timer" id="end-score">0 – 0</p>
+    <p class="quiet" id="end-rating"></p>
+    <div class="scroll"><table id="end-table">
+      <thead><tr><th>Player</th><th>Score</th><th>Goals</th><th>Assists</th><th>Saves</th><th>Shots</th></tr></thead><tbody></tbody></table></div>
+    <div class="stack">
+      <button class="plate go" id="end-again" type="button">Find another match</button>
+      <button class="plate" id="end-menu" type="button">Back to menu</button>
+    </div>
+  </section>
+
+</main>
+<div id="stripes" aria-hidden="true"></div>
+
+<div id="rotate" hidden><p>Turn your phone sideways to play.</p></div>
+<div id="toast" role="status" hidden></div>
+
+<script src="shared/sim.js"></script>
+<script src="shared/bot.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

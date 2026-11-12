@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Overboost</title>
+<style>html,body{margin:0;height:100%;background:#17122b;overflow:hidden}iframe{border:0;width:100%;height:100%;display:block}</style></head>
+<body><script>
+(function () {
+  // Overboost runs on the Mist server (online matchmaking needs its game server), at /overboost/.
+  var base = (window.MIST_SERVER || 'https://mistserver.space').replace(/\/+$/, '');
+  var f = document.createElement('iframe');
+  f.src = base + '/overboost/';
+  f.setAttribute('allow', 'fullscreen; pointer-lock; gamepad; autoplay; clipboard-write');
+  f.setAttribute('allowfullscreen', '');
+  document.body.appendChild(f);
+  f.onload = function () { try { f.focus(); } catch (e) {} };
+  document.addEventListener('click', function () { try { f.focus(); } catch (e) {} });
+})();
+</script></body></html>
