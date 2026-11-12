@@ -825,7 +825,7 @@
   function renderSettings() {
     $('#setMode').value = settings.mode;
     $('#setDebug').value = settings.debug;
-    $('#setClips').value = store.get('clips', 'on');
+    $('#setClips').value = store.get('clips', 'off') === 'on' ? 'on' : 'off';
     $('#setTitle').value = settings.title;
     $('#srcInfo').textContent = CFG.base;
     $('#setServer').value = settings.server;

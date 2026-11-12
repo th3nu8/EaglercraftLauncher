@@ -1,24 +1,25 @@
 /* Mist — instant replay clips.
  * While a game runs, Mist records the game's canvas in the background. Pressing F8 (or "Save clip"
- * in the Mist overlay) saves the last 30–45 seconds to this browser. Nothing is uploaded.
+ * in the Mist overlay) saves the last 30–60 seconds to this browser. Nothing is uploaded.
  *
- * How the rolling buffer works: a video file can't just have its start chopped off, so three
- * recorders run staggered 15 s apart and each restarts every 45 s. At any moment one of them has
- * been running for 30–45 s, and saving a clip finishes that one. Memory stays around 50 MB. */
+ * How the rolling buffer works: a video file can't just have its start chopped off, so two
+ * recorders run staggered 30 s apart and each restarts every 60 s. At any moment one of them has
+ * been running for 30–60 s, and saving a clip finishes that one. VP8 is used because it is the
+ * cheapest encoder; instant replay is off until turned on because encoding still costs CPU. */
 window.MistClips = function (ctx) {
   'use strict';
   var el = ctx.el, toast = ctx.toast;
-  var SEG = 15000, N = 3, LIFE = SEG * N, MAX_CLIPS = 40, KEY = 'F8';
+  var SEG = 30000, N = 2, LIFE = SEG * N, MAX_CLIPS = 40, KEY = 'F8';
   var cur = null;          // { win, canvas, stream, taps, recs: [], tick, scan, game }
   var TYPE = pickType();
 
   function supported() {
     return typeof MediaRecorder !== 'undefined' && !!TYPE && typeof HTMLCanvasElement !== 'undefined' && !!HTMLCanvasElement.prototype.captureStream;
   }
-  function enabled() { return ctx.storeGet('clips', 'on') !== 'off'; }
+  function enabled() { return ctx.storeGet('clips', 'off') === 'on'; }   // opt-in: recording costs CPU
   function pickType() {
     if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return null;
-    var list = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4;codecs=avc1,mp4a', 'video/mp4'];
+    var list = ['video/webm;codecs=vp8,opus', 'video/webm', 'video/webm;codecs=vp9,opus', 'video/mp4;codecs=avc1,mp4a', 'video/mp4'];
     for (var i = 0; i < list.length; i++) if (MediaRecorder.isTypeSupported(list[i])) return list[i];
     return null;
   }
@@ -53,7 +54,7 @@ window.MistClips = function (ctx) {
   function startRec(r) {
     r.chunks = []; r.mr = null;
     try {
-      var mr = new MediaRecorder(cur.stream, { mimeType: TYPE, videoBitsPerSecond: 3000000, audioBitsPerSecond: 128000 });
+      var mr = new MediaRecorder(cur.stream, { mimeType: TYPE, videoBitsPerSecond: 2500000, audioBitsPerSecond: 128000 });
       mr.ondataavailable = function (e) { if (e.data && e.data.size && r.mr === mr) r.chunks.push(e.data); };
       mr.start(1000);
       r.mr = mr; r.start = Date.now();
@@ -233,7 +234,7 @@ window.MistClips = function (ctx) {
     });
     head.appendChild(tog); host.appendChild(head);
     var info = !supported() ? 'This browser can’t record clips.' :
-      'While you play, press ' + KEY + ' (or Save clip in the Mist overlay) to save the last 30–45 seconds. Clips stay in this browser until you download or delete them.';
+      'While you play, press ' + KEY + ' (or Save clip in the Mist overlay) to save the last 30–60 seconds. Clips stay in this browser until you download or delete them.';
     host.appendChild(el('p', 'soc-sub', info));
     var grid = el('div', 'clip-grid'); host.appendChild(grid);
     grid.appendChild(el('div', 'fp-empty', 'Loading…'));
