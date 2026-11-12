@@ -344,10 +344,12 @@ function supportChanged(uid, was) {
  * Players join the Patreon, then press "Link my Patreon" in Mist. The server reads their membership through
  * Patreon's API and turns perks on while they're an active patron at the $5 tier or higher.
  * Needs a Patreon API client (patreon.com/portal/registration/register-clients) in patreon.json next to server.js:
- *   { "clientId": "...", "clientSecret": "...", "redirect": "https://mistserver.space/support/patreon",
+ *   { "clientId": "...", "clientSecret": "...", "redirect": "https://infoforscholars.com/support/patreon",
  *     "url": "https://www.patreon.com/ThatOneNoobie", "minCents": 500 }                                    */
 db.patreon = db.patreon || {};     // uid -> { pid, access, refresh, exp, active, cents, until, checked }
 const PATREON_URL = 'https://www.patreon.com/ThatOneNoobie';
+// where Patreon sends players back after they approve the link; must match a Redirect URI on the Patreon client
+const PATREON_REDIRECT = process.env.PATREON_REDIRECT || 'https://infoforscholars.com/support/patreon';
 function patreonConfig() {
   let c = null;
   try { c = JSON.parse(fs.readFileSync(path.join(__dirname, 'patreon.json'), 'utf8')); } catch (e) {}
@@ -359,6 +361,7 @@ function patreonConfig() {
 }
 function patreonRedirect(c, req) {
   if (c.redirect) return c.redirect;
+  if (PATREON_REDIRECT) return PATREON_REDIRECT;
   const host = req.headers['x-forwarded-host'] || req.headers.host, proto = String(req.headers['x-forwarded-proto'] || 'https').split(',')[0];
   return proto + '://' + host + '/support/patreon';
 }
