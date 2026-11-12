@@ -630,6 +630,7 @@ body.in-game #app{visibility:hidden}
 .adm-dot.on{background:#57cbde}
 .adm-tag{font-size:10px;text-transform:uppercase;background:#2a475e;color:#66c0f4;padding:1px 5px;border-radius:2px}
 .adm-tag.ban{background:#4a1f1f;color:#ff7b7b}
+.adm-tag.sup{background:#4a3b12;color:#ffd257}
 .adm-btns{display:flex;gap:6px;flex:none}
 .adm-btns .btn{padding:4px 10px;font-size:12px}
 .btn.adm-danger{color:#ff7b7b}

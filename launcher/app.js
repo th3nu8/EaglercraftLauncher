@@ -1153,6 +1153,14 @@
           if (action === 'ban' && !confirm('Ban ' + name + '? They get signed out everywhere and can’t sign in again until unbanned.')) return;
           engine.api('POST', '/api/admin/user', { json: { name: name, action: action } }).then(function () { toast(label); load(); }, function (e) { toast(e.message); });
         }
+        function giveSupport(name) {
+          var a = prompt('Give ' + name + ' Mist Supporter for how many days? Leave it empty for no end date.', '30');
+          if (a === null) return;
+          a = a.trim(); var days = a ? Math.floor(+a) : 0;
+          if (a && !(days >= 1 && days <= 3650)) { toast('Enter a number of days from 1 to 3650, or leave it empty'); return; }
+          engine.api('POST', '/api/admin/user', { json: { name: name, action: 'support', days: days } })
+            .then(function () { toast(name + ' is a Supporter ' + (days ? 'for ' + days + ' day' + (days === 1 ? '' : 's') : 'with no end date')); load(); }, function (e) { toast(e.message); });
+        }
         function drawList() {
           list.textContent = '';
           var f = q.value.trim().toLowerCase();
@@ -1163,8 +1171,17 @@
             nm.appendChild(el('span', null, u.name));
             if (u.admin) nm.appendChild(el('span', 'adm-tag', 'admin'));
             if (u.banned) nm.appendChild(el('span', 'adm-tag ban', 'banned'));
+            if (u.supporter) {
+              var tag = el('span', 'adm-tag sup', u.gift ? 'supporter (gift)' : 'supporter');
+              if (u.gift) tag.title = 'Given by ' + (u.giftBy || 'an admin') + (u.giftUntil ? ', ends ' + new Date(u.giftUntil).toLocaleDateString() : ', no end date');
+              nm.appendChild(tag);
+            }
             r.appendChild(nm);
             var b = el('div', 'adm-btns');
+            if (u.gift) b.appendChild(button('ghost', 'Remove supporter', null, function () {
+              if (confirm('Take Mist Supporter away from ' + u.name + '?')) act(u.name, 'unsupport', u.name + ' is no longer a Supporter');
+            }));
+            else if (!u.banned) b.appendChild(button('ghost', u.supporter ? 'Add gift' : 'Give supporter', null, function () { giveSupport(u.name); }));
             if (!u.admin) {
               if (u.banned) b.appendChild(button('ghost', 'Unban', null, function () { act(u.name, 'unban', u.name + ' unbanned'); }));
               else {

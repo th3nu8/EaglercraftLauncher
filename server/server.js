@@ -325,6 +325,7 @@ function paypalConfig() {
   c.api = process.env.PAYPAL_API || (c.mode === 'sandbox' ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com');
   return c;
 }
+const FOREVER = 8.64e15;           // manualUntil for a supporter grant with no end date
 function isSupporter(uid) {
   const s = db.support && db.support[uid], pt = db.patreon && db.patreon[uid];
   if (pt && (pt.until || 0) > Date.now()) return true;
@@ -456,7 +457,9 @@ function supportView(uid) {
   const s = db.support[uid] || {}, c = patreonConfig(), pt = db.patreon[uid] || {};
   return { enabled: !!c, provider: 'patreon', price: '$' + ((c ? c.minCents : 500) / 100).toFixed(2).replace(/\.00$/, '') + '/month',
     url: c ? c.url : PATREON_URL, linked: !!pt.access, patron: pt.status || null, cents: pt.cents || 0,
-    supporter: isSupporter(uid), until: pt.until || s.paidThrough || null, since: s.since || null, xp: SUPPORTER_XP,
+    supporter: isSupporter(uid), since: s.since || null, xp: SUPPORTER_XP,
+    // given by an admin: gift = true, until = when it ends (null = no end date)
+    gift: (s.manualUntil || 0) > Date.now(), until: (s.manualUntil || 0) > Date.now() ? (s.manualUntil >= FOREVER ? null : s.manualUntil) : (pt.until || s.paidThrough || null),
     manage: 'https://www.patreon.com/settings/memberships' };
 }
 // Re-check subscriptions every 3 hours (renewals, cancellations, failed payments).
@@ -2152,7 +2155,11 @@ async function handle(req, res) {
     const now = Date.now();
     const onlineNow = uid => { const pr = presence.get(uid); return !!pr && now - pr.at < 180e3; };
     if (req.method === 'GET' && p === '/api/admin/overview') {
-      const users = Object.values(db.users).map(u => ({ name: u.name, created: u.created || 0, banned: !!u.banned, admin: isAdmin(u), online: onlineNow(u.id) }))
+      const users = Object.values(db.users).map(u => {
+        const s = db.support[u.id] || {}, gift = (s.manualUntil || 0) > now;
+        return { name: u.name, created: u.created || 0, banned: !!u.banned, admin: isAdmin(u), online: onlineNow(u.id),
+          supporter: isSupporter(u.id), gift, giftUntil: gift && s.manualUntil < FOREVER ? s.manualUntil : null, giftBy: gift ? s.manualBy || null : null };
+      })
         .sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
       return send(res, 200, { accounts: users.length, online: users.filter(u => u.online).length, announcement: currentAnnouncement(), users });
     }
@@ -2179,6 +2186,18 @@ async function handle(req, res) {
       if (action === 'ban') { target.banned = { by: user.name, at: now }; killSessions(); }
       else if (action === 'unban') delete target.banned;
       else if (action === 'signout') killSessions();
+      else if (action === 'support') {           // give supporter perks: body.days (1-3650), or 0 / missing for no end date
+        const days = Math.floor(+body.days || 0), was = isSupporter(target.id);
+        if (days < 0 || days > 3650) return fail(res, 400, 'Days must be from 1 to 3650, or 0 for no end date.');
+        const s = db.support[target.id] || (db.support[target.id] = {});
+        s.manualUntil = days ? now + days * 864e5 : FOREVER; s.manualBy = user.name; s.manualAt = now;
+        supportChanged(target.id, was);
+      } else if (action === 'unsupport') {       // takes back an admin grant only; a paying patron keeps their perks
+        const s = db.support[target.id], was = isSupporter(target.id);
+        if (!s || !s.manualUntil) return fail(res, 400, target.name + ' wasn’t given supporter by an admin.');
+        delete s.manualUntil; delete s.manualBy; delete s.manualAt;
+        supportChanged(target.id, was);
+      }
       else return fail(res, 400, 'Unknown action.');
       await saveDb();
       console.log('admin: ' + user.name + ' ' + action + ' ' + target.name);

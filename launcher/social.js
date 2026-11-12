@@ -1327,7 +1327,8 @@ window.MistSocial = function (ctx) {
         if (info && info.supporter) {
           body.appendChild(el('p', 'sup-lead', 'You’re a Mist Supporter. Thank you!'));
           body.appendChild(perksList());
-          if (info.until) body.appendChild(el('p', 'sup-small', (info.patron === 'active_patron' ? 'Active Patreon membership. Checked again every few hours. ' : 'Perks last until ') + (info.patron === 'active_patron' ? '' : fmtDay(info.until) + '.')));
+          if (info.gift) body.appendChild(el('p', 'sup-small', 'Gifted by a Mist admin' + (info.until ? ', until ' + fmtDay(info.until) + '.' : '.')));
+          else if (info.until) body.appendChild(el('p', 'sup-small', (info.patron === 'active_patron' ? 'Active Patreon membership. Checked again every few hours. ' : 'Perks last until ') + (info.patron === 'active_patron' ? '' : fmtDay(info.until) + '.')));
           var a = el('div', 'm-actions');
           a.appendChild(ctx.button('ghost', 'Manage on Patreon', null, function () { window.open(info.manage || url, '_blank'); }));
           a.appendChild(ctx.button('green', 'Close', null, ctx.closeModal)); body.appendChild(a);
