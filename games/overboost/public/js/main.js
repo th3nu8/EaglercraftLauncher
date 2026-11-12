@@ -6,7 +6,7 @@ import { Sfx } from './audio.js';
 
 const S = window.OBSim, B = window.OBBot, D = window.OBDrill;
 const PROTOCOL = 1;
-const VERSION = '1.1';
+const VERSION = '1.2';
 // which build of the game this page is running: the server puts it in the address of every script (v/<build>/js/main.js)
 const BUILD = (/\/v\/([0-9a-z]+)\/js\//.exec(import.meta.url) || [])[1] || '';
 const $ = id => document.getElementById(id);

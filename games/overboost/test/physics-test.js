@@ -271,5 +271,27 @@ const speed = c => Math.hypot(c.vx, c.vy, c.vz);
   check('soak: speed cap respected', maxV, 0, 2600);
   console.log(`     soak: ${N} ticks, 6 cars in ${ms} ms (${(ms / N * 1000).toFixed(1)} us/tick), goals ${goals}`);
 }
+// --- getting back on the wheels
+{
+  const mul = (a, b) => [a[3]*b[0]+a[0]*b[3]+a[1]*b[2]-a[2]*b[1], a[3]*b[1]-a[0]*b[2]+a[1]*b[3]+a[2]*b[0], a[3]*b[2]+a[0]*b[1]-a[1]*b[0]+a[2]*b[3], a[3]*b[3]-a[0]*b[0]-a[1]*b[1]-a[2]*b[2]];
+  const recover = (roll, z, pitch, jump) => {
+    const w = S.createWorld({ mode: 'freeplay' }); S.addCar(w, 0); S.startMatch(w); w.phase = S.PH_PLAY;
+    const c = w.cars[0]; S.placeCar(c, 0, -1000, 0);
+    let q = mul([0, 0, Math.sin(Math.PI / 8), Math.cos(Math.PI / 8)], [Math.sin(roll / 2), 0, 0, Math.cos(roll / 2)]);
+    if (pitch) q = mul(q, [0, Math.sin(pitch / 2), 0, Math.cos(pitch / 2)]);
+    [c.qx, c.qy, c.qz, c.qw] = q; c.pz = z;
+    for (let i = 0, up = 0; i < 120 * 6; i++) {
+      c.in.jump = !!jump && i >= 60 && i < 63;
+      S.step(w, []);
+      if (c.onGround && c.uz > 0.95) { if (++up > 30) return (i - 30) / 120; } else up = 0;
+    }
+    return 99;
+  };
+  check('upside down: rights itself without any input', recover(Math.PI, 40), 0.3, 1.1, ' s');
+  check('upside down: jump rights it', recover(Math.PI, 40, 0, true), 0.5, 1.1, ' s');
+  check('on its side: rolls back onto the wheels', recover(Math.PI / 2, 50), 0.1, 0.8, ' s');
+  check('dropped nose first: lands on the wheels', recover(0, 300, 1.2), 0.3, 1.2, ' s');
+  check('dropped on the roof: still ends up on the wheels', recover(Math.PI * 0.85, 400), 0.5, 2.2, ' s');
+}
 console.log(failures ? `\n${failures} check(s) failed` : '\nall physics checks passed');
 process.exit(failures ? 1 : 0);

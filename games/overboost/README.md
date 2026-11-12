@@ -80,6 +80,11 @@ bots and free play still run. A static copy can point at a game server elsewhere
 - **Controls:** rebindable keys and mouse, gamepad, and on-screen touch controls. Camera settings (field of view,
   distance, height, angle, stiffness) and ball cam.
 - **Quick chat** on keys 1 to 8.
+- **Recovery:** a car on its roof rights itself after a fifth of a second (or straight away with jump), one on
+  its side rolls back within about half a second, and a car falling with nobody steering in the air turns its
+  wheels to the ground before it lands.
+- **Camera:** your own car is always kept in frame. In ball cam the view tilts to follow the ball, but never so
+  far that the car leaves the screen, and an arrow at the edge of the screen points to a ball that is out of view.
 - **Extras:** crowd noise that reacts to shots, saves and goals (its own volume slider, next to master and
   effects), an FPS and ping readout, a fullscreen button, and an arrow at the edge of the screen when the ball
   is out of view.

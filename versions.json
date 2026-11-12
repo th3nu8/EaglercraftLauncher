@@ -75,11 +75,12 @@
       "versions": [
         {
           "id": "1.0",
-          "name": "Overboost 1.1",
+          "name": "Overboost 1.2",
           "type": "release",
           "file": "overboost.html",
           "rev": "2",
           "notes": [
+            "New in 1.2: your car always stays on screen in ball cam, quicker recovery from landing on the roof or side, better-looking cars",
             "New in 1.1: Shoot and Save training drills with their own ratings",
             "New in 1.1: Customize with five car bodies and eight trim colours",
             "New in 1.1: 4v4 bot and private matches, Novice bots, crowd sound, FPS counter, fullscreen",

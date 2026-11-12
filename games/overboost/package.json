@@ -1,6 +1,6 @@
 {
   "name": "overboost",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Overboost - browser car-soccer with online matchmaking",
   "main": "server.js",
   "scripts": {

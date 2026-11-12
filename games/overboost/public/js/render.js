@@ -279,24 +279,48 @@ function buildCar(team, look) {
     trim: new THREE.MeshStandardMaterial({ color: trimHex, emissive: trimHex, emissiveIntensity: 0.12, roughness: 0.5, flatShading: true, side: THREE.DoubleSide }),
     glass: new THREE.MeshStandardMaterial({ color: 0x0c0a18, roughness: 0.12, metalness: 0.7, flatShading: true, side: THREE.DoubleSide })
   };
-  SHELLS[body](g, m);
-  // wheels
+  // the shell sits in its own group so it can lean on its springs while the wheels stay planted
+  const shell = new THREE.Group(); g.add(shell);
+  SHELLS[body](shell, m);
+  // crisp dark outline on the shell's hard edges
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x0d0a1a, transparent: true, opacity: 0.55 });
+  shell.children.slice().forEach(o => {
+    if (!o.isMesh) return;
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 28), edgeMat);
+    e.position.copy(o.position); e.quaternion.copy(o.quaternion); e.scale.copy(o.scale); shell.add(e);
+  });
+  // lights: headlights always on, tail lights glow harder when braking or reversing
+  const front = WHEEL_SPECS[body][0][0] + 22, rear = WHEEL_SPECS[body][2][0] - 14;
+  const headMat = new THREE.MeshBasicMaterial({ color: 0xfff4d6 });
+  const tailMat = new THREE.MeshBasicMaterial({ color: 0xff2a3a, transparent: true, opacity: 0.55 });
+  for (const s of [-1, 1]) {
+    const hl = new THREE.Mesh(new THREE.BoxGeometry(2.2 * K, 4 * K, 9 * K), headMat); hl.position.copy(P(front, s * 24, 5)); shell.add(hl);
+    const tl = new THREE.Mesh(new THREE.BoxGeometry(2.2 * K, 4 * K, 10 * K), tailMat); tl.position.copy(P(rear - 2, s * 27, 9)); shell.add(tl);
+  }
+  // wheels: tyre, coloured rim and spokes
   const wheels = [];
   const tyre = new THREE.MeshStandardMaterial({ color: 0x14121f, roughness: 0.9, flatShading: true });
+  const rimMat = new THREE.MeshStandardMaterial({ color: 0xd9dde3, roughness: 0.35, metalness: 0.6, flatShading: true });
   for (const [x, y, r, wd] of WHEEL_SPECS[body]) {
     const piv = new THREE.Group();
     piv.position.copy(P(x, y, -S.REST_Z + r));
     const spin = new THREE.Group();
-    const w = new THREE.Mesh(new THREE.CylinderGeometry(r * K, r * K, wd * K, 14), tyre); w.rotation.x = Math.PI / 2;
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55 * K, r * 0.55 * K, (wd + 0.6) * K, 6), m.trim); hub.rotation.x = Math.PI / 2;
-    spin.add(w, hub); piv.add(spin); g.add(piv);
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(r * K, r * K, wd * K, 16), tyre); w.rotation.x = Math.PI / 2;
+    const rim = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.62 * K, r * 0.62 * K, (wd + 0.5) * K, 12), rimMat); rim.rotation.x = Math.PI / 2;
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.22 * K, r * 0.22 * K, (wd + 1.2) * K, 6), m.trim); hub.rotation.x = Math.PI / 2;
+    spin.add(w, rim, hub);
+    for (let k = 0; k < 5; k++) {
+      const sp = new THREE.Mesh(new THREE.BoxGeometry(r * 1.1 * K, 2.2 * K, (wd + 0.9) * K), m.dark);
+      sp.rotation.z = k * Math.PI / 5; spin.add(sp);
+    }
+    piv.add(spin); g.add(piv);
     wheels.push({ piv, spin, r });
   }
   // boost flame
   const flame = new THREE.Mesh(new THREE.ConeGeometry(9 * K, 70 * K, 8, 1, true), new THREE.MeshBasicMaterial({ color: BOOST, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
   flame.rotation.z = Math.PI / 2; flame.position.copy(P(-84, 0, 4)); flame.visible = false;
   g.add(flame);
-  g.userData = { wheels, flame };
+  g.userData = { wheels, flame, shell, tailMat, lean: 0, dip: 0 };
   return g;
 }
 function disposeCar(g) {
@@ -537,6 +561,15 @@ export class Renderer {
       const ud = m.userData, fwd = c.vx * c.fx + c.vy * c.fy + c.vz * c.fz;
       v.spin -= fwd * dt / 14;
       for (let k = 0; k < 4; k++) { ud.wheels[k].spin.rotation.z = v.spin; if (k < 2) ud.wheels[k].piv.rotation.y = -c.steerA; }
+      // body roll into turns and nose dip when braking, on the ground only
+      const grounded = c.onGround, sp = Math.min(1, Math.abs(fwd) / 1400);
+      const leanT = grounded ? -c.steerA * sp * 0.9 * Math.sign(fwd || 1) : 0;
+      const braking = grounded && ((fwd > 150 && c['in'].throttle < -0.1) || (fwd < -150 && c['in'].throttle > 0.1));
+      const dipT = braking ? 0.05 : (grounded && c.boosting ? -0.03 : 0);
+      const lk = 1 - Math.exp(-dt * 9);
+      ud.lean += (leanT * 0.12 - ud.lean) * lk; ud.dip += (dipT - ud.dip) * lk;
+      ud.shell.rotation.set(ud.lean, 0, -ud.dip);
+      ud.tailMat.opacity = braking || fwd < -150 ? 1 : 0.55;
       ud.flame.visible = c.boosting;
       if (c.boosting) ud.flame.scale.set(0.8 + Math.random() * 0.5, 0.8 + Math.random() * 0.6, 0.8 + Math.random() * 0.5);
       // shadow
@@ -596,7 +629,7 @@ export class Renderer {
   camera(session, dt, opts) {
     const w = session.world, me = session.me, cs = opts.cam, cam = this.cam;
     const b = session.ballEnt.out;
-    let px, py, pz, dx, dy, dz, sup = 0;
+    let px, py, pz, dx, dy, dz, sup = 0, carAt = null;
     const sr = opts.showroom, shift = sr ? Math.round(sr.shift || 0) : 0;
     if (shift !== this.viewShift) {       // slide the picture sideways so the garage car sits clear of the menu
       this.viewShift = shift;
@@ -640,17 +673,43 @@ export class Renderer {
       d[0] += (tx - d[0]) * k; d[1] += (ty - d[1]) * k; d[2] += (tz - d[2]) * k;
       const l = Math.hypot(d[0], d[1], d[2]) || 1; d[0] /= l; d[1] /= l; d[2] /= l;
       dx = d[0]; dy = d[1]; dz = d[2];
-      px = o[0] - dx * cs.dist; py = o[1] - dy * cs.dist; pz = o[2] + cs.height - dz * cs.dist;
+      // In ball cam the view tilts up and down to follow the ball, but the camera itself stays behind and a little
+      // above the car (tilting the camera's position with the view would drop it under the car when the ball is high).
+      let qx = dx, qy = dy, qz = dz;
+      if (opts.ballCam && w.ballOn) {
+        const pp = Math.max(-0.25, Math.min(0.22, Math.asin(Math.max(-1, Math.min(1, dz))))), hl = Math.hypot(dx, dy) || 1;
+        qx = dx / hl * Math.cos(pp); qy = dy / hl * Math.cos(pp); qz = Math.sin(pp);
+      }
+      px = o[0] - qx * cs.dist; py = o[1] - qy * cs.dist; pz = o[2] + cs.height - qz * cs.dist;
       if (pz < 24) pz = 24;
       // keep the camera inside the arena shell
       for (let it = 0; it < 2; it++) { const sd = S.sdf(px, py, pz); if (sd < 45) { const nn = S.normal(); px += nn[0] * (45 - sd); py += nn[1] * (45 - sd); pz += nn[2] * (45 - sd); } }
       sup = c.superSonic ? 1 : 0;
+      carAt = o;
     }
     this.kick += (sup - this.kick) * Math.min(1, dt * 3);
     if (this.shake > 0) { this.shake -= dt; const a = this.shake * 14; px += (Math.random() - 0.5) * a; py += (Math.random() - 0.5) * a; pz += (Math.random() - 0.5) * a; }
     const hf = (sr ? 58 : (me < 0 ? 62 : cs.fov)) * Math.PI / 180;
     const vf = 2 * Math.atan(Math.tan(hf / 2) / Math.max(cam.aspect, 1.25)) * 180 / Math.PI + this.kick * 4;
     if (Math.abs(cam.fov - vf) > 0.01) { cam.fov = vf; cam.updateProjectionMatrix(); }
+    // Your own car must always be on screen: if the view points too far away from it (a high ball in ball cam, the
+    // camera squeezed against a wall), turn the view back towards the car just enough to keep it inside the frame.
+    if (carAt) {
+      let vx = carAt[0] - px, vy = carAt[1] - py, vz = carAt[2] - pz;
+      const vl = Math.hypot(vx, vy, vz);
+      if (vl > 1) {
+        vx /= vl; vy /= vl; vz /= vl;
+        const vHalf = vf * Math.PI / 360, hHalf = Math.atan(Math.tan(vHalf) * cam.aspect);
+        const lim = Math.max(0.12, Math.min(vHalf, hHalf) * 0.8 - Math.atan(75 / vl));   // leave room for the car's size
+        const cosA = dx * vx + dy * vy + dz * vz;
+        if (cosA < Math.cos(lim)) {
+          let ox = dx - vx * cosA, oy = dy - vy * cosA, oz = dz - vz * cosA;
+          const ol = Math.hypot(ox, oy, oz) || 1; ox /= ol; oy /= ol; oz /= ol;
+          const cl = Math.cos(lim), sl = Math.sin(lim);
+          dx = vx * cl + ox * sl; dy = vy * cl + oy * sl; dz = vz * cl + oz * sl;
+        }
+      }
+    }
     cam.position.set(px * K, pz * K, -py * K);
     this.tmpV.set((px + dx * 100) * K, (pz + dz * 100) * K, -(py + dy * 100) * K);
     cam.up.set(0, 1, 0); cam.lookAt(this.tmpV);

@@ -53,6 +53,8 @@
   var AIR_DAMP_ROLL = 4.79, AIR_DAMP_PITCH = 2.876, AIR_DAMP_YAW = 1.917;
   var SUPER_ON = 2200, SUPER_KEEP = 2100;
   var DEMO_TIME = 3;
+  var ROOF_WAIT = 0.2, ROOF_POP = 150, SIDE_TQ = 32, RECOVER_SPIN = 10;     // getting back on the wheels
+  var LAND_RANGE = 260, LAND_TQ = 30;                      // landing help when nobody is steering in the air
 
   var STEER_CURVE = [0, 0.5304, 500, 0.3262, 1000, 0.1972, 1500, 0.1164, 1750, 0.0932, 2300, 0.0747];
   var SLIDE_STEER_CURVE = [0, 0.39235, 2500, 0.12610];
@@ -211,7 +213,7 @@
       isJumping: false, hasJumped: false, hasDJ: false, hasFlipped: false, isFlipping: false,
       jumpT: 0, airT: 0, flipT: 0, flipF: 0, flipS: 0,
       hb: 0, boostT: 0, boosting: false, superSonic: false, superT: 0,
-      demoT: 0, autoFlipT: 0, autoFlipDir: 0, bumpT: 0, ballCd: 0,
+      demoT: 0, autoFlipT: 0, autoFlipDir: 0, bumpT: 0, ballCd: 0, restT: 0,
       // derived each tick (not serialised)
       wheels: 4, onGround: true, hullHit: false, hnx: 0, hny: 0, hnz: 1, steerA: 0,
       gnx: 0, gny: 0, gnz: 1
@@ -231,7 +233,7 @@
     c.isJumping = c.hasJumped = c.hasDJ = c.hasFlipped = c.isFlipping = false;
     c.jumpT = c.airT = c.flipT = c.flipF = c.flipS = 0;
     c.hb = 0; c.boostT = 0; c.boosting = false; c.superSonic = false; c.superT = 0;
-    c.demoT = 0; c.autoFlipT = 0; c.autoFlipDir = 0; c.bumpT = 0; c.ballCd = 0;
+    c.demoT = 0; c.autoFlipT = 0; c.autoFlipDir = 0; c.bumpT = 0; c.ballCd = 0; c.restT = 0;
     c.wheels = 4; c.onGround = true; c.hullHit = false; c.steerA = 0;
     basis(c);
   }
@@ -349,6 +351,8 @@
     }
     var onGround = nW >= 3;
     c.wheels = nW; c.onGround = onGround;
+    // how long the car has been lying on its roof or side (body on the ground, wheels not)
+    if (c.hullHit && nW < 3 && (ux * c.hnx + uy * c.hny + uz * c.hnz) < 0.7) c.restT += DT; else c.restT = 0;
 
     // ---- timers and analog handbrake
     if (c.bumpT > 0) c.bumpT -= DT;
@@ -385,16 +389,14 @@
     }
     if (!onGround) {
       if (c.hasJumped && !c.isJumping) c.airT += DT;
-      if (jumpPressed && !jumpedNow) {
-        var upDotN = ux * c.hnx + uy * c.hny + uz * c.hnz;
-        if (c.hullHit && nW < 3 && upDotN < -0.3) {
-          // on the roof: pop up and roll back onto the wheels
-          if (c.autoFlipT <= 0) {
-            c.autoFlipT = 0.4;
-            c.autoFlipDir = (lx * c.hnx + ly * c.hny + lz * c.hnz) >= 0 ? -1 : 1;
-            c.vx += c.hnx * 200; c.vy += c.hny * 200; c.vz += c.hnz * 200;
-          }
-        } else if (!c.isJumping && !c.hasDJ && !c.hasFlipped && (!c.hasJumped || c.airT < DJ_MAX_DELAY)) {
+      var upDotN = ux * c.hnx + uy * c.hny + uz * c.hnz;
+      if (c.hullHit && nW < 3 && upDotN < -0.3 && c.autoFlipT <= 0 && (jumpPressed || c.restT >= ROOF_WAIT)) {
+        // on the roof: pop up and roll back onto the wheels (jump does it at once; it happens by itself after a moment)
+        c.autoFlipT = 1.2; c.restT = 0;
+        c.autoFlipDir = (lx * c.hnx + ly * c.hny + lz * c.hnz) >= 0 ? -1 : 1;
+        c.vx += c.hnx * ROOF_POP; c.vy += c.hny * ROOF_POP; c.vz += c.hnz * ROOF_POP;
+      } else if (jumpPressed && !jumpedNow) {
+        if (c.hullHit && nW < 3 && upDotN < -0.3) { /* already rolling over */ } else if (!c.isJumping && !c.hasDJ && !c.hasFlipped && (!c.hasJumped || c.airT < DJ_MAX_DELAY)) {
           var mag = Math.max(Math.abs(inp.pitch), Math.abs(inp.yaw), Math.abs(inp.roll));
           if (mag >= 0.5) {
             // dodge
@@ -443,8 +445,18 @@
     var wly = c.wx * lx + c.wy * ly + c.wz * lz;
     var wlz = c.wx * ux + c.wy * uy + c.wz * uz;
     if (c.autoFlipT > 0) {
+      // rolling back onto the wheels: steer the car's up towards the surface's normal, overshoot damped
       c.autoFlipT -= DT;
-      alx += 50 * c.autoFlipDir;
+      if (nW >= 3) c.autoFlipT = 0;
+      var rax = uy * c.hnz - uz * c.hny, ray = uz * c.hnx - ux * c.hnz, raz = ux * c.hny - uy * c.hnx;
+      var rl = Math.sqrt(rax * rax + ray * ray + raz * raz), rdot = ux * c.hnx + uy * c.hny + uz * c.hnz;
+      if (rdot < 0.2 && rl < 0.5) alx += 140 * c.autoFlipDir;            // still nearly upside down: just keep rolling
+      else {
+        if (rdot < 0) { rax /= rl; ray /= rl; raz /= rl; }               // past 90 degrees: full effort
+        alx += 120 * (rax * fx + ray * fy + raz * fz) - 14 * wlx;
+        aly += 120 * (rax * lx + ray * ly + raz * lz) - 14 * wly;
+        if (rdot > 0.85) { accX -= c.hnx * 1400; accY -= c.hny * 1400; accZ -= c.hnz * 1400; }   // wheels down: settle at once
+      }
     } else if (!onGround) {
       var pin = inp.pitch, yin = inp.yaw, rin = inp.roll;
       if (c.isFlipping || (c.hasFlipped && c.flipT < FLIP_LOCK_T)) pin = 0;
@@ -455,10 +467,21 @@
         s = th * (th > 0 ? AIR_THROTTLE : AIR_THROTTLE * 0.5);
         accX += fx * s; accY += fy * s; accZ += fz * s;
       }
-      // lying on a side: roll back towards the wheels
+      // lying on a side: roll back towards the wheels, with a little hop if it is taking too long
       if (c.hullHit && nW < 3) {
         var cxn = (uy * c.hnz - uz * c.hny) * fx + (uz * c.hnx - ux * c.hnz) * fy + (ux * c.hny - uy * c.hnx) * fz;
-        if (Math.abs(cxn) > 0.15) alx += 9 * (cxn > 0 ? 1 : -1);
+        if (Math.abs(cxn) > 0.15) alx += SIDE_TQ * (cxn > 0 ? 1 : -1);
+        if (c.restT > 0.3 && Math.abs(c.vz) < 60 && (ux * c.hnx + uy * c.hny + uz * c.hnz) > -0.3) { c.vx += c.hnx * 140; c.vy += c.hny * 140; c.vz += c.hnz * 140; c.restT = 0; }
+      }
+      // falling towards the pitch with nobody steering: turn the wheels to face the surface below so it lands on them
+      if (nW === 0 && !c.hullHit && !c.isFlipping && (!c.hasFlipped || c.flipT >= FLIP_LOCK_T) && Math.abs(pin) < 0.1 && Math.abs(rin) < 0.1) {
+        var gap = sdf(c.px, c.py, c.pz);
+        if (gap < LAND_RANGE && (c.vx * NX + c.vy * NY + c.vz * NZ) < -50) {
+          var ax = uy * NZ - uz * NY, ay = uz * NX - ux * NZ, az = ux * NY - uy * NX;   // car up x surface normal
+          var kk = LAND_TQ * (1 - gap / LAND_RANGE);
+          alx += kk * (ax * fx + ay * fy + az * fz) - 2.5 * wlx;
+          aly += kk * (ax * lx + ay * ly + az * lz) - 2.5 * wly;
+        }
       }
     }
 
@@ -533,6 +556,7 @@
     c.wx += fx * a + lx * b + ux * d; c.wy += fy * a + ly * b + uy * d; c.wz += fz * a + lz * b + uz * d;
     t = c.wx * c.wx + c.wy * c.wy + c.wz * c.wz;
     s = nW >= 2 ? GROUND_MAX_SPIN : CAR_MAX_SPIN;   // wheels may turn the car faster than air control can (ramps at speed)
+    if (c.autoFlipT > 0 || (c.hullHit && nW < 3)) s = Math.max(s, RECOVER_SPIN);    // rolling back onto the wheels is quick
     if (t > s * s) { t = s / Math.sqrt(t); c.wx *= t; c.wy *= t; c.wz *= t; }
     t = c.vx * c.vx + c.vy * c.vy + c.vz * c.vz;
     if (t > CAR_MAX_SPEED * CAR_MAX_SPEED) { t = CAR_MAX_SPEED / Math.sqrt(t); c.vx *= t; c.vy *= t; c.vz *= t; t = CAR_MAX_SPEED * CAR_MAX_SPEED; }
@@ -949,7 +973,7 @@
 
   // ------------------------------------------------------- binary snapshots
   var CAR_F = ['px', 'py', 'pz', 'vx', 'vy', 'vz', 'qx', 'qy', 'qz', 'qw', 'wx', 'wy', 'wz', 'boost', 'jumpT', 'airT',
-    'flipT', 'flipF', 'flipS', 'hb', 'boostT', 'superT', 'demoT', 'autoFlipT', 'autoFlipDir', 'bumpT'];
+    'flipT', 'flipF', 'flipS', 'hb', 'boostT', 'superT', 'demoT', 'autoFlipT', 'autoFlipDir', 'bumpT', 'restT'];
   var CAR_BYTES = CAR_F.length * 4 + 2 + 5 + 1;
   var BALL_F = ['px', 'py', 'pz', 'vx', 'vy', 'vz', 'wx', 'wy', 'wz'];
   var HEADER_BYTES = 18;
