@@ -1,11 +1,11 @@
 {
   "name": "overboost",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Overboost - browser car-soccer with online matchmaking",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/physics-test.js && node test/bot-test.js && node test/net-test.js"
+    "test": "node test/physics-test.js && node test/bot-test.js && node test/drill-test.js && node test/net-test.js"
   },
   "engines": { "node": ">=18" },
   "dependencies": {

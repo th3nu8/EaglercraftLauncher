@@ -8,7 +8,14 @@
 })(typeof self !== 'undefined' ? self : this, function (S) {
   'use strict';
 
-  var SKILLS = { rookie: 0.25, pro: 0.6, elite: 0.95 };
+  var SKILLS = { novice: 0.1, rookie: 0.25, pro: 0.6, elite: 0.95 };
+  // cosmetics: how many car bodies and trim colours exist (the renderer owns what they look like)
+  var LOOKS = { bodies: 5, trims: 8 };
+  function cleanLook(l) {
+    var b = l && l[0] | 0, t = l && l[1] | 0;
+    return [b >= 0 && b < LOOKS.bodies ? b : 0, t >= 0 && t < LOOKS.trims ? t : 0];
+  }
+  function randomLook(rand) { rand = rand || Math.random; return [(rand() * LOOKS.bodies) | 0, (rand() * LOOKS.trims) | 0]; }
   var NAMES = ['Bolt', 'Nitro', 'Gizmo', 'Piston', 'Sparks', 'Diesel', 'Torque', 'Clutch', 'Axle', 'Rivet', 'Cog', 'Gasket',
     'Throttle', 'Camber', 'Dynamo', 'Ratchet', 'Skid', 'Fender', 'Chassis', 'Hubcap', 'Wrench', 'Slick'];
   var GROUND_Z = 135;     // a ball centre below this can be hit without leaving the ground
@@ -252,5 +259,5 @@
     }
   };
 
-  return { Bot: Bot, SKILLS: SKILLS, NAMES: NAMES };
+  return { Bot: Bot, SKILLS: SKILLS, NAMES: NAMES, LOOKS: LOOKS, cleanLook: cleanLook, randomLook: randomLook };
 });

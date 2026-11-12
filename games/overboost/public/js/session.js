@@ -1,6 +1,6 @@
 // A running game on the client. Online sessions predict the whole world locally and roll back to each
 // server snapshot; offline sessions (bots, free play, menu backdrop) are their own authority.
-const S = window.OBSim, B = window.OBBot;
+const S = window.OBSim, B = window.OBBot, D = window.OBDrill;
 const DT = S.DT;
 
 class Ent {
@@ -23,16 +23,17 @@ const T4 = new Float64Array(4), T4b = new Float64Array(4);
 
 export class Session {
   /**
-   * opts.mode: 'online' | 'bots' | 'freeplay' | 'demo'
+   * opts.mode: 'online' | 'bots' | 'freeplay' | 'drill' | 'demo'
    * online:  opts.net, opts.start (server start message)
-   * bots:    opts.size, opts.skill, opts.minutes, opts.name
+   * bots:    opts.size, opts.skill, opts.minutes, opts.name, opts.look
+   * drill:   opts.kind ('shooter' | 'keeper'), opts.rating (the player's), opts.name, opts.look
    */
   constructor(opts) {
     this.mode = opts.mode; this.net = opts.net || null; this.onEvent = opts.onEvent || (() => {});
     this.acc = 0; this.alpha = 0; this.timeScale = 1; this.depthAvg = 2;
     this.pending = []; this.seq = 0; this.snap = null; this.gotSnap = false; this.depths = [2]; this.depthI = 0;
     this.ev = []; this.out = []; this.ended = false; this.rows = null;
-    this.bots = []; this.tracker = null; this.ranked = false; this.size = 1; this.code = null;
+    this.bots = []; this.tracker = null; this.ranked = false; this.size = 1; this.code = null; this.drill = null;
     const names = B.NAMES.slice().sort(() => Math.random() - 0.5);
 
     if (this.mode === 'online') {
@@ -42,10 +43,15 @@ export class Session {
       for (const p of this.players) S.addCar(this.world, p.team);
       S.startMatch(this.world);
     } else if (this.mode === 'freeplay') {
-      this.players = [{ name: opts.name || 'You', team: 0, bot: false }]; this.me = 0;
+      this.players = [{ name: opts.name || 'You', team: 0, bot: false, look: opts.look }]; this.me = 0;
       this.world = S.createWorld({ mode: 'freeplay', unlimitedBoost: true });
       S.addCar(this.world, 0); S.startMatch(this.world);
       S.placeCar(this.world.cars[0], 0, -2200, Math.PI / 2);
+    } else if (this.mode === 'drill') {
+      this.players = [{ name: opts.name || 'You', team: 0, bot: false, look: opts.look }]; this.me = 0;
+      this.world = S.createWorld({ mode: 'freeplay' });
+      S.addCar(this.world, 0); S.startMatch(this.world);
+      this.drill = { kind: opts.kind === 'keeper' ? 'keeper' : 'shooter', you: opts.rating || D.START, cur: null, state: 'live', t: 0, wait: 0, counted: false, lastOk: false, won: 0, lost: 0 };
     } else {
       const demo = this.mode === 'demo';
       const size = this.size = demo ? 2 : (opts.size || 2);
@@ -53,7 +59,7 @@ export class Session {
       this.world = S.createWorld({ mode: 'match', matchSeconds: demo ? 36000 : (opts.minutes || 5) * 60, seed: (Math.random() * 256) | 0 });
       for (let i = 0; i < size * 2; i++) {
         const team = i % 2, human = !demo && i === 0;
-        this.players.push({ name: human ? (opts.name || 'You') : names[i], team, bot: !human });
+        this.players.push({ name: human ? (opts.name || 'You') : names[i], team, bot: !human, look: human ? opts.look : B.randomLook() });
         S.addCar(this.world, team);
         this.bots.push(human ? null : new B.Bot(demo ? (i < 2 ? 'elite' : 'pro') : (opts.skill || 'pro'), 1 + ((Math.random() * 1e6) | 0)));
       }
@@ -67,6 +73,43 @@ export class Session {
     this.myInput = S.makeInput();
     this.sendBuf = new ArrayBuffer(6 + 12 * S.INPUT_BYTES);
     this.newInputs = [];
+    if (this.drill) this.nextDrill();
+  }
+
+  // ---- training drills
+  startDrill(d) {
+    const dr = this.drill;
+    D.load(this.world, d);
+    dr.cur = d; dr.state = 'live'; dr.t = 0; dr.wait = 0;
+    this.world.score[0] = dr.won; this.world.score[1] = dr.lost;
+    this.capture('cur'); this.capture('prev');
+    this.onEvent({ t: 'drillstart', kind: d.kind, rating: d.rating, time: d.time, you: dr.you, counts: !dr.counted });
+  }
+  // walking away from a live drill that has not been scored yet counts as a miss, so drills cannot be cherry-picked
+  drillAbandon() { const dr = this.drill; if (dr.state === 'live' && !dr.counted && dr.t > 0.3) this.drillResult(false, 'skipped'); }
+  nextDrill() { const dr = this.drill; if (!dr) return; if (dr.cur) this.drillAbandon(); dr.counted = false; this.startDrill(D.pick(dr.kind, dr.you)); }
+  retryDrill() { const dr = this.drill; if (!dr || !dr.cur) return; this.drillAbandon(); this.startDrill(dr.cur); }
+  drillResult(ok, why) {
+    const dr = this.drill; let delta = 0, counted = false;
+    if (!dr.counted) {
+      const r = D.rate(dr.you, dr.cur.rating, ok);
+      delta = r.delta; dr.you = r.rating; dr.counted = counted = true;
+      if (ok) dr.won++; else dr.lost++;
+    }
+    dr.state = 'done'; dr.wait = 1.4; dr.lastOk = ok;
+    this.onEvent({ t: 'drill', ok, why, delta, counted, you: dr.you, rating: dr.cur.rating, kind: dr.cur.kind });
+  }
+  drillTick(ev) {
+    const dr = this.drill, w = this.world, cur = dr.cur;
+    let goal = null;
+    for (let i = 0; i < ev.length; i++) if (ev[i].t === 'goal') goal = ev[i];
+    if (goal) this.onEvent(Object.assign({ drill: true }, goal));
+    if (dr.state === 'live') {
+      if (w.phase !== S.PH_COUNTDOWN) dr.t += DT;
+      if (goal) this.drillResult(cur.kind === 'shooter' ? goal.team === 0 : goal.team !== 1, goal.team === 0 ? 'scored' : 'conceded');
+      else if (dr.t >= cur.time) this.drillResult(cur.kind === 'keeper', 'time');
+    } else if ((dr.wait -= DT) <= 0) { if (dr.lastOk) this.nextDrill(); else this.retryDrill(); }
+    w.score[0] = dr.won; w.score[1] = dr.lost;      // the scoreboard counts drills passed and missed
   }
 
   capture(which) {
@@ -151,7 +194,8 @@ export class Session {
         this.tracker.update(ev, out);
         for (let i = 0; i < out.length; i++) { if (out[i].t === 'end') this.ended = true; this.onEvent(out[i]); }
         if (w.tick % 60 === 0) this.rows = this.tracker.stats.map(s => [s.goals, s.assists, s.saves, s.shots, s.score, s.demos, -1]);
-      } else {
+      } else if (this.drill) this.drillTick(ev);
+      else {
         for (let i = 0; i < ev.length; i++) if (ev[i].t === 'goal') this.onEvent(Object.assign({ scorer: 0, assist: -1, own: false, score: w.score }, ev[i]));
       }
     }

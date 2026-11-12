@@ -28,6 +28,13 @@
   <button id="camtag" type="button">Ball cam on</button>
   <div id="netstat"></div>
   <div id="hint"></div>
+  <div id="ballptr" hidden aria-hidden="true"></div>
+  <div id="drill" hidden>
+    <div class="dr"><span>Drill</span><b id="drill-rate">700</b></div>
+    <div class="dr"><span>You</span><b id="drill-you">700</b><i id="drill-delta"></i></div>
+    <button id="drill-retry" type="button">Retry <kbd>R</kbd></button>
+    <button id="drill-next" type="button">Next <kbd>N</kbd></button>
+  </div>
 
   <div id="board" hidden>
     <table>
@@ -54,6 +61,7 @@
       <button class="plate go" id="pause-resume" type="button">Keep playing</button>
       <button class="plate" id="pause-reset" type="button" hidden>Reset ball</button>
       <button class="plate" id="pause-settings" type="button">Settings</button>
+      <button class="plate" id="pause-full" type="button">Fullscreen</button>
       <button class="plate" id="pause-leave" type="button">Leave match</button>
     </div>
   </div>
@@ -69,13 +77,15 @@
       <button class="plate go" data-go="online" id="btn-online" type="button">Play online</button>
       <button class="plate" data-go="private" id="btn-private" type="button">Private match</button>
       <button class="plate" data-go="bots" type="button">Play bots</button>
-      <button class="plate" id="btn-freeplay" type="button">Free play</button>
+      <button class="plate" data-go="training" type="button">Training</button>
+      <button class="plate" data-go="garage" type="button">Customize</button>
     </div>
     <p id="netline" class="quiet">Connecting to the game server…</p>
     <nav class="links">
       <button data-go="leaderboard" type="button">Leaderboard</button>
       <button data-go="settings" type="button">Settings</button>
       <button data-go="controls" type="button">Controls</button>
+      <button id="btn-full" type="button">Fullscreen</button>
     </nav>
   </section>
 
@@ -86,6 +96,30 @@
       <button class="plate big" data-queue="1" type="button"><b>1v1</b><span id="r1">Duel</span></button>
       <button class="plate big" data-queue="2" type="button"><b>2v2</b><span id="r2">Doubles</span></button>
       <button class="plate big" data-queue="3" type="button"><b>3v3</b><span id="r3">Standard</span></button>
+    </div>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="training" hidden>
+    <h2>Training</h2>
+    <p class="quiet">Just you and the ball. Drills get harder as your rating climbs, and each one only counts the first time you try it.</p>
+    <div class="sizes">
+      <button class="plate big" id="btn-freeplay" type="button"><b>Free</b><span>Open pitch, endless boost</span></button>
+      <button class="plate big" data-drill="shooter" type="button"><b>Shoot</b><span id="dr-shooter">Score before time runs out</span></button>
+      <button class="plate big" data-drill="keeper" type="button"><b>Save</b><span id="dr-keeper">Keep the shot out</span></button>
+    </div>
+    <button class="back" data-go="home" type="button">Back</button>
+  </section>
+
+  <section class="view" data-view="garage" hidden>
+    <h2>Customize</h2>
+    <p class="quiet">Pick a body and a trim colour. Every body drives the same and has the same hitbox, and your paint is always your team's colour.</p>
+    <h3>Body</h3>
+    <div class="chips" id="garage-bodies"></div>
+    <h3>Trim</h3>
+    <div class="swatches" id="garage-trims"></div>
+    <div class="tabs" id="garage-team">
+      <button data-gteam="0" type="button" class="on">Show as Tide</button><button data-gteam="1" type="button">Show as Flare</button>
     </div>
     <button class="back" data-go="home" type="button">Back</button>
   </section>
@@ -118,8 +152,8 @@
       <div class="team flare"><h3>Flare</h3><ul id="lobby-t1"></ul><button class="mini" data-team="1" type="button">Join Flare</button></div>
     </div>
     <div id="lobby-config" class="opts">
-      <label>Team size <select id="lobby-size"><option value="1">1v1</option><option value="2">2v2</option><option value="3">3v3</option></select></label>
-      <label>Empty seats <select id="lobby-bots"><option value="none">Stay empty</option><option value="rookie">Rookie bots</option><option value="pro">Pro bots</option><option value="elite">Elite bots</option></select></label>
+      <label>Team size <select id="lobby-size"><option value="1">1v1</option><option value="2">2v2</option><option value="3">3v3</option><option value="4">4v4</option></select></label>
+      <label>Empty seats <select id="lobby-bots"><option value="none">Stay empty</option><option value="novice">Novice bots</option><option value="rookie">Rookie bots</option><option value="pro">Pro bots</option><option value="elite">Elite bots</option></select></label>
       <label>Match length <select id="lobby-min"><option value="3">3 min</option><option value="5">5 min</option><option value="10">10 min</option></select></label>
     </div>
     <div class="stack">
@@ -133,8 +167,8 @@
     <h2>Play bots</h2>
     <p class="quiet">Runs on your device. No connection needed and it does not affect your rating.</p>
     <div class="opts">
-      <label>Team size <select id="bots-size"><option value="1">1v1</option><option value="2" selected>2v2</option><option value="3">3v3</option></select></label>
-      <label>Bot skill <select id="bots-skill"><option value="rookie">Rookie</option><option value="pro" selected>Pro</option><option value="elite">Elite</option></select></label>
+      <label>Team size <select id="bots-size"><option value="1">1v1</option><option value="2" selected>2v2</option><option value="3">3v3</option><option value="4">4v4</option></select></label>
+      <label>Bot skill <select id="bots-skill"><option value="novice">Novice</option><option value="rookie">Rookie</option><option value="pro" selected>Pro</option><option value="elite">Elite</option></select></label>
       <label>Match length <select id="bots-min"><option value="3">3 min</option><option value="5" selected>5 min</option><option value="10">10 min</option></select></label>
     </div>
     <div class="stack"><button class="plate go" id="bots-start" type="button">Start match</button></div>
@@ -155,8 +189,11 @@
     <div class="scroll">
       <div class="opts">
         <label>Name <input id="set-name" maxlength="16" autocomplete="off" spellcheck="false"></label>
-        <label>Sound <input id="set-volume" type="range" min="0" max="100" step="1"></label>
+        <label>Master volume <input id="set-volume" type="range" min="0" max="100" step="1"></label>
+        <label>Effects volume <input id="set-sfx" type="range" min="0" max="100" step="1"></label>
+        <label>Crowd volume <input id="set-crowd" type="range" min="0" max="100" step="1"></label>
         <label>Graphics <select id="set-quality"><option value="high">Sharp</option><option value="low">Fast</option></select></label>
+        <label>Show FPS <select id="set-fps"><option value="on">On</option><option value="off">Off</option></select></label>
         <label>Field of view <input id="set-fov" type="range" min="70" max="120" step="1"><output></output></label>
         <label>Camera distance <input id="set-dist" type="range" min="180" max="420" step="5"><output></output></label>
         <label>Camera height <input id="set-height" type="range" min="60" max="220" step="5"><output></output></label>
@@ -183,6 +220,7 @@
         <li>Hold slide while turning to swing the back end round without losing speed.</li>
         <li>Small pads give 12 boost, the six big ones fill the tank. Above 80 km/h you can demolish opponents.</li>
         <li>You can drive up the walls. Jump off them to reach high balls.</li>
+        <li>In training drills, R serves the same ball again and N moves on to a new one.</li>
       </ul>
     </div>
     <button class="back" data-go="home" type="button">Back</button>
@@ -208,6 +246,7 @@
 
 <script src="shared/sim.js"></script>
 <script src="shared/bot.js"></script>
+<script src="shared/drills.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

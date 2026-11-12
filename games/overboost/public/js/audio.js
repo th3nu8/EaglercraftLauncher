@@ -1,6 +1,6 @@
 // Small synthesised sound set (no audio files): engine, boost, hits, pads, countdown, goal.
 export class Sfx {
-  constructor() { this.ctx = null; this.vol = 0.6; this.engineOn = false; }
+  constructor() { this.ctx = null; this.vol = 0.6; this.fxVol = 1; this.crowdVol = 0.7; this.engineOn = false; this.crowdOn = false; }
 
   unlock() {
     if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
@@ -8,7 +8,8 @@ export class Sfx {
     if (!AC) return;
     try {
       const c = this.ctx = new AC();
-      this.master = c.createGain(); this.master.gain.value = this.vol; this.master.connect(c.destination);
+      this.out = c.createGain(); this.out.gain.value = this.vol; this.out.connect(c.destination);
+      this.master = c.createGain(); this.master.gain.value = this.fxVol; this.master.connect(this.out);     // every effect below plays into this
       const len = c.sampleRate, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.noise = buf;
@@ -23,9 +24,28 @@ export class Sfx {
       this.bg = c.createGain(); this.bg.gain.value = 0;
       const bf = c.createBiquadFilter(); bf.type = 'bandpass'; bf.frequency.value = 1100; bf.Q.value = 0.6;
       const bs = c.createBufferSource(); bs.buffer = buf; bs.loop = true; bs.connect(bf); bf.connect(this.bg); this.bg.connect(this.master); bs.start();
+      // crowd: a bed of filtered noise that swells when something happens
+      this.cv = c.createGain(); this.cv.gain.value = this.crowdVol; this.cv.connect(this.out);
+      this.cg = c.createGain(); this.cg.gain.value = 0;
+      const cf = c.createBiquadFilter(); cf.type = 'bandpass'; cf.frequency.value = 520; cf.Q.value = 0.35;
+      const cf2 = c.createBiquadFilter(); cf2.type = 'lowpass'; cf2.frequency.value = 1700;
+      const cs = c.createBufferSource(); cs.buffer = buf; cs.loop = true; cs.playbackRate.value = 0.7;
+      cs.connect(cf); cf.connect(cf2); cf2.connect(this.cg); this.cg.connect(this.cv); cs.start();
     } catch (e) { this.ctx = null; }
   }
-  setVolume(v) { this.vol = v; if (this.master) this.master.gain.value = v; }
+  setVolume(v) { this.vol = v; if (this.out) this.out.gain.value = v; }
+  setEffects(v) { this.fxVol = v; if (this.master) this.master.gain.value = v; }
+  setCrowdVolume(v) { this.crowdVol = v; if (this.cv) this.cv.gain.value = v; }
+  // the stands are only full for matches
+  crowd(on) {
+    this.crowdOn = on;
+    if (this.ctx) { const t = this.ctx.currentTime; this.cg.gain.cancelScheduledValues(t); this.cg.gain.setTargetAtTime(on ? 0.035 : 0, t, 0.4); }
+  }
+  cheer(k) {
+    if (!this.ctx || !this.crowdOn) return;
+    const t = this.ctx.currentTime, g = this.cg.gain;
+    g.cancelScheduledValues(t); g.setTargetAtTime(0.035 + 0.3 * k, t, 0.09); g.setTargetAtTime(0.035, t + 0.5 + k, 0.9 + k);
+  }
 
   engine(speed, throttle, boosting, active) {
     if (!this.ctx) return;

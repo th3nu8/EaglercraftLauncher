@@ -6,12 +6,13 @@ export const ACTIONS = [
   ['left', 'Steer left'], ['right', 'Steer right'],
   ['jump', 'Jump, press again to flip'], ['boost', 'Boost'], ['slide', 'Slide, air roll while held'],
   ['rollLeft', 'Air roll left'], ['rollRight', 'Air roll right'],
-  ['ballCam', 'Ball cam on and off'], ['scoreboard', 'Scoreboard'], ['resetBall', 'Reset ball in free play']
+  ['ballCam', 'Ball cam on and off'], ['scoreboard', 'Scoreboard'], ['resetBall', 'Reset ball in free play, retry a drill'],
+  ['nextDrill', 'Next drill in training']
 ];
 const DEFAULTS = {
   forward: ['KeyW', 'ArrowUp'], back: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
   jump: ['Space', 'Mouse2'], boost: ['Mouse0', 'KeyX'], slide: ['ShiftLeft', 'ShiftRight'],
-  rollLeft: ['KeyQ'], rollRight: ['KeyE'], ballCam: ['KeyC'], scoreboard: ['Tab'], resetBall: ['KeyR']
+  rollLeft: ['KeyQ'], rollRight: ['KeyE'], ballCam: ['KeyC'], scoreboard: ['Tab'], resetBall: ['KeyR'], nextDrill: ['KeyN']
 };
 export const GAMEPAD_HELP = [
   ['Left stick', 'Steer, pitch and flip direction'], ['Right trigger', 'Accelerate'], ['Left trigger', 'Brake and reverse'],
@@ -38,7 +39,7 @@ export class Input {
     this.active = false;           // true while a match has focus
     this.down = new Set();
     this.binds = Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), store('ob.binds') || {});
-    this.on = { ballCam() {}, pause() {}, chat() {}, reset() {}, any() {} };
+    this.on = { ballCam() {}, pause() {}, chat() {}, reset() {}, next() {}, any() {} };
     this.state = S.makeInput();
     this.scoreboard = false;
     this.touchMode = 'auto'; this.touchSeen = false;
@@ -67,6 +68,7 @@ export class Input {
     if (isDown && !e.repeat) {
       if (this.binds.ballCam.includes(e.code)) this.on.ballCam();
       if (this.binds.resetBall.includes(e.code)) this.on.reset(e.shiftKey);
+      if (this.binds.nextDrill.includes(e.code)) this.on.next();
       if (/^Digit[1-8]$/.test(e.code)) this.on.chat(+e.code[5] - 1);
     }
     if (isDown) this.down.add(e.code); else this.down.delete(e.code);

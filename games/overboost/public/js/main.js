@@ -1,10 +1,10 @@
 // App shell: menus, networking, HUD and the frame loop.
-import { Renderer, TEAM_NAME } from './render.js';
+import { Renderer, TEAM_NAME, BODIES, TRIMS } from './render.js';
 import { Session } from './session.js';
 import { Input, ACTIONS, GAMEPAD_HELP, TOUCH_HELP, keyLabel } from './input.js';
 import { Sfx } from './audio.js';
 
-const S = window.OBSim;
+const S = window.OBSim, B = window.OBBot, D = window.OBDrill;
 const PROTOCOL = 1;
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -27,15 +27,17 @@ if (!pid || !/^[A-Za-z0-9_-]{16,64}$/.test(pid)) {
 }
 let myName = store.get('ob.name', '') || 'Player' + (1000 + Math.floor(Math.random() * 9000));
 store.set('ob.name', myName);
-const settings = Object.assign({ volume: 60, quality: 'high', fov: 100, dist: 280, height: 110, angle: -4, stiff: 50, touch: 'auto', ballCam: true }, store.get('ob.settings', {}));
+const settings = Object.assign({ volume: 60, sfx: 100, crowd: 70, fps: true, quality: 'high', fov: 100, dist: 280, height: 110, angle: -4, stiff: 50, touch: 'auto', ballCam: true }, store.get('ob.settings', {}));
 const saveSettings = () => store.set('ob.settings', settings);
+let myLook = B.cleanLook(store.get('ob.look', [0, 0]));                 // [body, trim]
+const drillRatings = Object.assign({ shooter: D.START, keeper: D.START }, store.get('ob.drills', {}));
 
 // ------------------------------------------------------------------ core objects
 const renderer = new Renderer($('view'));
 const input = new Input($('view'));
 const sfx = new Sfx();
 renderer.setQuality(settings.quality);
-sfx.setVolume(settings.volume / 100);
+sfx.setVolume(settings.volume / 100); sfx.setEffects(settings.sfx / 100); sfx.setCrowdVolume(settings.crowd / 100);
 input.setTouchMode(settings.touch);
 
 let demo = null;            // bots playing behind the menu
@@ -63,7 +65,7 @@ class Net {
     let ws;
     try { ws = this.ws = new WebSocket(url); } catch (e) { return setOffline(); }
     ws.binaryType = 'arraybuffer';
-    ws.onopen = () => { this.open = true; this.everOpen = true; this.tries = 0; this.send({ t: 'hello', v: PROTOCOL, pid, name: myName }); };
+    ws.onopen = () => { this.open = true; this.everOpen = true; this.tries = 0; this.send({ t: 'hello', v: PROTOCOL, pid, name: myName, look: myLook }); };
     ws.onmessage = e => {
       if (typeof e.data === 'string') { let m; try { m = JSON.parse(e.data); } catch (err) { return; } onServer(m); }
       else if (game && game.mode === 'online') game.onSnapshot(new DataView(e.data));
@@ -95,6 +97,7 @@ function onDisconnect() {
   if (view === 'queue' || view === 'lobby' || view === 'online' || view === 'private') show('home');
   lobby = null;
 }
+const offlineOpts = () => ({ name: myName, look: myLook, onEvent: e => onGameEvent(e, true) });
 
 function onServer(m) {
   switch (m.t) {
@@ -142,6 +145,8 @@ function show(name) {
   if (name === 'leaderboard') loadLeaderboard(lbSize);
   if (name === 'controls') renderKeys();
   if (name === 'settings') renderSettings();
+  if (name === 'garage') renderGarage();
+  if (name === 'training') for (const k of D.KINDS) $('dr-' + k).textContent = `${D.tier(drillRatings[k])}, rating ${Math.round(drillRatings[k])}`;
 }
 function toast(msg) {
   const t = $('toast'); t.textContent = msg; t.hidden = false;
@@ -151,12 +156,41 @@ function toast(msg) {
 document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => show(b.dataset.go)));
 document.querySelectorAll('[data-queue]').forEach(b => b.addEventListener('click', () => { lastQueueSize = +b.dataset.queue; net.send({ t: 'queue', size: lastQueueSize }); }));
 $('queue-cancel').addEventListener('click', () => { net.send({ t: 'cancel' }); show('home'); });
-$('btn-freeplay').addEventListener('click', () => startGame(new Session({ mode: 'freeplay', name: myName, onEvent: e => onGameEvent(e, true) })));
+$('btn-freeplay').addEventListener('click', () => startGame(new Session(Object.assign({ mode: 'freeplay' }, offlineOpts()))));
+document.querySelectorAll('[data-drill]').forEach(b => b.addEventListener('click', () => {
+  const kind = b.dataset.drill;
+  startGame(new Session(Object.assign({ mode: 'drill', kind, rating: drillRatings[kind] }, offlineOpts())));
+}));
 $('bots-start').addEventListener('click', () => {
   lastBots = { size: +$('bots-size').value, skill: $('bots-skill').value, minutes: +$('bots-min').value };
   startBots();
 });
-function startBots() { startGame(new Session(Object.assign({ mode: 'bots', name: myName, onEvent: e => onGameEvent(e, true) }, lastBots))); }
+function startBots() { startGame(new Session(Object.assign({ mode: 'bots' }, offlineOpts(), lastBots))); }
+
+// garage
+let garageTeam = 0;
+function renderGarage() {
+  $('garage-bodies').innerHTML = BODIES.map((n, i) => `<button type="button" data-body="${i}" class="${i === myLook[0] ? 'on' : ''}" aria-pressed="${i === myLook[0]}">${n}</button>`).join('');
+  $('garage-trims').innerHTML = TRIMS.map(([n, hex], i) => `<button type="button" data-trim="${i}" class="${i === myLook[1] ? 'on' : ''}" aria-pressed="${i === myLook[1]}" aria-label="${n}" title="${n}" style="--sw:#${hex.toString(16).padStart(6, '0')}"></button>`).join('');
+  document.querySelectorAll('[data-gteam]').forEach(b => b.classList.toggle('on', +b.dataset.gteam === garageTeam));
+}
+function setLook(body, trim) {
+  myLook = B.cleanLook([body, trim]); store.set('ob.look', myLook);
+  net.send({ t: 'look', look: myLook });
+  renderGarage();
+}
+$('garage-bodies').addEventListener('click', e => { const b = e.target.closest('[data-body]'); if (b) setLook(+b.dataset.body, myLook[1]); });
+$('garage-trims').addEventListener('click', e => { const b = e.target.closest('[data-trim]'); if (b) setLook(myLook[0], +b.dataset.trim); });
+$('garage-team').addEventListener('click', e => { const b = e.target.closest('[data-gteam]'); if (b) { garageTeam = +b.dataset.gteam; renderGarage(); } });
+
+// fullscreen
+function toggleFullscreen() {
+  const d = document, el = d.documentElement;
+  if (d.fullscreenElement || d.webkitFullscreenElement) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+  else { const p = (el.requestFullscreen || el.webkitRequestFullscreen || (() => {})).call(el); if (p && p.catch) p.catch(() => toast('This browser would not go fullscreen.')); }
+}
+$('btn-full').addEventListener('click', toggleFullscreen);
+$('pause-full').addEventListener('click', toggleFullscreen);
 
 // private lobby
 $('lobby-create').addEventListener('click', () => net.send({ t: 'create', size: 2, bots: 'pro', minutes: 5 }));
@@ -202,11 +236,15 @@ function loadLeaderboard(size) {
 const RANGES = [['set-fov', 'fov', '°'], ['set-dist', 'dist', ''], ['set-height', 'height', ''], ['set-angle', 'angle', '°'], ['set-stiff', 'stiff', '%']];
 function renderSettings() {
   $('set-name').value = myName; $('set-volume').value = settings.volume; $('set-quality').value = settings.quality; $('set-touch').value = settings.touch;
+  $('set-sfx').value = settings.sfx; $('set-crowd').value = settings.crowd; $('set-fps').value = settings.fps ? 'on' : 'off';
   for (const [id, key, unit] of RANGES) { $(id).value = settings[key]; $(id).nextElementSibling.textContent = settings[key] + unit; }
   renderBinds();
 }
 for (const [id, key, unit] of RANGES) $(id).addEventListener('input', () => { settings[key] = +$(id).value; $(id).nextElementSibling.textContent = settings[key] + unit; saveSettings(); });
 $('set-volume').addEventListener('input', () => { settings.volume = +$('set-volume').value; sfx.setVolume(settings.volume / 100); saveSettings(); });
+$('set-sfx').addEventListener('input', () => { settings.sfx = +$('set-sfx').value; sfx.setEffects(settings.sfx / 100); saveSettings(); });
+$('set-crowd').addEventListener('input', () => { settings.crowd = +$('set-crowd').value; sfx.setCrowdVolume(settings.crowd / 100); saveSettings(); });
+$('set-fps').addEventListener('change', () => { settings.fps = $('set-fps').value === 'on'; saveSettings(); });
 $('set-quality').addEventListener('change', () => { settings.quality = $('set-quality').value; renderer.setQuality(settings.quality); autoQuality = false; saveSettings(); });
 $('set-touch').addEventListener('change', () => { settings.touch = $('set-touch').value; input.setTouchMode(settings.touch); saveSettings(); });
 $('set-name').addEventListener('change', () => {
@@ -239,18 +277,23 @@ function startGame(session) {
   $('feed').innerHTML = ''; $('chatpick').hidden = true;
   $('pause-reset').hidden = game.mode !== 'freeplay';
   $('pause-note').textContent = game.mode === 'online' ? 'The match keeps running while this is open.' : 'Paused. Nothing moves until you come back.';
+  $('pause-leave').textContent = game.mode === 'freeplay' || game.mode === 'drill' ? 'Leave training' : 'Leave match';
   input.active = true; lastCount = -1; hud.score = [-1, -1];
   buildTags();
   setBallCam(settings.ballCam);
-  sfx.unlock();
-  const free = game.mode === 'freeplay';
-  hint(input.touchOn ? '' : (free ? 'Free play: R resets the ball, Shift+R lobs it to you. Boost never runs out here.' : 'WASD to drive, Space to jump, click or X to boost, Shift to slide, C for ball cam.'), 9000);
+  sfx.unlock(); sfx.crowd(game.mode === 'online' || game.mode === 'bots');
+  const free = game.mode === 'freeplay', dr = game.drill;
+  $('drill').hidden = !dr; $('hud').classList.toggle('drill', !!dr);
+  if (dr) drillHud(dr.cur.rating, dr.you, 0);
+  hint(input.touchOn ? '' : (free ? 'Free play: R resets the ball, Shift+R lobs it to you. Boost never runs out here.'
+    : dr ? (dr.kind === 'keeper' ? 'Keep the ball out of your net until the clock runs down.' : 'Put the ball in the net before the clock runs down.') + ' R serves it again, N moves on. Giving up on a fresh drill counts as a miss.'
+    : 'WASD to drive, Space to jump, click or X to boost, Shift to slide, C for ball cam.'), 9000);
   checkRotate();
 }
 function leaveGame(toView) {
   if (game && game.mode === 'online' && !game.ended) net.send({ t: 'leave' });
   game = null; paused = false; input.active = false; input.down.clear();
-  $('hud').hidden = true; sfx.engine(0, 0, false, false);
+  $('hud').hidden = true; sfx.engine(0, 0, false, false); sfx.crowd(false);
   renderer.setPlayers(demo.players);
   show(toView || 'home');
   checkRotate();
@@ -261,13 +304,13 @@ function setPaused(p) {
 }
 $('pause-resume').addEventListener('click', () => setPaused(false));
 $('pause-reset').addEventListener('click', () => { game.resetBall(false); setPaused(false); });
-$('pause-leave').addEventListener('click', () => leaveGame(lobby ? 'lobby' : 'home'));
+$('pause-leave').addEventListener('click', () => leaveGame(lobby ? 'lobby' : (game && (game.drill || game.mode === 'freeplay') ? 'training' : 'home')));
 $('pause-settings').addEventListener('click', () => { $('pause').hidden = true; settingsFrom = 'pause'; show('settings'); });
 document.querySelector('[data-go="settings"]').addEventListener('click', () => { settingsFrom = 'home'; });
 
 function showEnd() {
   const r = endInfo, me = game.me, myTeam = me >= 0 ? game.players[me].team : -1;
-  $('hud').hidden = true; input.active = false; sfx.engine(0, 0, false, false);
+  $('hud').hidden = true; input.active = false; sfx.engine(0, 0, false, false); sfx.crowd(false);
   $('end-title').textContent = myTeam < 0 ? `${TEAM_NAME[r.winner]} win` : (myTeam === r.winner ? 'You won' : 'You lost');
   $('end-score').textContent = `${r.score[0]} – ${r.score[1]}`;
   let note;
@@ -313,9 +356,10 @@ function count(text) { const c = $('count'); c.textContent = text; c.hidden = fa
 function onGameEvent(e, isGame) {
   const sess = isGame ? game : demo;
   if (!sess || (isGame && !game)) return;
+  if (!isGame && camOpts.showroom) return;        // nothing from the backdrop match while the garage is open
   const me = sess.me, w = sess.world;
   switch (e.t) {
-    case 'touch': { const k = Math.min(1, e.speed / 3200); renderer.hitSpark(w.ball.px, w.ball.py, w.ball.pz, k); if (isGame) sfx.hit(k * (e.car === me ? 1 : 0.6)); break; }
+    case 'touch': { const k = Math.min(1, e.speed / 3200); renderer.hitSpark(w.ball.px, w.ball.py, w.ball.pz, k); if (isGame) { sfx.hit(k * (e.car === me ? 1 : 0.6)); if (k > 0.55) sfx.cheer(0.15); } break; }
     case 'bounce': if (isGame) sfx.bounce(Math.min(1, e.speed / 2500)); break;
     case 'jump': if (isGame && e.car === me) sfx.jump(); break;
     case 'flip': if (isGame && e.car === me) sfx.flip(); break;
@@ -328,13 +372,26 @@ function onGameEvent(e, isGame) {
     case 'goal': {
       renderer.goalBlast(e.x, e.y, e.z, e.team);
       if (!isGame) break;
-      sfx.goal();
+      sfx.goal(); sfx.cheer(1);
+      if (e.drill) break;                       // the drill result says what happened
       const kmh = Math.round(e.speed * 0.036);
       const who = e.scorer >= 0 && !e.own ? `${nameOf(e.scorer)} scored` : `Own goal, ${TEAM_NAME[e.team]} score`;
       banner(who, `${kmh} km/h` + (e.assist >= 0 ? `, assist by ${nameOf(e.assist)}` : ''), e.team, 2900);
       break;
     }
-    case 'save': if (isGame) feed(`<b>${esc(nameOf(e.car))}</b> made a save`, game.players[e.car].team); break;
+    case 'save': if (isGame) { feed(`<b>${esc(nameOf(e.car))}</b> made a save`, game.players[e.car].team); sfx.cheer(0.5); } break;
+    case 'drillstart': if (isGame) { drillHud(e.rating, e.you, 0); $('banner').hidden = true; } break;
+    case 'drill': {
+      if (!isGame) break;
+      drillRatings[e.kind] = e.you; store.set('ob.drills', drillRatings);
+      drillHud(e.rating, e.you, e.counted ? e.delta : 0);
+      const keeper = e.kind === 'keeper';
+      const title = e.why === 'skipped' ? 'Skipped' : (e.ok ? (keeper ? 'Saved' : 'Scored') : (e.why === 'time' ? 'Out of time' : (keeper ? 'It went in' : 'Wrong net')));
+      const sub = e.counted ? `Rating ${e.delta >= 0 ? '+' : ''}${e.delta}, now ${Math.round(e.you)}` : (e.ok ? 'Already counted, on to the next one' : 'Already counted, try it again');
+      banner(title, sub, e.ok ? 0 : 1, 1300);
+      if (e.ok) sfx.end(); else sfx.bump();
+      break;
+    }
     case 'go': if (isGame) { count('Go'); sfx.beep(true); } break;
     case 'kickoff': if (isGame) $('banner').hidden = true; break;
     case 'overtime': if (isGame) { $('ot').hidden = false; banner('Overtime', 'Next goal wins', -1, 2500); } break;
@@ -360,7 +417,8 @@ function onGameEvent(e, isGame) {
 // ------------------------------------------------------------------ HUD
 const hud = { score: [-1, -1], clock: '', boost: -1, speed: -1, board: 0, net: 0 };
 let lastCount = -1, tags = [], ballCam = true;
-const proj = { x: 0, y: 0, ok: false };
+const proj = { x: 0, y: 0, ok: false }, aim = { dx: 0, dy: 0 };
+let fps = 60, fpsN = 0, fpsT = 0;
 
 function buildTags() {
   const el = $('tags'); el.innerHTML = ''; tags = [];
@@ -369,6 +427,12 @@ function buildTags() {
     const s = document.createElement('span'); s.className = TEAM_CLASS[p.team]; s.textContent = p.name; s.hidden = true; el.appendChild(s); tags.push(s);
   });
 }
+function drillHud(rating, you, delta) {
+  $('drill-rate').textContent = Math.round(rating); $('drill-you').textContent = Math.round(you);
+  const d = $('drill-delta'); d.textContent = delta ? (delta > 0 ? '+' : '') + delta : ''; d.className = delta > 0 ? 'up' : 'down';
+}
+$('drill-retry').addEventListener('click', () => { if (game && game.drill) game.retryDrill(); });
+$('drill-next').addEventListener('click', () => { if (game && game.drill) game.nextDrill(); });
 function setBallCam(on) {
   ballCam = on; settings.ballCam = on; saveSettings();
   $('camtag').textContent = on ? 'Ball cam on' : 'Ball cam off';
@@ -391,16 +455,18 @@ input.on.pause = () => {
   else if (!game && view !== 'home' && view !== 'queue' && view !== 'lobby') show('home');
 };
 input.on.chat = i => { if (game && !paused && !game.ended) sendChat(i); };
-input.on.reset = toss => { if (game && game.mode === 'freeplay') game.resetBall(toss); };
+input.on.reset = toss => { if (!game || paused) return; if (game.mode === 'freeplay') game.resetBall(toss); else if (game.drill) game.retryDrill(); };
+input.on.next = () => { if (game && game.drill && !paused) game.nextDrill(); };
 input.on.any = () => sfx.unlock();
 
 function hudFrame() {
   const w = game.world, me = game.me, c = me >= 0 ? w.cars[me] : null;
   if (w.score[0] !== hud.score[0]) { hud.score[0] = w.score[0]; $('score0').textContent = w.score[0]; }
   if (w.score[1] !== hud.score[1]) { hud.score[1] = w.score[1]; $('score1').textContent = w.score[1]; }
-  const free = game.mode === 'freeplay';
-  const clk = free ? 'Free' : (w.overtime ? '+' + fmtClock(Math.floor(w.clock)) : fmtClock(w.clock));
-  if (clk !== hud.clock) { hud.clock = clk; $('clock').textContent = clk; $('clock').classList.toggle('late', !free && !w.overtime && w.clock <= 30); }
+  const free = game.mode === 'freeplay', dr = game.drill;
+  const left = dr ? Math.max(0, dr.cur.time - dr.t) : 0;
+  const clk = dr ? left.toFixed(1) : (free ? 'Free' : (w.overtime ? '+' + fmtClock(Math.floor(w.clock)) : fmtClock(w.clock)));
+  if (clk !== hud.clock) { hud.clock = clk; $('clock').textContent = clk; $('clock').classList.toggle('late', dr ? left <= 2 : (!free && !w.overtime && w.clock <= 30)); }
   if (w.phase === S.PH_COUNTDOWN) {
     const n = Math.ceil(w.phaseT);
     if (n !== lastCount && n > 0 && n <= 3) { lastCount = n; count(String(n)); sfx.beep(false); }
@@ -422,6 +488,16 @@ function hudFrame() {
     if (vis) t.style.transform = `translate(${proj.x.toFixed(1)}px, ${proj.y.toFixed(1)}px) translate(-50%, -100%)`;
     if (t.hidden === vis) t.hidden = !vis;
   }
+  // arrow at the edge of the screen when the ball is out of view
+  const bo = game.ballEnt.out, ptr = $('ballptr');
+  let lost = false;
+  if (w.ballOn && c && c.demoT <= 0) { renderer.project(bo[0], bo[1], bo[2], proj); lost = !proj.ok; }
+  if (lost) {
+    renderer.pointer(bo[0], bo[1], bo[2], aim);
+    const rx = innerWidth / 2 - 54, ry = innerHeight / 2 - 54, k = Math.min(rx / (Math.abs(aim.dx) || 1e-6), ry / (Math.abs(aim.dy) || 1e-6));
+    ptr.style.transform = `translate(${(innerWidth / 2 + aim.dx * k).toFixed(1)}px, ${(innerHeight / 2 + aim.dy * k).toFixed(1)}px) translate(-50%, -50%) rotate(${Math.atan2(aim.dy, aim.dx).toFixed(3)}rad)`;
+  }
+  if (ptr.hidden === lost) ptr.hidden = !lost;
   // scoreboard
   const showBoard = input.scoreboard && !paused;
   if (showBoard !== !$('board').hidden) $('board').hidden = !showBoard;
@@ -434,7 +510,10 @@ function hudFrame() {
   }
   if (now - hud.net > 500) {
     hud.net = now;
-    $('netstat').textContent = game.mode === 'online' ? `${Math.round(net.rtt)} ms${game.ranked ? ', ranked' : ''}${game.code ? ', lobby ' + game.code : ''}` : '';
+    const bits = [];
+    if (settings.fps) bits.push(fps + ' fps');
+    if (game.mode === 'online') bits.push(`${Math.round(net.rtt)} ms${game.ranked ? ', ranked' : ''}${game.code ? ', lobby ' + game.code : ''}`);
+    $('netstat').textContent = bits.join(' · ');
   }
 }
 
@@ -442,7 +521,8 @@ function checkRotate() { $('rotate').hidden = !(game && !game.ended && input.tou
 addEventListener('resize', checkRotate);
 
 // ------------------------------------------------------------------ frame loop
-const camOpts = { ballCam: true, cam: settings };
+const camOpts = { ballCam: true, cam: settings, showroom: null };
+const garage = { team: 0, look: myLook, shift: 0 };
 let last = performance.now(), slow = 0, autoQuality = !store.get('ob.settings', null);
 function frame(now) {
   requestAnimationFrame(frame);
@@ -451,7 +531,13 @@ function frame(now) {
   const sess = game || demo;
   if (!(game && paused && game.mode !== 'online')) sess.update(sess.mode === 'online' ? real : dt, inp);
   camOpts.ballCam = ballCam;
+  if (!game && view === 'garage' && !$('menu').hidden) {
+    const wide = innerWidth > 640 || innerWidth > innerHeight;       // on a tall phone the menu sits on top instead of beside
+    garage.team = garageTeam; garage.look = myLook; garage.shift = wide ? ($('menu').offsetWidth - 70) / 2 : 0;
+    camOpts.showroom = garage;
+  } else camOpts.showroom = null;
   renderer.frame(sess, dt, camOpts);
+  fpsN++; fpsT += real; if (fpsT >= 0.5) { fps = Math.round(fpsN / fpsT); fpsN = 0; fpsT = 0; }
   if (game && !$('hud').hidden) hudFrame();
   // drop to fast graphics once if the device is struggling
   if (autoQuality && settings.quality === 'high') {

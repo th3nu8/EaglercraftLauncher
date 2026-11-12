@@ -9,7 +9,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
 const S = require('./public/shared/sim.js');
-const { Bot, NAMES } = require('./public/shared/bot.js');
+const { Bot, NAMES, SKILLS, cleanLook, randomLook } = require('./public/shared/bot.js');
 
 const PORT = +process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -55,7 +55,7 @@ function getProfile(pid, name) {
   return p;
 }
 function publicProfile(p) {
-  return { name: p.name, mmr: p.mmr, games: p.games, wins: p.wins, losses: p.losses, goals: p.goals, assists: p.assists, saves: p.saves };
+  return { name: p.name, mmr: p.mmr, games: p.games, wins: p.wins, losses: p.losses, goals: p.goals, assists: p.assists, saves: p.saves, look: cleanLook(p.look) };
 }
 function leaderboard(size) {
   const k = size - 1, rows = [];
@@ -172,6 +172,7 @@ function onMessage(c, m) {
     }
     c.pid = pid; c.profile = getProfile(pid, m.name); c.state = 'menu';
     if (m.name && cleanName(m.name) !== c.profile.name) { c.profile.name = cleanName(m.name); profilesDirty = true; }
+    if (Array.isArray(m.look)) { c.profile.look = cleanLook(m.look); profilesDirty = true; }
     send(c, { t: 'welcome', you: publicProfile(c.profile), online: clients.size, botFill: BOT_FILL_SECONDS });
     const rj = rejoin.get(pid);
     if (rj && rj.room.state === 'play' && rooms.has(rj.room)) rj.room.reattach(c, rj.slot);
@@ -183,6 +184,9 @@ function onMessage(c, m) {
       c.profile.name = cleanName(m.name); profilesDirty = true;
       send(c, { t: 'profile', you: publicProfile(c.profile) });
       if (c.room && c.room.state === 'lobby') c.room.sendLobby();
+      break;
+    case 'look':       // car body and trim colour, shown to everyone in your matches
+      if (Array.isArray(m.look)) { c.profile.look = cleanLook(m.look); profilesDirty = true; }
       break;
     case 'queue': {
       if (c.state !== 'menu') return;
@@ -197,7 +201,7 @@ function onMessage(c, m) {
       break;
     case 'create': {
       if (c.state !== 'menu') return;
-      const room = new Room({ size: clampInt(m.size, 1, 3, 2), isPrivate: true, bots: ['none', 'rookie', 'pro', 'elite'].includes(m.bots) ? m.bots : 'pro', minutes: clampInt(m.minutes, 1, 15, 5) });
+      const room = new Room({ size: clampInt(m.size, 1, 4, 2), isPrivate: true, bots: validBots(m.bots) ? m.bots : 'pro', minutes: clampInt(m.minutes, 1, 15, 5) });
       room.addLobbyPlayer(c);
       break;
     }
@@ -223,6 +227,7 @@ function onMessage(c, m) {
   }
 }
 
+function validBots(b) { return b === 'none' || (typeof b === 'string' && Object.prototype.hasOwnProperty.call(SKILLS, b)); }
 function leaveQueue(c) {
   const q = queues[c.size];
   if (q) { const i = q.indexOf(c); if (i >= 0) q.splice(i, 1); }
@@ -284,8 +289,8 @@ class Room {
     m.team = team; this.sendLobby();
   }
   configure(m) {
-    if (m.size) this.size = clampInt(m.size, 1, 3, this.size);
-    if (['none', 'rookie', 'pro', 'elite'].includes(m.bots)) this.bots = m.bots;
+    if (m.size) this.size = clampInt(m.size, 1, 4, this.size);      // 4v4 is private matches only
+    if (validBots(m.bots)) this.bots = m.bots;
     if (m.minutes) { this.minutes = clampInt(m.minutes, 1, 15, this.minutes); this.seconds = this.minutes * 60; }
     this.sendLobby();
   }
@@ -309,11 +314,11 @@ class Room {
     const used = new Set();
     for (let i = 0; i < this.size; i++) for (let team = 0; team < 2; team++) {
       const c = teams[team][i];
-      if (c) this.slots.push({ team, client: c, pid: c.pid, name: c.profile.name, bot: null, isBot: false, mmr: c.profile.mmr[this.size - 1], left: false });
+      if (c) this.slots.push({ team, client: c, pid: c.pid, name: c.profile.name, bot: null, isBot: false, mmr: c.profile.mmr[this.size - 1] || START_MMR, left: false, look: cleanLook(c.profile.look) });
       else if (botSkill) {
         let name; do { name = NAMES[crypto.randomInt(NAMES.length)]; } while (used.has(name));
         used.add(name);
-        this.slots.push({ team, client: null, pid: null, name, bot: new Bot(botSkill, crypto.randomInt(1 << 20) + 1), isBot: true, mmr: 0, left: false });
+        this.slots.push({ team, client: null, pid: null, name, bot: new Bot(botSkill, crypto.randomInt(1 << 20) + 1), isBot: true, mmr: 0, left: false, look: randomLook() });
       }
     }
   }
@@ -334,7 +339,7 @@ class Room {
   }
   startMsg(i, rejoined) {
     return { t: 'start', you: i, size: this.size, ranked: this.ranked, seconds: this.seconds, rejoin: rejoined, code: this.code,
-      players: this.slots.map(s => ({ name: s.name, team: s.team, bot: s.isBot || !s.client, mmr: s.isBot ? 0 : Math.round(s.mmr) })) };
+      players: this.slots.map(s => ({ name: s.name, team: s.team, bot: s.isBot || !s.client, mmr: s.isBot ? 0 : Math.round(s.mmr), look: s.look })) };
   }
   reattach(c, i) {
     const s = this.slots[i];
@@ -440,7 +445,7 @@ class Room {
               p.mmr[k] = Math.max(0, p.mmr[k] + delta); p.games[k]++;
             }
           }
-          mmr = Math.round(p.mmr[k]); profilesDirty = true;
+          mmr = Math.round(p.mmr[k] || START_MMR); profilesDirty = true;
         }
       }
       if (c) send(c, { t: 'end', score: w.score, winner, overtime: w.overtime, stats, mvp, ranked: this.ranked, delta, mmr, you: publicProfile(c.profile), lobby: this.isPrivate });

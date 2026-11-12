@@ -173,33 +173,122 @@ function slab(x0, x1, w0, w1, zb0, zb1, zt0, zt1, mat) {
   return hull8([[x0, w0, zb0], [x1, w1, zb1], [x1, -w1, zb1], [x0, -w0, zb0], [x0, w0, zt0], [x1, w1, zt1], [x1, -w1, zt1], [x0, -w0, zt0]], mat);
 }
 
-function buildCar(team) {
+// thin strut between two sim-space points (roll cages, braces)
+function bar(a, b, t, mat) {
+  const pa = P(a[0], a[1], a[2]), pb = P(b[0], b[1], b[2]);
+  const m = new THREE.Mesh(new THREE.BoxGeometry(t * K, t * K, pa.distanceTo(pb)), mat);
+  m.position.copy(pa).add(pb).multiplyScalar(0.5); m.lookAt(pb);
+  return m;
+}
+// one side's block: x range, y range (outer, inner), z bottom and top at the rear and front
+function sideBlock(x0, x1, yo, yi, zb, zt0, zt1, s, mat) {
+  return hull8([[x0, s * yo, zb], [x1, s * yo, zb], [x1, s * yi, zb], [x0, s * yi, zb], [x0, s * yo, zt0], [x1, s * yo, zt1], [x1, s * yi, zt1], [x0, s * yi, zt0]], mat);
+}
+
+// Car looks. Every body shares the same hitbox and handling; only the shell differs.
+export const BODIES = ['Kite', 'Anvil', 'Comet', 'Loaf', 'Dune'];
+export const TRIMS = [['Chalk', 0xf2f4f1], ['Gold', 0xffc21a], ['Lime', 0xa6e22e], ['Pink', 0xff5fa8], ['Violet', 0x9b6bff], ['Mint', 0x5df2c2], ['Graphite', 0x2b2740], ['Silver', 0xb9c2cc]];
+const WHEEL_SPECS = [
+  [[51.25, 37, 13.5, 13], [51.25, -37, 13.5, 13], [-33.75, 38, 15.5, 13], [-33.75, -38, 15.5, 13]],
+  [[50, 38, 15.5, 14], [50, -38, 15.5, 14], [-34, 39, 16.5, 14], [-34, -39, 16.5, 14]],
+  [[51.25, 35, 13.5, 14], [51.25, -35, 13.5, 14], [-33.75, 36, 16, 18], [-33.75, -36, 16, 18]],
+  [[50, 38, 13, 12], [50, -38, 13, 12], [-34, 38.5, 13, 12], [-34, -38.5, 13, 12]],
+  [[52, 36, 14.5, 13], [52, -36, 14.5, 13], [-34, 41, 18, 16], [-34, -41, 18, 16]]
+];
+const SHELLS = [
+  // Kite: wedge coupe with a wing
+  (g, m) => {
+    g.add(slab(-46, 73, 40, 33, -7, -7, 15, 5, m.paint));            // body, hood slopes forward
+    g.add(slab(-48, 76, 41, 34, -9, -9, -5, -5, m.dark));            // floor / bumpers
+    g.add(slab(-30, 26, 31, 29, 14, 9, 14.2, 9.2, m.dark));
+    g.add(hull8([[-30, 30, 14], [26, 28, 9.5], [26, -28, 9.5], [-30, -30, 14], [-22, 23, 34], [6, 23, 32], [6, -23, 32], [-22, -23, 34]], m.glass)); // cabin
+    g.add(slab(-22, 6, 15, 15, 34, 32, 35, 33, m.paint));            // roof panel
+    g.add(slab(27, 73.5, 9, 7, 9.6, 5.3, 10.4, 6.1, m.trim));        // hood stripe
+    g.add(slab(-46.5, -30, 9, 9, 15.2, 14.2, 16, 15, m.trim));       // tail stripe
+    g.add(slab(-52, -38, 40, 40, 35, 35, 37.5, 38.5, m.dark));       // wing
+    for (const s of [-1, 1]) g.add(sideBlock(-47, -42, 29, 25, 14, 36, 36, s, m.dark));
+  },
+  // Anvil: square pickup with an open bed
+  (g, m) => {
+    g.add(slab(-50, 76, 42, 41, -9, -9, -5, -5, m.dark));
+    g.add(slab(-48, 74, 41, 40, -6, -6, 13, 13, m.paint));           // lower body
+    g.add(slab(28, 74, 39, 37, 13, 13, 20, 17, m.paint));            // hood
+    g.add(hull8([[-10, 37, 13], [30, 37, 13], [30, -37, 13], [-10, -37, 13], [-6, 32, 37], [22, 32, 37], [22, -32, 37], [-6, -32, 37]], m.glass)); // cab
+    g.add(slab(-7, 23, 32.5, 32.5, 37, 37, 39.5, 39.5, m.paint));    // roof
+    for (const s of [-1, 1]) g.add(sideBlock(-48, -10, 41, 34, 13, 23, 23, s, m.paint));   // bed rails
+    g.add(slab(-51, -46, 41, 41, 13, 13, 23, 23, m.paint));          // tailgate
+    g.add(slab(-48, -12, 34, 34, 12.5, 12.5, 14, 14, m.dark));       // bed floor
+    g.add(slab(74, 80, 38, 38, -7, -7, 9, 9, m.dark));               // bull bar
+    g.add(slab(30, 73, 9, 8, 20.3, 17.3, 21, 18, m.trim));           // hood stripe
+    g.add(slab(-51.6, -50.6, 30, 30, 15, 15, 21, 21, m.trim));       // tailgate badge
+  },
+  // Comet: low single-seater with wings front and back
+  (g, m) => {
+    g.add(slab(-46, 30, 24, 15, -8, -8, -5, -5, m.dark));
+    g.add(slab(-44, 22, 24, 15, -6, -5, 11, 7, m.paint));            // tub
+    g.add(slab(22, 80, 15, 6, -5, -3, 7, 0, m.paint));               // nose
+    for (const s of [-1, 1]) {
+      g.add(sideBlock(-42, 12, 40, 22, -6, 7, 3, s, m.paint));       // side pods
+      g.add(sideBlock(-55, -46, 30, 27, 8, 31, 31, s, m.dark));      // wing struts
+    }
+    g.add(hull8([[-20, 12, 10], [12, 9, 7.5], [12, -9, 7.5], [-20, -12, 10], [-16, 9, 22], [0, 8, 20], [0, -8, 20], [-16, -9, 22]], m.glass)); // canopy
+    g.add(slab(-40, -20, 9, 10, 10, 10, 27, 22, m.paint));           // engine cover
+    g.add(slab(64, 82, 40, 40, -8, -8, -5, -4.5, m.trim));           // front wing
+    g.add(slab(-58, -42, 40, 40, 31, 31, 33.5, 35, m.trim));         // rear wing
+    g.add(slab(24, 78, 2.5, 1.5, 7.2, 0.2, 8, 1, m.trim));           // nose stripe
+  },
+  // Loaf: tall van with glass all round
+  (g, m) => {
+    g.add(slab(-52, 76, 41, 39, -9, -9, -5, -5, m.dark));
+    g.add(slab(-50, 73, 40, 38, -6, -6, 14, 14, m.paint));           // lower body
+    g.add(hull8([[-49, 39, 14], [70, 37, 14], [70, -37, 14], [-49, -39, 14], [-46, 34, 39], [54, 33, 39], [54, -33, 39], [-46, -34, 39]], m.glass));
+    g.add(slab(-47, 55, 34.5, 33.5, 39, 39, 42, 41, m.paint));       // roof
+    g.add(slab(-50.6, 73.6, 40.6, 38.6, 10.5, 10.5, 14.6, 14.6, m.trim)); // belt line
+    for (const s of [-1, 1]) {
+      g.add(hull8([[8, s * 38.5, 14], [14, s * 38.4, 14], [14, s * 36, 14], [8, s * 36, 14], [8, s * 34.5, 39], [14, s * 34.4, 39], [14, s * 32, 39], [8, s * 32, 39]], m.paint)); // door pillar
+      g.add(sideBlock(70, 74.5, 31, 20, 2, 9, 9, s, m.trim));        // lamps
+    }
+    g.add(slab(-44, -6, 26, 26, 42, 42, 44, 44, m.dark));            // roof rack
+  },
+  // Dune: open buggy with a roll cage and big rear tyres
+  (g, m) => {
+    g.add(slab(-44, 62, 28, 20, -8, -8, -5, -5, m.dark));
+    g.add(slab(-42, 60, 28, 20, -6, -5, 8, 5, m.paint));             // tub
+    g.add(slab(60, 76, 20, 13, -5, -3, 5, 0, m.paint));              // nose
+    g.add(slab(-48, -24, 22, 22, 8, 8, 21, 17, m.dark));             // engine
+    g.add(slab(-10, 4, 12, 12, 8, 8, 20, 18, m.dark));               // seat
+    for (const s of [-1, 1]) {
+      g.add(sideBlock(-54, -14, 45, 29, 9, 13, 13, s, m.paint));     // rear fenders
+      g.add(bar([18, s * 24, 6], [6, s * 20, 37], 3, m.dark));
+      g.add(bar([-26, s * 26, 8], [-22, s * 20, 37], 3, m.dark));
+      g.add(bar([6, s * 20, 37], [-22, s * 20, 37], 3, m.dark));
+      g.add(bar([-22, s * 20, 37], [-50, s * 20, 14], 3, m.dark));
+    }
+    g.add(bar([6, 20, 37], [6, -20, 37], 3.6, m.trim));              // light bar
+    g.add(bar([-22, 20, 37], [-22, -20, 37], 3, m.dark));
+    g.add(slab(62, 75, 3, 2, 5.2, 0.2, 6, 1, m.trim));               // nose stripe
+  }
+];
+
+function buildCar(team, look) {
+  const body = look && SHELLS[look[0]] ? look[0] : 0, trimHex = (look && TRIMS[look[1]] ? TRIMS[look[1]] : TRIMS[0])[1];
   const g = new THREE.Group();
-  const paint = new THREE.MeshStandardMaterial({ color: TEAM_HEX[team], emissive: TEAM_HEX[team], emissiveIntensity: 0.3, roughness: 0.42, metalness: 0.1, flatShading: true, side: THREE.DoubleSide });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x1b1730, roughness: 0.7, flatShading: true, side: THREE.DoubleSide });
-  const chalk = new THREE.MeshStandardMaterial({ color: CHALK, roughness: 0.5, flatShading: true, side: THREE.DoubleSide });
-  const glass = new THREE.MeshStandardMaterial({ color: 0x0c0a18, roughness: 0.12, metalness: 0.7, flatShading: true, side: THREE.DoubleSide });
-  g.add(slab(-46, 73, 40, 33, -7, -7, 15, 5, paint));            // body, hood slopes forward
-  g.add(slab(-48, 76, 41, 34, -9, -9, -5, -5, dark));            // floor / bumpers
-  g.add(slab(-30, 26, 31, 29, 14, 9, 14.2, 9.2, dark));
-  g.add(hull8([[-30, 30, 14], [26, 28, 9.5], [26, -28, 9.5], [-30, -30, 14], [-22, 23, 34], [6, 23, 32], [6, -23, 32], [-22, -23, 34]], glass)); // cabin
-  g.add(slab(-22, 6, 15, 15, 34, 32, 35, 33, paint));            // roof panel
-  g.add(slab(27, 73.5, 9, 7, 9.6, 5.3, 10.4, 6.1, chalk));       // hood stripe
-  g.add(slab(-46.5, -30, 9, 9, 15.2, 14.2, 16, 15, chalk));      // tail stripe
-  g.add(slab(-52, -38, 40, 40, 35, 35, 37.5, 38.5, dark));       // wing
-  g.add(slab(-47, -42, 30, 30, 14, 14, 36, 36, dark));
-  g.children[g.children.length - 1].scale.z = 0.12; g.children[g.children.length - 1].position.z = -0.27;
-  const strut = slab(-47, -42, 30, 30, 14, 14, 36, 36, dark); strut.scale.z = 0.12; strut.position.z = 0.27; g.add(strut);
+  const m = {
+    paint: new THREE.MeshStandardMaterial({ color: TEAM_HEX[team], emissive: TEAM_HEX[team], emissiveIntensity: 0.3, roughness: 0.42, metalness: 0.1, flatShading: true, side: THREE.DoubleSide }),
+    dark: new THREE.MeshStandardMaterial({ color: 0x1b1730, roughness: 0.7, flatShading: true, side: THREE.DoubleSide }),
+    trim: new THREE.MeshStandardMaterial({ color: trimHex, emissive: trimHex, emissiveIntensity: 0.12, roughness: 0.5, flatShading: true, side: THREE.DoubleSide }),
+    glass: new THREE.MeshStandardMaterial({ color: 0x0c0a18, roughness: 0.12, metalness: 0.7, flatShading: true, side: THREE.DoubleSide })
+  };
+  SHELLS[body](g, m);
   // wheels
   const wheels = [];
   const tyre = new THREE.MeshStandardMaterial({ color: 0x14121f, roughness: 0.9, flatShading: true });
-  const spec = [[51.25, 37, 13.5], [51.25, -37, 13.5], [-33.75, 38, 15.5], [-33.75, -38, 15.5]];
-  for (const [x, y, r] of spec) {
+  for (const [x, y, r, wd] of WHEEL_SPECS[body]) {
     const piv = new THREE.Group();
     piv.position.copy(P(x, y, -S.REST_Z + r));
     const spin = new THREE.Group();
-    const w = new THREE.Mesh(new THREE.CylinderGeometry(r * K, r * K, 13 * K, 14), tyre); w.rotation.x = Math.PI / 2;
-    const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55 * K, r * 0.55 * K, 13.6 * K, 6), chalk); hub.rotation.x = Math.PI / 2;
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(r * K, r * K, wd * K, 14), tyre); w.rotation.x = Math.PI / 2;
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55 * K, r * 0.55 * K, (wd + 0.6) * K, 6), m.trim); hub.rotation.x = Math.PI / 2;
     spin.add(w, hub); piv.add(spin); g.add(piv);
     wheels.push({ piv, spin, r });
   }
@@ -209,6 +298,9 @@ function buildCar(team) {
   g.add(flame);
   g.userData = { wheels, flame };
   return g;
+}
+function disposeCar(g) {
+  g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
 }
 
 // ------------------------------------------------------------------ particles
@@ -260,6 +352,7 @@ export class Renderer {
     this.cars = []; this.tmpV = new THREE.Vector3(); this.tmpQ = new THREE.Quaternion();
     this.dir = [0, 1, 0]; this.orbit = 0.6; this.kick = 0; this.look = [0, 0, 150]; this.flashT = 0;
     this.camPos = [0, -3000, 800]; this.shake = 0;
+    this.srCar = null; this.srKey = ''; this.srSpin = 0; this.viewShift = 0;
     this.buildWorld();
     this.resize();
     addEventListener('resize', () => this.resize());
@@ -270,7 +363,7 @@ export class Renderer {
     const w = innerWidth, h = innerHeight;
     this.r.setPixelRatio(Math.min(devicePixelRatio || 1, this.quality === 'high' ? 2 : 1));
     this.r.setSize(w, h, false);
-    this.cam.aspect = w / h; this.cam.updateProjectionMatrix();
+    this.cam.aspect = w / h; this.cam.clearViewOffset(); this.viewShift = 0; this.cam.updateProjectionMatrix();
     this.w = w; this.h = h;
   }
 
@@ -377,12 +470,32 @@ export class Renderer {
   }
 
   setPlayers(players) {
-    for (const c of this.cars) { this.scene.remove(c.mesh); this.scene.remove(c.shadow); }
+    for (const c of this.cars) { this.scene.remove(c.mesh); this.scene.remove(c.shadow); disposeCar(c.mesh); c.shadow.geometry.dispose(); c.shadow.material.dispose(); }
     this.cars = players.map(p => {
-      const mesh = buildCar(p.team); this.scene.add(mesh);
+      const mesh = buildCar(p.team, p.look); this.scene.add(mesh);
       const shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.75, 1.25), this.shadowMat()); shadow.rotation.x = -Math.PI / 2; shadow.renderOrder = 1; this.scene.add(shadow);
       return { mesh, shadow, team: p.team, spin: 0 };
     });
+  }
+
+  // ---- garage: one car on the centre spot, everything else hidden. sr = { team, look, shift } or null
+  showroom(sr) {
+    const key = sr ? sr.team + ':' + sr.look[0] + ':' + sr.look[1] : '';
+    if (key === this.srKey) return;
+    this.srKey = key;
+    if (this.srCar) { this.scene.remove(this.srCar); disposeCar(this.srCar); this.srCar = null; }
+    if (!this.srShadow) {
+      this.srShadow = new THREE.Mesh(new THREE.PlaneGeometry(1.75, 1.25), this.shadowMat()); this.srShadow.rotation.x = -Math.PI / 2;
+      this.srShadow.position.set(0.14, 0.03, 0); this.srShadow.renderOrder = 1; this.scene.add(this.srShadow);
+    }
+    this.srShadow.visible = !!sr;
+    if (sr) { this.srCar = buildCar(sr.team, sr.look); this.srCar.position.copy(P(0, 0, S.REST_Z)); this.scene.add(this.srCar); }
+  }
+  // which way to look for something that is off screen: unit vector in screen space (y down)
+  pointer(x, y, z, out) {
+    const v = this.tmpV.set(x * K, z * K, -y * K).applyMatrix4(this.cam.matrixWorldInverse), l = Math.hypot(v.x, v.y) || 1;
+    out.dx = v.x / l; out.dy = -v.y / l;
+    return out;
   }
 
   // ---- one-off effects (positions in sim space)
@@ -412,9 +525,11 @@ export class Renderer {
   // ---- per frame
   frame(session, dt, opts) {
     const w = session.world, ents = session.ents, fx = this.fx, hi = this.quality === 'high';
+    const sr = opts.showroom || null;
+    this.showroom(sr);
     for (let i = 0; i < this.cars.length && i < w.cars.length; i++) {
       const c = w.cars[i], o = ents[i].out, v = this.cars[i], m = v.mesh;
-      const alive = c.demoT <= 0;
+      const alive = c.demoT <= 0 && !sr;
       m.visible = alive; v.shadow.visible = alive;
       if (!alive) continue;
       m.position.set(o[0] * K, o[2] * K, -o[1] * K);
@@ -446,9 +561,10 @@ export class Renderer {
     }
     // ball
     const b = session.ballEnt.out, bw = w.ball;
-    this.ball.visible = w.ballOn;
-    this.ballShadow.visible = this.ballRing.visible = w.ballOn;
-    if (w.ballOn) {
+    const ballOn = w.ballOn && !sr;
+    this.ball.visible = ballOn;
+    this.ballShadow.visible = this.ballRing.visible = ballOn;
+    if (ballOn) {
       this.ball.position.set(b[0] * K, b[2] * K, -b[1] * K);
       const ax = bw.wx, ay = bw.wz, az = -bw.wy, ang = Math.hypot(ax, ay, az) * dt;
       if (ang > 1e-6) { this.tmpV.set(ax, ay, az).normalize(); this.tmpQ.setFromAxisAngle(this.tmpV, ang); this.ball.quaternion.premultiply(this.tmpQ); }
@@ -481,7 +597,18 @@ export class Renderer {
     const w = session.world, me = session.me, cs = opts.cam, cam = this.cam;
     const b = session.ballEnt.out;
     let px, py, pz, dx, dy, dz, sup = 0;
-    if (me < 0 || !w.cars[me]) {
+    const sr = opts.showroom, shift = sr ? Math.round(sr.shift || 0) : 0;
+    if (shift !== this.viewShift) {       // slide the picture sideways so the garage car sits clear of the menu
+      this.viewShift = shift;
+      if (shift) cam.setViewOffset(this.w, this.h, -shift, 0, this.w, this.h); else cam.clearViewOffset();
+    }
+    if (sr) {
+      this.srSpin += dt * 0.5;
+      px = Math.cos(this.srSpin) * 400; py = Math.sin(this.srSpin) * 400; pz = 150;
+      dx = -px; dy = -py; dz = 22 - pz;
+      const l = Math.hypot(dx, dy, dz); dx /= l; dy /= l; dz /= l;
+      this.dir[0] = dx; this.dir[1] = dy; this.dir[2] = dz;
+    } else if (me < 0 || !w.cars[me]) {
       // spectator orbit for the menu backdrop
       this.orbit += dt * 0.055;
       const k = 1 - Math.exp(-dt * 1.4);
@@ -521,7 +648,7 @@ export class Renderer {
     }
     this.kick += (sup - this.kick) * Math.min(1, dt * 3);
     if (this.shake > 0) { this.shake -= dt; const a = this.shake * 14; px += (Math.random() - 0.5) * a; py += (Math.random() - 0.5) * a; pz += (Math.random() - 0.5) * a; }
-    const hf = (me < 0 ? 62 : cs.fov) * Math.PI / 180;
+    const hf = (sr ? 58 : (me < 0 ? 62 : cs.fov)) * Math.PI / 180;
     const vf = 2 * Math.atan(Math.tan(hf / 2) / Math.max(cam.aspect, 1.25)) * 180 / Math.PI + this.kick * 4;
     if (Math.abs(cam.fov - vf) > 0.01) { cam.fov = vf; cam.updateProjectionMatrix(); }
     cam.position.set(px * K, pz * K, -py * K);

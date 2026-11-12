@@ -1,7 +1,8 @@
 # Overboost
 
 Car football in the browser: drive, jump, flip and boost a ball into the other net. 1v1, 2v2 and 3v3 with
-online matchmaking, ratings, private lobbies, bots, free play, and keyboard, gamepad and touch controls.
+online matchmaking, ratings, private lobbies, bots up to 4v4, free play, training drills, car customisation,
+and keyboard, gamepad and touch controls.
 The name, art, sounds and arena are original; the physics follow the numbers the car-football community has
 measured for the genre (see "Physics" below).
 
@@ -52,22 +53,33 @@ bots and free play still run. A static copy can point at a game server elsewhere
   wait, and bots fill empty seats after `BOT_FILL_SECONDS`. Teams are balanced by rating.
 - **Ratings and leaderboard.** Elo per playlist, eight ranks from Rookie to Legend. A match changes ratings when
   there are humans on both teams. Leaving a ranked match early counts as a loss.
-- **Private lobbies** with a 5-letter code and an invite link (`?join=CODE`), team picking, team size, bot skill
-  and match length.
+- **Private lobbies** with a 5-letter code and an invite link (`?join=CODE`), team picking, team size up to 4v4,
+  bot skill and match length.
 - **Reconnect.** Drop out of a matchmade game and a bot drives your car; reload and you are put back in it.
-- **Bots** in three skills (Rookie, Pro, Elite) that rotate between attacking, supporting and defending,
+- **Bots** in four skills (Novice, Rookie, Pro, Elite) that rotate between attacking, supporting and defending,
   line up shots, dodge into the ball and recover in the air. The same code backfills online matches and runs
   offline matches in the browser.
 - **Free play** with unlimited boost (`R` resets the ball, `Shift+R` lobs it to you).
+- **Training drills.** *Shoot* serves a ball in the attacking half and you have a few seconds to score; *Save*
+  fires a shot at your net. Every drill has a rating and you have one per drill type: pass a drill and yours goes
+  up, miss and it goes down (Elo, first attempt only), and the next drill is picked near your level. `R` serves
+  the same ball again, `N` moves on. Drills are built from a seed, so a retry is exactly the same ball. Ratings
+  are kept in the browser.
+- **Customize.** Five car bodies (Kite, Anvil, Comet, Loaf, Dune) and eight trim colours, with a live preview.
+  Paint is always the team colour and every body shares one hitbox, so looks never change how a car plays. Your
+  pick is saved with your profile and shown to everyone in online matches; bots get random looks.
 - **Match rules:** kickoff countdown, 5-minute clock that stops for goals, play continues at 0:00 until the ball
   touches the ground, sudden-death overtime, goals / assists / saves / shots / score, MVP, demolitions and bumps.
 - **Controls:** rebindable keys and mouse, gamepad, and on-screen touch controls. Camera settings (field of view,
   distance, height, angle, stiffness) and ball cam.
 - **Quick chat** on keys 1 to 8.
+- **Extras:** crowd noise that reacts to shots, saves and goals (its own volume slider, next to master and
+  effects), an FPS and ping readout, a fullscreen button, and an arrow at the edge of the screen when the ball
+  is out of view.
 
 There are no accounts: a random id kept in the browser's local storage identifies a player, so clearing site
 data starts a new profile. Not included: goal replays, parties that queue together (use a private lobby), text
-chat, car customisation.
+chat.
 
 ## How the netcode works
 
@@ -120,8 +132,12 @@ npm test
 - `test/physics-test.js` checks the numbers above plus half-flips, wall driving, post hits, snapshot round-trip
   and a four-minute random-input soak (nothing escapes the arena, nothing goes NaN).
 - `test/bot-test.js` plays bot matches and checks that they produce real games and that Elite beats Rookie.
+- `test/drill-test.js` builds hundreds of drills and checks that each is fair (inside the arena, keeper shots on
+  target with time to react, nothing passes by standing still), that they get harder with rating, and the
+  rating maths.
 - `test/net-test.js` boots the server and drives it with fake clients: matchmaking, a ranked match to a
-  result with rating changes, bot backfill, reconnect, private lobbies, chat, leaderboard, persistence.
+  result with rating changes, bot backfill, reconnect, private lobbies, 4v4, car looks, chat, leaderboard,
+  persistence.
 
 ## Layout
 
@@ -129,9 +145,10 @@ npm test
 server.js                 static hosting, matchmaking, lobbies, rooms, ratings
 public/shared/sim.js      physics, match rules, snapshots (server + browser)
 public/shared/bot.js      bot AI (server + browser)
+public/shared/drills.js   training drill generator and drill ratings
 public/js/main.js         menus, networking, HUD, frame loop
 public/js/session.js      prediction, rollback, correction smoothing
-public/js/render.js       Three.js scene, effects, camera
+public/js/render.js       Three.js scene, car bodies, effects, camera
 public/js/input.js        keyboard, mouse, gamepad, touch
 public/js/audio.js        synthesised sounds
 public/css/style.css      interface

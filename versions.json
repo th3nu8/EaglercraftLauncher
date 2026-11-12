@@ -70,17 +70,20 @@
         "Driving",
         "3D"
       ],
-      "description": "Car football at full throttle. Drive, jump, flip and boost the ball into the other net. 1v1, 2v2 and 3v3 online matchmaking with ratings, private lobbies, bots and free play.",
+      "description": "Car football at full throttle. Drive, jump, flip and boost the ball into the other net. 1v1, 2v2 and 3v3 online matchmaking with ratings, private lobbies, bots up to 4v4, shooting and goalkeeping drills, and five car bodies to pick from.",
       "versions": [
         {
           "id": "1.0",
-          "name": "Overboost 1.0",
+          "name": "Overboost 1.1",
           "type": "release",
           "file": "overboost.html",
           "notes": [
+            "New in 1.1: Shoot and Save training drills with their own ratings",
+            "New in 1.1: Customize with five car bodies and eight trim colours",
+            "New in 1.1: 4v4 bot and private matches, Novice bots, crowd sound, FPS counter, fullscreen",
             "Online matchmaking, ranked ratings and leaderboard",
             "Private lobbies with invite codes",
-            "Bots (Rookie, Pro, Elite) and free play",
+            "Bots (Novice, Rookie, Pro, Elite) and free play",
             "Keyboard, mouse, gamepad and touch controls"
           ]
         }

@@ -24,7 +24,7 @@ class Fake {
     return new Promise((res, rej) => {
       const ws = this.ws = new WebSocket(`ws://127.0.0.1:${PORT}/ws`);
       ws.binaryType = 'arraybuffer';
-      ws.on('open', () => { this.send({ t: 'hello', v: 1, pid: this.pid, name: this.name }); });
+      ws.on('open', () => { this.send(Object.assign({ t: 'hello', v: 1, pid: this.pid, name: this.name }, this.look ? { look: this.look } : {})); });
       ws.on('error', rej);
       ws.on('message', (data, bin) => {
         if (bin) {
@@ -129,6 +129,26 @@ class Fake {
   check('private match starts for both, bots fill 2v2', !!h.start && !!g.start && h.start.players.length === 4 && h.start.players.filter(p => p.bot).length === 2 && !h.start.ranked);
   h.send({ t: 'chat', id: 3 }); await sleep(200);
   check('quick chat relayed', g.last('chat') && g.last('chat').id === 3 && g.last('chat').slot === h.you);
+
+  // --- car looks and 4v4
+  const p1 = new Fake('Painter'); p1.look = [3, 5];
+  await p1.connect();
+  check('look sent at sign-in comes back in the profile', JSON.stringify(p1.last('welcome').you.look) === '[3,5]');
+  const p2 = await new Fake('Plain').connect();
+  p2.send({ t: 'look', look: [99, -4] }); await sleep(100);
+  p1.send({ t: 'create', size: 4, bots: 'novice', minutes: 1 }); await sleep(200);
+  check('4v4 private lobby with novice bots', p1.last('lobby') && p1.last('lobby').size === 4 && p1.last('lobby').bots === 'novice');
+  p2.send({ t: 'join', code: p1.last('lobby').code }); await sleep(200);
+  p1.send({ t: 'look', look: [4, 1] }); await sleep(100);
+  p1.send({ t: 'start' }); await sleep(400);
+  const pl = p2.start ? p2.start.players : [];
+  check('4v4 starts with eight cars', pl.length === 8 && pl.filter(p => p.bot).length === 6);
+  check('everyone sees the look you picked', JSON.stringify((pl[p1.you] || {}).look) === '[4,1]', JSON.stringify(pl.map(p => p.look)));
+  check('a bad look falls back to the default', JSON.stringify((pl[p2.you] || {}).look) === '[0,0]');
+  check('bots get a look too', pl.every(p => Array.isArray(p.look) && p.look.length === 2 && p.look[0] >= 0 && p.look[0] < 5 && p.look[1] >= 0 && p.look[1] < 8));
+  await sleep(800);
+  check('4v4 snapshots decode', p2.snaps > 20 && p2.world.cars.length === 8 && Number.isFinite(p2.world.cars[7].px));
+  p1.close(); p2.close(); await sleep(200);
   h.close(); await sleep(300);
   check('host leaving promotes the guest', g.last('lobby') && g.last('lobby').host === true);
   g.close(); a.close(); b.close(); c2.close();
