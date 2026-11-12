@@ -64,6 +64,28 @@ function leaderboard(size) {
   return rows.slice(0, 50);
 }
 
+// ------------------------------------------------------------------ build stamp
+// index.html is sent with every script and stylesheet address prefixed by v/<hash of the game's files>/. A deploy
+// changes the hash, so a browser or CDN can never run a fresh page with scripts it cached from the old version
+// (which looks like new menus that do nothing). The prefix is stripped again when the file is looked up.
+function buildId() {
+  const h = crypto.createHash('sha1');
+  (function walk(dir) {
+    for (const name of fs.readdirSync(dir).sort()) {
+      const f = path.join(dir, name);
+      if (fs.statSync(f).isDirectory()) walk(f);
+      else { h.update(path.relative(PUBLIC_DIR, f)); h.update(fs.readFileSync(f)); }
+    }
+  })(PUBLIC_DIR);
+  return h.digest('hex').slice(0, 10);
+}
+let BUILD = 'dev', INDEX_HTML = null;
+try {
+  BUILD = buildId();
+  INDEX_HTML = Buffer.from(fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8')
+    .replace(/((?:src|href)=")((?:js|css|shared)\/)/g, '$1v/' + BUILD + '/$2'));
+} catch (e) { console.error('could not stamp the build:', e.message); }
+
 // ------------------------------------------------------------------ http
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json' };
@@ -77,12 +99,19 @@ const server = http.createServer((req, res) => {
     return json(res, { size, rows: leaderboard(size) });
   }
   if (p.endsWith('/api/status')) {
-    return json(res, { online: clients.size, queues: [1, 2, 3].map(s => queues[s].length), matches: [...rooms].filter(r => r.state === 'play').length });
+    return json(res, { online: clients.size, queues: [1, 2, 3].map(s => queues[s].length), matches: [...rooms].filter(r => r.state === 'play').length, build: BUILD });
   }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
   let rel;
   try { rel = decodeURIComponent(p); } catch (e) { res.writeHead(400); return res.end(); }
+  let stamped = false;
+  const vm = /^\/v\/([0-9a-z]{3,40})(\/.*)$/.exec(rel);
+  if (vm) { stamped = vm[1] === BUILD; rel = vm[2]; }
   if (rel.endsWith('/')) rel += 'index.html';
+  if (rel === '/index.html' && INDEX_HTML) {
+    res.writeHead(200, { 'Content-Type': MIME['.html'], 'Content-Length': INDEX_HTML.length, 'Cache-Control': 'no-store' });
+    return res.end(req.method === 'HEAD' ? undefined : INDEX_HTML);
+  }
   const file = path.normalize(path.join(PUBLIC_DIR, rel));
   if (!file.startsWith(PUBLIC_DIR + path.sep)) { res.writeHead(403); return res.end(); }
   fs.stat(file, (err, st) => {
@@ -90,7 +119,8 @@ const server = http.createServer((req, res) => {
     const ext = path.extname(file).toLowerCase();
     res.writeHead(200, {
       'Content-Type': MIME[ext] || 'application/octet-stream', 'Content-Length': st.size,
-      'Cache-Control': rel.includes('/vendor/') ? 'public, max-age=604800' : 'no-cache'
+      // a stamped address always means the same bytes, so it can be kept for good; anything else is checked every time
+      'Cache-Control': stamped ? 'public, max-age=31536000, immutable' : (rel.includes('/vendor/') ? 'public, max-age=604800' : 'no-cache')
     });
     if (req.method === 'HEAD') return res.end();
     fs.createReadStream(file).pipe(res);
@@ -173,7 +203,7 @@ function onMessage(c, m) {
     c.pid = pid; c.profile = getProfile(pid, m.name); c.state = 'menu';
     if (m.name && cleanName(m.name) !== c.profile.name) { c.profile.name = cleanName(m.name); profilesDirty = true; }
     if (Array.isArray(m.look)) { c.profile.look = cleanLook(m.look); profilesDirty = true; }
-    send(c, { t: 'welcome', you: publicProfile(c.profile), online: clients.size, botFill: BOT_FILL_SECONDS });
+    send(c, { t: 'welcome', you: publicProfile(c.profile), online: clients.size, botFill: BOT_FILL_SECONDS, build: BUILD });
     const rj = rejoin.get(pid);
     if (rj && rj.room.state === 'play' && rooms.has(rj.room)) rj.room.reattach(c, rj.slot);
     return;
@@ -521,4 +551,4 @@ function shutdown() { saveProfiles(); process.exit(0); }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
-server.listen(PORT, HOST, () => console.log(`Overboost listening on http://${HOST}:${PORT}  (bot fill after ${BOT_FILL_SECONDS}s, ${MATCH_SECONDS}s matches)`));
+server.listen(PORT, HOST, () => console.log(`Overboost listening on http://${HOST}:${PORT}  (build ${BUILD}, bot fill after ${BOT_FILL_SECONDS}s, ${MATCH_SECONDS}s matches)`));

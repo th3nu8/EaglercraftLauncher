@@ -40,7 +40,14 @@ location / {
 ```
 
 It can live under a sub-path too (`example.com/overboost/`): the client builds its WebSocket and API URLs relative
-to the page. Keep it running with `pm2 start server.js --name overboost` or a systemd unit. One process handles
+to the page.
+
+**Updates and caches.** The server sends `index.html` uncached and rewrites its script and stylesheet addresses to
+`v/<build>/js/main.js` and so on, where `<build>` is a hash of everything in `public/` (the prefix is stripped
+again when the file is looked up, and modules, fonts and the 3D library resolve under it by themselves). A deploy
+changes the hash, so no browser or CDN can pair the new page with scripts cached from the old one, however it
+treats cache headers. The home screen shows the build next to the version, `/api/status` reports it, and a page
+left open across a deploy reloads itself once when it reconnects (or says so, if a match is in progress). Keep it running with `pm2 start server.js --name overboost` or a systemd unit. One process handles
 many matches (a 3v3 costs roughly 10 microseconds per tick, 120 ticks a second), but all matches share that one
 process, so it does not scale across cores without a second instance.
 

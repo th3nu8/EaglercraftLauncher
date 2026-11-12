@@ -6,6 +6,9 @@ import { Sfx } from './audio.js';
 
 const S = window.OBSim, B = window.OBBot, D = window.OBDrill;
 const PROTOCOL = 1;
+const VERSION = '1.1';
+// which build of the game this page is running: the server puts it in the address of every script (v/<build>/js/main.js)
+const BUILD = (/\/v\/([0-9a-z]+)\/js\//.exec(import.meta.url) || [])[1] || '';
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const store = {
@@ -107,6 +110,7 @@ function onServer(m) {
     case 'pong': net.rtt = net.rtt ? net.rtt * 0.7 + (performance.now() - m.c) * 0.3 : performance.now() - m.c; break;
     case 'welcome': {
       online = true; profile = m.you; onlineCount = m.online; botFill = m.botFill;
+      if (BUILD && m.build && m.build !== BUILD) newBuild(m.build);
       $('btn-online').disabled = false; $('btn-private').disabled = false;
       refreshProfile();
       const code = new URLSearchParams(location.search).get('join');
@@ -132,6 +136,12 @@ function onServer(m) {
   }
 }
 let onlineCount = 0, botFill = 15, joinTried = false;
+// The server was updated while this page was open. Out of a match: reload once to pick the update up. In one: say so.
+function newBuild(b) {
+  let tried = null; try { tried = sessionStorage.getItem('ob.reloaded'); } catch (e) { /* no storage */ }
+  if (!game && tried !== b) { try { sessionStorage.setItem('ob.reloaded', b); } catch (e) { return; } location.reload(); }
+  else toast('Overboost has been updated. Reload the page to get the new version.');
+}
 
 function refreshProfile() {
   if (!profile) return;
@@ -550,6 +560,7 @@ function frame(now) {
   }
 }
 
+document.querySelector('.ver').textContent = 'Version ' + VERSION + (BUILD ? ' (' + BUILD.slice(0, 6) + ')' : '');
 demo = new Session({ mode: 'demo', onEvent: e => onGameEvent(e, false) });
 renderer.setPlayers(demo.players);
 show('home');

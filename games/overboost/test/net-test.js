@@ -130,6 +130,19 @@ class Fake {
   h.send({ t: 'chat', id: 3 }); await sleep(200);
   check('quick chat relayed', g.last('chat') && g.last('chat').id === 3 && g.last('chat').slot === h.you);
 
+  // --- build stamp: the page must never be able to load scripts from another version
+  const fetchPath = async (p, opt) => { const r = await fetch(`http://127.0.0.1:${PORT}${p}`, opt); return { status: r.status, cc: r.headers.get('cache-control'), type: r.headers.get('content-type'), text: await r.text() }; };
+  const page = await fetchPath('/?name=Someone'), build = (/src="v\/([0-9a-z]+)\/js\/main\.js"/.exec(page.text) || [])[1];
+  check('the page is never cached and stamps its scripts', page.status === 200 && page.cc === 'no-store' && !!build, 'build ' + build);
+  check('every script and stylesheet on the page is stamped', (page.text.match(/(?:src|href)="(?:js|css|shared)\//g) || []).length === 0 && (page.text.match(new RegExp('="v/' + build + '/(?:js|css|shared)/', 'g')) || []).length === 5);
+  const js = await fetchPath(`/v/${build}/js/main.js`), plain = await fetchPath('/js/main.js'), old = await fetchPath('/v/0000000000/js/main.js'), css = await fetchPath(`/v/${build}/css/style.css`);
+  check('stamped files are served and kept for good', js.status === 200 && /immutable/.test(js.cc) && /javascript/.test(js.type) && js.text === plain.text && css.status === 200 && /css/.test(css.type));
+  check('unstamped and wrongly stamped files are rechecked every time', plain.cc === 'no-cache' && old.status === 200 && old.cc === 'no-cache');
+  const mod = await fetchPath(`/v/${build}/js/render.js`), three = await fetchPath(`/v/${build}/vendor/three.module.min.js`), font = await fetchPath(`/v/${build}/fonts/anybody-latin-wdth-normal.woff2`);
+  check('modules, the 3D library and fonts load from under the stamp', mod.status === 200 && three.status === 200 && font.status === 200);
+  check('the server tells clients its build', (await fetchPath('/api/status')).text.includes(build) && h.last('welcome').build === build);
+  check('paths cannot escape through the stamp', (await fetchPath(`/v/${build}/../server.js`)).status !== 200 && (await fetchPath(`/v/${build}/%2e%2e/server.js`)).status !== 200);
+
   // --- car looks and 4v4
   const p1 = new Fake('Mist_Player_Name_20c'); p1.look = [3, 5];      // Mist names run to 20 characters
   await p1.connect();
