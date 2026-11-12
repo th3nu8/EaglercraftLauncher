@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grant Canyon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a field-survey of a canyon. Strata header, sticky "survey form" on the left,
+   results sorted into rock layers (strong match / worth a look / not a fit) on the right. */
+:root{
+  --paper:#eceee7;
+  --card:#f8f9f4;
+  --ink:#17201d;
+  --muted:#56625c;
+  --line:#cdd3c9;
+  --accent:#b9420f;
+  --accent-soft:#f3dccd;
+  --good:#2b7448;
+  --warn:#9a6511;
+  --bad:#9b3434;
+  --strata1:#d9c3a5; --strata2:#c99a72; --strata3:#a8603d; --strata4:#6f7f73;
+  --font-display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111614; --card:#19201d; --ink:#e5ebe6; --muted:#9aa69f; --line:#2c3632;
+    --accent:#f08a45; --accent-soft:#3a2518; --good:#5fc48c; --warn:#e2aa50; --bad:#e58080;
+    --strata1:#3b3229; --strata2:#5a3f2c; --strata3:#8a4c2e; --strata4:#2f3d36;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111614; --card:#19201d; --ink:#e5ebe6; --muted:#9aa69f; --line:#2c3632;
+  --accent:#f08a45; --accent-soft:#3a2518; --good:#5fc48c; --warn:#e2aa50; --bad:#e58080;
+  --strata1:#3b3229; --strata2:#5a3f2c; --strata3:#8a4c2e; --strata4:#2f3d36;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+/* ---------- header ---------- */
+header.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+#strata{position:absolute;inset:0;width:100%;height:100%;display:block}
+@media (max-width:700px){#strata{opacity:.35}}
+.jump{display:none}
+@media (max-width:900px){.jump{display:inline-flex;justify-self:start;text-decoration:none}}
+.hero-inner{position:relative;padding:34px 0 30px;display:grid;gap:10px}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wordmark{font-family:var(--font-display);font-weight:900;font-size:clamp(56px,11vw,128px);line-height:.82;letter-spacing:-.01em;text-transform:uppercase}
+.wordmark span{color:var(--accent)}
+.tagline{font-size:clamp(17px,2.2vw,21px);max-width:38ch;font-weight:500}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--font-mono);font-size:12.5px;color:var(--muted)}
+.hero-meta b{color:var(--ink);font-weight:500}
+
+/* ---------- main grid ---------- */
+main.wrap{display:grid;grid-template-columns:360px 1fr;gap:28px;padding-top:26px;padding-bottom:40px;align-items:start}
+@media (max-width:900px){main.wrap{grid-template-columns:1fr}}
+
+/* ---------- form ---------- */
+.survey{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:16px;position:sticky;top:16px}
+@media (max-width:900px){.survey{position:static}}
+.survey h2{font-family:var(--font-display);font-weight:800;font-size:28px;text-transform:uppercase;letter-spacing:.01em;line-height:1}
+.example-note{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.example-note button{margin-left:auto;flex:none}
+.field{display:grid;gap:6px}
+.field>label,.legend{font-size:13px;font-weight:600;letter-spacing:.01em}
+.hint{font-size:12.5px;color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select,input[type=text],input[type=number]{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 10px;min-height:42px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.gpa-row{display:flex;align-items:center;gap:12px}
+.gpa-row output{font-family:var(--font-mono);font-size:15px;min-width:3.2ch;text-align:right;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip-toggle{position:relative}
+.chip-toggle input{position:absolute;opacity:0;pointer-events:none}
+.chip-toggle span{display:inline-block;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:var(--paper);user-select:none}
+.chip-toggle input:checked+span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip-toggle input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+details.more summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent);list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more[open] summary{margin-bottom:12px}
+details.more .inner{display:grid;gap:16px}
+.zip-status{font-family:var(--font-mono);font-size:12px;color:var(--muted);min-height:1.2em}
+.btn{font:inherit;font-size:14px;font-weight:600;border-radius:9px;padding:9px 14px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.small{font-size:12.5px;padding:5px 10px}
+.btn:hover{filter:brightness(1.08)}
+
+/* ---------- results ---------- */
+.results{display:grid;gap:22px;min-width:0}
+.summary{display:grid;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.sum-top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 28px}
+.sum-big{font-family:var(--font-display);font-weight:900;font-size:64px;line-height:.85;color:var(--accent);font-variant-numeric:tabular-nums}
+.sum-big small{font-size:22px;color:var(--ink);font-weight:800;margin-left:6px;text-transform:uppercase}
+.stat{display:grid;gap:2px}
+.stat .k{font-family:var(--font-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.stat .v{font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.depth{display:flex;height:14px;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.depth i{display:block;height:100%}
+.depth .d1{background:var(--good)} .depth .d2{background:var(--warn)} .depth .d3{background:var(--line)}
+.legend-row{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend-row b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;font-size:13.5px;font-weight:600;padding:8px 12px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.layer{display:grid;gap:12px}
+.layer-head{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:6px}
+.layer-head h3{font-family:var(--font-display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1}
+.layer-head .rock{font-family:var(--font-mono);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.layer-head .count{margin-left:auto;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.cards{display:grid;gap:12px}
+.card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px 20px;display:grid;gap:10px;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--line)}
+.card.lv-strong::before{background:var(--good)}
+.card.lv-maybe::before{background:var(--warn)}
+.card-top{display:flex;gap:12px;align-items:flex-start}
+.card-title{display:grid;gap:2px;min-width:0}
+.card-title h4{margin:0;font-size:18px;line-height:1.25}
+.card-title .org{font-size:13px;color:var(--muted)}
+.amt{margin-left:auto;text-align:right;flex:none;max-width:44%}
+.amt .v{font-family:var(--font-display);font-weight:800;font-size:22px;line-height:1.05}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--font-mono);font-size:11.5px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.scope-state{border-color:var(--accent);color:var(--accent)}
+.tag.dl-urgent{background:var(--bad);border-color:var(--bad);color:#fff}
+.tag.dl-soon{background:var(--warn);border-color:var(--warn);color:#fff}
+.tag.dl-ok{color:var(--ink)}
+.desc{font-size:14.5px;max-width:68ch}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13.5px}
+.checks li{display:flex;gap:8px;align-items:flex-start}
+.checks .ic{flex:none;width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font-size:11px;font-weight:700;margin-top:1px}
+.ic.pass{background:var(--good);color:#fff}
+.ic.maybe{background:var(--warn);color:#fff}
+.ic.fail{background:var(--bad);color:#fff}
+.ic.info{border:1px solid var(--line);color:var(--muted)}
+.card-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.card-foot a.go{font-weight:600;font-size:14px;text-decoration:none;border-bottom:1.5px solid currentColor}
+.star{margin-left:auto;font:inherit;font-size:13px;font-weight:600;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;cursor:pointer}
+.star[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.empty{font-size:14.5px;color:var(--muted);padding:6px 0}
+.showfail{justify-self:start}
+
+/* local digging */
+.dig{background:var(--ink);color:var(--paper);border-radius:14px;padding:20px;display:grid;gap:14px}
+.dig h3{font-family:var(--font-display);font-weight:800;font-size:30px;text-transform:uppercase;line-height:1}
+.dig p{margin:0;max-width:62ch;font-size:14.5px;opacity:.9}
+.dig-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.dig-links a{display:grid;gap:2px;padding:12px 14px;border-radius:10px;background:color-mix(in srgb,var(--paper) 10%,transparent);border:1px solid color-mix(in srgb,var(--paper) 22%,transparent);color:var(--paper);text-decoration:none}
+.dig-links a b{font-size:14.5px}
+.dig-links a span{font-size:12.5px;opacity:.75}
+.dig-links a:hover{background:color-mix(in srgb,var(--paper) 18%,transparent)}
+.dig ul{margin:0;padding-left:18px;font-size:14px;display:grid;gap:3px;opacity:.92}
+
+footer{border-top:1px solid var(--line);padding:22px 0 40px;font-size:13px;color:var(--muted)}
+footer p{max-width:80ch;margin:0 0 8px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  .amt{max-width:50%}
+  .amt .v{font-size:19px}
+  .sum-big{font-size:54px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <canvas id="strata" aria-hidden="true"></canvas>
+  <div class="wrap hero-inner">
+    <div class="eyebrow">Scholarship &amp; grant eligibility checker · United States</div>
+    <h1 class="wordmark">Grant<br><span>Canyon</span></h1>
+    <p class="tagline">The gap between tuition and your bank account runs deep. Tell us where you live and who you are, and we'll show you what's down there.</p>
+    <div class="hero-meta">
+      <span><b>51</b> state &amp; DC aid programs</span>
+      <span><b>32</b> national scholarships &amp; grants</span>
+      <span>Deadlines checked <b>Nov 2026</b></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ================= FORM ================= -->
+  <form class="survey" id="survey" aria-labelledby="survey-h" novalidate>
+    <h2 id="survey-h">Your field survey</h2>
+    <div class="example-note" id="exampleNote">
+      <span>Showing an <b>example student</b>. Change anything and results update live.</span>
+      <button type="button" class="btn ghost small" id="clearBtn">Start blank</button>
+    </div>
+    <a class="btn small jump" href="#res-h" id="jumpBtn">See my matches ↓</a>
+
+    <div class="field">
+      <label for="zip">Your ZIP code</label>
+      <input type="text" id="zip" inputmode="numeric" maxlength="5" placeholder="e.g. 78701" autocomplete="postal-code">
+      <div class="zip-status" id="zipStatus" aria-live="polite"></div>
+    </div>
+    <div class="field">
+      <label for="state">State you live in</label>
+      <select id="state"></select>
+    </div>
+    <div class="field">
+      <label for="place">City or county <span class="hint">(optional, for local searches)</span></label>
+      <input type="text" id="place" placeholder="e.g. Travis County" autocomplete="address-level2">
+    </div>
+
+    <div class="field">
+      <label for="stage">Where you are right now</label>
+      <select id="stage">
+        <option value="hs_early">High school, grades 8–10</option>
+        <option value="hs_jr">High school junior</option>
+        <option value="hs_sr">High school senior</option>
+        <option value="cc">Community / technical college student</option>
+        <option value="ug_lower">College freshman or sophomore</option>
+        <option value="ug_upper">College junior or senior</option>
+        <option value="grad">Graduate student / applying to grad school</option>
+        <option value="adult">Adult going back to school</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="gpa">Unweighted GPA</label>
+      <div class="gpa-row"><input type="range" id="gpa" min="1.5" max="4" step="0.05"><output id="gpaOut" for="gpa"></output></div>
+    </div>
+
+    <div class="field">
+      <label for="income">Household income (yearly, before taxes)</label>
+      <select id="income">
+        <option value="0">Under $30,000</option>
+        <option value="1">$30,000 – $65,000</option>
+        <option value="2">$65,000 – $100,000</option>
+        <option value="3">$100,000 – $150,000</option>
+        <option value="4">Over $150,000</option>
+      </select>
+      <span class="hint">Used only to estimate need-based eligibility. Nothing leaves your browser.</span>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="school">Planning to attend</label>
+        <select id="school">
+          <option value="4yr">4-year college</option>
+          <option value="cc">Community / technical college</option>
+          <option value="unsure">Not sure yet</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="field">Area of study</label>
+        <select id="field">
+          <option value="stem">STEM</option>
+          <option value="health">Health / nursing</option>
+          <option value="edu">Education</option>
+          <option value="biz">Business</option>
+          <option value="arts">Arts / humanities</option>
+          <option value="trades">Skilled trades</option>
+          <option value="undecided">Undecided</option>
+        </select>
+      </div>
+    </div>
+
+    <details class="more" id="moreDetails" open>
+      <summary>Background &amp; status (unlocks more matches)</summary>
+      <div class="inner">
+        <div class="row2">
+          <div class="field">
+            <label for="cit">Citizenship status</label>
+            <select id="cit">
+              <option value="cit">U.S. citizen / national</option>
+              <option value="pr">Permanent resident</option>
+              <option value="enc">Refugee / asylee / other eligible noncitizen</option>
+              <option value="daca">DACA, TPS, or undocumented</option>
+              <option value="intl">International student</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="age">Age</label>
+            <input type="number" id="age" min="11" max="80" inputmode="numeric">
+          </div>
+        </div>
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+          <legend class="legend">Any of these apply? <span class="hint">(pick all that fit)</span></legend>
+          <div class="chips" id="tagChips"></div>
+        </fieldset>
+      </div>
+    </details>
+  </form>
+
+  <!-- ================= RESULTS ================= -->
+  <section class="results" aria-labelledby="res-h">
+    <h2 id="res-h" class="sr" tabindex="-1">Your matches</h2>
+    <div class="summary" id="summary"></div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Filter results" id="scopeSeg">
+        <button type="button" data-scope="all" aria-pressed="true">All</button>
+        <button type="button" data-scope="state" aria-pressed="false" id="segState">My state</button>
+        <button type="button" data-scope="national" aria-pressed="false">National</button>
+        <button type="button" data-scope="saved" aria-pressed="false">Saved</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn ghost small" id="sortBtn">Sort: best match</button>
+        <button type="button" class="btn small" id="copyBtn">Copy my list</button>
+      </div>
+    </div>
+    <div id="layers" style="display:grid;gap:26px"></div>
+    <div class="dig" id="dig"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>Read the fine print before you apply.</b> Grant Canyon is a starting point, not an official eligibility decision. Requirements, award amounts and deadlines change every cycle, and dates marked “est.” are projected from last year's calendar. Always confirm on the program's official site. Need-based results are rough estimates: the FAFSA (and your state's aid application) decides what you actually get.</p>
+    <p>Everything you type stays in this browser. Data last checked November 2026.</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   DATA
+   ===================================================================== */
+const FED = ['cit','pr','enc'];
+const UG = ['hs_sr','cc','ug_lower','ug_upper','adult'];
+const STAGE_LABEL = {hs_early:'high schoolers in grades 8–10',hs_jr:'high school juniors',hs_sr:'high school seniors',cc:'community/technical college students',ug_lower:'college freshmen & sophomores',ug_upper:'college juniors & seniors',grad:'graduate students',adult:'adult learners'};
+const STAGE_SHORT = {hs_early:'grades 8–10',hs_jr:'HS juniors',hs_sr:'HS seniors',cc:'CC students',ug_lower:'college fr/soph',ug_upper:'college jr/sr',grad:'grad students',adult:'adult learners'};
+const INCOME = [{lo:0,hi:30000},{lo:30000,hi:65000},{lo:65000,hi:100000},{lo:100000,hi:150000},{lo:150000,hi:Infinity}];
+const TAGS = [
+  ['firstgen','First in family to college'],['hispanic','Hispanic / Latino'],['black','Black / African American'],
+  ['native','Enrolled tribal member'],['aapi','Asian American / Pacific Islander'],['woman','Woman'],
+  ['military','Military family (dependent)'],['veteran','Veteran'],['foster','Foster care experience'],
+  ['ld','Learning disability / ADHD'],['disability','Other disability'],['research','Independent research project']
+];
+const TAG_LABEL = Object.fromEntries(TAGS);
+const CIT_LABEL = {cit:'U.S. citizens',pr:'permanent residents',enc:'eligible noncitizens',daca:'DACA/TPS/undocumented students',intl:'international students'};
+const FIELD_LABEL = {stem:'STEM',health:'health',edu:'education',biz:'business',arts:'arts/humanities',trades:'skilled trades',undecided:'undecided'};
+
+/* National programs. `on` = verified current-cycle date; `dl` = usual annual date (projected when `on` has passed or is missing). */
+const NATIONAL = [
+ {id:'pell',name:'Federal Pell Grant',org:'U.S. Department of Education',amt:'Up to $7,395/yr',max:7395,url:'https://studentaid.gov/understand-aid/types/grants/pell',
+  desc:'The biggest grant in the country, and the key that unlocks many others. Awarded automatically from your FAFSA based on your Student Aid Index. You never repay it.',
+  req:{levels:UG,income:'pell',cit:FED,notes:['File the FAFSA as soon as it opens each fall. The federal deadline is June 30, but state and college deadlines come much earlier.']},dl:{m:6,d:30},dlLabel:'FAFSA federal deadline'},
+ {id:'fseog',name:'Federal Supplemental Educational Opportunity Grant (FSEOG)',org:'U.S. Department of Education, via your college',amt:'$100–$4,000/yr',max:4000,url:'https://studentaid.gov/understand-aid/types/grants/fseog',
+  desc:'Extra federal grant money for students with exceptional need, handed out by participating colleges until their funds run out.',
+  req:{levels:UG,income:'pell',cit:FED,notes:['First come, first served at each school, so filing the FAFSA early matters.']}},
+ {id:'teach',name:'TEACH Grant',org:'U.S. Department of Education',amt:'Up to ~$4,000/yr',max:4000,url:'https://studentaid.gov/understand-aid/types/grants/teach',
+  desc:'For future teachers who agree to teach a high-need subject at a low-income school for four years after graduating.',
+  req:{levels:['cc','ug_lower','ug_upper','grad','hs_sr'],fields:['edu'],minGPA:3.25,gpaSoft:true,cit:FED,notes:['If you don\'t complete the teaching service, the grant converts to a loan with interest.']}},
+ {id:'coke',name:'Coca-Cola Scholars Program',org:'Coca-Cola Scholars Foundation',amt:'$20,000',max:20000,url:'https://www.coca-colascholarsfoundation.org/apply/',
+  desc:'150 high school seniors win $20,000 each for leadership and service. The first-round application is short: no essays, transcript or recommendations.',
+  req:{levels:['hs_sr'],minGPA:3.0,gpaSoft:true,cit:FED},on:'2026-09-30',dl:{m:9,d:30},opens:'Aug 3'},
+ {id:'gates',name:'The Gates Scholarship',org:'Gates Foundation',amt:'Full cost of attendance',max:300000,url:'https://www.thegatesscholarship.org/',
+  desc:'A last-dollar scholarship covering the full cost of college for high-achieving, Pell-eligible seniors. Eligibility now covers all Pell-eligible students.',
+  req:{levels:['hs_sr'],income:'pell',minGPA:3.3,gpaSoft:true,cit:FED,school:'4yr'},on:'2026-09-15',dl:{m:9,d:15},opens:'Jul 15'},
+ {id:'cooke',name:'Cooke College Scholarship',org:'Jack Kent Cooke Foundation',amt:'Up to $55,000/yr',max:220000,url:'https://www.jkcf.org/our-scholarships/college-scholarship-program/',
+  desc:'One of the largest need-based awards in the U.S.: up to $55,000 a year for four years, plus advising and a scholar network.',
+  req:{levels:['hs_sr'],minGPA:3.75,income:95000,school:'4yr',notes:['Unweighted cumulative GPA of 3.75+ required. Family income up to $95,000 is considered.']},on:'2026-11-11',dl:{m:11,d:11},opens:'Aug 19'},
+ {id:'cooke_t',name:'Cooke Undergraduate Transfer Scholarship',org:'Jack Kent Cooke Foundation',amt:'Up to $55,000/yr',max:165000,url:'https://www.jkcf.org/our-scholarships/undergraduate-transfer-scholarship/',
+  desc:'For top community college students with financial need who are transferring to a four-year school to finish a bachelor\'s degree.',
+  req:{levels:['cc'],minGPA:3.5,gpaSoft:true,income:95000},on:'2026-12-09',dl:{m:12,d:9},opens:'Aug 19'},
+ {id:'dell',name:'Dell Scholars Program',org:'Michael & Susan Dell Foundation',amt:'$20,000 + laptop & support',max:20000,url:'https://www.dellscholars.org/',
+  desc:'500 students a year get $20,000, a laptop, textbook credits and years of one-on-one support. Built for students who have pushed through real obstacles.',
+  req:{levels:['hs_sr'],income:'pell',minGPA:2.4,cit:FED,notes:['You must take part in an approved college-readiness program at your school. Check the list on the Dell site.']},on:'2027-02-15',dl:{m:2,d:15},opens:'Dec 15'},
+ {id:'qb',name:'QuestBridge National College Match',org:'QuestBridge',amt:'Full 4-year scholarship',max:360000,url:'https://www.questbridge.org/programs/national-college-match',
+  desc:'Apply once, rank up to 15 of 55 top partner colleges, and get matched for early admission with a full four-year scholarship.',
+  req:{levels:['hs_sr'],income:65000,school:'4yr',notes:['The income guideline (about $65,000 for a family of four) is flexible: QuestBridge looks at your whole situation.']},dl:{m:9,d:30},opens:'Aug'},
+ {id:'qbprep',name:'QuestBridge College Prep Scholars',org:'QuestBridge',amt:'Summer programs & college-prep awards',max:5000,url:'https://www.questbridge.org/high-school-students/college-prep-scholars',
+  desc:'For high-achieving, low-income juniors: free college-prep programs, campus visits, and a head start on the National College Match.',
+  req:{levels:['hs_jr'],income:65000},dl:{m:3,d:25},opens:'Feb'},
+ {id:'elks',name:'Elks Most Valuable Student',org:'Elks National Foundation',amt:'$1,000–$7,500/yr for 4 years',max:30000,url:'https://www.elks.org/scholars/scholarships/MVS.cfm',
+  desc:'500 four-year scholarships judged on academics, leadership and financial need. No Elks connection needed.',
+  req:{levels:['hs_sr'],cit:['cit'],school:'4yr',income:'need'},on:'2026-11-12',dl:{m:11,d:12},opens:'Aug 1'},
+ {id:'bk',name:'BURGER KING Scholars',org:'Burger King Foundation / Scholarship America',amt:'$1,000–$60,000',max:60000,url:'https://scholarshipamerica.org/scholarship/burgerking/',
+  desc:'One of the most accessible big programs: a 2.0 GPA minimum and no essay on the general track. Only the first 30,000 general-track applications are reviewed.',
+  req:{levels:['hs_sr'],minGPA:2.0,notes:['Apply early: review is capped at the first 30,000 applications.']},on:'2026-12-15',dl:{m:12,d:15},opens:'Oct'},
+ {id:'horatio',name:'Horatio Alger National Scholarship',org:'Horatio Alger Association',amt:'$25,000',max:25000,url:'https://scholars.horatioalger.org/',
+  desc:'For juniors who have faced and overcome serious adversity. One application also enters you for Horatio Alger state scholarships.',
+  req:{levels:['hs_jr'],income:65000,minGPA:2.0,cit:['cit','pr']},on:'2027-03-01',dl:{m:3,d:1},opens:'Dec 1'},
+ {id:'horatio_cte',name:'Horatio Alger Career & Technical Scholarship',org:'Horatio Alger Association',amt:'Varies',max:2500,url:'https://scholars.horatioalger.org/',
+  desc:'For students heading to a community college or trade/vocational program who have overcome adversity and have financial need.',
+  req:{levels:['hs_sr','adult'],school:'cc',income:'need'},dl:{m:6,d:15}},
+ {id:'regeneron',name:'Regeneron Science Talent Search',org:'Society for Science',amt:'$2,000–$250,000',max:250000,url:'https://www.societyforscience.org/regeneron-sts/',
+  desc:'The country\'s oldest science research competition for high school seniors. 300 scholars and 40 finalists are chosen from original research projects.',
+  req:{levels:['hs_sr'],fields:['stem','health'],research:true},on:'2026-11-05',dl:{m:11,d:5},opens:'Jun'},
+ {id:'davidson',name:'Davidson Fellows Scholarship',org:'Davidson Institute',amt:'$10,000–$50,000',max:50000,url:'https://www.davidsongifted.org/gifted-programs/fellows-scholarship/',
+  desc:'For students 18 and under who have completed a significant project in science, technology, math, literature, music or philosophy.',
+  req:{levels:['hs_early','hs_jr','hs_sr'],maxAge:18,research:true},dl:{m:2,d:11}},
+ {id:'hsf',name:'HSF Scholar Program',org:'Hispanic Scholarship Fund',amt:'$500–$5,000',max:5000,url:'https://www.hsf.net/scholarship',
+  desc:'Thousands of Hispanic students a year become HSF Scholars, with scholarships, mentoring and career support.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad'],ids:['hispanic'],minGPAByStage:{hs_sr:3.0,default:2.5},cit:['cit','pr','enc','daca']},on:'2027-02-15',dl:{m:2,d:15},opens:'Jan'},
+ {id:'hhya',name:'Hispanic Heritage Youth Awards',org:'Hispanic Heritage Foundation',amt:'$1,000–$4,000',max:4000,url:'https://hispanicheritage.org/programs/youth-awards/',
+  desc:'Recognizes Latino seniors for academics, leadership and community service, with regional and national awards.',
+  req:{levels:['hs_sr'],ids:['hispanic'],minGPA:3.0},dl:{m:11,d:1}},
+ {id:'ronbrown',name:'Ron Brown Scholar Program',org:'Ron Brown Scholar Fund',amt:'$40,000 over 4 years',max:40000,url:'https://ronbrown.org/',
+  desc:'20–25 Black high school seniors a year with a record of academic excellence, leadership and community service.',
+  req:{levels:['hs_sr'],ids:['black'],cit:['cit','pr'],school:'4yr',income:'need'},on:'2026-12-01',dl:{m:12,d:1}},
+ {id:'uncf',name:'UNCF Scholarships',org:'United Negro College Fund',amt:'Varies (hundreds of programs)',max:10000,url:'https://uncf.org/scholarships',
+  desc:'A single hub for hundreds of scholarships, most for Black students and students at HBCUs. Deadlines run all year.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad'],ids:['black']}},
+ {id:'apia',name:'APIA Scholarship',org:'APIA Scholars',amt:'$2,500–$20,000',max:20000,url:'https://apiascholars.org/scholarship/',
+  desc:'One application covers every APIA Scholars award, with priority for low-income and first-generation AANHPI students.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['aapi'],cit:['cit','pr','enc','daca'],income:'need'},on:'2027-01-15',dl:{m:1,d:15},opens:'Nov 15'},
+ {id:'cobell',name:'Cobell Scholarship',org:'Indigenous Education, Inc.',amt:'Varies (tuition, books, living)',max:7500,url:'https://cobellscholar.org/scholarships',
+  desc:'For enrolled members of federally recognized tribes at any accredited nonprofit college, including tribal, community and vocational schools. No minimum GPA for most awards.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad','adult'],ids:['native']},on:'2027-03-31',dl:{m:3,d:31},opens:'Dec 15'},
+ {id:'aicf',name:'American Indian College Fund Full Circle Scholarship',org:'American Indian College Fund',amt:'Varies',max:5000,url:'https://collegefund.org/students/scholarships/',
+  desc:'Scholarships for Native students at tribal colleges and other accredited institutions.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad','adult'],ids:['native']},dl:{m:5,d:31}},
+ {id:'dreamus',name:'TheDream.US National Scholarship',org:'TheDream.US',amt:'Up to $33,000 (bachelor\'s)',max:33000,url:'https://www.thedream.us/scholarships/national-scholarship/',
+  desc:'The largest college scholarship program for undocumented students, with or without DACA or TPS, at partner colleges in about 20 states and D.C.',
+  req:{levels:['hs_sr','cc'],cit:['daca'],income:'need',notes:['You must have come to the U.S. before age 16 and attend a TheDream.US partner college. Students in states that block in-state tuition can look at their separate Opportunity Scholarship.']},on:'2027-02-28',dl:{m:2,d:28},opens:'Nov 1'},
+ {id:'golden',name:'Golden Door Scholars',org:'Golden Door Scholars',amt:'Full tuition + housing',max:200000,url:'https://www.goldendoorscholars.org/',
+  desc:'Full scholarships at partner colleges for undocumented students and DACA recipients, plus career support.',
+  req:{levels:['hs_sr','cc'],cit:['daca']},dl:{m:10,d:31}},
+ {id:'fisher',name:'Scholarships for Military Children',org:'Fisher House Foundation',amt:'$2,000',max:2000,url:'https://fisherhouse.org/programs/scholarship-programs/scholarships-for-military-children/',
+  desc:'500 awards a year, with at least one at every commissary that gets qualified applicants.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['military'],minGPA:2.5,maxAge:22,notes:['Must be an unmarried dependent child under 23 with a valid military ID card.']},dl:{m:2,d:11},opens:'Dec'},
+ {id:'gi',name:'GI Bill education benefits',org:'U.S. Department of Veterans Affairs',amt:'Tuition, housing & books',max:30000,url:'https://www.va.gov/education/',
+  desc:'Not a scholarship, but often the largest pot of money a veteran has. Check which GI Bill you qualify for before taking loans.',
+  req:{levels:['cc','ug_lower','ug_upper','grad','adult','hs_sr'],ids:['veteran']}},
+ {id:'goldwater',name:'Barry Goldwater Scholarship',org:'Goldwater Foundation',amt:'Up to $7,500/yr',max:15000,url:'https://goldwaterscholarship.gov/',
+  desc:'The top undergraduate award for students heading into research careers in science, engineering and math. You need your college to nominate you.',
+  req:{levels:['ug_lower','ug_upper'],fields:['stem'],cit:['cit','pr'],notes:['Open to sophomores and juniors only. Campus deadlines are often in October–November, months before the national one.']},on:'2027-01-29',dl:{m:1,d:29}},
+ {id:'smart',name:'SMART Scholarship-for-Service',org:'U.S. Department of Defense',amt:'Full tuition + $30k–$46k/yr stipend',max:230000,url:'https://www.smartscholarship.org/smart',
+  desc:'Full tuition, a stipend and paid summer internships for STEM students, in exchange for working at a Defense Department lab after graduation.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad'],fields:['stem'],cit:['cit'],minGPA:3.0,gpaSoft:true,notes:['You must be 18 by January 1 of the award year and able to get a security clearance.']},on:'2026-12-04',dl:{m:12,d:4},opens:'Aug 1'},
+ {id:'swe',name:'Society of Women Engineers Scholarships',org:'Society of Women Engineers',amt:'$1,000–$20,000',max:20000,url:'https://swe.org/scholarships/',
+  desc:'One application puts you in the running for hundreds of awards for women in engineering, engineering technology and computer science.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad'],ids:['woman'],fields:['stem']},on:'2027-02-15',dl:{m:2,d:15},dlByStage:{hs_sr:{m:3,d:31}},opens:'Dec 1'},
+ {id:'ncld',name:'Anne Ford & Allegra Ford Thomas Scholarships',org:'National Center for Learning Disabilities',amt:'$5,000–$10,000',max:10000,url:'https://www.ncld.org/what-we-do/scholarships/anne-ford-scholarship/',
+  desc:'For seniors with a documented learning disability. Anne Ford is for four-year programs; Allegra Ford Thomas is for community college, vocational or specialized programs.',
+  req:{levels:['hs_sr'],ids:['ld'],income:'need',notes:['ADHD alone doesn\'t qualify; you also need a documented specific learning disability.']},dl:{m:4,d:15}},
+ {id:'chafee',name:'Chafee Education & Training Voucher (ETV)',org:'Federal program, run by your state',amt:'Up to $5,000/yr',max:5000,url:'STATE',
+  desc:'For current and former foster youth paying for college or job training, available until age 26. Apply through your state\'s foster care or higher-education agency.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','adult'],ids:['foster'],maxAge:25}},
+ {id:'gilman',name:'Benjamin A. Gilman International Scholarship',org:'U.S. Department of State',amt:'Up to $5,000',max:5000,url:'https://www.gilmanscholarship.org/',
+  desc:'Pays for study abroad for undergraduates who receive a Pell Grant. Two application cycles a year.',
+  req:{levels:['cc','ug_lower','ug_upper'],income:'pell',cit:['cit']},dl:{m:3,d:5},dl2:{m:10,d:7}}
+];
+
+/* State programs. Each: [name, amount, description, req, dl?] */
+const L_ALL = UG, L_HS = ['hs_sr'];
+const S = (name,amt,desc,req,extra)=>Object.assign({name,amt,desc,req:Object.assign({levels:L_ALL},req||{})},extra||{});
+const STATES = {
+ AL:{n:'Alabama',a:['Alabama Commission on Higher Education','https://ache.edu'],p:[
+  S('Alabama Student Assistance Program (ASAP)','$300–$5,000/yr','Need-based grant for Alabama residents at participating in-state colleges. Funds go fast, so file the FAFSA early.',{income:'need'}),
+  S('Alabama Student Grant Program','Varies','Non-need grant for Alabama residents attending eligible private, nonprofit colleges in the state.',{school:'4yr'})]},
+ AK:{n:'Alaska',a:['Alaska Commission on Postsecondary Education','https://acpe.alaska.gov'],p:[
+  S('Alaska Performance Scholarship','Tiered awards','Merit scholarship for Alaska high school graduates who complete a rigorous curriculum and meet GPA or test thresholds.',{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower'],minGPA:2.5,gpaSoft:true}),
+  S('Alaska Education Grant','$500–$4,000/yr','Need-based grant for Alaska residents at qualifying in-state schools.',{income:'need'})]},
+ AZ:{n:'Arizona',a:['Arizona Board of Regents','https://www.azregents.edu'],p:[
+  S('Arizona Promise Program','Tuition & fees','Covers in-state tuition and fees at ASU, U of A or NAU for Pell-eligible Arizona residents with a 2.5+ core GPA from an Arizona high school. No separate application.',{levels:L_HS,income:'pell',minGPA:2.5,school:'4yr'},{dl:{m:4,d:1},dlLabel:'FAFSA priority date'}),
+  S('Arizona Community Colleges Promise Program','Up to ~$3,000/yr','State promise money toward community college for eligible Arizona residents.',{levels:['hs_sr','cc','adult'],school:'cc',income:'need'})]},
+ AR:{n:'Arkansas',a:['Arkansas Division of Higher Education','https://adhe.edu'],p:[
+  S('Arkansas Academic Challenge Scholarship','Up to $5,000/yr (lottery-funded)','Merit scholarship for Arkansas residents who hit the ACT (or equivalent) score requirement. Apply on the YOUniversity portal.',{levels:['hs_sr','cc','ug_lower','ug_upper','adult']}),
+  S('Arkansas Workforce Challenge Scholarship','Up to $800/yr','For short certificate programs in high-demand fields.',{school:'cc'})]},
+ CA:{n:'California',dream:true,a:['California Student Aid Commission','https://www.csac.ca.gov'],p:[
+  S('Cal Grant','Up to full UC/CSU tuition','California\'s main grant. Covers tuition at UC and CSU, partial tuition at private colleges, and living costs for low-income students. GPA minimums apply.',{income:'need',minGPA:2.0,gpaSoft:true},{dl:{m:3,d:2},dlLabel:'Priority deadline'}),
+  S('Middle Class Scholarship','Varies','Tuition help for UC and CSU students from middle-income families who don\'t get much other aid.',{school:'4yr',incomeMax:4}),
+  S('California College Promise Grant','Waives CC enrollment fees','Waives enrollment fees at California community colleges for students with need.',{school:'cc',income:'need'})]},
+ CO:{n:'Colorado',dream:true,a:['Colorado Department of Higher Education','https://highered.colorado.gov'],p:[
+  S('Colorado Student Grant','Varies','Need-based grant awarded by Colorado colleges from FAFSA or CASFA data.',{income:'need'}),
+  S('College Opportunity Fund (COF) stipend','Per-credit tuition stipend','Every in-state undergraduate at a participating Colorado college can claim this. It isn\'t need-based; you just authorize it.',{incomeMax:4})]},
+ CT:{n:'Connecticut',dream:true,a:['Connecticut Office of Higher Education','https://portal.ct.gov/ohe'],p:[
+  S('Roberta B. Willis Scholarship','Varies','Connecticut\'s main state scholarship, with need-based and need-plus-merit pieces, for residents at in-state colleges.',{income:'need'})]},
+ DE:{n:'Delaware',a:['Delaware Higher Education Office','https://www.ed.gov/about/contact-us/state-contacts/de'],p:[
+  S('SEED Scholarship (Student Excellence Equals Degree)','Tuition','Covers tuition at Delaware Tech or the University of Delaware\'s Associate in Arts program for recent Delaware graduates with a 2.5+ GPA.',{levels:['hs_sr','cc'],minGPA:2.5,school:'cc'}),
+  S('Inspire Scholarship','Tuition','Tuition scholarship at Delaware State University for Delaware graduates with a 2.75+ GPA.',{levels:['hs_sr','ug_lower'],minGPA:2.75,school:'4yr'}),
+  S('Scholarship Incentive Program (ScIP)','Varies','Need-based grant for Delaware residents.',{income:'need'})]},
+ DC:{n:'District of Columbia',a:['DC Office of the State Superintendent of Education','https://osse.dc.gov'],p:[
+  S('DC Tuition Assistance Grant (DCTAG)','Up to $10,000/yr','Pays the gap between in-state and out-of-state tuition at public colleges nationwide (smaller awards at some private schools) for D.C. residents.',{levels:['hs_sr','ug_lower','ug_upper','cc']})]},
+ FL:{n:'Florida',a:['Florida Office of Student Financial Assistance','https://www.floridastudentfinancialaidsg.org'],p:[
+  S('Bright Futures Scholarship','Up to full tuition','Merit scholarship tiers based on GPA, test scores and volunteer hours. Florida Academic Scholars need a 3.5 GPA; Medallion Scholars need 3.0.',{levels:['hs_early','hs_jr','hs_sr'],minGPA:3.0},{dl:{m:8,d:31},dlLabel:'Florida Financial Aid Application due'}),
+  S('Florida Student Assistance Grant (FSAG)','Varies','Need-based grant for Florida residents at eligible in-state schools.',{income:'need'})]},
+ GA:{n:'Georgia',a:['Georgia Student Finance Commission','https://www.gafutures.org'],p:[
+  S('HOPE Scholarship','Partial tuition','Lottery-funded merit scholarship for Georgia residents who graduate with a 3.0+ HOPE GPA.',{levels:['hs_early','hs_jr','hs_sr','ug_lower','ug_upper'],minGPA:3.0,school:'4yr'}),
+  S('Zell Miller Scholarship','Full tuition','Georgia\'s top tier: a 3.7 GPA plus a 1200 SAT or 26 ACT in a single sitting.',{levels:['hs_early','hs_jr','hs_sr'],minGPA:3.7,school:'4yr'}),
+  S('HOPE Grant','Tuition at technical colleges','For certificate and diploma programs at Technical College System of Georgia schools. No high school GPA requirement to start.',{school:'cc'})]},
+ HI:{n:'Hawaii',a:['University of Hawaiʻi System','https://www.hawaii.edu'],p:[
+  S('Hawaiʻi Promise','Unmet tuition & fees','Last-dollar scholarship covering tuition at UH community colleges for residents with financial need.',{school:'cc',income:'need'}),
+  S('UH need-based & B+ scholarships','Varies','UH campuses offer need-based aid and merit awards for Hawaiʻi graduates with strong grades.',{school:'4yr',income:'need'})]},
+ ID:{n:'Idaho',a:['Idaho State Board of Education','https://boardofed.idaho.gov'],p:[
+  S('Idaho Opportunity Scholarship','Up to ~$3,500/yr','Need-based scholarship with a GPA requirement for Idaho residents at in-state colleges.',{income:'need',minGPA:2.7,gpaSoft:true},{dl:{m:3,d:1}}),
+  S('Idaho LAUNCH Grant','Up to $8,000','Pays for in-demand career training, community college or workforce programs for recent Idaho high school graduates.',{levels:['hs_sr'],school:'cc'})]},
+ IL:{n:'Illinois',dream:true,a:['Illinois Student Assistance Commission','https://www.isac.org'],p:[
+  S('Monetary Award Program (MAP) Grant','Varies','Illinois\' main need-based grant. Money runs out each year, so file the FAFSA or Alternative Application as soon as it opens.',{income:'need'}),
+  S('AIM HIGH Grant','Varies','Merit-plus-need grants offered by each Illinois public university.',{school:'4yr',income:'need'})]},
+ IN:{n:'Indiana',a:['Indiana Commission for Higher Education','https://www.in.gov/che/'],p:[
+  S('21st Century Scholars','Up to 100% tuition','Covers tuition at Indiana public colleges for income-eligible students. Most eligible students are now enrolled automatically; keep the Scholar requirements and a 2.5 GPA.',{levels:['hs_early','hs_jr','hs_sr'],income:'pell',minGPA:2.5}),
+  S('Frank O\'Bannon Grant','Varies','Indiana\'s main need-based grant.',{income:'need'},{dl:{m:4,d:15},dlLabel:'FAFSA deadline'})]},
+ IA:{n:'Iowa',a:['Iowa College Aid','https://iowacollegeaid.gov'],p:[
+  S('Iowa Tuition Grant','Up to ~$7,500/yr','Need-based grant for Iowans at eligible private colleges in the state.',{income:'need',school:'4yr'},{dl:{m:7,d:1},dlLabel:'FAFSA deadline'}),
+  S('Iowa Last-Dollar Scholarship','Tuition gap','Covers remaining tuition for high-demand career programs at Iowa community colleges and other eligible schools.',{school:'cc'}),
+  S('Kibbie Grant','Varies','Need-based grant for career-technical programs at Iowa community colleges.',{school:'cc',income:'need'})]},
+ KS:{n:'Kansas',a:['Kansas Board of Regents','https://www.kansasregents.org'],p:[
+  S('Kansas Comprehensive Grant','Varies','Need-based grant for Kansans at in-state public and private colleges.',{income:'need'}),
+  S('Kansas Promise Scholarship','Last-dollar tuition','Covers tuition at Kansas community and technical colleges in high-demand fields for eligible families.',{school:'cc',income:'need'})]},
+ KY:{n:'Kentucky',a:['Kentucky Higher Education Assistance Authority','https://www.kheaa.com'],p:[
+  S('Kentucky Educational Excellence Scholarship (KEES)','Earned per year of HS','You earn KEES money every year of high school with a 2.5+ GPA, plus a bonus for your best ACT/SAT score.',{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower','ug_upper'],minGPA:2.5}),
+  S('College Access Program (CAP) Grant','Varies','Need-based grant for Kentucky residents.',{income:'need'}),
+  S('Work Ready Kentucky Scholarship','Tuition gap','Covers tuition for certificates and diplomas in high-demand fields.',{school:'cc'})]},
+ LA:{n:'Louisiana',a:['Louisiana Office of Student Financial Assistance','https://mylosfa.la.gov'],p:[
+  S('TOPS (Taylor Opportunity Program for Students)','Tuition-based award','Merit scholarship for Louisiana graduates. The Opportunity award needs a 2.5 core GPA and a 20 ACT; the Tech award needs a 17 ACT.',{levels:['hs_early','hs_jr','hs_sr'],minGPA:2.5},{dl:{m:7,d:1},dlLabel:'FAFSA deadline'}),
+  S('GO Grant','Varies','Need-based grant for Louisiana residents.',{income:'pell'})]},
+ ME:{n:'Maine',a:['Finance Authority of Maine (FAME)','https://www.famemaine.com'],p:[
+  S('Maine State Grant','Varies','Need-based grant for Maine residents.',{income:'need'},{dl:{m:5,d:1}}),
+  S('Maine Free College Scholarship','Community college tuition','Free community college tuition for recent Maine high school graduates. Check which graduating classes are covered.',{levels:['hs_sr','cc'],school:'cc'})]},
+ MD:{n:'Maryland',dream:true,a:['Maryland Higher Education Commission','https://mhec.maryland.gov'],p:[
+  S('Guaranteed Access Grant','Up to full cost','For the lowest-income Maryland students who finish high school with a 2.5+ GPA.',{levels:['hs_sr','cc','ug_lower'],income:'pell',minGPA:2.5},{dl:{m:3,d:1}}),
+  S('Educational Assistance Grant','Varies','Maryland\'s broad need-based grant.',{income:'need'},{dl:{m:3,d:1}}),
+  S('Maryland Community College Promise Scholarship','Last-dollar tuition','Covers community college tuition and fees for eligible Marylanders.',{school:'cc',income:'need'})]},
+ MA:{n:'Massachusetts',a:['Massachusetts Office of Student Financial Assistance','https://www.mass.edu/osfa/'],p:[
+  S('MASSGrant & MASSGrant Plus','Up to tuition & fees','Need-based grants; MASSGrant Plus covers tuition and fees at public colleges for lower-income students.',{income:'need'},{dl:{m:5,d:1}}),
+  S('MassEducate','Free community college','Tuition and fees covered at Massachusetts community colleges for residents, with no income cap.',{levels:['hs_sr','cc','adult'],school:'cc',incomeMax:4}),
+  S('John & Abigail Adams Scholarship','Tuition waiver','Waives tuition at Massachusetts public colleges for students who score in the top 25% of their district on MCAS.',{levels:['hs_jr','hs_sr']})]},
+ MI:{n:'Michigan',a:['MI Student Aid','https://www.michigan.gov/mistudentaid'],p:[
+  S('Michigan Achievement Scholarship','Up to $5,500/yr','For Michigan high school graduates from 2023 on. Amount depends on school type and your FAFSA.',{levels:['hs_sr','cc','ug_lower','ug_upper'],income:'need'}),
+  S('Michigan Reconnect','Free community college','Tuition-free community college or skills training for Michigan adults 21 and older without a degree.',{levels:['adult'],school:'cc'}),
+  S('Michigan Tuition Grant','Varies','Need-based grant for Michigan private colleges.',{income:'need',school:'4yr'})]},
+ MN:{n:'Minnesota',dream:true,a:['Minnesota Office of Higher Education','https://www.ohe.state.mn.us'],p:[
+  S('North Star Promise','Free tuition','Covers remaining tuition and fees at Minnesota public colleges and tribal colleges for residents with family income under $80,000.',{income:80000}),
+  S('Minnesota State Grant','Varies','Minnesota\'s main need-based grant.',{income:'need'})]},
+ MS:{n:'Mississippi',a:['Mississippi Office of Student Financial Aid','https://www.msfinancialaid.org'],p:[
+  S('HELP Grant (Higher Education Legislative Plan)','Up to full tuition','Need-based grant for Mississippi residents. Heads up: the state reported a funding shortfall for 2026–27, so awards may be reduced.',{income:'pell',minGPA:2.5},{dl:{m:3,d:31}}),
+  S('Mississippi Tuition Assistance Grant (MTAG)','Varies','For Mississippi residents meeting GPA/ACT minimums who receive little Pell money.',{minGPA:2.5}),
+  S('Mississippi Eminent Scholars Grant (MESG)','Varies','Merit grant for top students (about a 3.5 GPA and 29 ACT).',{minGPA:3.5})]},
+ MO:{n:'Missouri',a:['Missouri Department of Higher Education & Workforce Development','https://dhewd.mo.gov'],p:[
+  S('Access Missouri Financial Assistance','Varies','Missouri\'s main need-based grant.',{income:'need'},{dl:{m:2,d:1},dlLabel:'Priority deadline'}),
+  S('A+ Scholarship','Community college tuition','For graduates of A+ designated high schools with a 2.5 GPA, 95% attendance and 50 hours of unpaid tutoring or mentoring.',{levels:['hs_early','hs_jr','hs_sr','cc'],minGPA:2.5,school:'cc'}),
+  S('Bright Flight','Up to $3,000/yr','For Missouri students who score in the top 3% on the ACT or SAT.',{levels:['hs_jr','hs_sr'],school:'4yr'})]},
+ MT:{n:'Montana',a:['Montana University System','https://www.mus.edu'],p:[
+  S('Montana University System Honor Scholarship','Tuition waiver','Merit award for top Montana high school seniors.',{levels:L_HS,minGPA:3.4,gpaSoft:true}),
+  S('Montana Tuition Assistance Program (Baker Grant)','Varies','Need-based grant for working Montana students.',{income:'need'})]},
+ NE:{n:'Nebraska',a:['Nebraska Coordinating Commission for Postsecondary Education','https://ccpe.nebraska.gov'],p:[
+  S('Nebraska Opportunity Grant','Varies','Nebraska\'s need-based grant for residents at in-state colleges.',{income:'pell'})]},
+ NV:{n:'Nevada',a:['Nevada State Treasurer','https://www.nevadatreasurer.gov'],p:[
+  S('Governor Guinn Millennium Scholarship','Per-credit award','Merit scholarship for Nevada graduates with a 3.25 GPA who attend an in-state college.',{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower'],minGPA:3.25}),
+  S('Nevada Promise Scholarship','Last-dollar CC tuition','Covers community college tuition for recent Nevada graduates who apply during senior year and complete mentoring and service.',{levels:L_HS,school:'cc'}),
+  S('Silver State Opportunity Grant','Varies','Need-based grant at Nevada public colleges.',{income:'need'})]},
+ NH:{n:'New Hampshire',a:['NH Charitable Foundation','https://www.nhcf.org'],p:[
+  S('New Hampshire Promise','Free tuition (income-based)','Starting with students who first enroll in fall 2027, eligible Granite Staters can attend UNH, Keene State or Plymouth State tuition-free.',{levels:['hs_jr','hs_sr'],school:'4yr',income:'need'}),
+  S('NHCF Statewide Student Aid Program','Varies','One application considers you for hundreds of scholarship funds for New Hampshire residents.',{levels:['hs_sr','cc','ug_lower','ug_upper','grad','adult']},{dl:{m:4,d:10}})]},
+ NJ:{n:'New Jersey',dream:true,a:['NJ Higher Education Student Assistance Authority','https://www.hesaa.org'],p:[
+  S('Tuition Aid Grant (TAG)','Varies','New Jersey\'s main need-based grant.',{income:'need'}),
+  S('Community College Opportunity Grant (CCOG)','Tuition & fees','Free community college tuition for New Jersey families under the income cap.',{school:'cc',income:100000}),
+  S('Garden State Guarantee','Free tuition (years 3–4)','Tuition-free junior and senior years at New Jersey public 4-year colleges for lower-income students.',{levels:['hs_sr','ug_lower','ug_upper'],school:'4yr',income:65000})]},
+ NM:{n:'New Mexico',dream:true,a:['New Mexico Higher Education Department','https://hed.nm.gov'],p:[
+  S('Opportunity Scholarship','Tuition & fees','Tuition-free college at New Mexico public colleges and universities for residents, with no income limit.',{incomeMax:4}),
+  S('Legislative Lottery Scholarship','Tuition','For recent New Mexico high school graduates who keep a 2.5 GPA in college.',{levels:['hs_sr','ug_lower','ug_upper'],minGPA:2.5,gpaSoft:true})]},
+ NY:{n:'New York',dream:true,a:['NYS Higher Education Services Corporation','https://www.hesc.ny.gov'],p:[
+  S('Tuition Assistance Program (TAP)','Up to SUNY tuition','New York\'s main grant. Income limits apply.',{income:125000}),
+  S('Excelsior Scholarship','Free SUNY/CUNY tuition','Tuition-free SUNY or CUNY for families earning up to $125,000, if you take 30 credits a year and live and work in New York after graduating.',{income:125000})]},
+ NC:{n:'North Carolina',a:['College Foundation of North Carolina','https://www.cfnc.org'],p:[
+  S('Next NC Scholarship','$3,000–$5,000+/yr','For North Carolina families earning $80,000 or less: at least $3,000 at community college or $5,000 at a UNC school when combined with Pell.',{income:80000}),
+  S('NC Need-Based Scholarship','Varies','Need-based aid for North Carolina residents.',{income:'need'})]},
+ ND:{n:'North Dakota',a:['North Dakota University System','https://ndus.edu'],p:[
+  S('North Dakota Scholarship','Up to $6,000 total','Merit award for North Dakota graduates who complete required coursework and hit score benchmarks.',{levels:['hs_jr','hs_sr','cc','ug_lower'],minGPA:3.0,gpaSoft:true}),
+  S('ND State Student Incentive Grant','Varies','Need-based grant for North Dakota residents.',{income:'need'})]},
+ OH:{n:'Ohio',a:['Ohio Department of Higher Education','https://highered.ohio.gov'],p:[
+  S('Ohio College Opportunity Grant (OCOG)','Varies','Ohio\'s need-based grant for students with very high need.',{income:'pell'}),
+  S('Ohio Governor\'s Merit Scholarship','$5,000/yr','For the top 5% of each Ohio high school\'s graduating class who attend an Ohio college.',{levels:['hs_jr','hs_sr'],minGPA:3.7,gpaSoft:true}),
+  S('Choose Ohio First','Varies','STEM and health scholarships awarded through participating Ohio colleges.',{fields:['stem','health']})]},
+ OK:{n:'Oklahoma',a:['Oklahoma State Regents for Higher Education','https://okhighered.org/okpromise/'],p:[
+  S('Oklahoma\'s Promise','Full public tuition','Enroll in grades 8–11 (12th graders have a December 31 cutoff), keep a 2.5 GPA in the required courses, and Oklahoma pays your tuition. Family income limits apply at sign-up and in college.',{levels:['hs_early','hs_jr','hs_sr'],income:65000,minGPA:2.5},{dl:{m:6,d:30},dlByStage:{hs_sr:{m:12,d:31}}}),
+  S('Oklahoma Tuition Aid Grant (OTAG)','Varies','Need-based grant for Oklahoma residents.',{income:'pell'})]},
+ OR:{n:'Oregon',dream:true,a:['Oregon Office of Student Access & Completion','https://oregonstudentaid.gov'],p:[
+  S('Oregon Opportunity Grant','Varies','Oregon\'s largest need-based grant.',{income:'need'}),
+  S('Oregon Promise','CC tuition','Covers most community college tuition for recent Oregon graduates with a 2.5+ GPA.',{levels:['hs_sr','cc'],minGPA:2.5,school:'cc'}),
+  S('OSAC Scholarships','600+ scholarships, one application','A single application considers you for hundreds of privately funded Oregon scholarships.',{levels:['hs_sr','cc','ug_lower','ug_upper','grad','adult']},{dl:{m:3,d:1}})]},
+ PA:{n:'Pennsylvania',a:['PHEAA','https://www.pheaa.org'],p:[
+  S('Pennsylvania State Grant','Varies','Pennsylvania\'s need-based grant for residents.',{income:'need'},{dl:{m:5,d:1},dlLabel:'Deadline for most first-time students'}),
+  S('Ready to Succeed Scholarship','Up to $2,000/yr','For high-achieving Pennsylvania students from middle-income families.',{levels:['ug_lower','ug_upper'],minGPA:3.25,income:'need'})]},
+ RI:{n:'Rhode Island',a:['RI Office of the Postsecondary Commissioner','https://riopc.edu'],p:[
+  S('Rhode Island Promise','Free CCRI tuition','Two years of tuition-free study at the Community College of Rhode Island for recent graduates.',{levels:['hs_sr','cc'],school:'cc'}),
+  S('Rhode Island Hope Scholarship','Free tuition (years 3–4)','Tuition-free junior and senior years at Rhode Island College.',{levels:['ug_lower','ug_upper'],school:'4yr'})]},
+ SC:{n:'South Carolina',a:['SC Commission on Higher Education','https://www.che.sc.gov'],p:[
+  S('LIFE Scholarship','Up to $5,000/yr','Meet two of three: a 3.0 GPA, a 1100 SAT/22 ACT, or top 30% class rank.',{levels:['hs_jr','hs_sr','ug_lower'],minGPA:3.0,gpaSoft:true}),
+  S('Palmetto Fellows Scholarship','Up to $7,500/yr','South Carolina\'s top merit award for very high GPA and test scores.',{levels:['hs_jr','hs_sr'],minGPA:3.5,school:'4yr'}),
+  S('SC Need-Based Grant & SC WINS','Varies','Need-based aid, plus SC WINS for technical college students.',{income:'need'})]},
+ SD:{n:'South Dakota',a:['South Dakota Board of Regents','https://www.sdbor.edu'],p:[
+  S('South Dakota Opportunity Scholarship','Up to $7,500 total','Merit award for South Dakota students who take a rigorous curriculum and score 24+ on the ACT.',{levels:['hs_early','hs_jr','hs_sr'],minGPA:2.8,gpaSoft:true}),
+  S('Dakota\'s Promise / Freedom Scholarship','Varies','Need-based scholarships for South Dakota residents.',{income:'need'})]},
+ TN:{n:'Tennessee',a:['Tennessee College Pays','https://www.tn.gov/collegepays'],p:[
+  S('Tennessee Promise','Last-dollar CC tuition','Free community or technical college tuition. Apply by November 1 of senior year, then complete mentoring and 8 hours of community service each term.',{levels:L_HS,school:'cc'},{dl:{m:11,d:1}}),
+  S('Tennessee HOPE Scholarship','Up to $4,500/yr','Lottery scholarship for Tennessee graduates with a 21 ACT or a 3.0 GPA.',{levels:['hs_early','hs_jr','hs_sr','ug_lower'],minGPA:3.0,gpaSoft:true}),
+  S('Tennessee Student Assistance Award','Varies','Need-based grant. Money runs out, so file the FAFSA early.',{income:'pell'}),
+  S('Tennessee Reconnect','Free CC tuition','Last-dollar tuition for adults without a degree at Tennessee community and technical colleges.',{levels:['adult'],school:'cc'})]},
+ TX:{n:'Texas',a:['College for All Texans (THECB)','https://www.collegeforalltexans.com'],p:[
+  S('TEXAS Grant','Varies','Need-based grant for Texas residents at public universities.',{income:'pell',school:'4yr'},{dl:{m:1,d:15},dlLabel:'State priority deadline'}),
+  S('Texas Educational Opportunity Grant (TEOG)','Varies','Need-based grant for community and technical college students.',{income:'pell',school:'cc'},{dl:{m:1,d:15},dlLabel:'State priority deadline'}),
+  S('Tuition Equalization Grant (TEG)','Varies','Need-based grant for Texas private, nonprofit colleges.',{income:'need',school:'4yr'})]},
+ UT:{n:'Utah',a:['Utah System of Higher Education','https://ushe.edu'],p:[
+  S('Utah Promise Scholarship','Last-dollar tuition','Need-based scholarship covering remaining tuition at Utah public colleges.',{income:'pell'}),
+  S('Utah Opportunity Scholarship','Varies','Merit award for Utah graduates who complete recommended coursework with strong grades.',{levels:['hs_jr','hs_sr'],minGPA:3.3,gpaSoft:true})]},
+ VT:{n:'Vermont',a:['Vermont Student Assistance Corporation','https://www.vsac.org'],p:[
+  S('Vermont Grant','Varies','Vermont\'s need-based grant, usable at many schools in and out of state.',{income:'need'}),
+  S('802 Opportunity','Free CCV tuition','Tuition-free courses at Community College of Vermont for Vermonters below the income cap.',{school:'cc',income:65000}),
+  S('VSAC Scholarships','140+ scholarships, one application','A single application covers scholarships funded by Vermont donors and organizations.',{levels:['hs_sr','cc','ug_lower','ug_upper','grad','adult']})]},
+ VA:{n:'Virginia',dream:true,a:['State Council of Higher Education for Virginia','https://www.schev.edu'],p:[
+  S('Virginia Guaranteed Assistance Program (VGAP)','Varies','Need-based grant for Virginia graduates with a 2.5 GPA at public colleges.',{levels:['hs_sr','ug_lower','ug_upper'],minGPA:2.5,income:'need'}),
+  S('Virginia Tuition Assistance Grant (VTAG)','Varies','For Virginia residents at private, nonprofit Virginia colleges. Not need-based.',{school:'4yr',incomeMax:4}),
+  S('G3 (Get Skilled, Get a Job, Give Back)','Last-dollar CC tuition','Free community college in high-demand fields for lower- and middle-income Virginians.',{school:'cc',income:'need'})]},
+ WA:{n:'Washington',dream:true,a:['Washington Student Achievement Council','https://wsac.wa.gov'],p:[
+  S('Washington College Grant','Up to full tuition','One of the most generous state grants in the U.S.: free tuition for many low-income families and partial grants well into the middle class.',{income:'need'}),
+  S('College Bound Scholarship','Tuition + book allowance','For income-eligible students who sign up in middle school and graduate with a 2.0+ GPA.',{levels:['hs_early','hs_jr','hs_sr'],income:'pell',minGPA:2.0}),
+  S('Washington State Opportunity Scholarship','Up to $22,500','For Washington students pursuing STEM or health care degrees.',{levels:['hs_sr','cc','ug_lower'],fields:['stem','health'],income:'need'})]},
+ WV:{n:'West Virginia',a:['College Foundation of West Virginia','https://www.cfwv.com'],p:[
+  S('PROMISE Scholarship','Up to $5,500/yr','Merit scholarship for West Virginia graduates with a 3.0 core GPA and qualifying ACT/SAT scores.',{levels:['hs_early','hs_jr','hs_sr'],minGPA:3.0}),
+  S('West Virginia Higher Education Grant','Varies','Need-based grant for West Virginia residents.',{income:'need'},{dl:{m:4,d:15},dlLabel:'FAFSA deadline'}),
+  S('West Virginia Invests Grant','CC tuition','Covers tuition at community and technical colleges for high-demand programs.',{school:'cc'})]},
+ WI:{n:'Wisconsin',a:['Wisconsin Higher Educational Aids Board','https://heab.state.wi.us'],p:[
+  S('Wisconsin Grant','Varies','Wisconsin\'s need-based grant.',{income:'need'}),
+  S('Academic Excellence Scholarship','Up to $2,250/yr','For the highest-GPA seniors at each Wisconsin high school, nominated by the school.',{levels:L_HS,minGPA:3.7,gpaSoft:true}),
+  S('Talent Incentive Program (TIP)','Varies','For first-generation, very-low-income Wisconsin students.',{income:'pell',ids:['firstgen']})]},
+ WY:{n:'Wyoming',a:['Hathaway Scholarship (Wyoming Dept. of Education)','https://hathawayscholarship.org'],p:[
+  S('Hathaway Scholarship','$1,180–$2,360 per semester','Four merit tiers for Wyoming graduates at UW or a Wyoming community college. Honors needs a 3.5 GPA and 25 ACT; Provisional starts at 2.5. Award amounts went up for courses starting July 2026, and there\'s a need-based supplement.',{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower'],minGPA:2.5}),
+  S('Wyoming\'s Tomorrow Scholarship','Varies','For adult Wyoming residents returning to school at a community college or UW.',{levels:['adult']})]}
+};
+
+/* ZIP prefix (first 3 digits) -> state */
+const ZIP_RANGES = [[5,5,'NY'],[6,9,'PR'],[10,27,'MA'],[28,29,'RI'],[30,38,'NH'],[39,49,'ME'],[50,54,'VT'],[55,55,'MA'],[56,59,'VT'],[60,69,'CT'],[70,89,'NJ'],[90,99,'AE'],[100,149,'NY'],[150,196,'PA'],[197,199,'DE'],[200,200,'DC'],[201,201,'VA'],[202,205,'DC'],[206,219,'MD'],[220,246,'VA'],[247,268,'WV'],[270,289,'NC'],[290,299,'SC'],[300,319,'GA'],[320,339,'FL'],[340,340,'AA'],[341,349,'FL'],[350,369,'AL'],[370,385,'TN'],[386,397,'MS'],[398,399,'GA'],[400,427,'KY'],[430,459,'OH'],[460,479,'IN'],[480,499,'MI'],[500,528,'IA'],[530,549,'WI'],[550,567,'MN'],[569,569,'DC'],[570,577,'SD'],[580,588,'ND'],[590,599,'MT'],[600,629,'IL'],[630,658,'MO'],[660,679,'KS'],[680,693,'NE'],[700,714,'LA'],[716,729,'AR'],[730,732,'OK'],[733,733,'TX'],[734,749,'OK'],[750,799,'TX'],[800,816,'CO'],[820,831,'WY'],[832,838,'ID'],[840,847,'UT'],[850,865,'AZ'],[870,884,'NM'],[885,885,'TX'],[889,898,'NV'],[900,961,'CA'],[962,966,'AP'],[967,968,'HI'],[969,969,'GU'],[970,979,'OR'],[980,994,'WA'],[995,999,'AK']];
+function zipToState(z){
+  if(!/^\d{5}$/.test(z)) return null;
+  const p = parseInt(z.slice(0,3),10);
+  for(const [lo,hi,st] of ZIP_RANGES){ if(p>=lo && p<=hi) return st; }
+  return null;
+}
+
+/* =====================================================================
+   STATE / PROFILE
+   ===================================================================== */
+const EXAMPLE = {st:'TX',zip:'78701',place:'Travis County',stage:'hs_sr',gpa:3.45,inc:1,school:'4yr',field:'stem',cit:'cit',age:17,tags:['firstgen']};
+const BLANK = {st:'',zip:'',place:'',stage:'hs_sr',gpa:3.0,inc:1,school:'unsure',field:'undecided',cit:'cit',age:17,tags:[]};
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+let P = store.get('gc.profile', null);
+let isExample = !P;
+if(!P) P = Object.assign({}, EXAMPLE);
+let saved = new Set(store.get('gc.saved', []));
+let scope = 'all';
+let sortMode = 'match';
+let showFail = false;
+
+const TODAY = (()=>{ const d = new Date(); d.setHours(0,0,0,0); return d; })();
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtDate = d => `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+const daysBetween = d => Math.round((d - TODAY)/86400000);
+
+/* =====================================================================
+   DEADLINES
+   ===================================================================== */
+function nextOcc(md){
+  let d = new Date(TODAY.getFullYear(), md.m-1, md.d);
+  if(d < TODAY) d = new Date(TODAY.getFullYear()+1, md.m-1, md.d);
+  return d;
+}
+function deadlineFor(it){
+  const byStage = it.dlByStage && it.dlByStage[P.stage];
+  if(it.on && !byStage){
+    const [y,m,d] = it.on.split('-').map(Number);
+    const od = new Date(y,m-1,d);
+    if(od >= TODAY) return {date:od, est:false, label:it.dlLabel};
+    if(it.dl) return {date:nextOcc(it.dl), est:true, closed:true, label:it.dlLabel};
+  }
+  const md = byStage || it.dl;
+  if(md){
+    let d = nextOcc(md), d2 = it.dl2 ? nextOcc(it.dl2) : null;
+    if(d2 && d2 < d) d = d2;
+    return {date:d, est:true, label:it.dlLabel};
+  }
+  return null;
+}
+
+/* =====================================================================
+   MATCHING
+   ===================================================================== */
+function evaluate(it, isState, st){
+  const r = it.req || {};
+  const c = [];
+  const add = (s,t)=>c.push({s,t});
+
+  if(isState) add('pass', `For ${st.n} residents`);
+
+  if(r.levels){
+    if(r.levels.includes(P.stage)) add('pass', `Open to ${STAGE_LABEL[P.stage]}`);
+    else add('fail', `Not for ${STAGE_LABEL[P.stage]} (open to ${r.levels.map(l=>STAGE_SHORT[l]).join(', ')})`);
+  }
+
+  let min = r.minGPA;
+  if(r.minGPAByStage) min = (P.stage in r.minGPAByStage) ? r.minGPAByStage[P.stage] : r.minGPAByStage.default;
+  if(min != null){
+    const g = P.gpa.toFixed(2);
+    if(P.gpa >= min) add('pass', `Needs a ${min.toFixed(1)}+ GPA; you have ${g}`);
+    else if(r.gpaSoft || (min - P.gpa) <= 0.15) add('maybe', `Usually wants a ${min.toFixed(1)}+ GPA; you have ${g}`);
+    else add('fail', `Needs a ${min.toFixed(1)}+ GPA; you have ${g}`);
+  }
+
+  const inc = INCOME[P.inc];
+  if(r.income === 'pell'){
+    if(P.inc <= 1) add('pass','Your income suggests Pell eligibility (the FAFSA decides)');
+    else if(P.inc === 2) add('maybe','Pell eligibility possible at this income, depending on family size');
+    else add('fail','Requires Pell eligibility, which is unlikely at this income');
+  } else if(r.income === 'need'){
+    if(P.inc <= 2) add('pass','Need-based, and your income suggests you qualify');
+    else add('maybe','Need-based: depends on your school\'s cost and family size');
+  } else if(typeof r.income === 'number'){
+    const cap = r.income;
+    if(inc.hi <= cap) add('pass', `Income limit about $${(cap/1000)|0}k; you're under it`);
+    else if(inc.lo < cap) add('maybe', `Income limit about $${(cap/1000)|0}k; you may be near it`);
+    else add('fail', `Income limit about $${(cap/1000)|0}k`);
+  }
+
+  // citizenship
+  if(r.cit){
+    if(r.cit.includes(P.cit)) add('pass', `Open to ${CIT_LABEL[P.cit]}`);
+    else add('fail', `Not open to ${CIT_LABEL[P.cit]}`);
+  } else if(isState){
+    if(FED.includes(P.cit)) add('pass','Open to citizens and eligible noncitizens');
+    else if(P.cit === 'daca' && st.dream) add('maybe', `${st.n} lets many undocumented and DACA students apply through its own state aid application`);
+    else if(P.cit === 'daca') add('fail', `${st.n} state aid generally requires citizenship or eligible noncitizen status`);
+    else add('fail','State aid is for residents, not international students');
+  } else if(P.cit === 'intl'){
+    add('maybe','Check whether international students can apply');
+  }
+
+  if(r.school){
+    const want = r.school === 'cc' ? 'community or technical college' : '4-year college';
+    if(P.school === r.school || (r.school==='cc' && P.stage==='cc')) add('pass', `For students at a ${want}`);
+    else if(P.school === 'unsure') add('maybe', `Only for students at a ${want}`);
+    else add('fail', `Only for students at a ${want}`);
+  }
+
+  if(r.fields){
+    if(r.fields.includes(P.field)) add('pass', `For ${r.fields.map(f=>FIELD_LABEL[f]).join(' / ')} students`);
+    else if(P.field === 'undecided') add('maybe', `Only for ${r.fields.map(f=>FIELD_LABEL[f]).join(' / ')} students`);
+    else add('fail', `Only for ${r.fields.map(f=>FIELD_LABEL[f]).join(' / ')} students`);
+  }
+
+  if(r.ids){
+    const hit = r.ids.find(t=>P.tags.includes(t));
+    if(hit) add('pass', `For ${TAG_LABEL[hit].toLowerCase()} students`);
+    else add('fail', `Only for ${r.ids.map(t=>TAG_LABEL[t].toLowerCase()).join(' or ')} students`);
+  }
+
+  if(r.research){
+    if(P.tags.includes('research')) add('pass','You have an independent project to submit');
+    else add('maybe','Requires an original research project or significant body of work');
+  }
+
+  if(r.maxAge != null){
+    if(P.age <= r.maxAge) add('pass', `Age limit ${r.maxAge+1 > 25 ? 'under 26' : r.maxAge+' or under'}`);
+    else add('fail', `Age limit: ${r.maxAge} or under`);
+  }
+
+  (r.notes||[]).forEach(n=>add('info', n));
+
+  const hasFail = c.some(x=>x.s==='fail');
+  const hasMaybe = c.some(x=>x.s==='maybe');
+  return {level: hasFail ? 'fail' : (hasMaybe ? 'maybe' : 'strong'), checks:c};
+}
+
+function compute(){
+  const st = STATES[P.st];
+  const out = [];
+  NATIONAL.forEach(it=>{
+    const ev = evaluate(it,false,st||{});
+    out.push(Object.assign({}, it, ev, {scope:'national', key:'n:'+it.id, dline:deadlineFor(it), url: it.url==='STATE' ? (st ? st.a[1] : 'https://www.ed.gov/sgt') : it.url}));
+  });
+  if(st){
+    st.p.forEach((it,i)=>{
+      const ev = evaluate(it,true,st);
+      out.push(Object.assign({}, it, ev, {scope:'state', key:`s:${P.st}:${i}`, org:st.a[0], url:st.a[1], dline:deadlineFor(it), max:0}));
+    });
+  }
+  return out;
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+function dlTag(x){
+  const d = x.dline;
+  if(!d) return `<span class="tag">Rolling / varies</span>`;
+  const n = daysBetween(d.date);
+  let cls = 'dl-ok', when;
+  if(d.closed){ return `<span class="tag" title="This year's deadline has passed">Closed this cycle · next ~${MONTHS[d.date.getMonth()]} ${d.date.getFullYear()}</span>`; }
+  if(n === 0) { when = 'Due today'; cls='dl-urgent'; }
+  else if(n === 1){ when = 'Due tomorrow'; cls='dl-urgent'; }
+  else { when = `${d.est?'Est. ':''}${fmtDate(d.date)} · ${n} days`; cls = n<=14 ? 'dl-urgent' : (n<=60 ? 'dl-soon' : 'dl-ok'); }
+  const lbl = d.label ? `${d.label}: ` : 'Deadline: ';
+  return `<span class="tag ${cls}" title="${esc(lbl+fmtDate(d.date)+(d.est?' (estimated from last year)':''))}">${esc(when)}</span>`;
+}
+
+function cardHTML(x){
+  const icons = {pass:'✓',maybe:'?',fail:'✕',info:'i'};
+  const lvl = x.level === 'strong' ? 'lv-strong' : (x.level === 'maybe' ? 'lv-maybe' : 'lv-fail');
+  const isSaved = saved.has(x.key);
+  const opens = (x.opens && x.dline && (x.dline.est || x.dline.closed)) ? `<span class="tag">Usually opens ${esc(x.opens)}</span>` : '';
+  return `<article class="card ${lvl}">
+    <div class="card-top">
+      <div class="card-title"><h4>${esc(x.name)}</h4><span class="org">${esc(x.org)}</span></div>
+      <div class="amt"><div class="v">${esc(x.amt)}</div></div>
+    </div>
+    <div class="meta">
+      <span class="tag ${x.scope==='state'?'scope-state':''}">${x.scope==='state' ? esc(STATES[P.st].n)+' program' : 'National'}</span>
+      ${dlTag(x)}${opens}
+    </div>
+    <p class="desc" style="margin:0">${esc(x.desc)}</p>
+    <ul class="checks">${x.checks.map(k=>`<li><span class="ic ${k.s}" aria-hidden="true">${icons[k.s]}</span><span><span class="sr">${k.s==='pass'?'Meets: ':k.s==='maybe'?'Check: ':k.s==='fail'?'Does not meet: ':'Note: '}</span>${esc(k.t)}</span></li>`).join('')}</ul>
+    <div class="card-foot">
+      <a class="go" href="${esc(x.url)}" target="_blank" rel="noopener">Official site ↗</a>
+      <button type="button" class="star" data-key="${esc(x.key)}" aria-pressed="${isSaved}">${isSaved?'★ Saved':'☆ Save'}</button>
+    </div>
+  </article>`;
+}
+
+function sorter(a,b){
+  const rank = {strong:0,maybe:1,fail:2};
+  if(sortMode === 'deadline'){
+    const da = a.dline && !a.dline.closed ? a.dline.date : new Date(8640000000000000);
+    const db = b.dline && !b.dline.closed ? b.dline.date : new Date(8640000000000000);
+    return da - db || rank[a.level]-rank[b.level];
+  }
+  if(sortMode === 'amount') return (b.max||0)-(a.max||0) || rank[a.level]-rank[b.level];
+  if(rank[a.level] !== rank[b.level]) return rank[a.level]-rank[b.level];
+  if(a.scope !== b.scope) return a.scope==='state' ? -1 : 1;
+  const da = a.dline && !a.dline.closed ? a.dline.date : new Date(8640000000000000);
+  const db = b.dline && !b.dline.closed ? b.dline.date : new Date(8640000000000000);
+  return da - db;
+}
+
+let lastResults = [];
+function render(){
+  const all = compute();
+  lastResults = all;
+  const st = STATES[P.st];
+  $('segState').textContent = st ? st.n : 'My state';
+  $('segState').disabled = !st;
+
+  const strong = all.filter(x=>x.level==='strong');
+  const maybe = all.filter(x=>x.level==='maybe');
+  const fail = all.filter(x=>x.level==='fail');
+  const live = [...strong,...maybe].filter(x=>x.dline && !x.dline.closed);
+  const soon = live.filter(x=>daysBetween(x.dline.date) <= 30);
+  live.sort((a,b)=>a.dline.date-b.dline.date);
+  const next = live[0];
+  const tot = all.length || 1;
+  $('jumpBtn').textContent = `See my ${strong.length + maybe.length} matches ↓`;
+
+  $('summary').innerHTML = `
+    <div class="sum-top">
+      <div class="sum-big">${strong.length}<small>strong matches</small></div>
+      <div class="stat"><span class="k">Worth a look</span><span class="v">${maybe.length}</span></div>
+      <div class="stat"><span class="k">Due in 30 days</span><span class="v">${soon.length}</span></div>
+      <div class="stat"><span class="k">Next deadline</span><span class="v">${next ? esc(MONTHS[next.dline.date.getMonth()]+' '+next.dline.date.getDate())+' · '+esc(next.name.length>26?next.name.slice(0,24)+'…':next.name) : 'None upcoming'}</span></div>
+    </div>
+    <div class="depth" role="img" aria-label="${strong.length} strong, ${maybe.length} worth a look, ${fail.length} not a fit out of ${all.length} programs checked">
+      <i class="d1" style="width:${strong.length/tot*100}%"></i><i class="d2" style="width:${maybe.length/tot*100}%"></i><i class="d3" style="width:${fail.length/tot*100}%"></i>
+    </div>
+    <div class="legend-row">
+      <span><b style="background:var(--good)"></b>Bedrock: you meet every listed requirement</span>
+      <span><b style="background:var(--warn)"></b>Sandstone: one or more things to check</span>
+      <span><b style="background:var(--line)"></b>Scree: not a fit right now</span>
+      <span>${all.length} programs checked${st?` for ${esc(st.n)}`:''}</span>
+    </div>`;
+
+  let list = all;
+  if(scope==='state') list = all.filter(x=>x.scope==='state');
+  if(scope==='national') list = all.filter(x=>x.scope==='national');
+  if(scope==='saved') list = all.filter(x=>saved.has(x.key));
+  list = list.slice().sort(sorter);
+
+  const groups = [
+    ['strong','Strong matches','Bedrock',list.filter(x=>x.level==='strong')],
+    ['maybe','Worth a look','Sandstone',list.filter(x=>x.level==='maybe')],
+    ['fail','Not a fit right now','Scree',list.filter(x=>x.level==='fail')]
+  ];
+  let html = '';
+  if(!st && scope!=='saved'){
+    html += `<p class="empty">Enter a ZIP code or pick a state to add your state's own grants and scholarships. National programs are shown below.</p>`;
+  }
+  groups.forEach(([key,title,rock,items])=>{
+    if(key==='fail'){
+      if(!items.length) return;
+      html += `<div class="layer"><div class="layer-head"><h3>${title}</h3><span class="rock">${rock}</span><span class="count">${items.length}</span></div>
+        <button type="button" class="btn ghost small showfail" id="failToggle" aria-expanded="${showFail}">${showFail?'Hide':'Show'} ${items.length} programs that don't fit, and why</button>
+        ${showFail ? `<div class="cards">${items.map(cardHTML).join('')}</div>` : ''}</div>`;
+      return;
+    }
+    html += `<div class="layer"><div class="layer-head"><h3>${title}</h3><span class="rock">${rock}</span><span class="count">${items.length}</span></div>
+      ${items.length ? `<div class="cards">${items.map(cardHTML).join('')}</div>` : `<p class="empty">${scope==='saved' ? 'Nothing saved here yet. Tap “Save” on any program to keep it on your list.' : 'Nothing in this layer for your profile.'}</p>`}</div>`;
+  });
+  $('layers').innerHTML = html;
+  renderDig(st);
+}
+
+function renderDig(st){
+  const place = P.place.trim();
+  const where = [place, st ? st.n : ''].filter(Boolean).join(' ');
+  const g = q => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+  const yr = TODAY.getMonth() >= 7 ? TODAY.getFullYear()+1 : TODAY.getFullYear();
+  const links = [];
+  if(where){
+    links.push([g(`${where} community foundation scholarships`), `${where} community foundation`, 'Most counties have one, and they run dozens of small local scholarships']);
+    links.push([g(`${where} local scholarships ${yr} high school seniors`), `Local scholarships near ${place || st.n}`, 'Rotary, Lions, credit unions and local employers']);
+  }
+  if(st){
+    links.push([st.a[1], st.a[0], `Your official state aid agency for ${st.n}`]);
+    links.push([`https://www.ed.gov/about/contact-us/state-contacts/${P.st.toLowerCase()}`, `${st.n} education contacts`, 'U.S. Dept. of Education directory for your state']);
+  }
+  links.push(['https://www.careeronestop.org/Toolkit/Training/find-scholarships.aspx','CareerOneStop Scholarship Finder','Free U.S. Dept. of Labor database you can filter by state']);
+  links.push(['https://bigfuture.collegeboard.org/scholarships','BigFuture Scholarship Search','College Board search with thousands of listings']);
+  links.push(['https://studentaid.gov/h/apply-for-aid/fafsa','File the FAFSA','Required for Pell, most state grants and many scholarships on this page']);
+
+  $('dig').innerHTML = `
+    <h3>Dig local</h3>
+    <p>The least competitive money is usually the closest to home: small awards from groups in ${esc(place || (st ? st.n : 'your area'))} that only a handful of students apply for.${place ? '' : ' Add your city or county above to tailor these searches.'}</p>
+    <div class="dig-links">${links.map(([u,t,s])=>`<a href="${esc(u)}" target="_blank" rel="noopener"><b>${esc(t)} ↗</b><span>${esc(s)}</span></a>`).join('')}</div>
+    <ul>
+      <li>Ask your school counselor for the local scholarship list. Most schools keep one.</li>
+      <li>Check with a parent's or guardian's employer, union, credit union and place of worship.</li>
+      <li>Look up the college you're headed to: institutional scholarships are often the largest awards of all.</li>
+    </ul>`;
+}
+
+/* =====================================================================
+   FORM WIRING
+   ===================================================================== */
+function buildForm(){
+  const sel = $('state');
+  sel.innerHTML = `<option value="">Choose a state…</option>` + Object.entries(STATES).sort((a,b)=>a[1].n.localeCompare(b[1].n)).map(([k,v])=>`<option value="${k}">${esc(v.n)}</option>`).join('');
+  $('tagChips').innerHTML = TAGS.map(([k,l])=>`<label class="chip-toggle"><input type="checkbox" id="tag-${k}" value="${k}"><span>${esc(l)}</span></label>`).join('');
+}
+function fillForm(){
+  $('zip').value = P.zip; $('state').value = P.st; $('place').value = P.place;
+  $('stage').value = P.stage; $('gpa').value = P.gpa; $('gpaOut').textContent = Number(P.gpa).toFixed(2);
+  $('income').value = String(P.inc); $('school').value = P.school; $('field').value = P.field;
+  $('cit').value = P.cit; $('age').value = P.age;
+  TAGS.forEach(([k])=>{ $('tag-'+k).checked = P.tags.includes(k); });
+  $('exampleNote').style.display = isExample ? '' : 'none';
+  zipStatus();
+}
+function zipStatus(){
+  const z = $('zip').value.trim();
+  const el = $('zipStatus');
+  if(!z){ el.textContent = ''; return; }
+  if(!/^\d{5}$/.test(z)){ el.textContent = 'Enter all 5 digits'; return; }
+  const s = zipToState(z);
+  if(s && STATES[s]) el.textContent = `→ ${STATES[s].n}`;
+  else if(s==='PR'||s==='GU') el.textContent = 'U.S. territory: national programs only';
+  else if(s==='AE'||s==='AA'||s==='AP') el.textContent = 'Military address: pick your state of legal residence';
+  else el.textContent = 'ZIP not recognized: pick your state below';
+}
+function readForm(e){
+  const t = e && e.target;
+  P.zip = $('zip').value.trim();
+  if(t && t.id==='zip'){
+    const s = zipToState(P.zip);
+    if(s && STATES[s]){ P.st = s; $('state').value = s; }
+    zipStatus();
+  } else {
+    P.st = $('state').value;
+  }
+  P.place = $('place').value;
+  P.stage = $('stage').value;
+  P.gpa = parseFloat($('gpa').value); $('gpaOut').textContent = P.gpa.toFixed(2);
+  P.inc = parseInt($('income').value,10);
+  P.school = $('school').value; P.field = $('field').value; P.cit = $('cit').value;
+  const a = parseInt($('age').value,10); P.age = isNaN(a) ? 17 : a;
+  P.tags = TAGS.map(([k])=>k).filter(k=>$('tag-'+k).checked);
+  if(isExample){ isExample = false; $('exampleNote').style.display='none'; }
+  store.set('gc.profile', P);
+  render();
+}
+
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function copyList(){
+  const pick = lastResults.filter(x=>saved.has(x.key));
+  const items = (pick.length ? pick : lastResults.filter(x=>x.level==='strong')).slice().sort((a,b)=>{
+    const da = a.dline && !a.dline.closed ? a.dline.date : new Date(8640000000000000);
+    const db = b.dline && !b.dline.closed ? b.dline.date : new Date(8640000000000000);
+    return da-db;
+  });
+  if(!items.length){ toast('Nothing to copy yet: save a program first'); return; }
+  const lines = [`Grant Canyon shortlist${STATES[P.st] ? ' · '+STATES[P.st].n : ''} (${pick.length?'saved':'strong matches'})`, ''];
+  items.forEach(x=>{
+    const d = x.dline ? (x.dline.closed ? `next cycle ~${MONTHS[x.dline.date.getMonth()]} ${x.dline.date.getFullYear()}` : `${x.dline.est?'est. ':''}${fmtDate(x.dline.date)}`) : 'rolling';
+    lines.push(`☐ ${x.name} | ${x.amt} | ${d}`);
+    lines.push(`   ${x.url}`);
+  });
+  lines.push('', 'Always confirm requirements and dates on the official site.');
+  const text = lines.join('\n');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast(`Copied ${items.length} programs`), ()=>fallbackCopy(text, items.length));
+  } else fallbackCopy(text, items.length);
+}
+function fallbackCopy(text,n){
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try{ ok = document.execCommand('copy'); }catch(e){}
+  ta.remove(); toast(ok ? `Copied ${n} programs` : 'Copy was blocked by your browser');
+}
+
+/* =====================================================================
+   HEADER STRATA (canvas)
+   ===================================================================== */
+function drawStrata(){
+  const cv = $('strata'); const ctx = cv.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cols = [];
+  const readCols = ()=>{ const css = getComputedStyle(document.documentElement); cols = ['--strata1','--strata2','--strata3','--strata4'].map(v=>css.getPropertyValue(v).trim()); };
+  readCols();
+  let w,h,dpr;
+  function size(){ dpr = Math.min(window.devicePixelRatio||1,2); w = cv.clientWidth; h = cv.clientHeight; cv.width = w*dpr; cv.height = h*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  const seeds = Array.from({length:9},(_,i)=>({a:Math.random()*6.28,b:Math.random()*6.28,f1:0.004+Math.random()*0.004,f2:0.011+Math.random()*0.01}));
+  function frame(p){
+    ctx.clearRect(0,0,w,h);
+    const startX = w*0.42;
+    const span = (w - startX) * p;
+    for(let i=0;i<seeds.length;i++){
+      const s = seeds[i];
+      const base = h*0.12 + i*(h*0.105);
+      ctx.beginPath();
+      ctx.moveTo(startX, h);
+      for(let x=startX; x<=startX+span; x+=6){
+        const t = (x-startX)/(w-startX);
+        const cliff = Math.pow(Math.max(0,1-t*1.6),2)*h*0.5;  // layers drop into a canyon on the left edge
+        const y = base + cliff + Math.sin(x*s.f1+s.a)*10 + Math.sin(x*s.f2+s.b)*4;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(startX+span, h); ctx.closePath();
+      ctx.fillStyle = cols[i%cols.length];
+      ctx.globalAlpha = 0.55;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    // fade toward the text side
+    ctx.globalCompositeOperation = 'destination-out';
+    const m = ctx.createLinearGradient(0,0,w,0);
+    m.addColorStop(0,'rgba(0,0,0,1)'); m.addColorStop(0.45,'rgba(0,0,0,1)'); m.addColorStop(0.7,'rgba(0,0,0,0)');
+    ctx.fillStyle = m; ctx.fillRect(0,0,w,h);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  size();
+  if(reduce){ frame(1); }
+  else {
+    const t0 = performance.now();
+    const step = now => { const p = Math.min(1,(now-t0)/1400); frame(1-Math.pow(1-p,3)); if(p<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('resize', ()=>{ size(); frame(1); });
+  const redraw = ()=>{ readCols(); frame(1); };
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if(mq.addEventListener) mq.addEventListener('change', redraw);
+  new MutationObserver(redraw).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+}
+
+/* =====================================================================
+   INIT
+   ===================================================================== */
+buildForm();
+fillForm();
+render();
+drawStrata();
+
+$('survey').addEventListener('input', readForm);
+$('survey').addEventListener('change', readForm);
+$('survey').addEventListener('submit', e=>e.preventDefault());
+$('clearBtn').addEventListener('click', ()=>{
+  P = Object.assign({}, BLANK); isExample = false; store.set('gc.profile', P); fillForm(); render(); $('zip').focus();
+});
+$('scopeSeg').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-scope]'); if(!b || b.disabled) return;
+  scope = b.dataset.scope;
+  $('scopeSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+  render();
+});
+const SORTS = [['match','best match'],['deadline','soonest deadline'],['amount','biggest award']];
+$('sortBtn').addEventListener('click', ()=>{
+  const i = SORTS.findIndex(s=>s[0]===sortMode); const nx = SORTS[(i+1)%SORTS.length];
+  sortMode = nx[0]; $('sortBtn').textContent = 'Sort: '+nx[1]; render();
+});
+$('copyBtn').addEventListener('click', copyList);
+$('jumpBtn').addEventListener('click', e=>{ e.preventDefault(); $('summary').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); });
+$('layers').addEventListener('click', e=>{
+  const s = e.target.closest('.star');
+  if(s){
+    const k = s.dataset.key;
+    if(saved.has(k)) saved.delete(k); else saved.add(k);
+    store.set('gc.saved', [...saved]);
+    render(); return;
+  }
+  if(e.target.id === 'failToggle'){ showFail = !showFail; render(); }
+});
+</script>
+</body>
+</html>
