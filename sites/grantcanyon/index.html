@@ -137,6 +137,10 @@ details.more .inner{display:grid;gap:16px}
 .tag.dl-urgent{background:var(--bad);border-color:var(--bad);color:#fff}
 .tag.dl-soon{background:var(--warn);border-color:var(--warn);color:#fff}
 .tag.dl-ok{color:var(--ink)}
+.tag.kind{background:var(--accent-soft);border-color:transparent;color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{flex:1 1 220px;min-width:0}
+.search input{min-height:38px;font-size:14.5px;background:var(--card)}
 .desc{font-size:14.5px;max-width:68ch}
 .checks{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13.5px}
 .checks li{display:flex;gap:8px;align-items:flex-start}
@@ -186,8 +190,8 @@ footer p{max-width:80ch;margin:0 0 8px}
     <h1 class="wordmark">Grant<br><span>Canyon</span></h1>
     <p class="tagline">The gap between tuition and your bank account runs deep. Tell us where you live and who you are, and we'll show you what's down there.</p>
     <div class="hero-meta">
-      <span><b>51</b> state &amp; DC aid programs</span>
-      <span><b>32</b> national scholarships &amp; grants</span>
+      <span><b id="cntState">140+</b> state &amp; DC aid programs</span>
+      <span><b id="cntNat">90</b> national &amp; regional scholarships, contests &amp; grants</span>
       <span>Deadlines checked <b>Nov 2026</b></span>
     </div>
   </div>
@@ -266,6 +270,7 @@ footer p{max-width:80ch;margin:0 0 8px}
           <option value="biz">Business</option>
           <option value="arts">Arts / humanities</option>
           <option value="trades">Skilled trades</option>
+          <option value="env">Environment / agriculture</option>
           <option value="undecided">Undecided</option>
         </select>
       </div>
@@ -314,6 +319,15 @@ footer p{max-width:80ch;margin:0 0 8px}
         <button type="button" class="btn small" id="copyBtn">Copy my list</button>
       </div>
     </div>
+    <div class="filters">
+      <div class="seg" role="group" aria-label="Filter by type" id="kindSeg">
+        <button type="button" data-kind="all" aria-pressed="true">Any type</button>
+        <button type="button" data-kind="sweeps" aria-pressed="false">No-essay</button>
+        <button type="button" data-kind="contest" aria-pressed="false">Contests</button>
+        <button type="button" data-kind="soon" aria-pressed="false">Due in 60 days</button>
+      </div>
+      <div class="search"><label for="q" class="sr">Search programs</label><input type="text" id="q" placeholder="Search by name, sponsor or keyword…" autocomplete="off"></div>
+    </div>
     <div id="layers" style="display:grid;gap:26px"></div>
     <div class="dig" id="dig"></div>
   </section>
@@ -340,11 +354,16 @@ const TAGS = [
   ['firstgen','First in family to college'],['hispanic','Hispanic / Latino'],['black','Black / African American'],
   ['native','Enrolled tribal member'],['aapi','Asian American / Pacific Islander'],['woman','Woman'],
   ['military','Military family (dependent)'],['veteran','Veteran'],['foster','Foster care experience'],
-  ['ld','Learning disability / ADHD'],['disability','Other disability'],['research','Independent research project']
+  ['ld','Learning disability / ADHD'],['disability','Other disability'],['blind','Blind / low vision'],['deaf','Deaf / hard of hearing'],
+  ['lgbtq','LGBTQ+'],['immigrant','Immigrant or child of immigrants'],['provider','Parent or main provider for my family'],
+  ['homeless','Experienced homelessness'],['rural','Rural area / small town'],['hbcu','Attending or headed to an HBCU'],
+  ['ffa','FFA member'],['keyclub','Key Club member'],['elks','Parent/grandparent is an Elks member'],
+  ['research','Independent research project']
 ];
 const TAG_LABEL = Object.fromEntries(TAGS);
 const CIT_LABEL = {cit:'U.S. citizens',pr:'permanent residents',enc:'eligible noncitizens',daca:'DACA/TPS/undocumented students',intl:'international students'};
-const FIELD_LABEL = {stem:'STEM',health:'health',edu:'education',biz:'business',arts:'arts/humanities',trades:'skilled trades',undecided:'undecided'};
+const FIELD_LABEL = {stem:'STEM',health:'health',edu:'education',biz:'business',arts:'arts/humanities',trades:'skilled trades',env:'environment/agriculture',undecided:'undecided'};
+const TAG_PHRASE = {firstgen:'first-generation',hispanic:'Hispanic/Latino',black:'Black',native:'Native',aapi:'AANHPI',woman:'women',military:'military-family',veteran:'veteran',foster:'foster-care',ld:'learning-disability',disability:'disability',blind:'blind',deaf:'deaf and hard-of-hearing',lgbtq:'LGBTQ+',immigrant:'immigrant-family',provider:'parent/provider',homeless:'formerly homeless',rural:'rural',hbcu:'HBCU',ffa:'FFA',keyclub:'Key Club',elks:'Elks-family',research:'research'};
 
 /* National programs. `on` = verified current-cycle date; `dl` = usual annual date (projected when `on` has passed or is missing). */
 const NATIONAL = [
@@ -448,6 +467,180 @@ const NATIONAL = [
   desc:'Pays for study abroad for undergraduates who receive a Pell Grant. Two application cycles a year.',
   req:{levels:['cc','ug_lower','ug_upper'],income:'pell',cit:['cit']},dl:{m:3,d:5},dl2:{m:10,d:7}}
 ];
+
+/* ---------- Expansion: smaller, niche, contest and no-essay programs ---------- */
+const HS_ALL = ['hs_early','hs_jr','hs_sr'];
+const ANY_UG = ['hs_sr','cc','ug_lower','ug_upper'];
+const NATIONAL_MORE = [
+ // ---- contests ----
+ {id:'vod',kind:'contest',name:'VFW Voice of Democracy',org:'Veterans of Foreign Wars',amt:'$1,000–$35,000',max:35000,url:'https://www.vfw.org/VOD/',
+  desc:'A patriotic audio-essay contest for grades 9–12, judged at the local post, district, state and national levels. Even local wins pay.',
+  req:{levels:HS_ALL,notes:['Turn your entry in to a local VFW Post, not online.']},dl:{m:10,d:31}},
+ {id:'jfk',kind:'contest',name:'JFK Profile in Courage Essay Contest',org:'John F. Kennedy Library Foundation',amt:'$1,000–$10,000',max:10000,url:'https://www.jfklibrary.org/learn/education/profile-in-courage-essay-contest',
+  desc:'Write 700–1,000 words on an act of political courage by a U.S. elected official who served during or after 1917. Free to enter.',
+  req:{levels:HS_ALL},on:'2027-01-12',dl:{m:1,d:12},opens:'Sep 1'},
+ {id:'scholastic',kind:'contest',name:'Scholastic Art & Writing Awards',org:'Alliance for Young Artists & Writers',amt:'$500–$12,500',max:12500,url:'https://www.artandwriting.org/',
+  desc:'The oldest art and writing competition for grades 7–12, with almost 30 categories. Entry fees can be waived.',
+  req:{levels:HS_ALL,notes:['Deadlines vary by region, from Dec 1 to early January. Use the Region Locator on their site.']},on:'2026-12-01',dl:{m:12,d:1},opens:'Oct 1'},
+ {id:'youngarts',kind:'contest',name:'YoungArts National Arts Competition',org:'National YoungArts Foundation',amt:'$250–$10,000',max:10000,url:'https://youngarts.org/apply/',
+  desc:'For visual, literary and performing artists ages 15–18 (grades 10–12), in 10 disciplines. Every award winner gets a cash prize.',
+  req:{levels:HS_ALL,fields:['arts'],fieldsSoft:true,minAge:15,maxAge:18},dl:{m:10,d:6},opens:'Jul'},
+ {id:'doodle',kind:'contest',name:'Doodle for Google',org:'Google',amt:'Up to $55,000',max:55000,url:'https://doodles.google/d4g/',
+  desc:'K–12 art contest: redesign the Google logo around the year\'s theme. The national winner also gets $50,000 in tech for their school.',
+  req:{levels:HS_ALL},dl:{m:12,d:17}},
+ {id:'legion',kind:'contest',name:'American Legion Oratorical Contest',org:'The American Legion',amt:'Up to $25,000',max:25000,url:'https://www.legion.org/get-involved/youth-programs/oratorical-contest',
+  desc:'A speech contest on the U.S. Constitution. State winners who reach nationals each get a scholarship, and the top prize is $25,000.',
+  req:{levels:HS_ALL,cit:['cit','pr'],maxAge:19,notes:['Entry deadlines are set by each state\'s Legion department, usually December–January.']}},
+ {id:'breakthrough',kind:'contest',name:'Breakthrough Junior Challenge',org:'Breakthrough Prize Foundation',amt:'$250,000 scholarship',max:250000,url:'https://breakthroughjuniorchallenge.org/',
+  desc:'Make a short video explaining a big idea in science or math. Ages 13–18; the winner\'s teacher and school win prizes too.',
+  req:{levels:HS_ALL,fields:['stem','health'],fieldsSoft:true,minAge:13,maxAge:18},dl:{m:9,d:15}},
+ {id:'fra',kind:'contest',name:'Americanism Essay Contest',org:'Fleet Reserve Association',amt:'Up to $5,000',max:5000,url:'https://www.fra.org/',
+  desc:'An essay contest on an American-history theme for public school students.',
+  req:{levels:['hs_jr','hs_sr']},dl:{m:12,d:1}},
+ {id:'jkcya',kind:'contest',name:'Jack Kent Cooke Young Artist Award',org:'From the Top / Jack Kent Cooke Foundation',amt:'$10,000',max:10000,url:'https://www.fromthetop.org/',
+  desc:'For outstanding young classical musicians with financial need.',
+  req:{levels:HS_ALL,fields:['arts'],income:'need',maxAge:18},dl:{m:9,d:1}},
+ {id:'ncwit',kind:'contest',name:'NCWIT Award for Aspirations in Computing',org:'National Center for Women & IT',amt:'Recognition + $500',max:500,url:'https://www.aspirations.org/',
+  desc:'Recognizes high school students who are women, genderqueer or nonbinary for their computing achievements. Great for applications.',
+  req:{levels:HS_ALL,fields:['stem'],ids:['woman'],idsSoft:true},dl:{m:10,d:28}},
+ // ---- no-essay / sweepstakes ----
+ {id:'sallie',kind:'sweeps',name:'Sallie $2,000 No Essay Scholarship',org:'Sallie Mae',amt:'$2,000 (monthly)',max:2000,url:'https://www.sallie.com/scholarships',
+  desc:'A monthly drawing. Fill out a short form and you\'re entered; enter again each month.',
+  req:{levels:['hs_jr','hs_sr','cc','ug_lower','ug_upper','grad','adult'],minAge:16},monthly:true},
+ {id:'niche',kind:'sweeps',name:'Niche No Essay Scholarship',org:'Niche',amt:'$2,000–$25,000',max:25000,url:'https://www.niche.com/colleges/scholarships/',
+  desc:'Recurring no-essay drawings. Making one free profile enters you in several.',
+  req:{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower','ug_upper','grad','adult'],minAge:13},monthly:true},
+ {id:'bebold',kind:'sweeps',name:'"Be Bold" No-Essay Scholarship',org:'Bold.org',amt:'$25,000',max:25000,url:'https://bold.org/scholarships/by-type/no-essay-scholarships',
+  desc:'Awarded to the student with the "boldest" Bold.org profile. Any grade, state, major or GPA. Bold.org also lists 90+ other no-essay awards.',
+  req:{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower','ug_upper','grad','adult']},monthly:true},
+ {id:'appily',kind:'sweeps',name:'Appily Easy Money Scholarship',org:'Appily',amt:'$1,000 (monthly)',max:1000,url:'https://www.appily.com/scholarships',
+  desc:'Create a free Appily profile and you\'re automatically entered in the monthly drawing.',
+  req:{levels:['hs_early','hs_jr','hs_sr','cc','ug_lower','ug_upper','adult']},monthly:true},
+ {id:'courage',name:'Courage to Grow Scholarship',org:'Courage to Grow',amt:'$500 (monthly)',max:500,url:'https://bigfuture.collegeboard.org/scholarships/courage-to-grow-scholarship',
+  desc:'A 250-word essay on why you deserve it, judged every month. Small, but the competition is lighter than big national awards.',
+  req:{levels:['hs_jr','hs_sr','cc','ug_lower','ug_upper'],minGPA:2.5,cit:['cit']},monthly:true},
+ {id:'rollins',name:'Ted & Holly Rollins Scholarship',org:'Ted & Holly Rollins',amt:'$5,000–$10,000',max:10000,url:'https://www.rollinsscholarship.org',
+  desc:'Awarded twice a year to high school seniors for the most compelling life story and plans to make an impact.',
+  req:{levels:['hs_sr']},dl:{m:12,d:31},dl2:{m:6,d:15}},
+ // ---- merit / leadership / big-ticket ----
+ {id:'coolidge',name:'Coolidge Scholarship',org:'Calvin Coolidge Presidential Foundation',amt:'Full ride (4 years)',max:300000,url:'https://coolidgescholars.org/',
+  desc:'A full-ride merit award you apply for as a junior, covering tuition, room, board and expenses at any accredited U.S. college. Family income doesn\'t matter.',
+  req:{levels:['hs_jr'],cit:['cit','pr'],notes:['Some listings show a mid-December date. Confirm on the official site.']},on:'2026-12-01',dl:{m:12,d:1}},
+ {id:'cameron',name:'Cameron Impact Scholarship',org:'Bryan Cameron Education Foundation',amt:'Full tuition (4 years)',max:200000,url:'https://www.bryancameroneducationfoundation.org/',
+  desc:'15 full-tuition awards a year for leadership, service and impact, with no income test. Apply in junior year.',
+  req:{levels:['hs_jr'],cit:['cit'],minGPA:3.7,gpaSoft:true,notes:['The application closes early once 3,000 applications come in.']},on:'2027-05-01',dl:{m:5,d:1}},
+ {id:'hagan',name:'Hagan Scholarship',org:'Hagan Scholarship Foundation',amt:'Up to $60,000',max:60000,url:'https://haganscholarships.org/',
+  desc:'For high-achieving students from rural public high schools (counties under 50,000 people): up to $7,500 a semester plus $2,000 for start-up costs.',
+  req:{levels:['hs_sr'],ids:['rural'],income:125000,minGPA:3.5,cit:['cit'],notes:['Needs a 24 ACT / 1150 SAT. Only about 20 states are eligible; check the list.']},on:'2026-12-01',dl:{m:12,d:1},opens:'Sep 1'},
+ {id:'jrf',name:'Jackie Robinson Foundation Scholarship',org:'Jackie Robinson Foundation',amt:'Up to $35,000 over 4 years',max:35000,url:'https://jackierobinson.org/apply/',
+  desc:'Four-year scholarships plus mentoring, internships and leadership training. You don\'t have to be an athlete.',
+  req:{levels:['hs_sr'],school:'4yr',income:'need',notes:['The CSS Profile is due with the application.']},on:'2027-01-14',dl:{m:1,d:14},opens:'Sep'},
+ {id:'horatio_state',name:'Horatio Alger State Scholarships',org:'Horatio Alger Association',amt:'$10,000',max:10000,url:'https://scholars.horatioalger.org/',
+  desc:'Over 600 $10,000 awards across every state and D.C. for juniors who have overcome adversity. The same application covers the $25,000 national award.',
+  req:{levels:['hs_jr'],minGPA:2.0,cit:['cit'],income:65000},on:'2027-03-01',dl:{m:3,d:1},opens:'Dec 1'},
+ {id:'afe',name:'Amazon Future Engineer Scholarship',org:'Amazon / Scholarship America',amt:'$40,000 + paid internship',max:40000,url:'https://scholarshipamerica.org/scholarship/amazonfutureengineer/',
+  desc:'$10,000 a year for four years toward an engineering or computer science degree, plus a paid Amazon internship.',
+  req:{levels:['hs_sr'],fields:['stem'],income:'need',minGPA:3.0,gpaSoft:true,notes:['You need to have taken (or be taking) a computer science course.']},dl:{m:1,d:15},opens:'Nov'},
+ {id:'tacobell',name:'Taco Bell Live Más Scholarship',org:'Taco Bell Foundation',amt:'$5,000–$25,000',max:25000,url:'https://tacobellfoundation.org/live-mas-scholarship/',
+  desc:'A passion-based award for ages 16–26. No GPA, test scores or recommendations; submit a short video or essay.',
+  req:{levels:['hs_jr','hs_sr','cc','ug_lower','ug_upper','grad','adult'],minAge:16,maxAge:26},dl:{m:1,d:6},opens:'Oct'},
+ {id:'rise',name:'Rise',org:'Schmidt Futures & the Rhodes Trust',amt:'Need-based scholarships + lifelong support',max:50000,url:'https://www.risefortheworld.org/',
+  desc:'A global program for ages 15–17 that picks 100 winners a year for scholarships, mentoring and funding.',
+  req:{levels:HS_ALL,minAge:15,maxAge:17}},
+ {id:'kiwanis',name:'Kiwanis Key Club Scholarships',org:'Kiwanis Children\'s Fund',amt:'About $2,500',max:2500,url:'https://www.keyclub.org/',
+  desc:'For graduating seniors who are Key Club members.',
+  req:{levels:['hs_sr'],ids:['keyclub']},on:'2027-02-01',dl:{m:2,d:1},opens:'Nov 1'},
+ {id:'elkslegacy',name:'Elks Legacy Awards',org:'Elks National Foundation',amt:'$6,000 ($1,500/yr)',max:6000,url:'https://www.elks.org/scholarWeb/resources/legacyFAQ.cfm',
+  desc:'400 awards for children and grandchildren of Elks members.',
+  req:{levels:['hs_sr'],ids:['elks']},on:'2027-02-01',dl:{m:2,d:1},opens:'Sep 1'},
+ {id:'ffa',name:'National FFA Scholarships',org:'National FFA Organization',amt:'$1,000–$10,000',max:10000,url:'https://www.ffa.org/participate/grants-and-scholarships/scholarships/',
+  desc:'One application covers nearly $2.5 million in scholarships for FFA members heading to trade school, two-year or four-year programs.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['ffa']},on:'2027-01-15',dl:{m:1,d:15},opens:'Nov 1'},
+ {id:'ptk',name:'Coca-Cola Academic Team & PTK Scholarships',org:'Phi Theta Kappa',amt:'Up to ~$1,500 (plus transfer awards)',max:1500,url:'https://www.ptk.org/scholarships/for-non-members/',
+  desc:'Community college students nominated by their college compete for the Coca-Cola Academic Team. Several PTK scholarships are open to non-members.',
+  req:{levels:['cc'],notes:['Ask your college\'s PTK advisor about the nomination deadline.']},dl:{m:12,d:2}},
+ {id:'rowe',name:'mikeroweWORKS Work Ethic Scholarship',org:'mikeroweWORKS Foundation',amt:'$500–$15,000',max:15000,url:'https://www.mikeroweworks.org/scholarship/',
+  desc:'For people training for skilled trades like welding, HVAC, electrical, plumbing and diesel. Work ethic counts more than grades.',
+  req:{levels:['hs_sr','cc','adult'],fields:['trades'],cit:['cit']},dl:{m:10,d:31}},
+ // ---- ROTC ----
+ {id:'armyrotc',name:'Army ROTC National Scholarship',org:'U.S. Army',amt:'Full tuition or $12k housing',max:200000,url:'https://www.goarmy.com/rotc/scholarship',
+  desc:'Four-year scholarships at participating colleges, in exchange for serving as an Army officer after graduation.',
+  req:{levels:['hs_jr','hs_sr','cc','ug_lower'],cit:['cit'],minGPA:2.5,minAge:17,notes:['You must start the application by early March. It comes with an 8-year service commitment.']},dl:{m:3,d:4},opens:'Jun 14'},
+ {id:'navyrotc',name:'Navy ROTC Scholarship',org:'U.S. Navy',amt:'Full tuition + stipends',max:200000,url:'https://www.netc.navy.mil/NSTC/NROTC/',
+  desc:'Full tuition, fees and a book stipend at NROTC schools, in exchange for serving as a Navy or Marine Corps officer.',
+  req:{levels:['hs_sr','ug_lower'],cit:['cit'],minAge:17},on:'2027-01-31',dl:{m:1,d:31}},
+ {id:'afrotc',name:'Air Force & Space Force ROTC Scholarship',org:'U.S. Air Force',amt:'Tuition + stipends',max:200000,url:'https://www.afrotc.com/scholarships/',
+  desc:'Tuition scholarships plus book and monthly stipends, in exchange for serving as an Air Force or Space Force officer.',
+  req:{levels:['hs_sr','ug_lower'],cit:['cit'],minAge:17,notes:['The Space Force deadline comes earlier than the Air Force one.']},on:'2026-12-12',dl:{m:12,d:12}},
+ // ---- women, parents, adults ----
+ {id:'lyd',name:'Live Your Dream Award',org:'Soroptimist International',amt:'$1,000–$16,000',max:16000,url:'https://www.soroptimist.org/our-work/live-your-dream-awards/',
+  desc:'For women who are the main financial support for their families, in vocational training or an undergraduate program.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','adult'],idsAll:['woman','provider']},on:'2026-11-15',dl:{m:11,d:15}},
+ {id:'mink',name:'Patsy Takemoto Mink Education Award',org:'Patsy Takemoto Mink Education Foundation',amt:'Up to $5,000',max:5000,url:'https://www.patsyminkfoundation.org/',
+  desc:'For low-income women, especially mothers, working toward a degree or job training.',
+  req:{levels:['cc','ug_lower','ug_upper','grad','adult'],idsAll:['woman','provider'],income:'pell'},dl:{m:8,d:1}},
+ {id:'rankin',name:'Jeannette Rankin Scholar Grant',org:'Jeannette Rankin Women\'s Scholarship Fund',amt:'About $2,000',max:2000,url:'https://rankinfoundation.org/',
+  desc:'For low-income women 35 and older going back to school for a technical degree, associate or first bachelor\'s.',
+  req:{levels:['cc','ug_lower','ug_upper','adult'],ids:['woman'],minAge:35,income:'pell'},dl:{m:3,d:1}},
+ {id:'genhope',name:'Generation Hope Scholar Program',org:'Generation Hope',amt:'$1,200–$2,400/yr + mentoring',max:9600,url:'https://www.generationhope.org/for-students-1',
+  desc:'Tuition help, a mentor and family support for teen parents in college in the D.C. region, Greater New Orleans and Dallas–Fort Worth.',
+  req:{levels:['hs_sr','cc','ug_lower'],ids:['provider'],states:['DC','MD','VA','LA','TX'],notes:['Only for those metro areas, and for parents who had their first child as a teen.']},dl:{m:5,d:1}},
+ // ---- identity & background ----
+ {id:'point',name:'Point Foundation Flagship Scholarship',org:'Point Foundation',amt:'$1,000–$15,000',max:15000,url:'https://www.pointfoundation.org/point-apply/apply-now',
+  desc:'The largest LGBTQ+ scholarship program in the U.S., for LGBTQ+ and ally students heading for bachelor\'s, graduate or professional degrees.',
+  req:{levels:['hs_sr','ug_lower','ug_upper','grad'],ids:['lgbtq'],idsSoft:true,school:'4yr'},on:'2026-11-19',dl:{m:11,d:19},opens:'Sep'},
+ {id:'pointcc',name:'Point Community College Scholarship',org:'Point Foundation',amt:'$4,800',max:4800,url:'https://pointfoundation.org/scholarships/community-college',
+  desc:'For LGBTQ+ and ally students earning an associate degree or preparing to transfer.',
+  req:{levels:['hs_sr','cc'],ids:['lgbtq'],idsSoft:true,school:'cc'},dl:{m:4,d:9}},
+ {id:'hacer',name:'McDonald\'s HACER National Scholarship',org:'McDonald\'s / RMHC',amt:'$5,000–$100,000',max:100000,url:'https://www.mcdonalds.com/us/en-us/community/hacer.html',
+  desc:'Up to 30 awards for high school seniors. Historically for Hispanic students; a 2025 settlement opened it to all applicants.',
+  req:{levels:['hs_sr'],minGPA:2.8,maxAge:20,cit:['cit','pr','enc','daca'],income:'need'},dl:{m:2,d:5},opens:'Oct'},
+ {id:'tmcf',name:'Thurgood Marshall College Fund Scholarships',org:'TMCF',amt:'$1,000–$15,000',max:15000,url:'https://tmcf.org/',
+  desc:'Dozens of awards for students at TMCF member HBCUs, including Enterprise Access and McDonald\'s Black & Positively Golden (2.7 GPA).',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['hbcu'],income:'need'},on:'2027-01-08',dl:{m:1,d:8}},
+ {id:'nativeforward',name:'Native Forward Scholars Fund',org:'Native Forward Scholars Fund',amt:'$100–$30,000/yr',max:30000,url:'https://www.nativeforward.org/',
+  desc:'One application considers you for 30+ scholarships and fellowships for American Indian and Alaska Native students, especially graduate students.',
+  req:{levels:['cc','ug_lower','ug_upper','grad'],ids:['native'],notes:['You must file the FAFSA and be eligible for federal aid.']},dl:{m:6,d:1}},
+ {id:'udall',name:'Udall Undergraduate Scholarship',org:'Udall Foundation',amt:'$7,500',max:7500,url:'https://www.udall.gov/',
+  desc:'For sophomores and juniors committed to the environment, or Native students pursuing tribal policy or Native health care.',
+  req:{levels:['ug_lower','ug_upper'],fields:['env','health'],fieldsSoft:true,cit:['cit','pr'],notes:['Most colleges have to nominate you; campus deadlines are earlier.']},dl:{m:3,d:3},opens:'Oct 15'},
+ {id:'soros',name:'Paul & Daisy Soros Fellowships for New Americans',org:'PD Soros Fellowships',amt:'Up to $90,000',max:90000,url:'https://pdsoros.org/',
+  desc:'30 graduate fellowships a year for immigrants and children of immigrants, in any field.',
+  req:{levels:['ug_upper','grad'],ids:['immigrant'],maxAge:30},dl:{m:10,d:29}},
+ {id:'truman',name:'Harry S. Truman Scholarship',org:'Truman Scholarship Foundation',amt:'$30,000 for grad school',max:30000,url:'https://www.truman.gov/',
+  desc:'For college juniors who plan careers in public service: government, nonprofits, education or advocacy.',
+  req:{levels:['ug_upper'],cit:['cit'],notes:['Your college must nominate you; campus deadlines fall in Oct–Nov.']},on:'2027-02-02',dl:{m:2,d:2}},
+ {id:'nfb',name:'National Federation of the Blind Scholarships',org:'National Federation of the Blind',amt:'$3,000–$10,000',max:10000,url:'https://nfb.org/scholarships',
+  desc:'About 30 merit scholarships for legally blind students. Many state NFB affiliates run their own scholarships too.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad'],ids:['blind']},dl:{m:3,d:31}},
+ {id:'agbell',name:'AG Bell College Scholarship',org:'Alexander Graham Bell Association',amt:'Up to $10,000',max:10000,url:'https://www.agbell.org/',
+  desc:'For deaf and hard-of-hearing students who use listening and spoken language, at mainstream colleges.',
+  req:{levels:['hs_sr','ug_lower','ug_upper','grad'],ids:['deaf'],notes:['Applications usually open in late winter; check the dates on their site.']}},
+ {id:'shc',name:'SchoolHouse Connection Scholarship',org:'SchoolHouse Connection',amt:'$2,500 + monthly stipends',max:2500,url:'https://schoolhouseconnection.org/scholarship/',
+  desc:'The only national scholarship built for students who have experienced homelessness, with ongoing case management and peer support.',
+  req:{levels:['hs_jr','hs_sr','adult'],ids:['homeless'],notes:['You must have experienced homelessness in the last six years and be starting college for the first time. Undocumented students can apply.']},dl:{m:6,d:2},opens:'Jan 1'},
+ {id:'fc2s',name:'Foster Care to Success Scholarships',org:'Foster Care to Success',amt:'Up to ~$6,000',max:6000,url:'https://bigfuture.collegeboard.org/scholarships/foster-care-to-success-scholarship',
+  desc:'Scholarships, care packages and mentoring for students who were in foster care, under age 25.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['foster'],maxAge:24},dl:{m:3,d:31},opens:'Jan 1'},
+ // ---- military family ----
+ {id:'folds',name:'Folds of Honor Scholarship',org:'Folds of Honor',amt:'Up to $5,000/yr',max:5000,url:'https://foldsofhonor.org/scholarships/',
+  desc:'For spouses and children of U.S. service members (and first responders) who were killed or disabled.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper','grad','adult'],ids:['military'],notes:['Only for families of fallen or disabled service members or first responders.']},dl:{m:3,d:31},opens:'Feb 1'},
+ {id:'mcsf',name:'Marine Corps Scholarship Foundation',org:'Marine Corps Scholarship Foundation',amt:'Varies (need-based)',max:10000,url:'https://www.mcsf.org/',
+  desc:'The oldest and largest need-based scholarship program for military children.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['military'],income:'need',notes:['For children of Marines and Navy corpsmen who served with Marines.']},on:'2027-03-01',dl:{m:3,d:1},opens:'Jan 1'},
+ {id:'navyleague',name:'Navy League Foundation Scholarships',org:'Navy League of the United States',amt:'$1,000–$20,000',max:20000,url:'https://www.navyleague.org/',
+  desc:'For seniors with family ties to the Navy, Marine Corps, Coast Guard, Merchant Marine or Naval Sea Cadets. No essay required.',
+  req:{levels:['hs_sr'],ids:['military']},on:'2027-03-15',dl:{m:3,d:15}},
+ {id:'nmcrs',name:'Navy-Marine Corps Relief Society Education Assistance',org:'NMCRS',amt:'Grants & interest-free loans',max:3000,url:'https://www.nmcrs.org/',
+  desc:'Need-based help for children and spouses of Sailors and Marines.',
+  req:{levels:['hs_sr','cc','ug_lower','ug_upper'],ids:['military'],income:'need'},dl:{m:4,d:1}},
+ // ---- just for fun ----
+ {id:'tall',name:'Tall Clubs International Student Scholarship',org:'Tall Clubs International',amt:'Up to ~$2,000',max:2000,url:'https://www.tall.org/',
+  desc:'Yes, really: a scholarship for tall students heading to college, sponsored through a local Tall Club.',
+  req:{levels:['hs_sr'],notes:['Height minimums: about 5\'10" for women and 6\'2" for men.']},check:'Height requirement applies',dl:{m:3,d:1}}
+];
+NATIONAL.push(...NATIONAL_MORE);
 
 /* State programs. Each: [name, amount, description, req, dl?] */
 const L_ALL = UG, L_HS = ['hs_sr'];
@@ -653,6 +846,8 @@ let saved = new Set(store.get('gc.saved', []));
 let scope = 'all';
 let sortMode = 'match';
 let showFail = false;
+let kindFilter = 'all';
+let query = '';
 
 const TODAY = (()=>{ const d = new Date(); d.setHours(0,0,0,0); return d; })();
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -668,6 +863,7 @@ function nextOcc(md){
   return d;
 }
 function deadlineFor(it){
+  if(it.monthly){ const d = new Date(TODAY.getFullYear(), TODAY.getMonth()+1, 0); return {date:d, est:false, monthly:true, label:'Monthly drawing, this round closes'}; }
   const byStage = it.dlByStage && it.dlByStage[P.stage];
   if(it.on && !byStage){
     const [y,m,d] = it.on.split('-').map(Number);
@@ -693,6 +889,12 @@ function evaluate(it, isState, st){
   const add = (s,t)=>c.push({s,t});
 
   if(isState) add('pass', `For ${st.n} residents`);
+  if(r.states){
+    const names = r.states.map(s=>STATES[s] ? STATES[s].n : s).join(', ');
+    if(!P.st) add('maybe', `Only for residents of ${names}`);
+    else if(r.states.includes(P.st)) add('pass', `Open to ${STATES[P.st].n} residents`);
+    else add('fail', `Only for residents of ${names}`);
+  }
 
   if(r.levels){
     if(r.levels.includes(P.stage)) add('pass', `Open to ${STAGE_LABEL[P.stage]}`);
@@ -744,15 +946,24 @@ function evaluate(it, isState, st){
   }
 
   if(r.fields){
-    if(r.fields.includes(P.field)) add('pass', `For ${r.fields.map(f=>FIELD_LABEL[f]).join(' / ')} students`);
-    else if(P.field === 'undecided') add('maybe', `Only for ${r.fields.map(f=>FIELD_LABEL[f]).join(' / ')} students`);
-    else add('fail', `Only for ${r.fields.map(f=>FIELD_LABEL[f]).join(' / ')} students`);
+    const fl = r.fields.map(f=>FIELD_LABEL[f]).join(' / ');
+    if(r.fields.includes(P.field)) add('pass', `For ${fl} students`);
+    else if(P.field === 'undecided' || r.fieldsSoft) add('maybe', `Aimed at ${fl} students`);
+    else add('fail', `Only for ${fl} students`);
   }
 
   if(r.ids){
     const hit = r.ids.find(t=>P.tags.includes(t));
-    if(hit) add('pass', `For ${TAG_LABEL[hit].toLowerCase()} students`);
-    else add('fail', `Only for ${r.ids.map(t=>TAG_LABEL[t].toLowerCase()).join(' or ')} students`);
+    const phr = r.ids.map(t=>TAG_PHRASE[t]).join(' or ');
+    if(hit) add('pass', `For ${TAG_PHRASE[hit]} students`);
+    else if(r.idsSoft) add('maybe', `Aimed at ${phr} students (others may also qualify)`);
+    else add('fail', `Only for ${phr} students`);
+  }
+  if(r.idsAll){
+    const missing = r.idsAll.filter(t=>!P.tags.includes(t));
+    const phr = r.idsAll.map(t=>TAG_LABEL[t].toLowerCase()).join(' + ');
+    if(!missing.length) add('pass', `For students who are: ${phr}`);
+    else add('fail', `Only for students who are: ${phr}`);
   }
 
   if(r.research){
@@ -760,10 +971,16 @@ function evaluate(it, isState, st){
     else add('maybe','Requires an original research project or significant body of work');
   }
 
-  if(r.maxAge != null){
-    if(P.age <= r.maxAge) add('pass', `Age limit ${r.maxAge+1 > 25 ? 'under 26' : r.maxAge+' or under'}`);
-    else add('fail', `Age limit: ${r.maxAge} or under`);
+  if(r.minAge != null || r.maxAge != null){
+    const lo = r.minAge, hi = r.maxAge;
+    const range = lo!=null && hi!=null ? `${lo}–${hi}` : (lo!=null ? `${lo}+` : `${hi} or under`);
+    const ok = (lo==null || P.age >= lo) && (hi==null || P.age <= hi);
+    // high schoolers near the minimum will usually age into it before the deadline
+    const close = !ok && lo!=null && P.age === lo-1;
+    add(ok ? 'pass' : (close ? 'maybe' : 'fail'), `Ages ${range}; you're ${P.age}`);
   }
+
+  if(it.check) add('maybe', it.check);
 
   (r.notes||[]).forEach(n=>add('info', n));
 
@@ -799,6 +1016,7 @@ function dlTag(x){
   if(!d) return `<span class="tag">Rolling / varies</span>`;
   const n = daysBetween(d.date);
   let cls = 'dl-ok', when;
+  if(d.monthly){ return `<span class="tag ${n<=7?'dl-soon':'dl-ok'}" title="Enter again every month">Monthly · round ends ${MONTHS[d.date.getMonth()]} ${d.date.getDate()}</span>`; }
   if(d.closed){ return `<span class="tag" title="This year's deadline has passed">Closed this cycle · next ~${MONTHS[d.date.getMonth()]} ${d.date.getFullYear()}</span>`; }
   if(n === 0) { when = 'Due today'; cls='dl-urgent'; }
   else if(n === 1){ when = 'Due tomorrow'; cls='dl-urgent'; }
@@ -818,7 +1036,8 @@ function cardHTML(x){
       <div class="amt"><div class="v">${esc(x.amt)}</div></div>
     </div>
     <div class="meta">
-      <span class="tag ${x.scope==='state'?'scope-state':''}">${x.scope==='state' ? esc(STATES[P.st].n)+' program' : 'National'}</span>
+      <span class="tag ${x.scope==='state'?'scope-state':''}">${x.scope==='state' ? esc(STATES[P.st].n)+' program' : (x.req && x.req.states ? 'Regional' : 'National')}</span>
+      ${x.kind==='contest' ? '<span class="tag kind">Contest</span>' : ''}${x.kind==='sweeps' ? '<span class="tag kind">No-essay drawing</span>' : ''}
       ${dlTag(x)}${opens}
     </div>
     <p class="desc" style="margin:0">${esc(x.desc)}</p>
@@ -840,8 +1059,9 @@ function sorter(a,b){
   if(sortMode === 'amount') return (b.max||0)-(a.max||0) || rank[a.level]-rank[b.level];
   if(rank[a.level] !== rank[b.level]) return rank[a.level]-rank[b.level];
   if(a.scope !== b.scope) return a.scope==='state' ? -1 : 1;
-  const da = a.dline && !a.dline.closed ? a.dline.date : new Date(8640000000000000);
-  const db = b.dline && !b.dline.closed ? b.dline.date : new Date(8640000000000000);
+  const far = new Date(8640000000000000);
+  const da = a.dline && !a.dline.closed && !a.dline.monthly ? a.dline.date : far;
+  const db = b.dline && !b.dline.closed && !b.dline.monthly ? b.dline.date : far;
   return da - db;
 }
 
@@ -856,7 +1076,7 @@ function render(){
   const strong = all.filter(x=>x.level==='strong');
   const maybe = all.filter(x=>x.level==='maybe');
   const fail = all.filter(x=>x.level==='fail');
-  const live = [...strong,...maybe].filter(x=>x.dline && !x.dline.closed);
+  const live = [...strong,...maybe].filter(x=>x.dline && !x.dline.closed && !x.dline.monthly);
   const soon = live.filter(x=>daysBetween(x.dline.date) <= 30);
   live.sort((a,b)=>a.dline.date-b.dline.date);
   const next = live[0];
@@ -884,6 +1104,11 @@ function render(){
   if(scope==='state') list = all.filter(x=>x.scope==='state');
   if(scope==='national') list = all.filter(x=>x.scope==='national');
   if(scope==='saved') list = all.filter(x=>saved.has(x.key));
+  if(kindFilter==='sweeps') list = list.filter(x=>x.kind==='sweeps' || x.monthly);
+  if(kindFilter==='contest') list = list.filter(x=>x.kind==='contest');
+  if(kindFilter==='soon') list = list.filter(x=>x.dline && !x.dline.closed && !x.dline.monthly && daysBetween(x.dline.date) <= 60);
+  const q = query.trim().toLowerCase();
+  if(q) list = list.filter(x=>(x.name+' '+x.org+' '+x.desc+' '+x.amt).toLowerCase().includes(q));
   list = list.slice().sort(sorter);
 
   const groups = [
@@ -1101,6 +1326,15 @@ $('sortBtn').addEventListener('click', ()=>{
   sortMode = nx[0]; $('sortBtn').textContent = 'Sort: '+nx[1]; render();
 });
 $('copyBtn').addEventListener('click', copyList);
+$('kindSeg').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-kind]'); if(!b) return;
+  kindFilter = b.dataset.kind;
+  $('kindSeg').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+  render();
+});
+$('q').addEventListener('input', e=>{ query = e.target.value; render(); });
+$('cntState').textContent = Object.values(STATES).reduce((n,s)=>n+s.p.length,0);
+$('cntNat').textContent = NATIONAL.length;
 $('jumpBtn').addEventListener('click', e=>{ e.preventDefault(); $('summary').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); });
 $('layers').addEventListener('click', e=>{
   const s = e.target.closest('.star');
