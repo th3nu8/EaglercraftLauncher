@@ -244,6 +244,7 @@
     if (g && g.mistLeaderboards) mist.MIST_PT = ptToken || '';
     // Only Mist's own games (mistApi in versions.json) get the player's sign-in, for online play.
     if (g && g.mistApi && engine && engine.signedIn()) { mist.MIST_TOKEN = engine.token; mist.MIST_USER = engine.user; }
+    else if (g && g.mistName && engine && engine.signedIn()) mist.MIST_USER = engine.user;   // just the name, e.g. to label the player's car
     var inject = '<script>' + Object.keys(mist).map(function (k) { return 'window.' + k + '=' + JSON.stringify(mist[k]).replace(/</g, '\\u003c') + ';'; }).join('') + '<\/script>' +
       (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM + (g && g.mistLeaderboards ? PT_SHIM : '') + (clips ? clips.shim() : '');
     if (m) return html.slice(0, m.index + m[0].length) + inject + html.slice(m.index + m[0].length);

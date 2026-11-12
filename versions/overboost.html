@@ -6,7 +6,9 @@
   // Overboost runs on the Mist server (online matchmaking needs its game server), at /overboost/.
   var base = (window.MIST_SERVER || 'https://mistserver.space').replace(/\/+$/, '');
   var f = document.createElement('iframe');
-  f.src = base + '/overboost/';
+  // Signed in to Mist? Then the game uses that name for your car, the scoreboard and the leaderboard.
+  var name = window.MIST_USER ? String(window.MIST_USER) : '';
+  f.src = base + '/overboost/' + (name ? '?name=' + encodeURIComponent(name) : '');
   f.setAttribute('allow', 'fullscreen; pointer-lock; gamepad; autoplay; clipboard-write');
   f.setAttribute('allowfullscreen', '');
   document.body.appendChild(f);

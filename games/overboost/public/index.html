@@ -86,6 +86,7 @@
       <button data-go="settings" type="button">Settings</button>
       <button data-go="controls" type="button">Controls</button>
       <button id="btn-full" type="button">Fullscreen</button>
+      <span class="ver">Version 1.1</span>
     </nav>
   </section>
 
@@ -187,8 +188,9 @@
   <section class="view" data-view="settings" hidden>
     <h2>Settings</h2>
     <div class="scroll">
+      <p class="quiet" id="name-note" hidden>You are playing under your Mist name. Change it in Mist and it changes here.</p>
       <div class="opts">
-        <label>Name <input id="set-name" maxlength="16" autocomplete="off" spellcheck="false"></label>
+        <label>Name <input id="set-name" maxlength="20" autocomplete="off" spellcheck="false"></label>
         <label>Master volume <input id="set-volume" type="range" min="0" max="100" step="1"></label>
         <label>Effects volume <input id="set-sfx" type="range" min="0" max="100" step="1"></label>
         <label>Crowd volume <input id="set-crowd" type="range" min="0" max="100" step="1"></label>

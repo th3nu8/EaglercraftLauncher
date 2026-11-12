@@ -62,6 +62,7 @@
     {
       "id": "overboost",
       "name": "Overboost",
+      "mistName": true,
       "developer": "Th3Nu8",
       "image": "overboost.jpg",
       "tags": [
@@ -77,10 +78,12 @@
           "name": "Overboost 1.1",
           "type": "release",
           "file": "overboost.html",
+          "rev": "2",
           "notes": [
             "New in 1.1: Shoot and Save training drills with their own ratings",
             "New in 1.1: Customize with five car bodies and eight trim colours",
             "New in 1.1: 4v4 bot and private matches, Novice bots, crowd sound, FPS counter, fullscreen",
+            "Plays under your Mist name when you are signed in to Mist",
             "Online matchmaking, ranked ratings and leaderboard",
             "Private lobbies with invite codes",
             "Bots (Novice, Rookie, Pro, Elite) and free play",

@@ -25,7 +25,10 @@ if (!pid || !/^[A-Za-z0-9_-]{16,64}$/.test(pid)) {
   pid = Array.from(a, b => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'[b & 63]).join('');
   store.set('ob.pid', pid);
 }
-let myName = store.get('ob.name', '') || 'Player' + (1000 + Math.floor(Math.random() * 9000));
+// Opened from Mist with a signed-in player: Mist passes the account name (?name=) and that is the name used here.
+const cleanName = n => String(n || '').replace(/[<>&"']/g, '').replace(/\s+/g, ' ').trim().slice(0, 20);
+const mistName = cleanName(new URLSearchParams(location.search).get('name'));
+let myName = mistName || store.get('ob.name', '') || 'Player' + (1000 + Math.floor(Math.random() * 9000));
 store.set('ob.name', myName);
 const settings = Object.assign({ volume: 60, sfx: 100, crowd: 70, fps: true, quality: 'high', fov: 100, dist: 280, height: 110, angle: -4, stiff: 50, touch: 'auto', ballCam: true }, store.get('ob.settings', {}));
 const saveSettings = () => store.set('ob.settings', settings);
@@ -235,7 +238,8 @@ function loadLeaderboard(size) {
 // settings
 const RANGES = [['set-fov', 'fov', '°'], ['set-dist', 'dist', ''], ['set-height', 'height', ''], ['set-angle', 'angle', '°'], ['set-stiff', 'stiff', '%']];
 function renderSettings() {
-  $('set-name').value = myName; $('set-volume').value = settings.volume; $('set-quality').value = settings.quality; $('set-touch').value = settings.touch;
+  $('set-name').value = myName; $('set-name').disabled = !!mistName; $('name-note').hidden = !mistName;
+  $('set-volume').value = settings.volume; $('set-quality').value = settings.quality; $('set-touch').value = settings.touch;
   $('set-sfx').value = settings.sfx; $('set-crowd').value = settings.crowd; $('set-fps').value = settings.fps ? 'on' : 'off';
   for (const [id, key, unit] of RANGES) { $(id).value = settings[key]; $(id).nextElementSibling.textContent = settings[key] + unit; }
   renderBinds();
@@ -248,8 +252,8 @@ $('set-fps').addEventListener('change', () => { settings.fps = $('set-fps').valu
 $('set-quality').addEventListener('change', () => { settings.quality = $('set-quality').value; renderer.setQuality(settings.quality); autoQuality = false; saveSettings(); });
 $('set-touch').addEventListener('change', () => { settings.touch = $('set-touch').value; input.setTouchMode(settings.touch); saveSettings(); });
 $('set-name').addEventListener('change', () => {
-  const n = $('set-name').value.replace(/[<>&"']/g, '').trim().slice(0, 16);
-  if (!n) return; myName = n; store.set('ob.name', n); net.send({ t: 'name', name: n });
+  const n = cleanName($('set-name').value);
+  if (!n || mistName) return; myName = n; store.set('ob.name', n); net.send({ t: 'name', name: n });
 });
 $('settings-back').addEventListener('click', () => { if (game && !game.ended) { $('menu').hidden = true; setPaused(true); } else show('home'); });
 $('binds-reset').addEventListener('click', () => { input.resetBinds(); renderBinds(); });

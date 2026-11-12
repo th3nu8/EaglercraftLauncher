@@ -78,7 +78,9 @@ bots and free play still run. A static copy can point at a game server elsewhere
   is out of view.
 
 There are no accounts: a random id kept in the browser's local storage identifies a player, so clearing site
-data starts a new profile. Not included: goal replays, parties that queue together (use a private lobby), text
+data starts a new profile. The name is whatever the player types in Settings, unless the page is opened with
+`?name=Someone`: then that name is used and the Settings field is locked. Mist does this for signed-in players
+(its store entry has `"mistName": true`, which makes the launcher hand the wrapper page the account name). Not included: goal replays, parties that queue together (use a private lobby), text
 chat.
 
 ## How the netcode works

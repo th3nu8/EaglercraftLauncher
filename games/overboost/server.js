@@ -43,7 +43,7 @@ function saveProfiles() {
 setInterval(saveProfiles, 15000).unref();
 
 function cleanName(n) {
-  n = String(n || '').replace(/[^\x20-\x7E -￿]/g, '').replace(/[<>&"']/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
+  n = String(n || '').replace(/[^\x20-\x7E -￿]/g, '').replace(/[<>&"']/g, '').replace(/\s+/g, ' ').trim().slice(0, 20);
   return n || 'Player' + (1000 + Math.floor(Math.random() * 9000));
 }
 function getProfile(pid, name) {

@@ -131,8 +131,9 @@ class Fake {
   check('quick chat relayed', g.last('chat') && g.last('chat').id === 3 && g.last('chat').slot === h.you);
 
   // --- car looks and 4v4
-  const p1 = new Fake('Painter'); p1.look = [3, 5];
+  const p1 = new Fake('Mist_Player_Name_20c'); p1.look = [3, 5];      // Mist names run to 20 characters
   await p1.connect();
+  check('a 20-character name is kept whole', p1.last('welcome').you.name === 'Mist_Player_Name_20c', p1.last('welcome').you.name);
   check('look sent at sign-in comes back in the profile', JSON.stringify(p1.last('welcome').you.look) === '[3,5]');
   const p2 = await new Fake('Plain').connect();
   p2.send({ t: 'look', look: [99, -4] }); await sleep(100);

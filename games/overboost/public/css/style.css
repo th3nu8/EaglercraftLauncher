@@ -76,6 +76,8 @@ button { cursor: pointer; }
 .links button, .back, .mini { border: 0; background: none; padding: 6px 0; font: 600 14px/1.2 var(--body); color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .links button:hover, .back:hover, .mini:hover { text-decoration-color: var(--flare); }
 .back { align-self: flex-start; margin-top: auto; }
+.ver { margin-left: auto; align-self: center; font: 600 12px/1.2 var(--body); color: #4b4662; }
+input:disabled { background: #e3e5e2; color: #4b4662; }
 
 .timer { margin: 0; font: italic 900 clamp(40px, 7vw, 76px)/1 var(--display); font-stretch: 125%; font-variant-numeric: tabular-nums; }
 .code { font-style: normal; font-stretch: 150%; letter-spacing: .08em; background: var(--ink); color: var(--boost); padding: 0 .35em; user-select: text; -webkit-user-select: text; }
