@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Grant Canyon</title>
 <meta name="description" content="Free scholarship and grant checker. Enter your ZIP code and a few details to see the state and national aid you may qualify for.">
+<meta property="og:title" content="Grant Canyon">
+<meta property="og:description" content="Free scholarship and grant checker. Enter your ZIP code and a few details, then walk down the canyon to your closest matches.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#eceee7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111614" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f7e9d2'/%3E%3Ccircle cx='23' cy='9' r='4' fill='%23f1b25c'/%3E%3Cpath d='M0 15l6-4h7l3 5 5-6h6l5 3v19H0z' fill='%23c68b63'/%3E%3Cpath d='M0 21l8-3 6 3 6-4 12 4v11H0z' fill='%23a8603d'/%3E%3Cpath d='M0 27l10-3 9 2 13-3v9H0z' fill='%23733e2a'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,12 +24,13 @@
   --good:#2b7448; --warn:#9a6511; --bad:#9b3434; --on-sem:#ffffff;
   /* canyon scene */
   --night:0;
-  --sky1:#f7e9d2; --sky2:#eceee7; --sun:#f1b25c; --glow:rgba(241,178,92,.5); --glow0:rgba(241,178,92,0);
+  --sky1:#86bfc6; --sky3:#cfe3d7; --sky2:#fbe2b5; --sun:#ffe6b0; --glow:rgba(255,196,110,.55); --glow0:rgba(255,196,110,0);
   --m1:#e4d3bb; --m2:#d9b392; --m3:#c68b63; --m4:#a8603d; --m5:#733e2a;
-  --band-l:rgba(255,255,255,.17); --band-d:rgba(70,25,5,.13); --shade:rgba(70,25,10,.3);
-  --cloud:rgba(255,255,255,.55); --bird:rgba(23,32,29,.62); --star:rgba(255,255,255,0); --crater:rgba(0,0,0,0);
+  --cloud:rgba(255,255,255,.9); --bird:rgba(23,32,29,.62); --star:rgba(255,255,255,0); --crater:rgba(0,0,0,0);
   /* rock along the walk: title, rim (scree), walls (sandstone), floor (bedrock), trail's end */
-  --g0:#cf9b6e; --g1:#bdb09b; --g2:#c47a3a; --g3:#7b3a27; --g4:#5b3526; --haze:#f3e4cb; --veg:#4f8a5b; --river:#6fa7a3;
+  --g0:#dba673; --g1:#dcc198; --g2:#d27f3f; --g3:#ab4a2b; --g4:#c66c3c; --haze:#f9e3c0; --veg:#4f8a5b; --river:#5fa9a8;
+  /* light: the tint of sunlit rock and of rock in shadow */
+  --lit:#ffd596; --shd:#5a2a4a; --vig:rgba(52,18,34,.3);
   --lift:0 1px 0 rgba(70,35,10,.05),0 10px 26px rgba(70,35,10,.14);
   /* wordmark strata, top to bottom */
   --w1:#b86a2e; --w2:#b9420f; --w3:#8f3414; --w4:#5e2a19; --w5:#2e201a;
@@ -38,11 +44,11 @@
     --accent:#f08a45; --accent-soft:#3a2518;
     --good:#5fc48c; --warn:#e2aa50; --bad:#e58080; --on-sem:#10140f;
     --night:1;
-    --sky1:#0d1a25; --sky2:#111614; --sun:#ece6d2; --glow:rgba(236,230,210,.2); --glow0:rgba(236,230,210,0);
+    --sky1:#050b17; --sky3:#0c1a2c; --sky2:#1b3046; --sun:#ece6d2; --glow:rgba(180,205,235,.24); --glow0:rgba(180,205,235,0);
     --m1:#1c2830; --m2:#283136; --m3:#40342c; --m4:#583826; --m5:#281b15;
-    --band-l:rgba(255,255,255,.055); --band-d:rgba(0,0,0,.2); --shade:rgba(0,0,0,.38);
     --cloud:rgba(255,255,255,0); --bird:rgba(0,0,0,0); --star:rgba(236,230,210,.9); --crater:rgba(120,116,100,.35);
-    --g0:#4f3d30; --g1:#3a3d3f; --g2:#5e3d22; --g3:#3b2019; --g4:#2a1a14; --haze:#17232c; --veg:#2c5a40; --river:#2f6470;
+    --g0:#5c4838; --g1:#4c4b4a; --g2:#6e4728; --g3:#51291d; --g4:#5d3422; --haze:#15283b; --veg:#2c5a40; --river:#266277;
+    --lit:#b7cfea; --shd:#0c1430; --vig:rgba(0,0,8,.5);
     --lift:0 10px 26px rgba(0,0,0,.45);
     --w1:#f6cf9a; --w2:#f0a35e; --w3:#e07a3a; --w4:#c05a2c; --w5:#9a5038;
     color-scheme:dark;
@@ -53,11 +59,11 @@
   --accent:#f08a45; --accent-soft:#3a2518;
   --good:#5fc48c; --warn:#e2aa50; --bad:#e58080; --on-sem:#10140f;
   --night:1;
-  --sky1:#0d1a25; --sky2:#111614; --sun:#ece6d2; --glow:rgba(236,230,210,.2); --glow0:rgba(236,230,210,0);
+  --sky1:#050b17; --sky3:#0c1a2c; --sky2:#1b3046; --sun:#ece6d2; --glow:rgba(180,205,235,.24); --glow0:rgba(180,205,235,0);
   --m1:#1c2830; --m2:#283136; --m3:#40342c; --m4:#583826; --m5:#281b15;
-  --band-l:rgba(255,255,255,.055); --band-d:rgba(0,0,0,.2); --shade:rgba(0,0,0,.38);
   --cloud:rgba(255,255,255,0); --bird:rgba(0,0,0,0); --star:rgba(236,230,210,.9); --crater:rgba(120,116,100,.35);
-    --g0:#4f3d30; --g1:#3a3d3f; --g2:#5e3d22; --g3:#3b2019; --g4:#2a1a14; --haze:#17232c; --veg:#2c5a40; --river:#2f6470;
+    --g0:#5c4838; --g1:#4c4b4a; --g2:#6e4728; --g3:#51291d; --g4:#5d3422; --haze:#15283b; --veg:#2c5a40; --river:#266277;
+    --lit:#b7cfea; --shd:#0c1430; --vig:rgba(0,0,8,.5);
     --lift:0 10px 26px rgba(0,0,0,.45);
   --w1:#f6cf9a; --w2:#f0a35e; --w3:#e07a3a; --w4:#c05a2c; --w5:#9a5038;
   color-scheme:dark;
@@ -77,6 +83,8 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 
 /* ---------- header: the canyon ---------- */
 #canyon{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;display:block;z-index:0;pointer-events:none}
+.vignette{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;z-index:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 45%,transparent 52%,var(--vig) 100%)}
+.tall .vignette{display:none}
 .hero,main,footer,.strata-rule{position:relative;z-index:1}
 .hero{--zt:0%}
 .scrim{position:absolute;inset:0;background:linear-gradient(90deg,var(--paper) 0,var(--paper) 22%,transparent 60%);-webkit-mask-image:linear-gradient(180deg,#000 0,#000 74%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 74%,transparent 100%)}
@@ -314,6 +322,14 @@ footer p{max-width:80ch;margin:0 0 8px}
 .dock.show{opacity:1;transform:none;pointer-events:auto}
 .dock b{font-variant-numeric:tabular-nums}
 .dock-depth{display:none}
+/* depth gauge (wide screens): the three stops to scale, with a marker for where you are */
+.gauge{position:fixed;z-index:15;right:6px;top:50%;width:8px;height:min(46vh,360px);margin-top:calc(min(46vh,360px)/-2);display:none;flex-direction:column;gap:3px;opacity:0;pointer-events:none;transition:opacity .25s}
+.gauge.show{opacity:1;pointer-events:auto}
+.gauge button{position:relative;flex:1 0 0;min-height:16px;padding:0;border:0;border-radius:4px;cursor:pointer;box-shadow:0 0 0 1.5px var(--card)}
+.gauge button::after{content:attr(data-label);position:absolute;right:16px;top:50%;transform:translateY(-50%);background:var(--ink);color:var(--paper);font:600 12.5px var(--font-body);padding:4px 9px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+.gauge button:hover::after,.gauge button:focus-visible::after{opacity:1}
+.gauge i{position:absolute;left:-3px;top:0;width:14px;height:4px;margin-top:-2px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 1.5px var(--card);pointer-events:none}
+@media (min-width:901px){.gauge{display:flex}}
 .toast{position:fixed;z-index:30;left:50%;bottom:22px;transform:translate(-50%,12px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -323,7 +339,11 @@ footer p{max-width:80ch;margin:0 0 8px}
   body{padding-bottom:60px}
   .dock{left:0;right:0;bottom:0;justify-content:space-between;border-radius:0;border-width:1px 0 0;padding:10px 16px;box-shadow:none;opacity:1;transform:none;pointer-events:auto;background:color-mix(in srgb,var(--card) 94%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
   .toast{bottom:74px}
-  .dock-depth{display:block;position:absolute;left:0;right:0;top:-1px;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:0 50%}
+  .dock-depth{display:block;position:absolute;left:0;right:0;top:-1px;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:0 50%;transition:background .3s}
+  .dock[data-stop="1"] .dock-depth{background:var(--muted)}
+  .dock[data-stop="2"] .dock-depth{background:var(--warn)}
+  .dock[data-stop="3"] .dock-depth{background:var(--good)}
+  .dock[data-stop="4"] .dock-depth{background:var(--river)}
   #dockText{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .dock .btn{flex:none}
 }
@@ -346,6 +366,7 @@ footer p{max-width:80ch;margin:0 0 8px}
 </head>
 <body>
 <canvas id="canyon" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
 
 <header class="hero" id="top">
   <div class="scrim" aria-hidden="true"></div>
@@ -548,6 +569,12 @@ footer p{max-width:80ch;margin:0 0 8px}
   <span id="dockText"></span>
   <button type="button" class="btn small" id="dockBtn">See my matches</button>
 </div>
+<nav class="gauge" id="gauge" aria-label="Stops on the trail">
+  <button type="button" class="c3" data-go="layer-fail" data-label="The rim" aria-label="Go to the rim"></button>
+  <button type="button" class="c2" data-go="layer-maybe" data-label="The walls" aria-label="Go to the walls"></button>
+  <button type="button" class="c1" data-go="layer-strong" data-label="The floor" aria-label="Go to the floor"></button>
+  <i id="gaugeDot" aria-hidden="true"></i>
+</nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1640,26 +1667,36 @@ function fallbackCopy(text, done){
 /* =====================================================================
    THE CANYON (fixed backdrop)
    A first-person walk into a canyon, built from flat cut-out "gates" like a tunnel book.
-   Scrolling moves the camera forward. The rock follows the layer you are reading:
-   pale scree at the rim, amber sandstone on the walls, dark bedrock and a river on the floor.
+   Scrolling moves the camera forward. The rock follows the stop you are reading: pale scree at
+   the rim, amber sandstone on the walls, red bedrock and a river on the floor.
+   Light: a low sun at the far end, a little to the right. The left wall catches it down to a
+   shadow line set by the opposite rim, so the canyon gets darker as it deepens and bright again
+   where it opens out at the trail's end. Shadowed walls pick up warm light bounced from the lit ones.
    ===================================================================== */
 let canyon = null;
 function initCanyon(){
   const cv = $('canyon'); if(!cv || !cv.getContext) return null;
-  const ctx = cv.getContext('2d'), hero = $('top'), metaEl = hero.querySelector('.hero-meta');
-  const TAU = Math.PI*2, PX = 420, FAR = 11, NEAR = 0.1, STEPS = 5;     // PX: pixels of scrolling per gate passed
+  const ctx = cv.getContext('2d', {alpha:false}) || cv.getContext('2d'), hero = $('top'), metaEl = hero.querySelector('.hero-meta');
+  const TAU = Math.PI*2, PX = 420, FAR = 12, NEAR = 0.1, STEPS = 5, TAN = 0.75;       // PX: scroll per gate. TAN: how high the sun sits
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v)), lerp = (a, b, t) => a + (b - a)*t, smooth = t => t*t*(3 - 2*t);
   const hash = n => { const x = Math.sin(n*127.1 + 311.7)*43758.5453; return x - Math.floor(x); };
-  const offAt = z => Math.sin(z*0.83)*0.42 + Math.sin(z*0.31 + 1.3)*0.3;                 // the canyon meanders
+  const offAt = z => Math.sin(z*0.83)*0.42 + Math.sin(z*0.31 + 1.3)*0.3;               // the canyon meanders
   const hex = v => { const n = parseInt(v.replace('#', ''), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
-  const mix = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
-  const rgb = (c, m) => `rgb(${Math.round(clamp(c[0]*m, 0, 255))},${Math.round(clamp(c[1]*m, 0, 255))},${Math.round(clamp(c[2]*m, 0, 255))})`;
+  const mix = (a, b, t) => [a[0] + (b[0] - a[0])*t, a[1] + (b[1] - a[1])*t, a[2] + (b[2] - a[2])*t];
+  const mul = (c, m) => [c[0]*m, c[1]*m, c[2]*m];
+  const ch = v => v < 0 ? 0 : v > 255 ? 255 : v | 0;
+  const css = c => `rgb(${ch(c[0])},${ch(c[1])},${ch(c[2])})`;
   // cross-section at each stop: [rim height, half-width at the rim, half-width at the floor, depth of the floor]
-  const SHAPE = [[0.34, 1.7, 0.6, 0.6], [0.62, 1.4, 0.52, 0.52], [1.35, 1.0, 0.36, 0.46], [2.3, 0.8, 0.38, 0.42], [2.5, 1.15, 0.8, 0.36]];
+  const SHAPE = [[0.34, 1.7, 0.6, 0.6], [0.62, 1.45, 0.55, 0.52], [1.4, 1.0, 0.38, 0.46], [2.3, 0.82, 0.4, 0.42], [1.5, 2.3, 1.15, 0.36]];
   const shapeAt = st => { const i = Math.min(3, Math.floor(st)), f = st - i; return SHAPE[i].map((v, j) => lerp(v, SHAPE[i + 1][j], f)); };
+  // sediment beds sit at fixed heights, so they line up from one gate to the next like real strata
+  const BANDS = [];
+  for(let i = -22; i <= 6; i++){ const j = i + 40; BANDS.push({y:i*0.15 + (hash(j*7.1) - 0.5)*0.09, t:0.016 + hash(j*3.3)*hash(j*4.9)*0.12, light:hash(j*5.7) > 0.52, a:0.07 + hash(j*9.9)*0.15}); }
+  const RAYS = [[0.13, 0.05], [0.3, 0.035], [0.43, 0.06], [0.57, 0.04], [0.71, 0.065], [0.88, 0.045]];
 
-  let w = 0, h = 0, dpr = 1, pal = null, night = false, tall = false, narrow = false;
-  let zc = 0, raf = 0, t0 = 0, lastT = 0, lastDraw = 0, dirty = true, heroH = 600, vx = 0, vy0 = 0, anchors = [[0, 0]];
+  let w = 0, h = 0, dpr = 1, pal = null, night = false, tall = false, narrow = false, quality = 2;
+  let zc = 0, raf = 0, t0 = 0, lastT = 0, lastDraw = 0, lastAct = 0, dirty = true, heroH = 600, vx = 0, vy0 = 0, anchors = [[0, 0]], archK = -1;
+  let px = 0, py = 0, pxT = 0, pyT = 0, slow = 16, nMove = 0, wasMoving = false, stillView = -1;
 
   // stage of the walk (0 title, 1 rim, 2 walls, 3 floor, 4 trail's end) for a given scroll position
   const stageAt = y => {
@@ -1675,22 +1712,24 @@ function initCanyon(){
   function gate(k){
     let g = cache.get(k); if(g) return g;
     const side = s => {
-      const cf = [], bf = []; let cs = 0, bs = 0;
-      for(let i = 0; i < STEPS; i++){ const a = 0.5 + hash(k*13.1 + s*7.7 + i*1.9), b = 0.3 + hash(k*5.3 + s*3.1 + i*2.9); cf.push(a); bf.push(b); cs += a; bs += b; }
-      return {cf:cf.map(v => v/cs), bf:bf.map(v => v/bs), wv:0.86 + hash(k*3.7 + s)*0.38, hv:0.88 + hash(k*9.1 + s*2)*0.3};
+      const cf = [], bf = [], nj = []; let cs = 0, bs = 0;
+      for(let i = 0; i < STEPS; i++){ const a = 0.5 + hash(k*13.1 + s*7.7 + i*1.9), b = 0.3 + hash(k*5.3 + s*3.1 + i*2.9); cf.push(a); bf.push(b); cs += a; bs += b; nj.push(0.6 + hash(k*2.7 + s*5.1 + i*3.3)*0.8); }
+      return {cf:cf.map(v => v/cs), bf:bf.map(v => v/bs), nj, wv:0.86 + hash(k*3.7 + s)*0.38, hv:0.88 + hash(k*9.1 + s*2)*0.3};
     };
-    g = {L:side(1), R:side(2), off:offAt(k), tone:(hash(k*1.7) - 0.5)*0.08 + (k % 2 ? 0.04 : -0.04), ph:hash(k*2.3)};
+    g = {L:side(1), R:side(2), off:offAt(k), tone:(hash(k*1.7) - 0.5)*0.08 + (k % 2 ? 0.035 : -0.035)};
     if(cache.size > 400) cache.clear();
     cache.set(k, g); return g;
   }
-  // one wall from rim to floor: cliffs drop, benches step inward
+  // one wall from rim to floor. Each step is a cliff broken by a narrow ledge, then a bench sloping inward.
   function wall(sd, st){
     const sh = shapeAt(st), HR = sh[0]*sd.hv, WT = sh[1]*sd.wv, wf = sh[2], total = HR + sh[3], pts = [[WT, -HR]];
     let X = WT, Y = -HR;
     for(let i = 0; i < STEPS; i++){
-      const dy = total*sd.cf[i], dx = (WT - wf)*sd.bf[i];
-      Y += dy*0.88; X -= dx*0.18; pts.push([X, Y]);
-      Y += dy*0.12; X -= dx*0.82; pts.push([X, Y]);
+      const dy = total*sd.cf[i], dx = (WT - wf)*sd.bf[i], n = sd.nj[i];
+      Y += dy*0.5*n; X -= dx*0.05; pts.push([X, Y]);
+      X -= dx*0.1; pts.push([X, Y]);
+      Y += dy*(0.88 - 0.5*n); X -= dx*0.05; pts.push([X, Y]);
+      Y += dy*0.12; X -= dx*0.8; pts.push([X, Y]);
     }
     return pts;
   }
@@ -1699,21 +1738,27 @@ function initCanyon(){
     return pts[pts.length - 1][0];
   };
 
-  const stars = Array.from({length:70}, (_, i) => ({x:hash(i*3.1 + 1), y:hash(i*7.7 + 2), r:0.5 + hash(i*1.3 + 3)*1.1, ph:hash(i*5.9 + 4)*TAU}));
-  const clouds = Array.from({length:3}, (_, i) => ({x:0.2 + hash(i*2.2 + 5)*0.9, y:0.14 + i*0.16 + hash(i + 6)*0.08, s:0.7 + hash(i*4.1 + 7)*0.6, v:0.004 + hash(i*6.3 + 8)*0.004}));
+  const stars = Array.from({length:90}, (_, i) => ({x:hash(i*3.1 + 1), y:hash(i*7.7 + 2), r:0.5 + hash(i*1.3 + 3)*1.2, ph:hash(i*5.9 + 4)*TAU}));
+  const clouds = [[0.06, 0.16, 1.15], [0.62, 0.33, 0.8], [0.34, 0.52, 0.6], [0.92, 0.1, 0.7]].map(([x, y, s], i) => ({x, y, s, v:0.004 + hash(i*6.3 + 8)*0.004}));
   const birds = Array.from({length:5}, (_, i) => ({x:0.45 + i*0.04 + hash(i + 9)*0.03, y:0.42 + hash(i*2.7 + 10)*0.3, s:5 + hash(i*3.3 + 11)*3, v:0.014 + hash(i + 12)*0.004, f:0.8 + hash(i*1.9 + 13)*0.5, ph:hash(i + 14)*TAU}));
 
   function readPal(){
     const cs = getComputedStyle(document.documentElement), v = n => cs.getPropertyValue(n).trim();
-    pal = {sky1:v('--sky1'), sky2:v('--sky2'), sun:v('--sun'), glow:v('--glow'), glow0:v('--glow0'), cloud:v('--cloud'), bird:v('--bird'), star:v('--star'), crater:v('--crater'),
-      bandL:v('--band-l'), bandD:v('--band-d'), g:[0, 1, 2, 3, 4].map(i => hex(v('--g' + i))), haze:hex(v('--haze')), veg:hex(v('--veg')), river:hex(v('--river'))};
     night = v('--night') === '1';
+    pal = {sky1:v('--sky1'), sky2:v('--sky2'), sky3:v('--sky3'), skyc:hex(v('--sky1')), sun:v('--sun'), glow:v('--glow'), glow0:v('--glow0'), cloud:v('--cloud'), bird:v('--bird'), star:v('--star'), crater:v('--crater'),
+      g:[0, 1, 2, 3, 4].map(i => hex(v('--g' + i))), haze:hex(v('--haze')), hazeS:v('--haze'), veg:hex(v('--veg')), river:hex(v('--river')), lit:hex(v('--lit')), shd:hex(v('--shd'))};
+    Object.assign(pal, night
+      ? {litM:1.2, litT:0.24, shdM:0.6, shdT:0.26, bandL:'rgb(190,214,255)', bandD:'rgb(0,0,8)', rim:'rgb(206,226,255)', mote:'rgb(214,255,150)', glint:'rgb(214,232,255)', cloudS:'rgba(0,0,0,0)', core:'rgba(255,255,255,0)',
+         ray:'rgba(170,200,240,0.07)', ray1:'rgba(170,200,240,0.02)'}
+      : {litM:1.1, litT:0.16, shdM:0.68, shdT:0.2, bandL:'rgb(255,244,224)', bandD:'rgb(64,20,10)', rim:'rgb(255,240,208)', mote:'rgb(255,240,204)', glint:'rgb(255,255,255)', cloudS:'rgba(255,208,160,0.55)', core:'rgba(255,255,255,0.6)',
+         ray:'rgba(255,214,150,0.11)', ray1:'rgba(255,214,150,0.03)'});
   }
   function measure(){
     const vh = Math.max(1, window.innerHeight), sy = window.scrollY || 0, hr = hero.getBoundingClientRect();
     w = Math.max(1, document.documentElement.clientWidth || window.innerWidth);
     heroH = Math.max(1, hr.height);
     tall = vh > 2400;                    // a frame as tall as the whole page never scrolls: show a still view behind the title
+    document.documentElement.classList.toggle('tall', tall);
     cv.style.position = tall ? 'absolute' : ''; cv.style.height = tall ? Math.min(900, Math.round(heroH + 260)) + 'px' : '';
     h = Math.max(1, cv.clientHeight || vh);      // sized in lvh, so it holds still when a phone's address bar slides away
     narrow = w <= 720;
@@ -1728,47 +1773,53 @@ function initCanyon(){
       a.push([Math.max(a[a.length - 1][0] + 1, el.getBoundingClientRect().top + sy - vh*0.55), st]);
     });
     anchors = a;
-    const d = Math.min(window.devicePixelRatio || 1, 1.5), cw = Math.round(w*d), ch = Math.round(h*d);
-    if(cv.width !== cw || cv.height !== ch){ cv.width = cw; cv.height = ch; }
+    // a natural arch marks the way down onto the floor
+    const fl = $('layer-strong');
+    archK = fl ? Math.ceil((fl.getBoundingClientRect().top + sy - vh*0.55)/PX + 2.2) : -1;
+    const d = Math.min(window.devicePixelRatio || 1, quality > 1 ? 1.5 : (quality > 0 ? 1.25 : 1)), cw = Math.round(w*d), chh = Math.round(h*d);
+    if(cv.width !== cw || cv.height !== chh){ cv.width = cw; cv.height = chh; }
     dpr = d; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   function draw(now){
-    const t = now - t0, still = REDUCE.matches, sy = tall ? 0 : (window.scrollY || 0);
+    const t = now - t0, still = REDUCE.matches, ta = still ? 60000 : t, sy = tall ? 0 : (window.scrollY || 0);
     const z = zc + (still ? 0 : -2.4*Math.pow(1 - clamp(t/2000, 0, 1), 3));       // the page opens by gliding up to the rim
     const tilt = still ? (sy < heroH ? 0 : 1) : smooth(clamp(sy/heroH, 0, 1));    // look down from the rim, then straight ahead
-    const vy = lerp(vy0, h*0.42, tilt) + (still ? 0 : Math.sin(z*TAU*0.9)*h*0.004);
-    const F = Math.min(w, h*0.9)*0.62, camX = offAt(z), stNow = stageAt(z*PX);
+    const vy = lerp(vy0, h*0.42, tilt) + (still ? 0 : Math.sin(z*TAU*0.9)*h*0.004) + py*h*0.014;
+    const F = Math.min(w, h*0.9)*0.62, camX = offAt(z) + px*0.14, stNow = stageAt(z*PX);
+    const quad = (x0, x1, y0, x2, x3, y1) => { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.lineTo(x3, y1); ctx.lineTo(x2, y1); ctx.closePath(); ctx.fill(); };
 
-    ctx.globalAlpha = 1;
-    const sky = ctx.createLinearGradient(0, 0, 0, h);
-    sky.addColorStop(0, pal.sky1); sky.addColorStop(clamp(vy/h + 0.08, 0.2, 1), pal.sky2);
+    // ---- sky: cool overhead, warm at the horizon
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+    const hz = clamp(vy/h, 0.15, 0.95), sky = ctx.createLinearGradient(0, 0, 0, h);
+    sky.addColorStop(0, pal.sky1); sky.addColorStop(hz*0.6, pal.sky3); sky.addColorStop(hz, pal.sky2); sky.addColorStop(1, pal.hazeS);
     ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
     if(night){
       ctx.fillStyle = pal.star;
-      stars.forEach(s => { ctx.globalAlpha = still ? 0.7 : 0.3 + 0.7*Math.abs(Math.sin(t*0.0009 + s.ph)); ctx.beginPath(); ctx.arc(s.x*w, s.y*vy*0.96, s.r, 0, TAU); ctx.fill(); });
+      stars.forEach(s => { ctx.globalAlpha = still ? 0.7 : 0.25 + 0.75*Math.abs(Math.sin(ta*0.0009 + s.ph)); ctx.beginPath(); ctx.arc(s.x*w, s.y*vy*0.96, s.r, 0, TAU); ctx.fill(); });
       ctx.globalAlpha = 1;
     }
-    // the light at the far end of the canyon grows as you get closer to the floor
-    const farX = vx + F*(offAt(z + FAR) - camX)/FAR, gr = Math.min(w, h)*(0.3 + stNow*0.06);
-    const glow = ctx.createRadialGradient(farX, vy, 0, farX, vy, gr);
-    glow.addColorStop(0, pal.glow); glow.addColorStop(1, pal.glow0);
-    ctx.fillStyle = glow; ctx.fillRect(farX - gr, vy - gr, gr*2, gr*2);
-    const sr = clamp(Math.min(w, h)*0.04, 11, 30), sunY = vy - sr*1.5;
-    ctx.fillStyle = pal.sun; ctx.beginPath(); ctx.arc(farX, sunY, sr, 0, TAU); ctx.fill();
+    // the sun (or moon) waits at the far end of the canyon; its glow grows as you get closer to the floor
+    const sr = clamp(Math.min(w, h)*0.042, 12, 32), sunX = vx + F*(offAt(z + FAR) - camX)/FAR + sr*0.6, sunY = vy - sr*1.9, gr0 = Math.min(w, h)*(0.36 + stNow*0.05);
+    const halo = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, gr0);
+    halo.addColorStop(0, pal.glow); halo.addColorStop(1, pal.glow0);
+    ctx.fillStyle = halo; ctx.fillRect(sunX - gr0, sunY - gr0, gr0*2, gr0*2);
+    ctx.fillStyle = pal.sun; ctx.beginPath(); ctx.arc(sunX, sunY, sr, 0, TAU); ctx.fill();
     if(night){
       ctx.fillStyle = pal.crater;
-      [[-0.32, -0.22, 0.2], [0.26, 0.08, 0.27], [-0.08, 0.42, 0.14]].forEach(([dx, dy, r]) => { ctx.beginPath(); ctx.arc(farX + dx*sr, sunY + dy*sr, r*sr, 0, TAU); ctx.fill(); });
+      [[-0.32, -0.22, 0.2], [0.26, 0.08, 0.27], [-0.08, 0.42, 0.14]].forEach(([dx, dy, r]) => { ctx.beginPath(); ctx.arc(sunX + dx*sr, sunY + dy*sr, r*sr, 0, TAU); ctx.fill(); });
     } else {
-      ctx.fillStyle = pal.cloud;
+      ctx.fillStyle = pal.core; ctx.beginPath(); ctx.arc(sunX, sunY, sr*0.62, 0, TAU); ctx.fill();
+      const puff = (cx, cy, s) => { ctx.beginPath(); [[-1.1, 0.1, 0.9, 0.42], [0, -0.12, 1.2, 0.6], [1.05, 0.12, 0.85, 0.4], [0.3, 0.22, 1.5, 0.34]].forEach(([dx, dy, rx, ry]) => { ctx.moveTo(cx + dx*s + rx*s, cy + dy*s); ctx.ellipse(cx + dx*s, cy + dy*s, rx*s, ry*s, 0, 0, TAU); }); ctx.fill(); };
       clouds.forEach(c => {
-        const cx = ((c.x*w + t*c.v) % (w + 360)) - 180, cy = c.y*vy, s = c.s*clamp(vy/10, 12, 40);
-        [[-1.1, 0.1, 0.9, 0.42], [0, -0.12, 1.2, 0.6], [1.05, 0.12, 0.85, 0.4], [0.3, 0.22, 1.5, 0.34]].forEach(([dx, dy, rx, ry]) => { ctx.beginPath(); ctx.ellipse(cx + dx*s, cy + dy*s, rx*s, ry*s, 0, 0, TAU); ctx.fill(); });
+        const cx = ((c.x*(w + 360) + ta*c.v) % (w + 360)) - 180, cy = c.y*vy*0.85, s = c.s*clamp(vy/10, 12, 38);
+        ctx.fillStyle = pal.cloudS; puff(cx + s*0.06, cy + s*0.13, s);      // the underside catches the low sun
+        ctx.fillStyle = pal.cloud; puff(cx, cy, s);
       });
       ctx.strokeStyle = pal.bird; ctx.lineWidth = 1.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       birds.forEach(b => {
-        const bx = ((b.x*w + t*b.v) % (w + 120)) - 60, by = b.y*vy + Math.sin(t*0.0011 + b.ph)*5;
-        const flap = still ? 0.4 : Math.sin(t*0.009*b.f + b.ph), s = b.s;
+        const bx = ((b.x*w + ta*b.v) % (w + 120)) - 60, by = b.y*vy + Math.sin(ta*0.0011 + b.ph)*5;
+        const flap = still ? 0.4 : Math.sin(ta*0.009*b.f + b.ph), s = b.s;
         ctx.beginPath();
         ctx.moveTo(bx - s, by - s*0.5*flap);
         ctx.quadraticCurveTo(bx - s*0.45, by - s*0.45, bx, by);
@@ -1776,94 +1827,236 @@ function initCanyon(){
         ctx.stroke();
       });
     }
+    // the low sun bleeds over the far walls
+    const bloom = () => {
+      const br = gr0*1.25, gb = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, br);
+      gb.addColorStop(0, pal.glow); gb.addColorStop(1, pal.glow0);
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = night ? 0.55 : 0.7;
+      ctx.fillStyle = gb; ctx.fillRect(sunX - br, sunY - br, br*2, br*2);
+      ctx.globalCompositeOperation = 'source-over';
+    };
 
-    // gates, far to near
+    // ---- gates, far to near
     const list = [];
     for(let k = Math.floor(z + FAR); k - z >= NEAR; k--){
-      const r = k - z, g = gate(k), st = stageAt(k*PX), s = F/r, L = wall(g.L, st), R = wall(g.R, st);
-      list.push({k, r, g, st, s, L, R, cx:vx + s*(g.off - camX), fy:vy + s*L[L.length - 1][1], fw:s*L[L.length - 1][0], rv:clamp((st - 3.15)/0.5, 0, 1)});
+      const r = k - z, g = gate(k), st = stageAt(k*PX), s = F/r, L = wall(g.L, st), R = wall(g.R, st), n = L.length - 1;
+      const cx = vx + s*(g.off - camX);
+      list.push({k, r, g, st, s, L, R, cx, d:L[n][1], wf:L[n][0], fy:vy + s*L[n][1], fw:s*L[n][0], rv:clamp((st - 3.15)/0.5, 0, 1),
+        yTL:vy + s*L[0][1], yTR:vy + s*R[0][1], oxl:cx - s*L[0][0], oxr:cx + s*R[0][0],
+        ys:R[0][1] + (R[0][0] + L[0][0]*0.75)*TAN,          // the left wall is sunlit above this height
+        xb:R[0][0] - (L[n][1] - R[0][1])/TAN});             // the floor is sunlit left of this line
     }
+    let bloomed = false;
     list.forEach((o, i) => {
-      const {g, s, L, R, cx} = o;
-      const fog = Math.pow(clamp(o.r/FAR, 0, 1), 0.9)*0.9, alpha = clamp((FAR - o.r)/1.5, 0, 1);
-      const si = Math.min(3, Math.floor(o.st)), col = mix(mix(pal.g[si], pal.g[si + 1], o.st - si).map(c => c*(1 + g.tone)), pal.haze, fog);
-      ctx.beginPath();
-      ctx.moveTo(-20, vy + s*L[0][1]);
-      for(let j = 0; j < L.length; j++) ctx.lineTo(cx - s*L[j][0], vy + s*L[j][1]);
-      for(let j = R.length - 1; j >= 0; j--) ctx.lineTo(cx + s*R[j][0], vy + s*R[j][1]);
-      ctx.lineTo(w + 20, vy + s*R[0][1]); ctx.lineTo(w + 20, h + 20); ctx.lineTo(-20, h + 20); ctx.closePath();
-      const lit = ctx.createLinearGradient(0, 0, w, 0);                 // the sun comes from the right
-      lit.addColorStop(0, rgb(col, 0.9)); lit.addColorStop(1, rgb(col, 1.07));
-      ctx.globalAlpha = alpha; ctx.fillStyle = lit; ctx.fill();
+      const {g, s, L, R, cx, r} = o, n = L.length - 1;
+      if(!bloomed && r < 5){ bloomed = true; bloom(); }
+      const fog = Math.pow(clamp(r/FAR, 0, 1), 0.85)*0.92, clear = 1 - fog, alpha = clamp((FAR - r)/1.5, 0, 1);
+      const si = Math.min(3, Math.floor(o.st)), base = mul(mix(pal.g[si], pal.g[si + 1], o.st - si), 1 + g.tone);
+      const lit = mix(mix(mul(base, pal.litM), pal.lit, pal.litT), pal.haze, fog), shd = mix(mix(mul(base, pal.shdM), pal.shd, pal.shdT), pal.haze, fog);
+      const yTL = o.yTL, yTR = o.yTR, fy = o.fy, xl = cx - o.fw, xr = cx + o.fw, nx = list[i + 1];
+      // The next gate toward you hides everything outside its own opening and below its floor line,
+      // so this one is only painted inside that window (unless its rim stands higher than the nearer rim).
+      const x0 = nx && yTL >= nx.yTL ? Math.max(-30, nx.oxl - 3) : -30, x1 = nx && yTR >= nx.yTR ? Math.min(w + 30, nx.oxr + 3) : w + 30, yb = nx ? Math.min(h + 30, nx.fy + 3) : h + 30;
+      const traceL = () => { ctx.moveTo(x0, yTL); for(let j = 0; j <= n; j++) ctx.lineTo(Math.max(x0, cx - s*L[j][0]), Math.min(yb, vy + s*L[j][1])); ctx.lineTo(Math.max(x0, xl), yb); ctx.lineTo(x0, yb); ctx.closePath(); };
+      const traceR = () => { ctx.moveTo(x1, yTR); for(let j = 0; j <= n; j++) ctx.lineTo(Math.min(x1, cx + s*R[j][0]), Math.min(yb, vy + s*R[j][1])); ctx.lineTo(Math.min(x1, xr), yb); ctx.lineTo(x1, yb); ctx.closePath(); };
+      ctx.globalAlpha = alpha;
 
-      // sediment bands: level lines across each wall
-      const bandA = alpha*(1 - fog);
-      if(bandA > 0.05){
-        const top = Math.min(L[0][1], R[0][1]), bot = L[L.length - 1][1], lw = clamp(s*0.02, 0.5, 6);
-        ctx.globalAlpha = bandA;
-        for(let Yb = top + 0.08 + g.ph*0.2, n = 0; Yb < bot; Yb += 0.26, n++){
-          const y = vy + s*Yb; if(y < -8 || y > h + 8) continue;
-          const xl = cx - s*xAt(L, Yb), xr = cx + s*xAt(R, Yb);
-          ctx.strokeStyle = n % 2 ? pal.bandL : pal.bandD; ctx.lineWidth = lw*(n % 3 ? 1 : 1.7);
-          ctx.beginPath();
-          if(Yb >= L[0][1] && xl > 0){ ctx.moveTo(-20, y); ctx.lineTo(xl, y); }
-          if(Yb >= R[0][1] && xr < w){ ctx.moveTo(xr, y); ctx.lineTo(w + 20, y); }
+      // the sunlit wall: bright down to the shadow line, cool below it
+      const tS = (o.ys - L[0][1])/(o.d - L[0][1]);
+      let gr = ctx.createLinearGradient(0, yTL, 0, Math.max(yTL + 1, fy));
+      gr.addColorStop(0, css(mul(lit, 1.07)));
+      if(tS >= 1) gr.addColorStop(1, css(mul(lit, 0.9)));
+      else { const a = clamp(tS, 0.03, 0.95); gr.addColorStop(a - 0.02, css(mul(lit, 0.95))); gr.addColorStop(a + 0.025, css(mul(shd, 1.08))); gr.addColorStop(1, css(mul(shd, 0.8))); }
+      ctx.fillStyle = gr; ctx.beginPath(); traceL(); ctx.fill();
+      // the shaded wall: sky-blue at the top, a warm glow where it faces the lit rock, dark at the foot
+      const lf = clamp(tS, 0, 1);
+      gr = ctx.createLinearGradient(0, yTR, 0, Math.max(yTR + 1, fy));
+      gr.addColorStop(0, css(mix(mul(shd, 1.12), pal.skyc, 0.14*clear)));
+      gr.addColorStop(clamp(lf*0.55, 0.08, 0.7), css(mix(shd, lit, 0.2 + 0.34*lf)));
+      gr.addColorStop(1, css(mul(shd, 0.78)));
+      ctx.fillStyle = gr; ctx.beginPath(); traceR(); ctx.fill();
+      if(yb > fy){ ctx.fillStyle = css(mul(shd, 0.9)); ctx.fillRect(xl - 1, fy, xr - xl + 2, yb - fy); }
+
+      // the arch: a natural bridge left standing between the walls. You see the light through it, then walk under it.
+      let traceA = null;
+      if(o.k === archK){
+        const yt = -1.05, ya = -0.2, Yt = vy + s*yt, Ya = vy + s*ya, xtl = cx - s*xAt(L, yt), xtr = cx + s*xAt(R, yt), ax = cx - s*xAt(L, ya), bx = cx + s*xAt(R, ya), mx = (ax + bx)/2;
+        traceA = () => { ctx.moveTo(xtl - 3, Yt); ctx.quadraticCurveTo(mx, Yt - s*0.14, xtr + 3, Yt); ctx.lineTo(bx + 3, Ya); ctx.quadraticCurveTo(mx, vy - s*1.24, ax - 3, Ya); ctx.closePath(); };
+        const ga = ctx.createLinearGradient(0, Yt - s*0.07, 0, Ya);
+        ga.addColorStop(0, css(mul(lit, 1.06))); ga.addColorStop(0.1, css(mul(lit, 0.92))); ga.addColorStop(0.26, css(mul(shd, 1.06))); ga.addColorStop(1, css(mul(shd, 0.8)));
+        ctx.fillStyle = ga; ctx.beginPath(); traceA(); ctx.fill();
+        ctx.lineCap = 'round'; ctx.strokeStyle = css(mul(lit, 1.05)); ctx.lineWidth = clamp(s*0.022, 1, 5); ctx.globalAlpha = alpha*clear*0.55;      // light wrapping the underside
+        ctx.beginPath(); ctx.moveTo(bx, Ya); ctx.quadraticCurveTo(mx, vy - s*1.24, ax, Ya); ctx.stroke();
+        ctx.globalAlpha = alpha;
+      }
+
+      // rock detail on the nearer gates: sediment beds, then the grooves water has cut down the cliffs
+      const det = alpha*clear*clamp((8.5 - r)/2.5, 0, 1);
+      if(quality > 0 && det > 0.05){
+        ctx.save(); ctx.beginPath(); traceL(); traceR(); if(traceA) traceA(); ctx.clip();
+        const top = Math.min(L[0][1], R[0][1]) - 0.1;
+        for(let b = 0; b < BANDS.length; b++){
+          const B = BANDS[b]; if(B.y < top || B.y > o.d || (quality < 2 && (b & 1))) continue;
+          const y = vy + s*B.y, hh = Math.max(1, s*B.t); if(y > h || y + hh < 0) continue;
+          ctx.globalAlpha = det*B.a; ctx.fillStyle = B.light ? pal.bandL : pal.bandD; ctx.fillRect(x0, y, x1 - x0, hh);
+        }
+        if(quality > 1 && r < 4.5){
+          ctx.globalAlpha = det*0.2*clamp((4.5 - r)/1.5, 0, 1); ctx.strokeStyle = pal.bandD; ctx.lineWidth = clamp(s*0.006, 0.6, 2.5); ctx.beginPath();
+          for(let sd = 0; sd < 2; sd++){
+            const W = sd ? R : L, dir = sd ? 1 : -1;
+            for(let c = 0; c < STEPS; c++){
+              const a = W[c*4], e = W[c*4 + 3], span = e[1] - a[1];
+              for(let q = 0; q < 3; q++){
+                const X = a[0] + 0.04 + hash(o.k*7.3 + sd*31 + c*5.1 + q*1.7)*0.9, y0 = a[1] + span*hash(o.k*3.1 + c + q*9.7 + sd)*0.25, y1 = Math.min(e[1], y0 + span*(0.35 + 0.55*hash(o.k*1.9 + c*2.3 + q + sd*4)));
+                const x = cx + dir*s*X; ctx.moveTo(x, vy + s*y0); ctx.lineTo(x + dir*s*0.012, vy + s*y1);
+              }
+            }
+          }
           ctx.stroke();
         }
+        ctx.restore();
       }
-      // the ground between this gate and the next one toward you, with the trail running down the middle;
-      // on the canyon floor the trail widens into a river and green grows beside it
-      const nx = list[i + 1], rv = o.rv;
-      const ny = nx ? nx.fy : h + 40, ncx = nx ? nx.cx : cx, nfw = nx ? nx.fw : o.fw*3, nrv = nx ? nx.rv : rv, ns = nx ? nx.s : s*3;
-      if(ny > o.fy + 0.5 && o.fy < h){
+      // light catching the edges
+      const edge = alpha*clear;
+      if(edge > 0.08){
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.strokeStyle = pal.rim; ctx.lineWidth = clamp(s*0.01, 0.7, 2.2);
+        ctx.globalAlpha = edge*0.36; ctx.beginPath(); ctx.moveTo(x0, yTL);
+        for(let j = 0; j <= n && L[j][1] <= o.ys; j++) ctx.lineTo(cx - s*L[j][0], vy + s*L[j][1]);
+        ctx.stroke();
+        ctx.globalAlpha = edge*0.2; ctx.lineWidth *= 0.7; ctx.beginPath(); ctx.moveTo(x1, yTR);
+        for(let j = 0; j <= 3; j++) ctx.lineTo(cx + s*R[j][0], vy + s*R[j][1]);
+        ctx.stroke();
+      }
+      // junipers along the rim, thinning out as the walls rise
+      const jn = clamp(1.9 - o.st, 0, 1);
+      if(quality > 0 && jn > 0.05 && r < 8.5){
+        ctx.globalAlpha = alpha; ctx.fillStyle = css(mix(mul(pal.veg, 0.78), pal.haze, fog));
+        for(let sd = 0; sd < 2; sd++){
+          const W = sd ? R : L, dir = sd ? 1 : -1, yT = sd ? yTR : yTL;
+          for(let q = 0; q < 5; q++){
+            const hh = hash(o.k*4.7 + sd*13 + q*2.9); if(hh > jn) continue;
+            const x = cx + dir*s*(W[0][0] + 0.08 + hash(o.k*2.1 + q*5.3 + sd)*1.6), rr = s*(0.025 + hh*0.04);
+            ctx.beginPath(); ctx.arc(x, yT - rr*0.55, rr, 0, TAU); ctx.moveTo(x + rr*1.6, yT - rr*0.35); ctx.arc(x + rr*0.9, yT - rr*0.35, rr*0.7, 0, TAU); ctx.fill();
+          }
+        }
+      }
+
+      // the ground between this gate and the next one toward you: shade, a patch of sun, and the trail.
+      // On the canyon floor the trail widens into a river and green grows beside it.
+      const rv = o.rv;
+      const ny = nx ? nx.fy : h + 40, ncx = nx ? nx.cx : cx, nfw = nx ? nx.fw : o.fw*3, nrv = nx ? nx.rv : rv, ns = nx ? nx.s : s*3, nwf = nx ? nx.wf : o.wf, nxb = nx ? nx.xb : o.xb;
+      if(ny > fy + 0.5 && fy < h){
         ctx.globalAlpha = alpha;
-        ctx.fillStyle = rgb(mix(col, pal.haze, 0.2), 1.04);
-        ctx.beginPath(); ctx.moveTo(cx - o.fw, o.fy); ctx.lineTo(cx + o.fw, o.fy); ctx.lineTo(ncx + nfw, ny); ctx.lineTo(ncx - nfw, ny); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = css(mix(shd, pal.haze, 0.1)); quad(xl, xr, fy, ncx - nfw, ncx + nfw, ny);
+        const e = Math.min(o.wf, o.xb), ne = Math.min(nwf, nxb);
+        if(e > -o.wf || ne > -nwf){ ctx.fillStyle = css(mix(mul(lit, 0.97), pal.haze, 0.12)); quad(xl, cx + s*Math.max(-o.wf, e), fy, ncx - nfw, ncx + ns*Math.max(-nwf, ne), ny); }
         const pw = s*lerp(0.045, 0.17, rv), npw = ns*lerp(0.045, 0.17, nrv);
-        ctx.fillStyle = rgb(mix(mix(mix(col, pal.haze, 0.6), pal.river, rv), pal.haze, fog*0.8), 1);
-        ctx.beginPath(); ctx.moveTo(cx - pw, o.fy); ctx.lineTo(cx + pw, o.fy); ctx.lineTo(ncx + npw, ny); ctx.lineTo(ncx - npw, ny); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = css(mix(mix(mix(base, pal.haze, 0.55), pal.river, rv), pal.haze, fog*0.8));
+        quad(cx - pw, cx + pw, fy, ncx - npw, ncx + npw, ny);
+        if(quality > 0 && rv > 0.25 && clear > 0.25){                  // light on the moving water
+          ctx.fillStyle = pal.glint;
+          for(let q = 0; q < 3; q++){
+            const u0 = (hash(o.k*5.1 + q*3.7) + ta*0.00011*(0.7 + q*0.2)) % 1, u = u0*u0, half = lerp(pw, npw, u), ww = Math.min(46, half*(0.22 + 0.3*hash(o.k + q*7.7)));
+            ctx.globalAlpha = alpha*clear*rv*0.38*Math.sin(u0*Math.PI);
+            ctx.fillRect(lerp(cx, ncx, u) + half*(hash(o.k*2.3 + q) - 0.5)*1.1 - ww/2, lerp(fy, ny, u), ww, clamp((ny - fy)*0.012, 1, 2.5));
+          }
+        }
       }
       if(rv > 0.02){
-        ctx.globalAlpha = alpha; ctx.fillStyle = rgb(mix(pal.veg, pal.haze, fog), 1);
+        const vc = mix(pal.veg, pal.haze, fog), vd = css(mul(vc, 0.7)), vm = css(vc), vl = css(mix(mul(vc, 1.14), pal.lit, 0.1)), vs = css(mul(shd, 0.55));
+        const blob = (bx, by, rr) => {
+          if(rr < 1.6) return;
+          ctx.globalAlpha = alpha*0.3; ctx.fillStyle = vs; ctx.beginPath(); ctx.ellipse(bx - rr*0.25, by + rr*0.82, rr*1.35, rr*0.26, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = alpha;
+          ctx.fillStyle = vd; ctx.beginPath(); ctx.ellipse(bx, by + rr*0.1, rr*1.25, rr*0.86, 0, 0, TAU); ctx.fill();
+          ctx.fillStyle = vm; ctx.beginPath(); ctx.ellipse(bx + rr*0.1, by - rr*0.06, rr*1.05, rr*0.72, 0, 0, TAU); ctx.fill();
+          ctx.fillStyle = vl; ctx.beginPath(); ctx.ellipse(bx + rr*0.32, by - rr*0.24, rr*0.6, rr*0.36, 0, 0, TAU); ctx.fill();
+        };
+        ctx.globalAlpha = alpha;
+        if(rv > 0.5 && hash(o.k*8.8) > 0.4){                           // a cottonwood here and there
+          const sgn = hash(o.k*6.1) > 0.5 ? 1 : -1, tx = cx + sgn*o.fw*0.86, th = s*(0.2 + hash(o.k*2.2)*0.12), tr = s*0.1*rv;
+          ctx.fillStyle = css(mix(mul(shd, 0.7), pal.haze, fog*0.5)); ctx.fillRect(tx - s*0.011, fy - th, s*0.022, th);
+          blob(tx - tr*0.6, fy - th, tr*0.8); blob(tx + tr*0.5, fy - th - tr*0.2, tr*0.9); blob(tx, fy - th - tr*0.75, tr*0.8);
+        }
         for(let sgn = -1; sgn <= 1; sgn += 2) for(let j = 0; j < 3; j++){
-          const rr = s*(0.05 + hash(o.k*3.3 + j*1.7 + sgn)*0.05)*rv;
-          ctx.beginPath(); ctx.arc(cx + sgn*o.fw*(0.6 + j*0.17), o.fy - rr*0.45, rr, 0, TAU); ctx.fill();
+          const rr = s*(0.05 + hash(o.k*3.3 + j*1.7 + sgn)*0.06)*rv;
+          blob(cx + sgn*o.fw*(0.58 + j*0.17), fy - rr*0.5, rr);
+        }
+      }
+      // dust drifting in the light by day, fireflies by night. They pass you as you walk.
+      if(quality > 0){
+        ctx.fillStyle = pal.mote;
+        for(let q = 0, m = quality > 1 ? 4 : 2; q < m; q++){
+          const zp = o.k - hash(o.k*6.1 + q*2.3), rp = zp - z; if(rp < 0.35 || rp > 9) continue;
+          const sp = F/rp, ph = hash(o.k*1.1 + q*8.3)*TAU;
+          const wx = (hash(o.k*1.3 + q*4.1) - 0.5)*1.9*o.wf + Math.sin(ta*0.0004 + ph)*0.05;
+          const wy = lerp(night ? -0.3 : -0.75, o.d - 0.04, hash(o.k*2.9 + q*6.7)) + Math.sin(ta*0.0003 + ph*1.7)*0.04;
+          const x = vx + sp*(offAt(zp) + wx - camX), y = vy + sp*wy; if(y < -10 || y > h + 10 || x < -10 || x > w + 10) continue;
+          const sz = clamp(sp*0.011, 0.7, 4.5);
+          let a = clamp((9 - rp)/3, 0, 1)*clamp((rp - 0.35)/0.6, 0, 1);
+          a *= night ? (still ? 0.6 : Math.pow(Math.max(0, Math.sin(ta*0.0021 + ph)), 2)) : (wy < o.ys + 0.1 ? 0.6 : 0.2);
+          if(a < 0.03) continue;
+          if(night){ ctx.globalAlpha = a*0.2; ctx.beginPath(); ctx.arc(x, y, sz*2.8, 0, TAU); ctx.fill(); }
+          ctx.globalAlpha = night ? a : a*0.8; ctx.beginPath(); ctx.arc(x, y, night ? sz : sz*0.8, 0, TAU); ctx.fill();
         }
       }
     });
+
+    // ---- shafts of light from the far end
+    if(quality > 0){
+      const RR = Math.hypot(w, h)*0.95, rg = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, RR);
+      rg.addColorStop(0, pal.ray); rg.addColorStop(0.5, pal.ray1); rg.addColorStop(1, pal.glow0);
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1; ctx.fillStyle = rg; ctx.beginPath();
+      for(let q = 0; q < RAYS.length; q++){
+        const a = RAYS[q][0]*Math.PI + Math.sin(ta*0.00021 + q*1.9)*0.035, hw = RAYS[q][1]*(0.8 + 0.2*Math.sin(ta*0.0004 + q));
+        ctx.moveTo(sunX, sunY); ctx.lineTo(sunX + Math.cos(a - hw)*RR, sunY + Math.sin(a - hw)*RR); ctx.lineTo(sunX + Math.cos(a + hw)*RR, sunY + Math.sin(a + hw)*RR); ctx.closePath();
+      }
+      ctx.fill(); ctx.globalCompositeOperation = 'source-over';
+    }
     ctx.globalAlpha = 1;
   }
 
   function frame(now){
     raf = 0;
     if(!t0){ t0 = now; lastT = now; }
-    const dt = Math.min(80, now - lastT); lastT = now;
+    const gap = now - lastT, dt = Math.min(80, gap); lastT = now;
     const still = REDUCE.matches, sy = tall ? 0 : (window.scrollY || 0), target = sy/PX;
     if(still){
       let y = 0; anchors.forEach(a => { if(a[0] <= sy) y = a[0]; });
-      zc = y/PX;                         // no gliding: the view only changes when you reach a new stop
+      const view = y/PX + (sy < heroH ? 0 : 0.0001);
+      if(view !== stillView){ stillView = view; dirty = true; }
+      zc = y/PX; px = py = 0;            // no gliding: the view only changes when you reach a new stop
     } else {
       const d = target - zc;
       zc = Math.abs(d) < 0.0006 ? target : zc + d*(1 - Math.exp(-dt/130));
+      const kx = 1 - Math.exp(-dt/260); px += (pxT - px)*kx; py += (pyT - py)*kx;
     }
-    const moving = !still && (Math.abs(target - zc) >= 0.0006 || now - t0 < 2100);
-    const idle = !still && !document.hidden && !tall && sy < heroH;      // clouds and birds drift only while the title is on screen
+    const leaning = !still && (Math.abs(pxT - px) > 0.003 || Math.abs(pyT - py) > 0.003);
+    const moving = !still && (Math.abs(target - zc) >= 0.0006 || now - t0 < 2100 || leaning);
+    // drifting things keep moving while the title is on screen, and for a few seconds after you last scrolled or touched the page
+    const idle = !still && !document.hidden && !tall && (sy < heroH || now - lastAct < 7000);
+    // if a device can't keep up, shed detail rather than stutter
+    if(moving && wasMoving && gap < 70){ slow += (gap - slow)*0.08; if(++nMove > 50 && slow > 40 && quality > 0){ quality--; nMove = 0; slow = 16; measure(); } }
+    wasMoving = moving;
     if(moving || dirty || (idle && now - lastDraw > 33)){ dirty = false; lastDraw = now; draw(now); }
     if(moving || idle) raf = requestAnimationFrame(frame);
   }
   const kick = () => { dirty = true; if(!raf) raf = requestAnimationFrame(frame); };
+  const act = () => { lastAct = performance.now(); if(!raf) raf = requestAnimationFrame(frame); };
   const refresh = () => { measure(); readPal(); kick(); };
 
   refresh();
-  window.addEventListener('scroll', kick, {passive:true});
+  window.addEventListener('scroll', act, {passive:true});
   window.addEventListener('resize', refresh);
+  window.addEventListener('touchstart', act, {passive:true});
   document.addEventListener('visibilitychange', kick);
+  // with a mouse, the view leans a little toward the pointer
+  if(window.matchMedia('(pointer:fine)').matches) window.addEventListener('pointermove', e => { pxT = e.clientX/window.innerWidth - 0.5; pyT = e.clientY/window.innerHeight - 0.5; act(); }, {passive:true});
   if('ResizeObserver' in window) new ResizeObserver(refresh).observe(document.querySelector('main'));
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   if(mq.addEventListener){ mq.addEventListener('change', refresh); REDUCE.addEventListener('change', kick); }
   new MutationObserver(refresh).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
-  return {refresh};
+  return {refresh, quality:() => quality};
 }
 
 /* contour lines behind "Dig local", like the local sheet of a topo map */
@@ -1937,6 +2130,7 @@ $('sortBtn').addEventListener('click', () => {
 });
 $('copyBtn').addEventListener('click', copyList);
 $('floorBtn').addEventListener('click', () => { const el = $('layer-strong'); if(el) el.scrollIntoView({behavior:scrollMode(), block:'start'}); });
+$('gauge').addEventListener('click', e => { const b = e.target.closest('button[data-go]'), el = b && $(b.dataset.go); if(el) el.scrollIntoView({behavior:scrollMode(), block:'start'}); });
 $('q').addEventListener('input', e => { query = e.target.value; render(); });
 
 $('layers').addEventListener('click', e => {
@@ -1986,23 +2180,37 @@ if('ResizeObserver' in window) new ResizeObserver(es => {
   if(wv && wv !== trailW) renderTrail(lastMatches);
 }).observe(plotEl);
 
-/* the dock: on phones it names the stop you are at and how deep you are; on wide screens it is a way back to the survey */
+/* Wayfinding. On phones the dock names the stop you are at and its bar fills as you go deeper.
+   On wide screens a depth gauge on the right edge shows the three stops to scale and where you are. */
 function dockState(){
   dockQueued = 0;
-  const vh = window.innerHeight, line = vh*0.6;
+  const vh = window.innerHeight, sy = window.scrollY || 0, line = vh*0.6;
   const now = $('results').getBoundingClientRect().top < vh*0.5;
   if(now !== inResults){ inResults = now; $('dockBtn').textContent = now ? 'Edit my answers' : 'See my matches'; }
-  const reached = id => { const el = $(id); return !!el && el.getBoundingClientRect().top < line; };
-  let label = `<b>${lastCounts.strong}</b> strong, <b>${lastCounts.maybe}</b> to check`;
-  if(reached('layer-fail')) label = `<b>The rim</b> ${layerCounts.fail} not a fit`;
-  if(reached('layer-maybe')) label = `<b>The walls</b> ${layerCounts.maybe} to check`;
-  if(reached('layer-strong')) label = `<b>The floor</b> ${layerCounts.strong} strong`;
-  if(reached('journey-end')) label = `<b>Trail's end</b>`;
-  if(label !== dockLabel){ dockLabel = label; $('dockText').innerHTML = label; }
+  const top = id => { const el = $(id); return el ? el.getBoundingClientRect().top : null; };
+  const tf = top('layer-fail'), tm = top('layer-maybe'), ts = top('layer-strong'), te = top('journey-end');
+  let stop = 0, label = `<b>${lastCounts.strong}</b> strong, <b>${lastCounts.maybe}</b> to check`;
+  if(tf != null && tf < line){ stop = 1; label = `<b>The rim</b> ${layerCounts.fail} not a fit`; }
+  if(tm != null && tm < line){ stop = 2; label = `<b>The walls</b> ${layerCounts.maybe} to check`; }
+  if(ts != null && ts < line){ stop = 3; label = `<b>The floor</b> ${layerCounts.strong} strong`; }
+  if(te != null && te < line){ stop = 4; label = `<b>Trail's end</b>`; }
+  if(label !== dockLabel){ dockLabel = label; $('dockText').innerHTML = label; $('dock').dataset.stop = stop; }
   const max = document.documentElement.scrollHeight - vh;
-  $('dockDepth').style.transform = `scaleX(${max > 0 ? Math.min(1, Math.max(0, window.scrollY/max)).toFixed(4) : 0})`;
+  $('dockDepth').style.transform = `scaleX(${max > 0 ? Math.min(1, Math.max(0, sy/max)).toFixed(4) : 0})`;
+  const foot = document.querySelector('footer').getBoundingClientRect().top > vh - 24;
   // on wide screens the dock only appears if the survey has scrolled out of reach, and steps aside for the footer
-  $('dock').classList.toggle('show', DESK.matches && $('survey').getBoundingClientRect().bottom < 0 && document.querySelector('footer').getBoundingClientRect().top > vh - 24);
+  $('dock').classList.toggle('show', DESK.matches && $('survey').getBoundingClientRect().bottom < 0 && foot);
+  const gz = $('gauge'), a = tf == null ? tm : tf;
+  let showGauge = false;
+  if(DESK.matches && a != null && te != null && te - a > 200){
+    const segs = gz.querySelectorAll('button');
+    segs[0].hidden = tf == null; if(tf != null) segs[0].style.flexGrow = Math.max(1, Math.round(tm - tf));
+    segs[1].style.flexGrow = Math.max(1, Math.round(ts - tm)); segs[2].style.flexGrow = Math.max(1, Math.round(te - ts));
+    $('gaugeDot').style.top = (Math.min(1, Math.max(0, (vh*0.5 - a)/(te - a)))*100).toFixed(2) + '%';
+    gz.dataset.stop = stop;
+    showGauge = now && foot;
+  }
+  gz.classList.toggle('show', showGauge);
 }
 window.addEventListener('scroll', () => { if(!dockQueued) dockQueued = requestAnimationFrame(dockState); }, {passive:true});
 window.addEventListener('resize', dockState);
