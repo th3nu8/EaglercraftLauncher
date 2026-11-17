@@ -12,6 +12,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select{font:inherit}
 #app{display:flex;flex-direction:column;height:100vh}
+body.mb-strip-on #app{height:calc(100vh - 34px)}
 ::-webkit-scrollbar{width:12px;height:12px}::-webkit-scrollbar-thumb{background:#3d4450;border:3px solid transparent;background-clip:padding-box;border-radius:8px}::-webkit-scrollbar-track{background:transparent}
 
 /* ---------- top nav ---------- */
@@ -708,3 +709,45 @@ body.in-game #app{visibility:hidden}
 .m-box.clip-box{width:min(900px,calc(100vw - 30px))}
 .clip-full{width:100%;max-height:70vh;background:#000;border-radius:3px}
 .rank.r-impossible{background:linear-gradient(135deg,rgba(255,64,129,.35),rgba(156,39,176,.35));color:#ffb3d1;box-shadow:0 0 10px rgba(255,64,129,.35)}
+
+/* ---------- browser tabs ---------- */
+.mb-strip{height:34px;display:flex;align-items:flex-end;gap:2px;padding:0 6px;background:#0b0e13;user-select:none;overflow:hidden}
+.mb-tab{position:relative;display:flex;align-items:center;gap:8px;height:29px;min-width:0;flex:0 1 210px;padding:0 6px 0 11px;border-radius:7px 7px 0 0;color:var(--muted);font-size:12.5px;cursor:pointer;transition:background .12s,color .12s}
+.mb-tab:hover{background:#151a22;color:var(--text)}
+.mb-tab.on{background:var(--nav);color:#fff}
+.mb-mist{flex:none;padding-right:14px;font-weight:700;letter-spacing:.02em}
+.mb-mist .brand-ico{width:16px;height:16px}
+.mb-tabs{display:flex;align-items:flex-end;gap:2px;min-width:0;flex:0 1 auto;overflow:hidden}
+.mb-t{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.mb-ico{flex:none;width:16px;height:16px;border-radius:4px;background:#2a475e;color:#c7d5e0;font:700 10px/16px var(--font);text-align:center}
+.mb-ico.spin{background:none;border:2px solid #2a475e;border-top-color:var(--blue);border-radius:50%;animation:mbspin .8s linear infinite}
+@keyframes mbspin{to{transform:rotate(360deg)}}
+.mb-x{flex:none;width:20px;height:20px;border-radius:5px;font-size:15px;line-height:18px;color:var(--muted)}
+.mb-x:hover{background:#3d4450;color:#fff}
+.mb-plus{flex:none;width:28px;height:26px;margin:0 0 2px 2px;border-radius:6px;font-size:19px;line-height:24px;color:var(--muted)}
+.mb-plus:hover{background:#151a22;color:#fff}
+.mb-view{position:fixed;left:0;right:0;top:34px;bottom:0;display:none;flex-direction:column;background:var(--bg);z-index:5}
+body.mb-on .mb-view{display:flex}
+body.mb-on #app{visibility:hidden}
+body.in-game .mb-strip,body.in-game .mb-view{display:none}
+body.in-game.mb-strip-on #app{height:100vh}
+.mb-bar{flex:none;display:flex;align-items:center;gap:4px;height:42px;padding:0 8px;background:var(--nav);border-bottom:1px solid #0b0e13}
+.mb-nav{width:32px;height:30px;border-radius:6px;font-size:19px;line-height:28px;color:var(--text)}
+.mb-nav:hover{background:#2a3340;color:#fff}
+.mb-addr{flex:1;min-width:0;height:30px;padding:0 12px;border-radius:15px;border:1px solid #2a3340;background:#0f141b;color:#fff;outline:none}
+.mb-addr:focus{border-color:var(--blue)}
+.mb-frames{position:relative;flex:1;min-height:0}
+.mb-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}
+.mb-frame.on{display:block}
+.mb-home{position:absolute;left:0;right:0;top:42px;bottom:0;display:none;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 0,#2a475e 0,var(--bg) 60%)}
+.mb-home.on{display:grid}
+.mb-home-box{width:min(620px,calc(100vw - 40px));padding:30px 0 50px;display:grid;gap:22px;justify-items:center}
+.mb-home-h{display:flex;align-items:center;gap:12px;font-size:28px;color:#fff;letter-spacing:.02em}
+.mb-home-h .brand-ico{width:38px;height:38px}
+.mb-home-q{width:100%;height:46px;padding:0 20px;border-radius:23px;border:1px solid #2a3340;background:#0f141b;color:#fff;font-size:16px;outline:none;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.mb-home-q:focus{border-color:var(--blue)}
+.mb-quick{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;width:100%}
+.mb-q{display:grid;justify-items:center;gap:7px;padding:14px 6px 11px;border-radius:10px;background:rgba(15,20,27,.6);color:var(--text);font-size:12.5px}
+.mb-q:hover{background:#2a3340;color:#fff}
+.mb-q-i{width:38px;height:38px;border-radius:50%;background:#2a475e;color:#fff;font:700 17px/38px var(--font)}
+.mb-note{margin:0;max-width:52ch;text-align:center;color:var(--muted);font-size:12.5px}

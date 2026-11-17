@@ -1171,6 +1171,7 @@
             nm.appendChild(el('span', null, u.name));
             if (u.admin) nm.appendChild(el('span', 'adm-tag', 'admin'));
             if (u.banned) nm.appendChild(el('span', 'adm-tag ban', 'banned'));
+            if (u.noBrowser) nm.appendChild(el('span', 'adm-tag ban', 'browser off'));
             if (u.supporter) {
               var tag = el('span', 'adm-tag sup', u.gift ? 'supporter (gift)' : 'supporter');
               if (u.gift) tag.title = 'Given by ' + (u.giftBy || 'an admin') + (u.giftUntil ? ', ends ' + new Date(u.giftUntil).toLocaleDateString() : ', no end date');
@@ -1185,6 +1186,10 @@
             if (!u.admin) {
               if (u.banned) b.appendChild(button('ghost', 'Unban', null, function () { act(u.name, 'unban', u.name + ' unbanned'); }));
               else {
+                b.appendChild(button('ghost', u.noBrowser ? 'Browser on' : 'Browser off', null, function () {
+                  if (u.noBrowser) act(u.name, 'browser-on', u.name + ' can use the browser again');
+                  else if (confirm('Turn the Mist Browser off for ' + u.name + '? Their open browser tabs stop working.')) act(u.name, 'browser-off', 'Browser turned off for ' + u.name);
+                }));
                 b.appendChild(button('ghost', 'Sign out', null, function () { act(u.name, 'signout', u.name + ' signed out everywhere'); }));
                 b.appendChild(button('ghost adm-danger', 'Ban', null, function () { act(u.name, 'ban', u.name + ' banned'); }));
               }
@@ -1200,10 +1205,10 @@
     });
   }
 
-  var social = null, clips = null, lastUser;
+  var social = null, clips = null, browser = null, lastUser;
   function authChanged() {
     var u = engine && engine.signedIn() ? engine.user : null;
-    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); pollAnnouncement(); }
+    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); if (browser) browser.onAuthChange(); pollAnnouncement(); }
   }
   /* PolyTrack-only token for Mist leaderboards (fetched once per sign-in). */
   var ptToken = null, ptPromise = null;
@@ -1251,6 +1256,11 @@
     storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
     showAchievements: function () { go('achievements'); },
     gameNames: function () { return GAMES.map(function (g) { return g.name; }); }
+  }) : null;
+  // browser tabs: Mist is the first tab and can't be closed; "+" opens web pages through the Mist server
+  browser = window.MistBrowser ? MistBrowser({
+    el: el, toast: toast, getEngine: function () { return engine; }, openAuth: openAuth,
+    onMist: function () { document.title = runningGame ? document.title : settings.title; }
   }) : null;
   renderAccount();
   pollAnnouncement(); setInterval(pollAnnouncement, 30000);

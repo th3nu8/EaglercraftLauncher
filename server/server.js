@@ -227,6 +227,39 @@ async function newSession(uid) {
   await saveDb();
   return token;
 }
+/* ------------------------------------------------------------------ Mist Browser
+ * The web browser (server/browser/, its own service behind /browse/) only lets signed-in players use it.
+ * Mist asks for a browser ticket with the player's sign-in; the ticket, not the sign-in, travels to the
+ * browser service, which checks it here (with a secret shared through a file) before opening a connection.
+ * Tickets live in memory for 12 hours: a restart just makes Mist ask for a new one. */
+const BROWSER_SECRET_FILE = process.env.BROWSER_SECRET_FILE || path.join(DATA_DIR, 'browser-secret');
+const BROWSER_TICKET_MS = 12 * 3600e3;
+const browserTickets = new Map();             // sha256(ticket) -> { uid, exp }
+let browserSecret = null;
+function getBrowserSecret() {
+  if (browserSecret) return browserSecret;
+  try { browserSecret = fs.readFileSync(BROWSER_SECRET_FILE, 'utf8').trim(); } catch (e) { /* not made yet */ }
+  if (!browserSecret) {
+    browserSecret = crypto.randomBytes(32).toString('hex');
+    try { fs.writeFileSync(BROWSER_SECRET_FILE, browserSecret + '\n', { mode: 0o640 }); } catch (e) { console.error('could not write ' + BROWSER_SECRET_FILE + ': ' + e.message); }
+  }
+  return browserSecret;
+}
+function browserTicketFor(user) {
+  const now = Date.now();
+  for (const [k, t] of browserTickets) if (t.exp < now) browserTickets.delete(k);
+  const ticket = crypto.randomBytes(24).toString('base64url');
+  browserTickets.set(sha256(ticket), { uid: user.id, exp: now + BROWSER_TICKET_MS });
+  return { ticket, exp: now + BROWSER_TICKET_MS };
+}
+function browserTicketUser(ticket) {
+  const t = browserTickets.get(sha256(String(ticket || '')));
+  if (!t || t.exp < Date.now()) return null;
+  const u = Object.values(db.users).find(x => x.id === t.uid);
+  return u && !u.banned && !u.noBrowser ? u : null;
+}
+function revokeBrowserTickets(uid) { for (const [k, t] of browserTickets) if (t.uid === uid) browserTickets.delete(k); }
+
 function authUser(req) {
   const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || '');
   if (!m) return null;
@@ -1941,8 +1974,22 @@ async function handle(req, res) {
 
   if (req.method === 'GET' && p === '/api/announcement') return send(res, 200, { announcement: currentAnnouncement() });
 
+  // the browser service checks a ticket (never called by players: it needs the shared secret)
+  if (req.method === 'GET' && p === '/api/browser/verify') {
+    const given = Buffer.from(String(req.headers['x-browser-secret'] || '')), want = Buffer.from(getBrowserSecret());
+    if (given.length !== want.length || !crypto.timingSafeEqual(given, want)) return fail(res, 403, 'Forbidden.');
+    const u = browserTicketUser(url.searchParams.get('k'));
+    if (!u) return fail(res, 401, 'Ticket expired or not allowed.');
+    return send(res, 200, { ok: true, uid: u.id, name: u.name });
+  }
+
   const user = authUser(req);
   if (p.startsWith('/api/') && !user) return fail(res, 401, 'Signed out. Please sign in again.');
+
+  if (req.method === 'POST' && p === '/api/browser/ticket') {
+    if (user.noBrowser) return fail(res, 403, 'An admin has turned the browser off for your account.');
+    return send(res, 200, Object.assign({ path: process.env.BROWSER_PATH || '/browse/' }, browserTicketFor(user)));
+  }
 
   if (req.method === 'POST' && p === '/api/logout') {
     const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || '');
@@ -2158,7 +2205,7 @@ async function handle(req, res) {
       const users = Object.values(db.users).map(u => {
         const s = db.support[u.id] || {}, gift = (s.manualUntil || 0) > now;
         return { name: u.name, created: u.created || 0, banned: !!u.banned, admin: isAdmin(u), online: onlineNow(u.id),
-          supporter: isSupporter(u.id), gift, giftUntil: gift && s.manualUntil < FOREVER ? s.manualUntil : null, giftBy: gift ? s.manualBy || null : null };
+          supporter: isSupporter(u.id), noBrowser: !!u.noBrowser, gift, giftUntil: gift && s.manualUntil < FOREVER ? s.manualUntil : null, giftBy: gift ? s.manualBy || null : null };
       })
         .sort((a, b) => (b.online - a.online) || a.name.localeCompare(b.name));
       return send(res, 200, { accounts: users.length, online: users.filter(u => u.online).length, announcement: currentAnnouncement(), users });
@@ -2182,8 +2229,10 @@ async function handle(req, res) {
       if (!target) return fail(res, 404, 'No such user.');
       const action = String(body.action || '');
       if ((action === 'ban' || action === 'signout') && (target.id === user.id || isAdmin(target))) return fail(res, 400, 'You can’t do that to an admin.');
-      const killSessions = () => { for (const [k, s] of Object.entries(db.sessions)) if (s.uid === target.id) delete db.sessions[k]; presence.delete(target.id); };
-      if (action === 'ban') { target.banned = { by: user.name, at: now }; killSessions(); }
+      const killSessions = () => { for (const [k, s] of Object.entries(db.sessions)) if (s.uid === target.id) delete db.sessions[k]; presence.delete(target.id); revokeBrowserTickets(target.id); };
+      if (action === 'ban') { target.banned = { by: user.name, at: now }; killSessions(); revokeBrowserTickets(target.id); }
+      else if (action === 'browser-off') { target.noBrowser = { by: user.name, at: now }; revokeBrowserTickets(target.id); }
+      else if (action === 'browser-on') delete target.noBrowser;
       else if (action === 'unban') delete target.banned;
       else if (action === 'signout') killSessions();
       else if (action === 'support') {           // give supporter perks: body.days (1-3650), or 0 / missing for no end date
@@ -2468,11 +2517,50 @@ async function handle(req, res) {
   if (n) console.log(`Unlocked ${n} achievement(s) for existing accounts.`);
 })();
 
-http.createServer((req, res) => {
+/* ---------------- Mist Browser pass-through ----------------
+ * The browser service (server/browser, port 3300) answers /browse/. nginx can route there directly, but
+ * the tunnel may point straight at this server, so /browse/ (pages and the relay's WebSocket) is passed
+ * on from here too. BROWSER_UPSTREAM= (empty) turns this off. */
+const BROWSER_UPSTREAM = process.env.BROWSER_UPSTREAM === undefined ? 'http://127.0.0.1:3300' : process.env.BROWSER_UPSTREAM;
+const browserUp = BROWSER_UPSTREAM ? new URL(BROWSER_UPSTREAM) : null;
+const isBrowserPath = u => browserUp && /^\/browse(\/|$|\?)/.test(u || '');
+function browserHeaders(req) {
+  const h = Object.assign({}, req.headers);
+  h['x-forwarded-for'] = (req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'] + ', ' : '') + (req.socket.remoteAddress || '');
+  return h;
+}
+function passToBrowser(req, res) {
+  if (req.url === '/browse' || req.url.startsWith('/browse?')) { res.writeHead(301, { Location: '/browse/' + req.url.slice(7) }); return res.end(); }
+  const up = http.request({ host: browserUp.hostname, port: browserUp.port, method: req.method, path: req.url.slice(7), headers: browserHeaders(req) }, r => {
+    res.writeHead(r.statusCode, r.headers); r.pipe(res);
+  });
+  up.on('error', () => {
+    if (res.headersSent) return res.destroy();
+    res.writeHead(502, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end('<!doctype html><body style="font:15px system-ui;background:#1b2838;color:#c7d5e0;display:grid;place-items:center;height:100vh;margin:0"><p>The Mist Browser isn’t running on this server.</p>');
+  });
+  req.pipe(up);
+}
+
+const mainServer = http.createServer((req, res) => {
+  if (isBrowserPath(req.url)) return passToBrowser(req, res);
   handle(req, res).catch(e => {
     console.error(e);
     if (!res.headersSent) fail(res, 500, 'Server error.'); else res.destroy();
   });
-}).listen(PORT, HOST, () => {
+});
+mainServer.on('upgrade', (req, socket, head) => {
+  if (!isBrowserPath(req.url)) return socket.destroy();
+  const up = require('net').connect(+browserUp.port || 80, browserUp.hostname, () => {
+    const h = browserHeaders(req);
+    up.write(`${req.method} ${req.url.slice(7)} HTTP/1.1\r\n` + Object.keys(h).map(k => `${k}: ${h[k]}`).join('\r\n') + '\r\n\r\n');
+    if (head && head.length) up.write(head);
+    socket.pipe(up); up.pipe(socket);
+  });
+  up.on('error', () => socket.destroy()); socket.on('error', () => up.destroy());
+  up.setTimeout(0); socket.setTimeout(0);
+});
+mainServer.listen(PORT, HOST, () => {
   console.log(`Eaglercraft save server on http://${HOST}:${PORT}  (data: ${DATA_DIR}, signups: ${ALLOW_SIGNUPS})`);
+  getBrowserSecret();      // make sure the browser service can find the shared secret
 });

@@ -214,6 +214,32 @@ What gets synced: every IndexedDB database on the site whose name contains
 large), plus `localStorage` keys containing "eagler" (game settings). If a version
 uses other database names, list them in that version's `"databases": ["name"]`.
 
+### Mist Browser (web tabs)
+
+Mist has a tab strip across the top. The first tab is Mist itself and can't be closed; **+** opens a
+browser tab that loads websites through the Mist server (Ultraviolet in the page, a wisp relay on the
+server). Only signed-in players can open tabs: Mist asks the server for a 12-hour browser ticket, and the
+relay refuses connections without a valid one.
+
+Install or update it on the server (also updates the Mist server, which hands out the tickets):
+
+```sh
+cd ~/EaglercraftLauncher && git pull && sh server/browser-setup.sh
+```
+
+This runs `server/browser` as the `mist-browser` service on 127.0.0.1:3300 and serves it at `/browse/`
+(through nginx, and through the Mist server for the tunnel). Rules it applies:
+
+- **Signed in only.** Banning a player, or the **Browser off** button in the admin dashboard, ends their tickets and open tabs.
+- **Blocklist** in `/opt/mist-browser/data/blocklist.txt` (one domain per line, re-read every 30 seconds). DNS goes through Cloudflare's family filter (1.1.1.3), which already drops adult and malware sites.
+- **Logs**: `/opt/mist-browser/data/logs/YYYY-MM-DD.log` lists which account opened which site (one line per player, site and 10 minutes), kept 30 days (`LOG_DAYS`).
+- **Data limit** per player per day: `DAILY_MB` in the service (2048 by default, 0 for none).
+- Only ports 80 and 443, no IP addresses and nothing on the server's own network, so it can't be used to reach the server's other services.
+
+Everything people browse leaves from the server's IP address, so abuse reports for those sites come to
+the server's host. Some sites (Google sign-in, sites behind heavy bot protection) won't work through it.
+`cd server/browser && npm install && npm test` checks tickets, the relay, the blocklist, logs and the admin switch.
+
 ## versions.json
 
 ```json

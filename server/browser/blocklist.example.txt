@@ -1,0 +1,7 @@
+# Mist Browser blocklist: one domain per line; a domain also blocks everything under it.
+# Lines starting with # are comments. The service re-reads this file every 30 seconds.
+# Adult and malware sites are already filtered by the DNS it uses (Cloudflare 1.1.1.3).
+#
+# examples:
+# example-casino.com
+# tiktok.com

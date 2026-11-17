@@ -1,0 +1,15 @@
+{
+  "name": "mist-browser",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mist's web browser: an Ultraviolet proxy for signed-in Mist players, relayed through a Wisp server",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "test": "node test/browser-test.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@mercuryworkshop/bare-mux": "2.1.9",
+    "@mercuryworkshop/epoxy-transport": "2.1.28",
+    "@mercuryworkshop/wisp-js": "0.5.3",
+    "@titaniumnetwork-dev/ultraviolet": "3.2.10"
+  }
+}
