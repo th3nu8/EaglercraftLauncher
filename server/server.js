@@ -2580,19 +2580,28 @@ function pathAppFor(req) {
 function probe(U) {
   return new Promise(resolve => {
     const secure = U.protocol === 'https:';
-    const r = (secure ? https : http).request({ host: U.hostname, port: U.port || (secure ? 443 : 80), method: 'HEAD', path: '/', timeout: 2500, rejectUnauthorized: false }, res => {
+    const r = (secure ? https : http).request({ host: U.hostname, port: U.port || (secure ? 443 : 80), method: 'GET', path: '/', timeout: 4000, rejectUnauthorized: false }, res => {
       res.resume();
       // serve_https.py answers plain http with a redirect to https: that's the wrong scheme, not the game
       const loc = res.headers.location || '';
-      resolve(!(res.statusCode >= 300 && res.statusCode < 400 && /^https:/i.test(loc) && !secure));
+      if (res.statusCode >= 300 && res.statusCode < 400 && /^https:/i.test(loc) && !secure) return resolve('wants https');
+      resolve(res.statusCode < 500 ? 'ok ' + res.statusCode : 'answered ' + res.statusCode);
     });
-    r.on('timeout', () => r.destroy()); r.on('error', () => resolve(false)); r.end();
+    r.on('timeout', () => { r.destroy(new Error('no answer in 4 s')); });
+    r.on('error', e => resolve(e.code === 'ECONNREFUSED' ? 'nothing listening' : (e.code || e.message)));
+    r.end();
   });
 }
 function upstreamFor(a) {
   if (a.found && Date.now() - a.foundAt < 5 * 60e3) return Promise.resolve(a.found);
   if (!a.finding) a.finding = (async () => {
-    for (const U of a.candidates) if (await probe(U)) { a.found = U; a.foundAt = Date.now(); return U; }
+    a.checks = [];
+    for (const U of a.candidates) {
+      const r = await probe(U);
+      a.checks.push({ address: U.href, result: r });
+      if (/^ok/.test(r)) { a.found = U; a.foundAt = Date.now(); return U; }
+    }
+    a.found = null;
     return null;
   })().finally(() => { a.finding = null; });
   return a.finding;
@@ -2617,8 +2626,13 @@ function appLocation(loc, a, U) {
 const REWRITE_TYPES = /text\/html|javascript|json|text\/css|text\/plain|xml/i;
 function appDown(res, a) {
   if (res.headersSent) return res.destroy();
-  res.writeHead(502, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-  res.end('<!doctype html><body style="font:15px system-ui;background:#0b0b12;color:#ccc;display:grid;place-items:center;height:100vh;margin:0"><p>' + a.name + ' isn’t running on the server right now. Try again in a minute.</p>');
+  // 503, not 502: Cloudflare swaps an origin's 502 for its own "Bad gateway" page, hiding this one
+  res.writeHead(503, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Retry-After': '30' });
+  const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const tried = (a.checks || []).map(c => '<li>' + esc(c.address) + ' — ' + esc(c.result) + '</li>').join('');
+  res.end('<!doctype html><body style="font:15px system-ui;background:#0b0b12;color:#ccc;display:grid;place-items:center;min-height:100vh;margin:0"><div style="max-width:560px;padding:20px">' +
+    '<h2 style="color:#fff;margin:0 0 8px">' + a.name + ' isn’t running on the server right now</h2><p>Try again in a minute.</p>' +
+    (tried ? '<p style="color:#888;font-size:13px">The Mist server looked for it here:</p><ul style="color:#888;font-size:13px">' + tried + '</ul>' : '') + '</div>');
 }
 async function passToApp(req, res, m) {
   const a = m.app;
@@ -2687,6 +2701,16 @@ async function appUpgrade(req, socket, head, m) {
 
 const mainServer = http.createServer((req, res) => {
   if (isBrowserPath(req.url)) return passToBrowser(req, res);
+  if (req.url === '/gta5/__status' || req.url === '/api/gta5-status') {
+    // what /gta5 is doing: which address the game was found on, or what each one answered
+    const a = PATH_APPS[0];
+    if (!a) { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end('{"enabled":false}'); }
+    a.found = null;
+    return upstreamFor(a).then(U => {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      res.end(JSON.stringify({ enabled: true, using: U ? U.href : null, checked: a.checks, host: req.headers.host || null }, null, 1));
+    });
+  }
   const app = pathAppFor(req);
   if (app) return passToApp(req, res, app).catch(() => appDown(res, app.app));
   handle(req, res).catch(e => {
