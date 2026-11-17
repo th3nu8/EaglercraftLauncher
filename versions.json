@@ -133,8 +133,9 @@
           "name": "GTA 5",
           "type": "release",
           "file": "gta5.html",
+          "rev": "2",
           "notes": [
-            "Runs from the Mist server at https://195.62.47.222:8001/ inside Mist."
+            "Runs from your Mist save server at /gta5 (for example https://infoforscholars.com/gta5), inside Mist."
           ]
         }
       ]
