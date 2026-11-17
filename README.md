@@ -242,6 +242,20 @@ Everything people browse leaves from the server's IP address, so abuse reports f
 the server's host. Some sites (Google sign-in, sites behind heavy bot protection) won't work through it.
 `cd server/browser && npm install && npm test` checks tickets, the relay, the blocklist, logs and the admin switch.
 
+### GTA 5 at /gta5 on every domain
+
+The GTA 5 server (`serve_https.py`/`serve_local.py`, on port 8080 or 8001) is reachable as `/gta5` on every
+domain pointed at the server's IP, and on the IP itself, with no port in the address:
+
+```sh
+cd ~/EaglercraftLauncher && git pull && sh server/gta5-setup.sh
+```
+
+It adds `include snippets/mist-gta5.conf;` to every nginx server block (old copies are kept in
+`/root/nginx-before-gta5`) and updates the Mist server, which finds the game on 8080/8001 (http or https),
+sends root-path requests from the game's pages to the game, and rewrites `host:8080` links and redirects
+to `/gta5`. HTTPS on a domain needs a certificate for that domain (or Cloudflare's proxy in front of it).
+
 ## versions.json
 
 ```json

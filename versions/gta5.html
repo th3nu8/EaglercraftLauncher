@@ -16,9 +16,9 @@ a.play:hover{background:#38b457}p{color:#999;max-width:460px;margin:18px auto 0;
   so it opens in a new tab. Your Mist tab stays open.</p>
 </div></div>
 <script>
-// Where the game is served from: /gta5/ on the Mist server (serve_https.py behind the Mist server),
-// so it works on whatever domain Mist is using.
-var GAME_URL = String(window.MIST_SERVER || 'https://mistserver.space').replace(/\/+$/, '') + '/gta5/';
+// The game is at /gta5/ on every domain that points at the Mist server's IP. Mist opens it on the
+// domain Mist itself is using (its server setting).
+var GAME_URL = String(window.MIST_SERVER || 'https://infoforscholars.com').replace(/\/+$/, '') + '/gta5/';
 
 // The game needs SharedArrayBuffer. Inside Mist's frame that only works with the server's
 // Document-Isolation-Policy header, which Chromium supports from version 137.

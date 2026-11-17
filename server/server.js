@@ -2571,7 +2571,7 @@ function pathAppFor(req) {
   }
   if (!PATH_APPS.length || MIST_ONLY.test(u) || !req.headers.referer) return null;
   let ref; try { ref = new URL(req.headers.referer); } catch (e) { return null; }
-  if (ref.host !== req.headers.host) return null;
+  if (ref.hostname !== String(req.headers.host || '').replace(/:\d+$/, '')) return null;   // same site (the port can differ behind nginx)
   for (const a of PATH_APPS) if (ref.pathname.startsWith(a.prefix + '/')) return { app: a, path: u };
   return null;
 }
