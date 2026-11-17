@@ -50,6 +50,13 @@ NGX
 # include it in every server block of every enabled site (once each); old copies go to /root/nginx-before-gta5
 BK=/root/nginx-before-gta5
 CHANGED=""
+# an older /gta5 route (snippets/gta5.conf, pointing straight at the game's port) would clash: retire it
+OLD=/etc/nginx/snippets/gta5.conf
+if [ -f "$OLD" ] && ! grep -q "replaced by mist-gta5" "$OLD"; then
+  mkdir -p "$BK/etc/nginx/snippets" && cp "$OLD" "$BK$OLD"
+  echo "# Old GTA 5 route, replaced by mist-gta5.conf (server/gta5-setup.sh). The original is in $BK$OLD" > "$OLD"
+  CHANGED="$OLD"
+fi
 for F in /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf; do
   [ -f "$F" ] || continue
   grep -Eq "^[[:space:]]*server[[:space:]]*\{" "$F" || continue
