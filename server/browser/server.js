@@ -149,7 +149,10 @@ function socketFor(user) {
 
 // ------------------------------------------------------------------ http
 const dist = name => path.join(__dirname, 'node_modules', name, 'dist') + path.sep;
-const VENDOR = { '/uv/': dist('@titaniumnetwork-dev/ultraviolet'), '/baremux/': dist('@mercuryworkshop/bare-mux'), '/epoxy/': dist('@mercuryworkshop/epoxy-transport') };
+const VENDOR = { '/uv/': dist('@titaniumnetwork-dev/ultraviolet'), '/baremux/': dist('@mercuryworkshop/bare-mux'), '/epoxy/': dist('@mercuryworkshop/epoxy-transport'), '/libcurl/': dist('@mercuryworkshop/libcurl-transport') };
+// How tabs talk to the relay. libcurl handles header-heavy sites like YouTube; epoxy's HTTP/2 client resets
+// them (it refuses response headers over 16 KB). TRANSPORT=epoxy switches back.
+const TRANSPORT = process.env.TRANSPORT === 'epoxy' ? 'epoxy' : 'libcurl';
 const PUBLIC = path.join(__dirname, 'public');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json', '.map': 'application/json', '.wasm': 'application/wasm', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const conns = new Set();
@@ -172,7 +175,7 @@ const server = http.createServer((req, res) => {
   try { p = decodeURIComponent(u.pathname); } catch (e) { res.writeHead(400); return res.end(); }
   if (p === '/api/status') {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
-    return res.end(JSON.stringify({ ok: true, service: 'mist-browser', connections: conns.size, blocked: blocked.size, dailyMB: DAILY_BYTES / 1048576, secret: !!getSecret() }));
+    return res.end(JSON.stringify({ ok: true, service: 'mist-browser', transport: TRANSPORT, connections: conns.size, blocked: blocked.size, dailyMB: DAILY_BYTES / 1048576, secret: !!getSecret() }));
   }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
   if (p.startsWith('/service/')) {
