@@ -2542,15 +2542,87 @@ function passToBrowser(req, res) {
   req.pipe(up);
 }
 
+/* ---------------- games run by other programs, at a path on every domain ----------------
+ * /gta5/ goes to the GTA 5 server (serve_https.py on 127.0.0.1:8001). Being a path instead of a port, it
+ * works on every name this server answers to: mistserver.space, infoforscholars.com, relay..., the IP.
+ * Requests a game page makes to root paths (/main.js) are sent to that game too, going by the Referer.
+ * GTA5_UPSTREAM=http(s)://host:port changes where it goes; GTA5_UPSTREAM= (empty) turns it off. */
+const https = require('https'), tls = require('tls');
+const PATH_APPS = [
+  { prefix: '/gta5', name: 'GTA 5', upstream: process.env.GTA5_UPSTREAM === undefined ? 'https://127.0.0.1:8001' : process.env.GTA5_UPSTREAM }
+].filter(a => a.upstream).map(a => Object.assign(a, { url: new URL(a.upstream) }));
+const MIST_ONLY = /^\/(api|browse|assets|pt|getmist|overboost)(\/|$|\?)/;      // never handed to a game
+function pathAppFor(req) {
+  const u = req.url || '';
+  for (const a of PATH_APPS) {
+    if (u === a.prefix || u.startsWith(a.prefix + '?')) return { app: a, redirect: a.prefix + '/' + u.slice(a.prefix.length) };
+    if (u.startsWith(a.prefix + '/')) return { app: a, path: u.slice(a.prefix.length) };
+  }
+  if (!PATH_APPS.length || MIST_ONLY.test(u) || !req.headers.referer) return null;
+  let ref; try { ref = new URL(req.headers.referer); } catch (e) { return null; }
+  if (ref.host !== req.headers.host) return null;
+  for (const a of PATH_APPS) if (ref.pathname.startsWith(a.prefix + '/')) return { app: a, path: u };
+  return null;
+}
+function appRequestHeaders(req, a) {
+  const h = Object.assign({}, req.headers);
+  h['x-forwarded-host'] = req.headers.host || '';
+  h['x-forwarded-prefix'] = a.prefix;
+  h['x-forwarded-for'] = (req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'] + ', ' : '') + (req.socket.remoteAddress || '');
+  h.host = a.url.host;
+  return h;
+}
+function appLocation(loc, a) {
+  try {
+    const l = new URL(loc, a.url);
+    if (l.host !== a.url.host) return loc;                       // somewhere else entirely
+    return (l.pathname.startsWith(a.prefix + '/') ? '' : a.prefix) + l.pathname + l.search + l.hash;
+  } catch (e) { return loc; }
+}
+function passToApp(req, res, m) {
+  const a = m.app, U = a.url, secure = U.protocol === 'https:';
+  if (m.redirect) { res.writeHead(301, { Location: m.redirect }); return res.end(); }
+  const up = (secure ? https : http).request({
+    host: U.hostname, port: U.port || (secure ? 443 : 80), method: req.method, path: m.path || '/',
+    headers: appRequestHeaders(req, a), rejectUnauthorized: false      // it's on this machine; its certificate is for the domain
+  }, r => {
+    const h = Object.assign({}, r.headers);
+    if (h.location) h.location = appLocation(h.location, a);
+    // lets the game use SharedArrayBuffer inside Mist's frame (Chrome/Edge 137+)
+    if (!h['document-isolation-policy'] && /html/.test(h['content-type'] || '')) h['document-isolation-policy'] = 'isolate-and-require-corp';
+    res.writeHead(r.statusCode, r.statusMessage, h); r.pipe(res);
+  });
+  up.on('error', () => {
+    if (res.headersSent) return res.destroy();
+    res.writeHead(502, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end('<!doctype html><body style="font:15px system-ui;background:#0b0b12;color:#ccc;display:grid;place-items:center;height:100vh;margin:0"><p>' + a.name + ' isn’t running on the server right now. Try again in a minute.</p>');
+  });
+  req.on('aborted', () => up.destroy());
+  req.pipe(up);
+}
+function appUpgrade(req, socket, head, m) {
+  const a = m.app, U = a.url, secure = U.protocol === 'https:', port = +U.port || (secure ? 443 : 80);
+  const onConnect = () => {
+    const h = appRequestHeaders(req, a);
+    up.write(`${req.method} ${m.path || '/'} HTTP/1.1\r\n` + Object.keys(h).map(k => `${k}: ${h[k]}`).join('\r\n') + '\r\n\r\n');
+    if (head && head.length) up.write(head);
+    socket.pipe(up); up.pipe(socket);
+  };
+  const up = secure ? tls.connect({ host: U.hostname, port, rejectUnauthorized: false }, onConnect) : require('net').connect(port, U.hostname, onConnect);
+  up.on('error', () => socket.destroy()); socket.on('error', () => up.destroy());
+}
+
 const mainServer = http.createServer((req, res) => {
   if (isBrowserPath(req.url)) return passToBrowser(req, res);
+  const app = pathAppFor(req);
+  if (app) return passToApp(req, res, app);
   handle(req, res).catch(e => {
     console.error(e);
     if (!res.headersSent) fail(res, 500, 'Server error.'); else res.destroy();
   });
 });
 mainServer.on('upgrade', (req, socket, head) => {
-  if (!isBrowserPath(req.url)) return socket.destroy();
+  if (!isBrowserPath(req.url)) { const app = pathAppFor(req); return app && !app.redirect ? appUpgrade(req, socket, head, app) : socket.destroy(); }
   const up = require('net').connect(+browserUp.port || 80, browserUp.hostname, () => {
     const h = browserHeaders(req);
     up.write(`${req.method} ${req.url.slice(7)} HTTP/1.1\r\n` + Object.keys(h).map(k => `${k}: ${h[k]}`).join('\r\n') + '\r\n\r\n');
