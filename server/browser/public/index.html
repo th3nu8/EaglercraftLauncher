@@ -12,11 +12,14 @@
   #msg b{display:block;color:#fff;font-size:16px;margin-bottom:4px}
   #msg i{display:inline-block;width:26px;height:26px;border-radius:50%;border:3px solid #2a475e;border-top-color:#66c0f4;animation:spin .8s linear infinite;margin-bottom:12px}
   #msg.err i{display:none}
+  #retry{display:none;margin:16px auto 0;padding:8px 18px;border:0;border-radius:4px;background:#66c0f4;color:#0b1520;font:600 14px inherit;cursor:pointer}
+  #msg.err #retry.on{display:block}
+  #retry:hover{background:#8fd3ff}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div id="msg"><div><i></i><b>Starting the browser</b><span id="sub">Connecting to the Mist server…</span></div></div>
+<div id="msg"><div><i></i><b>Starting the browser</b><span id="sub">Connecting to the Mist server…</span><button id="retry">Try again</button></div></div>
 <iframe id="view" allow="fullscreen; autoplay; clipboard-read; clipboard-write; encrypted-media; picture-in-picture" referrerpolicy="no-referrer"></iframe>
 <script src="baremux/index.js"></script>
 <script src="uv/uv.bundle.js"></script>
@@ -36,36 +39,27 @@
   var parent = window.parent !== window ? window.parent : null;
 
   function tell(o) { o.mb = o.mb || 'state'; if (parent) parent.postMessage(o, '*'); }
-  function show(title, sub, isErr) {
+  var retry = document.getElementById('retry'), retryUrl = '';
+  retry.onclick = function () { if (retryUrl) go(retryUrl); };
+  function show(title, sub, isErr, again) {
     msg.style.display = ''; msg.className = isErr ? 'err' : '';
+    retryUrl = again || ''; retry.className = again ? 'on' : '';
     msg.querySelector('b').textContent = title; document.getElementById('sub').textContent = sub || '';
     if (isErr) tell({ mb: 'error', text: title + (sub ? ': ' + sub : '') });
   }
   function wispUrl() { return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + BASE + 'wisp/' + encodeURIComponent(ticket) + '/'; }
 
-  var transport = null;     // 'libcurl' or 'epoxy', chosen by the server (/api/status)
+  var mode = null;     // 'auto', 'libcurl' or 'epoxy', chosen by the server (/api/status)
   function setTransport() {
-    if (!transport) transport = fetch(BASE + 'api/status', { cache: 'no-store' }).then(function (r) { return r.json(); })
-      .then(function (j) { return j.transport === 'epoxy' ? 'epoxy' : 'libcurl'; }, function () { return 'libcurl'; });
-    return transport.then(function (t) { return conn.setManualTransport(transportCode(BASE + t + '/index.mjs'), [{ wisp: wispUrl() }]); });
-  }
-  // Runs in the bare-mux worker. libcurl loads its wasm in the background and throws "wasm not loaded yet"
-  // if a page asks for something first, so the first request waits for it instead of failing.
-  function transportCode(url) {
-    var u = JSON.stringify(url);
-    return 'const { default: T } = await import(' + u + ');\n' +
-      'class MistTransport extends T {\n' +
-      '  init() {\n' +
-      '    if (!this.mistInit) this.mistInit = (async () => {\n' +
-      '      for (let i = 0; ; i++) {\n' +
-      '        try { await super.init(); return; }\n' +
-      '        catch (e) { if (i > 300 || !/not loaded/i.test(String(e && e.message))) { this.mistInit = null; throw e; } await new Promise(r => setTimeout(r, 100)); }\n' +
-      '      }\n' +
-      '    })();\n' +
-      '    return this.mistInit;\n' +
-      '  }\n' +
-      '}\n' +
-      'return [MistTransport, ' + u + '];';
+    if (!mode) mode = fetch(BASE + 'api/status', { cache: 'no-store' }).then(function (r) { return r.json(); })
+      .then(function (j) { return /^(auto|libcurl|epoxy)$/.test(j.transport) ? j.transport : 'auto'; }, function () { return 'auto'; });
+    return mode.then(function (m) {
+      // runs in the bare-mux worker: mist-transport.mjs picks libcurl or epoxy per site (see that file)
+      var u = JSON.stringify(location.origin + BASE + 'mist-transport.mjs?v=2');
+      var code = 'const { makeTransport } = await import(' + u + ');\n' +
+        'return [await makeTransport(' + JSON.stringify(m) + ', ' + JSON.stringify(location.origin + BASE) + '), ' + u + '];';
+      return conn.setManualTransport(code, [{ wisp: wispUrl() }]);
+    });
   }
   function start() {
     if (ready) return ready;
@@ -128,8 +122,28 @@
       }, true);
     } catch (e) { /* not readable */ }
   }
-  view.addEventListener('load', function () { hookLinks(); report(false); });
-  setInterval(function () { if (view.style.display === 'block') { hookLinks(); report(false); } }, 700);
+  // When a page fails, ask the relay why. If it refused the site (blocked, filtered, data limit, site down),
+  // say that plainly instead of Ultraviolet's error page, which only shows a TLS error code.
+  function checkError() {
+    var d, w = view.contentWindow;
+    try { d = w.document; } catch (e) { return; }
+    if (!d || d.__mistErr || !d.getElementById('errorTrace') || !d.getElementById('uvVersion')) return;
+    d.__mistErr = true;
+    var url = decode(w.location.href) || want, h;
+    try { h = new URL(url); } catch (e) { return; }
+    var port = +h.port || (h.protocol === 'http:' ? 80 : 443);
+    fetch(BASE + 'api/why?k=' + encodeURIComponent(ticket) + '&host=' + encodeURIComponent(h.hostname) + '&port=' + port, { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var still; try { still = view.contentWindow.document === d; } catch (e) { still = false; }
+        if (!j || !j.reason || !still || view.style.display !== 'block') return;
+        view.style.display = 'none';
+        lastKey = ''; tell({ url: url, title: 'Can’t open ' + h.hostname, loading: false });
+        show('Can’t open ' + h.hostname, j.text, true, j.reason === 'unreachable' ? url : '');
+      }, function () {});
+  }
+  view.addEventListener('load', function () { hookLinks(); report(false); checkError(); });
+  setInterval(function () { if (view.style.display === 'block') { hookLinks(); report(false); checkError(); } }, 700);
 
   window.addEventListener('message', function (e) {
     if (!parent || e.source !== parent || !e.data || typeof e.data.mb !== 'string') return;

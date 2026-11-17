@@ -113,6 +113,15 @@ async function main() {
   r = await wispGet(P.strict, ticket, 'localhost', 22, '/');
   check(!!r.error, 'real rules: ports other than 80 and 443 are refused');
 
+  console.log('why a site didn’t load');
+  const why = async (port, host, hp) => (await req(port, 'GET', `/api/why?k=${ticket}&host=${encodeURIComponent(host)}&port=${hp}`)).json || {};
+  check((await req(P.relay, 'GET', '/api/why?k=madeup&host=example.com')).status === 401, 'needs a ticket');
+  check((await why(P.relay, 'localhost', P.site)).reason === 'blocked', 'blocklisted site: "blocked"');
+  check((await why(P.relay, 'no-such-site.invalid', 443)).reason === 'nodns', 'missing site: "nodns"');
+  check((await why(P.relay, '127.0.0.1', P.site)).reason === null, 'working site: no reason');
+  check((await why(P.strict, '127.0.0.1', 443)).reason === 'ip', 'real rules: IP address: "ip"');
+  check((await why(P.strict, 'example.com', 22)).reason === 'port', 'real rules: other port: "port"');
+
   await sleep(300);
   const day = new Date().toISOString().slice(0, 10);
   const log = fs.readFileSync(path.join(relayData, 'logs', day + '.log'), 'utf8');

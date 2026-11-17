@@ -147,12 +147,59 @@ function socketFor(user) {
   };
 }
 
+// ------------------------------------------------------------------ why a site didn't load
+// When a page fails, the tab asks here so it can say "blocked", "filtered" or "down" instead of showing
+// a raw TLS error (a refused relay connection looks like "SSL connect error" to the page).
+const dns = require('dns'), net = require('net');
+const familyDns = new dns.promises.Resolver({ timeout: 4000, tries: 2 });
+if (wisp.options.dns_servers) familyDns.setServers(wisp.options.dns_servers);
+const isPrivateIp = ip => /^(0\.|10\.|127\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.)/.test(ip) || /^(::1?$|f[cd]|fe80)/i.test(ip);
+const WHY = {
+  blocked: 'This site is blocked on Mist.',
+  limit: 'You’ve used today’s Mist Browser data. It resets at midnight UTC.',
+  port: 'The Mist Browser only opens normal web addresses (no custom ports).',
+  ip: 'Type the site’s name instead of its IP address.',
+  nodns: 'That site doesn’t exist, or its address couldn’t be found.',
+  filtered: 'This site is filtered (adult or harmful content).',
+  private: 'That address points into a private network, so Mist can’t open it.',
+  unreachable: 'The Mist server couldn’t reach that site. It may be down; try again in a bit.'
+};
+async function resolveHost(host) {
+  if (wisp.options.dns_method === 'resolve') {
+    try { return (await familyDns.resolve4(host))[0]; } catch (e) { if (e.code !== 'ENODATA' && e.code !== 'ENOTFOUND') throw e; }
+    return (await familyDns.resolve6(host))[0];
+  }
+  return (await dns.promises.lookup(host)).address;
+}
+function tcpCheck(ip, port) {
+  return new Promise(resolve => {
+    const s = net.connect({ host: ip, port, timeout: 6000 });
+    const done = ok => { s.destroy(); resolve(ok); };
+    s.on('connect', () => done(true)); s.on('timeout', () => done(false)); s.on('error', () => done(false));
+  });
+}
+async function whyFailed(user, host, port) {
+  host = String(host || '').toLowerCase().replace(/^\[|\]$/g, '').replace(/\.$/, '');
+  if (!host || host.length > 253) return null;
+  if (isBlocked(host)) return 'blocked';
+  if (overLimit(user)) return 'limit';
+  if (!TEST && port !== 80 && port !== 443) return 'port';
+  if (net.isIP(host)) return TEST ? null : 'ip';
+  let ip;
+  try { ip = await resolveHost(host); } catch (e) { return 'nodns'; }
+  if (!ip) return 'nodns';
+  if (ip === '0.0.0.0' || ip === '::') return 'filtered';          // what the family DNS answers for filtered sites
+  if (isPrivateIp(ip) && !TEST) return 'private';
+  return (await tcpCheck(ip, port)) ? null : 'unreachable';      // reachable: the problem is the site or its TLS
+}
+const whyLimit = new Map();     // uid -> [times], a few checks a minute per player
+
 // ------------------------------------------------------------------ http
 const dist = name => path.join(__dirname, 'node_modules', name, 'dist') + path.sep;
 const VENDOR = { '/uv/': dist('@titaniumnetwork-dev/ultraviolet'), '/baremux/': dist('@mercuryworkshop/bare-mux'), '/epoxy/': dist('@mercuryworkshop/epoxy-transport'), '/libcurl/': dist('@mercuryworkshop/libcurl-transport') };
-// How tabs talk to the relay. libcurl handles header-heavy sites like YouTube; epoxy's HTTP/2 client resets
-// them (it refuses response headers over 16 KB). TRANSPORT=epoxy switches back.
-const TRANSPORT = process.env.TRANSPORT === 'epoxy' ? 'epoxy' : 'libcurl';
+// How tabs talk to the relay (public/mist-transport.mjs). "auto": libcurl, which handles header-heavy sites
+// like YouTube, falling back to epoxy for sites libcurl's TLS can't connect to. TRANSPORT=libcurl or epoxy forces one.
+const TRANSPORT = /^(libcurl|epoxy)$/.test(process.env.TRANSPORT || '') ? process.env.TRANSPORT : 'auto';
 const PUBLIC = path.join(__dirname, 'public');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.json': 'application/json', '.map': 'application/json', '.wasm': 'application/wasm', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const conns = new Set();
@@ -176,6 +223,19 @@ const server = http.createServer((req, res) => {
   if (p === '/api/status') {
     res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
     return res.end(JSON.stringify({ ok: true, service: 'mist-browser', transport: TRANSPORT, connections: conns.size, blocked: blocked.size, dailyMB: DAILY_BYTES / 1048576, secret: !!getSecret() }));
+  }
+  if (p === '/api/why') {
+    const json = (code, o) => { res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(o)); };
+    checkTicket(u.searchParams.get('k') || '').then(async user => {
+      if (!user) return json(401, { error: 'sign in again' });
+      const now = Date.now(), t = (whyLimit.get(user.uid) || []).filter(x => now - x < 60e3);
+      if (t.length >= 20) return json(429, { error: 'slow down' });
+      t.push(now); whyLimit.set(user.uid, t);
+      const port = +u.searchParams.get('port') || 443;
+      const reason = await whyFailed(user, u.searchParams.get('host'), port);
+      json(200, { reason, text: reason ? WHY[reason] : null });
+    }).catch(() => json(503, { error: 'try again' }));
+    return;
   }
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); return res.end(); }
   if (p.startsWith('/service/')) {

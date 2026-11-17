@@ -233,7 +233,8 @@ This runs `server/browser` as the `mist-browser` service on 127.0.0.1:3300 and s
 - **Signed in only.** Banning a player, or the **Browser off** button in the admin dashboard, ends their tickets and open tabs.
 - **Blocklist** in `/opt/mist-browser/data/blocklist.txt` (one domain per line, re-read every 30 seconds). DNS goes through Cloudflare's family filter (1.1.1.3), which already drops adult and malware sites.
 - **Logs**: `/opt/mist-browser/data/logs/YYYY-MM-DD.log` lists which account opened which site (one line per player, site and 10 minutes), kept 30 days (`LOG_DAYS`).
-- **Transport**: tabs use libcurl by default (handles header-heavy sites like YouTube). `TRANSPORT=epoxy` in the service switches to epoxy, whose HTTP/2 client fails on those sites.
+- **Transport**: tabs use libcurl (handles header-heavy sites like YouTube) and retry a site with epoxy when libcurl's TLS can't connect to it ("error code 35"). `TRANSPORT=libcurl` or `TRANSPORT=epoxy` in the service forces one.
+- When a page fails, the tab asks the relay why and says so plainly: blocked, filtered by the family DNS, no such site, data limit used up, or site down.
 - **Data limit** per player per day: `DAILY_MB` in the service (2048 by default, 0 for none).
 - Only ports 80 and 443, no IP addresses and nothing on the server's own network, so it can't be used to reach the server's other services.
 
