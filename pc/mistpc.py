@@ -497,7 +497,16 @@ def main():
     ap.add_argument('--screen', default='Entire screen', help='which screen to share; with several monitors use "Screen 1", "Screen 2"...')
     ap.add_argument('--no-window', action='store_true', help='don\'t open the browser window')
     ap.add_argument('--dry-run', action='store_true', help='print mouse and keyboard input instead of using it')
+    ap.add_argument('--check', action='store_true', help='test that mouse and keyboard control loads, then exit')
     args = ap.parse_args()
+
+    if args.check:   # used by the build: loads the real input code and sends harmless input
+        r = InputRouter(WinInput() if IS_WIN else PynputInput())
+        r.handle({'t': 'mr', 'dx': 0, 'dy': 0})
+        r.handle({'t': 'k', 'code': 'ShiftLeft', 'd': 1}); r.handle({'t': 'k', 'code': 'ShiftLeft', 'd': 0})
+        r.handle({'t': 'release'})
+        print('input check ok:', r.b.name)
+        return
 
     app = App(args)
     try:

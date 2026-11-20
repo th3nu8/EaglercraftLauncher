@@ -20,6 +20,9 @@ jobs:
       - name: Smoke test
         shell: pwsh
         run: |
+          $o = & dist/MistPC.exe --check
+          $o
+          if ("$o" -notmatch 'input check ok: Windows') { throw 'input check failed' }
           $p = Start-Process dist/MistPC.exe -ArgumentList '--no-window','--dry-run' -PassThru
           Start-Sleep 4
           $r = Invoke-WebRequest http://127.0.0.1:47800/config -UseBasicParsing
