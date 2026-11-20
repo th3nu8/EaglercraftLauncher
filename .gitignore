@@ -1,3 +1,5 @@
 server/paypal.json
 server/admins.json
 server/patreon.json
+__pycache__/
+*.pyc
