@@ -260,6 +260,70 @@ function browserTicketUser(ticket) {
 }
 function revokeBrowserTickets(uid) { for (const [k, t] of browserTickets) if (t.uid === uid) browserTickets.delete(k); }
 
+/* ---------------- Mist PC Connect (supporters) ----------------
+ * Stream your own PC into Mist on another device. The PC runs the Mist PC helper (pc/mistpc.py), which opens a
+ * small page in Chrome/Edge that shares the screen over WebRTC and passes the viewer's mouse and keyboard back to
+ * the helper. This server only pairs PCs with accounts and passes connection messages between the two ends
+ * (long polling, so it works through the Cloudflare tunnel); the video goes straight between them, or through
+ * the TURN relay from server/pc-setup.sh when a network blocks direct connections. */
+db.pcs = db.pcs || {};                 // deviceId -> { uid, name, tokenHash, created, lastSeen }
+const pcPairCodes = new Map();         // code -> { uid, exp }
+const pcHosts = new Map();             // deviceId -> { q: [], wait: null, lastPoll }
+const pcSessions = new Map();          // sid -> { uid, device, q: [], wait: null, at, lastView }
+const PC_MAX_PER_USER = 5;
+function pcTurn() {
+  try {
+    const t = JSON.parse(fs.readFileSync(process.env.TURN_CONFIG || path.join(DATA_DIR, 'turn.json'), 'utf8'));
+    return t && t.secret && Array.isArray(t.urls) && t.urls.length ? t : null;
+  } catch (e) { return null; }
+}
+function pcIce(uid) {
+  const ice = [{ urls: ['stun:stun.cloudflare.com:3478', 'stun:stun.l.google.com:19302'] }];
+  const t = pcTurn();
+  if (t) {     // time-limited TURN credentials (coturn "use-auth-secret")
+    const username = Math.floor(Date.now() / 1000 + 12 * 3600) + ':' + uid;
+    ice.push({ urls: t.urls, username, credential: crypto.createHmac('sha1', t.secret).update(username).digest('base64') });
+  }
+  return ice;
+}
+function pcBox(map, key, make) { let b = map.get(key); if (!b) { b = make(); map.set(key, b); } return b; }
+function pcHost(id) { return pcBox(pcHosts, id, () => ({ q: [], wait: null, lastPoll: 0 })); }
+function pcPush(box, msg) {
+  box.q.push(msg);
+  if (box.q.length > 400) box.q.splice(0, box.q.length - 400);
+  if (box.wait) { const w = box.wait; box.wait = null; clearTimeout(w.timer); w.res.writableEnded || send(w.res, 200, { msgs: box.q.splice(0) }); }
+}
+function pcWait(box, res, ms) {
+  if (box.q.length) return send(res, 200, { msgs: box.q.splice(0) });
+  if (box.wait) { clearTimeout(box.wait.timer); box.wait.res.writableEnded || send(box.wait.res, 200, { msgs: [] }); }
+  const w = { res, timer: setTimeout(() => { if (box.wait === w) box.wait = null; res.writableEnded || send(res, 200, { msgs: [] }); }, ms || 25000) };
+  box.wait = w;
+  res.on('close', () => { if (box.wait === w) { clearTimeout(w.timer); box.wait = null; } });
+}
+function pcOnline(id) { const h = pcHosts.get(id); return !!h && (!!h.wait || Date.now() - h.lastPoll < 40e3); }
+function pcDevice(body) {     // the helper proves it is a paired PC with its device token
+  const d = db.pcs[String(body.device || '')];
+  if (!d || !body.token || sha256(String(body.token)) !== d.tokenHash) return null;
+  return d;
+}
+function pcEnd(sid, why) {
+  const s = pcSessions.get(sid); if (!s) return;
+  pcSessions.delete(sid);
+  pcPush(s, { type: 'bye', why: why || 'ended' });
+  pcPush(pcHost(s.device), { type: 'bye', sid, why: why || 'ended' });
+  setTimeout(() => { if (s.wait) { clearTimeout(s.wait.timer); s.wait.res.writableEnded || send(s.wait.res, 200, { msgs: s.q.splice(0) }); s.wait = null; } }, 50);
+}
+function pcView(id) {
+  const d = db.pcs[id]; if (!d) return null;
+  const live = [...pcSessions.values()].find(s => s.device === id);
+  return { id, name: d.name, online: pcOnline(id), lastSeen: d.lastSeen || null, created: d.created, inUse: !!live };
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [code, c] of pcPairCodes) if (c.exp < now) pcPairCodes.delete(code);
+  for (const [sid, s] of pcSessions) if (now - s.lastView > 90e3 || now - s.at > 12 * 3600e3) pcEnd(sid, 'timeout');
+}, 30e3).unref();
+
 function authUser(req) {
   const m = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || '');
   if (!m) return null;
@@ -1983,8 +2047,100 @@ async function handle(req, res) {
     return send(res, 200, { ok: true, uid: u.id, name: u.name });
   }
 
+  // Mist PC Connect: calls from the helper on the player's PC (it signs in with its device token, not an account)
+  if (req.method === 'POST' && p === '/api/pc/claim') {
+    if (rateLimited(clientIp(req))) return fail(res, 429, 'Too many attempts. Wait a few minutes and try again.');
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const code = String(body.code || '').toUpperCase().replace(/[^A-Z0-9]/g, ''), c = pcPairCodes.get(code);
+    if (!c || c.exp < Date.now()) return fail(res, 404, 'That code is wrong or has expired. Make a new one in Mist.');
+    pcPairCodes.delete(code);
+    const owner = userById(c.uid);
+    if (!owner || owner.banned) return fail(res, 403, 'That account can’t add PCs.');
+    if (!isSupporter(c.uid)) return fail(res, 403, 'Mist PC Connect is for Mist supporters.');
+    const mine = Object.entries(db.pcs).filter(([, d]) => d.uid === c.uid);
+    if (mine.length >= PC_MAX_PER_USER) return fail(res, 400, 'You already have ' + PC_MAX_PER_USER + ' PCs. Remove one in Mist first.');
+    const id = crypto.randomBytes(6).toString('base64url'), token = crypto.randomBytes(32).toString('base64url');
+    const name = String(body.name || 'My PC').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 40) || 'My PC';
+    db.pcs[id] = { uid: c.uid, name, tokenHash: sha256(token), created: Date.now(), lastSeen: Date.now() };
+    await saveDb();
+    return send(res, 200, { device: id, token, name, owner: owner.name });
+  }
+  if (req.method === 'POST' && (p === '/api/pc/host/poll' || p === '/api/pc/host/send' || p === '/api/pc/host/forget')) {
+    let body; try { body = await readJson(req, 262144); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const d = pcDevice(body);
+    if (!d) return fail(res, 401, 'This PC isn’t paired any more. Pair it again from Mist.');
+    const id = String(body.device), owner = userById(d.uid);
+    if (!owner || owner.banned) return fail(res, 403, 'This account can’t use Mist PC Connect.');
+    if (p === '/api/pc/host/forget') { delete db.pcs[id]; saveDbSoon(); return send(res, 200, { ok: true }); }
+    if (p === '/api/pc/host/send') {
+      const s = pcSessions.get(String(body.sid || ''));
+      if (!s || s.device !== id) return send(res, 200, { ok: false, gone: true });
+      if (body.msg && body.msg.type === 'bye') { pcEnd(s.sid, body.msg.why || 'host'); return send(res, 200, { ok: true }); }
+      pcPush(s, body.msg || {});
+      return send(res, 200, { ok: true });
+    }
+    const h = pcHost(id); h.lastPoll = Date.now();
+    if (Date.now() - (d.lastSeen || 0) > 60e3) { d.lastSeen = Date.now(); saveDbSoon(); }
+    if (body.name && typeof body.name === 'string') d.name = body.name.replace(/[\u0000-\u001f]/g, '').trim().slice(0, 40) || d.name;
+    return pcWait(h, res, 25000);
+  }
+
   const user = authUser(req);
   if (p.startsWith('/api/') && !user) return fail(res, 401, 'Signed out. Please sign in again.');
+
+  // Mist PC Connect: calls from Mist (the viewer)
+  if (p.startsWith('/api/pc/')) {
+    const sup = isSupporter(user.id);
+    const needSup = () => fail(res, 403, 'Mist PC Connect is a Mist Supporter perk.');
+    if (req.method === 'GET' && p === '/api/pc/devices') {
+      const list = Object.keys(db.pcs).filter(id => db.pcs[id].uid === user.id).map(pcView).sort((a, b) => b.online - a.online || a.name.localeCompare(b.name));
+      return send(res, 200, { supporter: sup, devices: list, turn: !!pcTurn() });
+    }
+    let body; try { body = await readJson(req, 262144); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const mineDev = () => { const d = db.pcs[String(body.device || '')]; return d && d.uid === user.id ? d : null; };
+    if (req.method === 'POST' && p === '/api/pc/pair') {
+      if (!sup) return needSup();
+      for (const [k, c] of pcPairCodes) if (c.uid === user.id) pcPairCodes.delete(k);
+      const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let code;
+      do { code = ''; for (let i = 0; i < 6; i++) code += abc[crypto.randomInt(abc.length)]; } while (pcPairCodes.has(code));
+      const exp = Date.now() + 10 * 60e3;
+      pcPairCodes.set(code, { uid: user.id, exp });
+      return send(res, 200, { code, exp });
+    }
+    if (req.method === 'POST' && p === '/api/pc/rename') {
+      const d = mineDev(); if (!d) return fail(res, 404, 'No such PC.');
+      d.name = String(body.name || '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 40) || d.name; saveDbSoon();
+      return send(res, 200, pcView(String(body.device)));
+    }
+    if (req.method === 'POST' && p === '/api/pc/remove') {
+      const id = String(body.device || ''); if (!mineDev()) return fail(res, 404, 'No such PC.');
+      for (const [sid, s] of pcSessions) if (s.device === id) pcEnd(sid, 'removed');
+      pcPush(pcHost(id), { type: 'removed' });
+      delete db.pcs[id]; await saveDb();
+      return send(res, 200, { ok: true });
+    }
+    if (req.method === 'POST' && p === '/api/pc/connect') {
+      if (!sup) return needSup();
+      const id = String(body.device || ''), d = mineDev();
+      if (!d) return fail(res, 404, 'No such PC.');
+      if (!pcOnline(id)) return fail(res, 409, d.name + ' is offline. Start Mist PC on it first.');
+      for (const [sid, s] of pcSessions) if (s.device === id) pcEnd(sid, 'replaced');
+      const sid = crypto.randomBytes(9).toString('base64url'), ice = pcIce(user.id);
+      pcSessions.set(sid, { sid, uid: user.id, device: id, q: [], wait: null, at: Date.now(), lastView: Date.now() });
+      pcPush(pcHost(id), { type: 'session', sid, ice, viewer: user.name });
+      return send(res, 200, { sid, ice, name: d.name });
+    }
+    if (req.method === 'POST' && (p === '/api/pc/view/send' || p === '/api/pc/view/poll')) {
+      const s = pcSessions.get(String(body.sid || ''));
+      if (!s || s.uid !== user.id) return send(res, 200, { msgs: [{ type: 'bye', why: 'gone' }] });
+      s.lastView = Date.now();
+      if (p === '/api/pc/view/poll') return pcWait(s, res, 25000);
+      if (body.msg && body.msg.type === 'bye') { pcEnd(s.sid, 'viewer'); return send(res, 200, { ok: true }); }
+      pcPush(pcHost(s.device), { type: 'signal', sid: s.sid, msg: body.msg || {} });
+      return send(res, 200, { ok: true });
+    }
+    return fail(res, 404, 'Not found.');
+  }
 
   if (req.method === 'POST' && p === '/api/browser/ticket') {
     if (user.noBrowser) return fail(res, 403, 'An admin has turned the browser off for your account.');

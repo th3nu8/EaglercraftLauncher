@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mist PC</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root{--bg:#1b2838;--nav:#171a21;--blue:#66c0f4;--text:#c7d5e0;--muted:#8f98a0;--green:#5c7e10;--gold:#e5b143}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#2a475e 0,var(--bg) 65%);color:var(--text);font:14px "Motiva Sans","Segoe UI",system-ui,sans-serif;display:grid;place-items:center}
+  .card{width:min(440px,calc(100vw - 32px));background:rgba(23,26,33,.92);border-radius:10px;padding:24px 26px;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+  h1{margin:0 0 4px;font-size:20px;color:#fff;display:flex;align-items:center;gap:10px}
+  h1 i{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,#66c0f4,#2a475e);display:inline-block}
+  p{margin:8px 0;line-height:1.45}
+  .muted{color:var(--muted);font-size:13px}
+  label{display:block;margin:14px 0 5px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  input{width:100%;height:38px;padding:0 12px;border-radius:4px;border:1px solid #2a3340;background:#0f141b;color:#fff;font:inherit;outline:none}
+  input:focus{border-color:var(--blue)}
+  #code{font:600 22px/38px ui-monospace,Consolas,monospace;letter-spacing:.25em;text-transform:uppercase;text-align:center;height:46px}
+  button{margin-top:16px;height:38px;padding:0 18px;border:0;border-radius:4px;background:linear-gradient(90deg,#75b022,#588a1b);color:#fff;font:600 14px inherit;cursor:pointer}
+  button.ghost{background:#3d4450}
+  button:disabled{opacity:.6;cursor:default}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .err{color:#ff7b6b;min-height:18px;font-size:13px}
+  .state{display:flex;align-items:center;gap:10px;margin:14px 0 4px;font-size:15px;color:#fff}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+  .dot.ok{background:#59bf40;box-shadow:0 0 0 4px rgba(89,191,64,.2)}
+  .dot.live{background:#e74c3c;box-shadow:0 0 0 4px rgba(231,76,60,.25);animation:pulse 1.4s infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(231,76,60,.08)}}
+  .facts{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13px}
+  .facts b{color:var(--muted);font-weight:normal}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1><i></i>Mist PC</h1>
+
+  <!-- pairing -->
+  <div id="pair" hidden>
+    <p>Pair this PC with your Mist account. In Mist, open <b>MY PC</b> and press <b>Add a PC</b> to get a code.</p>
+    <label for="code">Pairing code</label>
+    <input id="code" maxlength="7" autocomplete="off" spellcheck="false" placeholder="ABC123">
+    <label for="pcname">Name for this PC</label>
+    <input id="pcname" maxlength="40">
+    <label for="server">Mist server</label>
+    <input id="server" spellcheck="false">
+    <div class="err" id="pairErr"></div>
+    <button id="pairBtn">Pair this PC</button>
+  </div>
+
+  <!-- running -->
+  <div id="run" hidden>
+    <div class="state"><span class="dot" id="dot"></span><span id="stateText">Starting…</span></div>
+    <p class="muted" id="sub"></p>
+    <div class="facts">
+      <b>PC</b><span id="fName"></span>
+      <b>Account</b><span id="fOwner"></span>
+      <b>Screen</b><span id="fScreen">not shared yet</span>
+      <b>Controls</b><span id="fInput">waiting for the helper</span>
+    </div>
+    <div class="err" id="runErr"></div>
+    <div class="row">
+      <button id="shareBtn" hidden>Share my screen</button>
+      <button id="stopBtn" class="ghost" hidden>Disconnect viewer</button>
+      <button id="lockBtn" class="ghost">Block mouse &amp; keyboard</button>
+      <button id="unpairBtn" class="ghost">Unpair</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var cfg = null, stream = null, ws = null, wsOk = false, blocked = false, stopped = false;
+  var sess = null;            // { sid, pc, viewer, channels }
+  var pollAbort = null;
+
+  /* ---------------- helper (this page is served by mistpc on 127.0.0.1) ---------------- */
+  function helperConfig() { return fetch('/config', { cache: 'no-store' }).then(function (r) { return r.json(); }); }
+  function saveConfig(c) {
+    return fetch('/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(c) }).then(function (r) { return r.json(); });
+  }
+  function connectHelper() {
+    ws = new WebSocket('ws://' + location.host + '/input');
+    ws.onopen = function () { wsOk = true; $('fInput').textContent = blocked ? 'blocked' : 'ready'; };
+    ws.onclose = function () { wsOk = false; $('fInput').textContent = 'helper not running'; setTimeout(connectHelper, 2000); };
+    ws.onerror = function () {};
+  }
+  function toHelper(m) { if (ws && wsOk && !blocked) ws.send(typeof m === 'string' ? m : JSON.stringify(m)); }
+
+  /* ---------------- Mist server ---------------- */
+  function api(path, body, signal) {
+    return fetch(cfg.server.replace(/\/+$/, '') + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: signal, cache: 'no-store' })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || ('Error ' + r.status)); e.status = r.status; throw e; } return j; }); });
+  }
+  function hostBody(extra) { var b = { device: cfg.device, token: cfg.token, name: cfg.name }; for (var k in extra) b[k] = extra[k]; return b; }
+  function sendToViewer(sid, msg) { return api('/api/pc/host/send', hostBody({ sid: sid, msg: msg })).catch(function () {}); }
+
+  /* ---------------- pairing ---------------- */
+  function showPair(msg) {
+    $('run').hidden = true; $('pair').hidden = false;
+    $('server').value = (cfg && cfg.server) || 'https://infoforscholars.com';
+    $('pcname').value = (cfg && cfg.name) || (cfg && cfg.hostname) || 'My PC';
+    $('pairErr').textContent = msg || '';
+    $('code').focus();
+  }
+  $('code').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6); });
+  $('code').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('pairBtn').click(); });
+  $('pairBtn').onclick = function () {
+    var b = this, server = $('server').value.trim().replace(/\/+$/, '');
+    if (!/^https?:\/\//.test(server)) server = 'https://' + server;
+    if ($('code').value.length !== 6) { $('pairErr').textContent = 'The code has 6 letters and numbers.'; return; }
+    b.disabled = true; $('pairErr').textContent = '';
+    fetch(server + '/api/pc/claim', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: $('code').value, name: $('pcname').value }) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Couldn’t pair.'); return j; }); })
+      .then(function (j) {
+        cfg.server = server; cfg.device = j.device; cfg.token = j.token; cfg.name = j.name; cfg.owner = j.owner;
+        return saveConfig({ server: server, device: j.device, token: j.token, name: j.name, owner: j.owner });
+      })
+      .then(function () { b.disabled = false; startRunning(); }, function (e) { b.disabled = false; $('pairErr').textContent = e.message === 'Failed to fetch' ? 'Couldn’t reach ' + server + '.' : e.message; });
+  };
+  $('unpairBtn').onclick = function () {
+    if (!confirm('Unpair this PC? You’ll need a new code from Mist to use it again.')) return;
+    api('/api/pc/host/forget', hostBody({})).catch(function () {});
+    forget();
+  };
+  function forget(msg) {
+    endSession('unpaired'); stopPolling();
+    cfg.device = cfg.token = ''; saveConfig({ device: '', token: '' });
+    showPair(msg);
+  }
+
+  /* ---------------- screen ---------------- */
+  function share() {
+    if (stream && stream.active) return Promise.resolve(stream);
+    var opts = {
+      video: { frameRate: { ideal: 60, max: 60 }, width: { max: 2560 }, height: { max: 1440 }, cursor: 'always' },
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      systemAudio: 'include', selfBrowserSurface: 'exclude', surfaceSwitching: 'exclude', monitorTypeSurfaces: 'include'
+    };
+    var get = window.MISTPC_TEST_STREAM ? Promise.resolve(window.MISTPC_TEST_STREAM()) : navigator.mediaDevices.getDisplayMedia(opts);
+    return get.then(function (s) {
+      stream = s;
+      var v = s.getVideoTracks()[0]; if (v) { try { v.contentHint = 'motion'; } catch (e) {} }
+      var st = v && v.getSettings ? v.getSettings() : {};
+      $('fScreen').textContent = (st.width ? st.width + '×' + st.height : 'shared') + (s.getAudioTracks().length ? ' · with sound' : ' · no sound');
+      $('shareBtn').hidden = true;
+      if (v) v.onended = function () { stream = null; $('fScreen').textContent = 'not shared'; $('shareBtn').hidden = false; endSession('screen'); state('', 'Screen sharing stopped', 'Press “Share my screen” to start again.'); };
+      return s;
+    }, function (e) {
+      $('shareBtn').hidden = false;
+      throw new Error('Screen sharing didn’t start (' + (e.name || e.message) + '). Press “Share my screen” and pick your entire screen.');
+    });
+  }
+  $('shareBtn').onclick = function () { share().then(function () { readyState(); }, function (e) { $('runErr').textContent = e.message; }); };
+
+  /* ---------------- state ---------------- */
+  function state(dot, text, sub) { $('dot').className = 'dot ' + (dot || ''); $('stateText').textContent = text; $('sub').textContent = sub || ''; }
+  function readyState() { if (!sess) state('ok', 'Ready', 'Open Mist on another device, go to MY PC and press Connect. Keep this window open (you can minimise it).'); }
+  $('stopBtn').onclick = function () { if (sess) { sendToViewer(sess.sid, { type: 'bye', why: 'host' }); endSession('host'); } };
+  $('lockBtn').onclick = function () {
+    blocked = !blocked; this.textContent = blocked ? 'Allow mouse & keyboard' : 'Block mouse & keyboard';
+    $('fInput').textContent = blocked ? 'blocked (view only)' : wsOk ? 'ready' : 'helper not running';
+    if (blocked && ws && wsOk) ws.send(JSON.stringify({ t: 'release' }));
+  };
+
+  /* ---------------- sessions ---------------- */
+  function endSession(why) {
+    if (!sess) return;
+    var s = sess; sess = null;
+    try { s.pc.close(); } catch (e) {}
+    if (ws && wsOk) ws.send(JSON.stringify({ t: 'release' }));     // never leave a key held down
+    $('stopBtn').hidden = true;
+    if (!stopped) readyState();
+  }
+  function startSession(m) {
+    endSession('replaced');
+    var pc = new RTCPeerConnection({ iceServers: m.ice || [], bundlePolicy: 'max-bundle' });
+    sess = { sid: m.sid, pc: pc, viewer: m.viewer, pending: [] };
+    var mySid = m.sid;
+    pc.onicecandidate = function (e) { if (e.candidate) sendToViewer(mySid, { cand: e.candidate.toJSON() }); };
+    pc.onconnectionstatechange = function () {
+      if (!sess || sess.sid !== mySid) return;
+      if (pc.connectionState === 'connected') { state('live', 'Streaming to ' + m.viewer, 'Your screen, sound, mouse and keyboard are shared with Mist.'); $('stopBtn').hidden = false; }
+      if (pc.connectionState === 'failed') { sendToViewer(mySid, { type: 'bye', why: 'failed' }); endSession('failed'); }
+    };
+    pc.ondatachannel = function (e) {
+      var ch = e.channel;
+      ch.onmessage = function (ev) { toHelper(ev.data); };
+      ch.onclose = function () { if (ws && wsOk) ws.send(JSON.stringify({ t: 'release' })); };
+    };
+    state('ok', 'Connecting to ' + m.viewer + '…', '');
+    return share().then(function (s) { sess && sess.sid === mySid && (sess.stream = s); }, function (e) {
+      $('runErr').textContent = e.message; sendToViewer(mySid, { type: 'bye', why: 'noscreen' }); endSession('noscreen');
+    }).then(function () { if (sess && sess.sid === mySid) sess.pending.splice(0).forEach(function (x) { onSignal(x); }); });
+  }
+  function onSignal(m) {
+    if (!sess || sess.sid !== m.sid) return;
+    if (!sess.stream) { sess.pending.push(m); return; }
+    var pc = sess.pc, msg = m.msg || {}, sid = sess.sid;
+    if (msg.sdp && msg.sdp.type === 'offer') {
+      pc.setRemoteDescription({ type: 'offer', sdp: fastStart(msg.sdp.sdp, m.bitrate || 12) }).then(function () {
+        var tracks = sess.stream.getTracks();
+        pc.getTransceivers().forEach(function (t) {
+          var kind = t.receiver.track && t.receiver.track.kind, tr = tracks.filter(function (x) { return x.kind === kind; })[0];
+          if (tr) { t.direction = 'sendonly'; return t.sender.replaceTrack(tr); }
+        });
+        return pc.createAnswer();
+      }).then(function (a) { return pc.setLocalDescription(a); }).then(function () {
+        sendToViewer(sid, { sdp: pc.localDescription.toJSON ? pc.localDescription.toJSON() : { type: pc.localDescription.type, sdp: pc.localDescription.sdp } });
+        // games over looks: keep the frame rate up, allow plenty of bitrate
+        pc.getSenders().forEach(function (snd) {
+          if (!snd.track || snd.track.kind !== 'video') return;
+          var p = snd.getParameters(); if (!p.encodings || !p.encodings.length) p.encodings = [{}];
+          p.encodings[0].maxBitrate = (m.bitrate || 12) * 1e6; p.encodings[0].maxFramerate = 60; p.degradationPreference = 'maintain-framerate';
+          snd.setParameters(p).catch(function () {});
+        });
+        var v = sess.stream.getVideoTracks()[0], st = v && v.getSettings ? v.getSettings() : {};
+        sendToViewer(sid, { info: { w: st.width || 0, h: st.height || 0, audio: sess.stream.getAudioTracks().length > 0, input: wsOk && !blocked } });
+      }).catch(function (e) { $('runErr').textContent = 'Connection error: ' + e.message; sendToViewer(sid, { type: 'bye', why: 'error' }); endSession('error'); });
+    } else if (msg.cand) {
+      pc.addIceCandidate(msg.cand).catch(function () {});
+    }
+  }
+
+  // Start the video sharp instead of ramping up from a blurry low bitrate (Chrome reads these from the offer).
+  function fastStart(sdp, mbps) {
+    var extra = 'x-google-start-bitrate=' + Math.round(mbps * 400) + ';x-google-max-bitrate=' + Math.round(mbps * 1000);
+    return sdp.split(/(?=\r?\nm=)/).map(function (sec) {
+      if (!/^\r?\n?m=video/.test(sec)) return sec;
+      var nl = sec.indexOf('\r\n') >= 0 ? '\r\n' : '\n', pts = [], m, re = /a=rtpmap:(\d+) (?:H264|VP8|VP9|AV1)\/90000/g;
+      while ((m = re.exec(sec))) pts.push(m[1]);
+      pts.forEach(function (pt) {
+        var f = new RegExp('a=fmtp:' + pt + ' ([^\\r\\n]*)');
+        if (f.test(sec)) sec = sec.replace(f, function (all, params) { return 'a=fmtp:' + pt + ' ' + params + ';' + extra; });
+        else sec = sec.replace(new RegExp('(a=rtpmap:' + pt + ' [^\\r\\n]*)'), '$1' + nl + 'a=fmtp:' + pt + ' ' + extra);
+      });
+      return sec;
+    }).join('');
+  }
+
+  /* ---------------- polling the Mist server ---------------- */
+  function stopPolling() { stopped = true; if (pollAbort) pollAbort.abort(); }
+  function poll() {
+    if (stopped || !cfg.token) return;
+    pollAbort = new AbortController();
+    var t0 = Date.now();
+    api('/api/pc/host/poll', hostBody({}), pollAbort.signal).then(function (r) {
+      $('runErr').textContent = '';
+      if (!sess) readyState();
+      (r.msgs || []).forEach(function (m) {
+        if (m.type === 'session') startSession(m);
+        else if (m.type === 'signal') onSignal(m);
+        else if (m.type === 'bye') { if (sess && sess.sid === m.sid) endSession(m.why); }
+        else if (m.type === 'removed') { forget('This PC was removed from your Mist account. Pair it again to use it.'); }
+      });
+      setTimeout(poll, Date.now() - t0 < 300 ? 300 : 0);
+    }, function (e) {
+      if (stopped) return;
+      if (e.status === 401) return forget('This PC isn’t paired any more. Pair it again.');
+      if (e.status === 403) { state('', 'Not available', e.message); setTimeout(poll, 60000); return; }
+      state('', 'Can’t reach Mist', 'Trying again… (' + cfg.server + ')');
+      setTimeout(poll, 4000);
+    });
+  }
+
+  function startRunning() {
+    stopped = false;
+    $('pair').hidden = true; $('run').hidden = false;
+    $('fName').textContent = cfg.name || 'My PC'; $('fOwner').textContent = cfg.owner || '—';
+    state('', 'Starting…', '');
+    share().then(function () { readyState(); }, function (e) { $('runErr').textContent = e.message; state('', 'Screen not shared', 'Press “Share my screen” and pick your entire screen.'); });
+    poll();
+  }
+
+  helperConfig().then(function (c) {
+    cfg = c || {};
+    connectHelper();
+    if (cfg.device && cfg.token) startRunning(); else showPair();
+  }, function () { cfg = {}; showPair('The Mist PC helper isn’t running. Start MistPC again.'); });
+})();
+</script>
+</body>
+</html>

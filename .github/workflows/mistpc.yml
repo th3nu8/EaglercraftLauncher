@@ -1,0 +1,33 @@
+# Builds MistPC.exe (pc/mistpc.py + pc/host.html) and publishes it as the "mistpc" release,
+# so Mist can link to releases/download/mistpc/MistPC.exe.
+name: Build MistPC.exe
+on:
+  push:
+    branches: [main]
+    paths: ['pc/**', '.github/workflows/mistpc.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install pyinstaller==6.11.1
+      - run: pyinstaller --onefile --name MistPC --add-data "pc/host.html;." pc/mistpc.py
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          $p = Start-Process dist/MistPC.exe -ArgumentList '--no-window','--dry-run' -PassThru
+          Start-Sleep 4
+          $r = Invoke-WebRequest http://127.0.0.1:47800/config -UseBasicParsing
+          Stop-Process $p.Id
+          if ($r.Content -notmatch 'version') { throw 'MistPC did not start' }
+      - name: Publish release
+        shell: bash
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release view mistpc >/dev/null 2>&1 || gh release create mistpc --title "Mist PC" --notes "Mist PC: stream your own PC into Mist (Mist Supporter perk). Download MistPC.exe and run it on the PC you want to stream."
+          gh release upload mistpc dist/MistPC.exe --clobber

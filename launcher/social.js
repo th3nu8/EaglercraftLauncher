@@ -1308,7 +1308,8 @@ window.MistSocial = function (ctx) {
   function loadSupport() { if (!eng()) return Promise.resolve(null); return api('GET', '/api/support').then(function (r) { supportInfo = r; return r; }, function () { return null; }); }
   function perksList() {
     var ul = el('ul', 'sup-perks');
-    [['🟡', 'Gold outline on your avatar everywhere in Mist'], ['🎨', PLUS_AVATARS.length + ' extra supporter-only avatars (twice as many)'],
+    [['🖥️', 'Mist PC: stream your own computer into Mist and play PC games (like Roblox) from anywhere'],
+     ['🟡', 'Gold outline on your avatar everywhere in Mist'], ['🎨', PLUS_AVATARS.length + ' extra supporter-only avatars (twice as many)'],
      ['💛', 'Mist Supporter achievement: +2,500 XP while you’re subscribed'], ['🚀', 'Helps keep the Mist server running']].forEach(function (p) {
       var li = el('li'); li.appendChild(el('span', null, p[0])); li.appendChild(el('span', null, p[1])); ul.appendChild(li);
     });

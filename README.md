@@ -256,6 +256,26 @@ It adds `include snippets/mist-gta5.conf;` to every nginx server block (old copi
 sends root-path requests from the game's pages to the game, and rewrites `host:8080` links and redirects
 to `/gta5`. HTTPS on a domain needs a certificate for that domain (or Cloudflare's proxy in front of it).
 
+### Mist PC (stream your own PC into Mist, supporters only)
+
+The **MY PC** page lets Mist Supporters play what's on their own computer from any device Mist runs on
+(a Chromebook, a school laptop...). The PC runs **Mist PC** (`pc/mistpc.py`, built into `MistPC.exe` by the
+GitHub Action in `.github/workflows/mistpc.yml` and published as the `mistpc` release). It opens a small window
+in Chrome/Edge that shares the screen and sound over WebRTC, and presses the viewer's mouse and keyboard on the PC.
+
+- Pairing: MY PC → **Add a PC** shows a one-time code (10 minutes); typing it into Mist PC links that PC to the
+  account. Only that account can connect, and only while it's a supporter.
+- The Mist server only passes connection messages (long polling through the tunnel); video goes directly between
+  the PC and the viewer, or through the TURN relay when a network blocks direct connections.
+- The Mist PC window shows when someone's connected, and can disconnect them or block the mouse and keyboard.
+
+Set up the server side (updates the Mist server, publishes `/pc/`, installs the coturn relay on UDP/TCP 3478
+and UDP 50000-50999 — open those in ZAP-Hosting's firewall if it has one):
+
+```sh
+cd ~/EaglercraftLauncher && git pull && sh server/pc-setup.sh
+```
+
 ## versions.json
 
 ```json

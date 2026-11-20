@@ -549,6 +549,7 @@
     else if (view.page === 'leaderboard') { if (social) social.renderLeaderboard(); }
     else if (view.page === 'profile') { if (social) social.renderProfile(view.profileName); }
     else if (view.page === 'achievements') { if (social) social.renderAchPage(); }
+    else if (view.page === 'pc') { if (pcConnect) pcConnect.render($('#pcPage')); }
   }
   function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
 
@@ -1205,10 +1206,10 @@
     });
   }
 
-  var social = null, clips = null, browser = null, lastUser;
+  var social = null, clips = null, browser = null, pcConnect = null, lastUser;
   function authChanged() {
     var u = engine && engine.signedIn() ? engine.user : null;
-    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); if (browser) browser.onAuthChange(); pollAnnouncement(); }
+    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); if (browser) browser.onAuthChange(); if (pcConnect) pcConnect.onAuthChange(); pollAnnouncement(); }
   }
   /* PolyTrack-only token for Mist leaderboards (fetched once per sign-in). */
   var ptToken = null, ptPromise = null;
@@ -1261,6 +1262,12 @@
   browser = window.MistBrowser ? MistBrowser({
     el: el, toast: toast, getEngine: function () { return engine; }, openAuth: openAuth,
     onMist: function () { document.title = runningGame ? document.title : settings.title; }
+  }) : null;
+  // MY PC: stream your own PC into Mist (supporters)
+  pcConnect = window.MistPC ? MistPC({
+    el: el, toast: toast, ago: ago, getEngine: function () { return engine; }, openAuth: openAuth,
+    openModal: openModal, closeModal: closeModal, button: button,
+    openSupport: function () { if (social) social.openSupport(); }
   }) : null;
   renderAccount();
   pollAnnouncement(); setInterval(pollAnnouncement, 30000);

@@ -751,3 +751,63 @@ body.in-game.mb-strip-on #app{height:100vh}
 .mb-q:hover{background:#2a3340;color:#fff}
 .mb-q-i{width:38px;height:38px;border-radius:50%;background:#2a475e;color:#fff;font:700 17px/38px var(--font)}
 .mb-note{margin:0;max-width:52ch;text-align:center;color:var(--muted);font-size:12.5px}
+
+/* ---------- MY PC (Mist PC Connect) ---------- */
+.pc-perk{font-size:12px;padding:3px 9px;border-radius:10px;background:rgba(229,177,67,.15);color:#e5b143}
+.pc-intro{margin:-6px 0 18px;color:#8f98a0;max-width:70ch;line-height:1.5}
+.pc-bar{display:flex;gap:10px;margin-bottom:14px}
+.pc-list{display:grid;gap:10px}
+.pc-card{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:6px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.04)}
+.pc-card.on{border-color:rgba(89,191,64,.35)}
+.pc-ico{font-size:30px;line-height:1;filter:grayscale(.6)}
+.pc-card.on .pc-ico{filter:none}
+.pc-tx{flex:1;min-width:0;display:grid;gap:3px}
+.pc-tx b{color:#fff;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-st{color:#8f98a0}
+.pc-card.on .pc-st{color:#59bf40}
+.pc-acts{display:flex;gap:6px;align-items:center}
+.pc-acts .btn{height:32px;min-width:96px}
+.pc-acts .btn:disabled{opacity:.5;cursor:default}
+.pc-more{width:32px;height:32px;border-radius:3px;color:#8f98a0;font-size:18px}
+.pc-more:hover{background:rgba(255,255,255,.08);color:#fff}
+.pc-empty{display:grid;justify-items:center;gap:6px;padding:34px 20px;text-align:center;color:#8f98a0;border:1px dashed #2a3340;border-radius:6px}
+.pc-empty b{color:#fff;font-size:16px}
+.pc-empty p{margin:0;max-width:52ch}
+.pc-empty-ico,.pc-up-ico{font-size:40px}
+.pc-upsell{display:grid;justify-items:center;gap:10px;padding:34px 24px;text-align:center;border-radius:8px;background:linear-gradient(135deg,rgba(229,177,67,.12),rgba(0,0,0,.2))}
+.pc-upsell h3{margin:0;color:#fff;font-size:20px}
+.pc-upsell p{margin:0;max-width:54ch;color:#c7d5e0;line-height:1.5}
+.pc-note{color:#8f98a0;font-size:12.5px}
+.pc-how{margin-top:20px;border-radius:6px;background:rgba(0,0,0,.18);padding:4px 16px}
+.pc-how summary{cursor:pointer;padding:10px 0;color:#c7d5e0}
+.pc-how-r{display:grid;gap:2px;padding:8px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px;color:#8f98a0}
+.pc-how-r b{color:#c7d5e0}
+.pc-add{max-width:520px}
+.pc-steps{margin:8px 0 0;padding-left:20px;display:grid;gap:10px;line-height:1.5}
+.pc-steps small{display:block;color:#8f98a0;font-size:12px}
+.pc-steps a{color:#66c0f4}
+.pc-code{margin:14px auto 4px;width:max-content;padding:10px 22px;border-radius:6px;background:#0f141b;color:#fff;font:700 34px/1 ui-monospace,Consolas,monospace;letter-spacing:.3em}
+.pc-exp{text-align:center;color:#8f98a0;margin:4px 0}
+.pc-exp a{color:#66c0f4}
+/* viewer */
+body.pc-on #app{visibility:hidden}
+body.pc-on .mb-strip,body.pc-on .mb-view,body.pc-on .friends,body.pc-on .chatwin{display:none!important}
+.pcv{position:fixed;inset:0;z-index:9000;background:#000;outline:none;cursor:default}
+.pcv.game{cursor:crosshair}
+.pcv-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.pcv-msg{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:8px;color:#c7d5e0;text-align:center;pointer-events:none;background:radial-gradient(ellipse at 50% 40%,#1b2838,#000 70%)}
+.pcv-msg b{color:#fff;font-size:18px}
+.pcv-msg small{color:#8f98a0;max-width:50ch}
+.pcv-spin{width:34px;height:34px;border-radius:50%;border:3px solid #2a475e;border-top-color:#66c0f4;animation:mbspin .8s linear infinite}
+.pcv-msg.nospin .pcv-spin{display:none}
+.pcv-bar{position:absolute;left:50%;top:0;transform:translate(-50%,-110%);display:flex;align-items:center;gap:6px;padding:6px 8px 6px 14px;border-radius:0 0 10px 10px;background:rgba(23,26,33,.92);box-shadow:0 4px 20px rgba(0,0,0,.5);transition:transform .2s;z-index:2;white-space:nowrap}
+.pcv-bar.on,.pcv-bar:hover{transform:translate(-50%,0)}
+.pcv-name{color:#fff;font-weight:600;margin-right:4px}
+.pcv-stats{color:#8f98a0;font-size:12px;min-width:150px}
+.pcv-btn{height:30px;padding:0 10px;border-radius:5px;color:#c7d5e0;font-size:15px}
+.pcv-btn:hover{background:#2a3340;color:#fff}
+.pcv-btn.on{background:#2a475e;color:#fff}
+.pcv-end{font-size:13px;color:#ff9b8e}
+.pcv-end:hover{background:#5a2620}
+.pcv-hint{position:absolute;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;max-width:80vw;padding:9px 16px;border-radius:6px;background:rgba(23,26,33,.92);color:#c7d5e0;font-size:13px;pointer-events:none;transition:opacity .25s,transform .25s;text-align:center}
+.pcv-hint.on{opacity:1;transform:translate(-50%,0)}
