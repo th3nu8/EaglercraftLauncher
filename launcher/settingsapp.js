@@ -8,7 +8,7 @@
   window.MistSettings = function (o) {
     var el = o.el, shell = o.shell, toast = o.toast;
     var win = null, nav = null, pane = null, page = 'personal';
-    var ACCENTS = ['#3d8bfd', '#0ea5e9', '#14b8a6', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#ec4899', '#a855f7', '#6366f1', '#94a3b8'];
+    var ACCENTS = ['#5b68f0', '#3d8bfd', '#0ea5e9', '#14b8a6', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#ec4899', '#a855f7', '#94a3b8'];
     var SOLIDS = ['#0f172a', '#1b2838', '#1f2937', '#111827', '#3b0764', '#14532d', '#7c2d12', '#0c4a6e', '#831843', '#374151', '#000000', '#e5e7eb'];
     var PAGES = [['personal', '🎨', 'Personalisation'], ['taskbar', '▭', 'Taskbar & Start'], ['desktop', '🖥', 'Desktop'], ['notifs', '🔔', 'Notifications'],
       ['account', '👤', 'Account'], ['games', '🎮', 'Games & saves'], ['about', 'ℹ', 'About']];
@@ -34,7 +34,7 @@
       var who = el('div', 'st-who');
       var e = o.getEngine(), signed = e && e.signedIn();
       if (signed && o.avatar) who.appendChild(o.avatar(e.user, 44)); else who.appendChild(el('span', 'st-gav', '👤'));
-      var wt = el('div'); wt.appendChild(el('b', null, signed ? e.user : 'Guest')); wt.appendChild(el('small', null, signed ? 'Mist account' : 'Not signed in')); who.appendChild(wt);
+      var wt = el('div'); wt.appendChild(el('b', null, signed ? e.user : 'Guest')); wt.appendChild(el('small', null, signed ? 'Panes account' : 'Not signed in')); who.appendChild(wt);
       nav.appendChild(who);
       PAGES.forEach(function (p) {
         var b = el('button', 'st-nb' + (p[0] === page ? ' on' : ''));
@@ -143,7 +143,7 @@
       var lsel = el('select', 'st-sel'); var o1 = el('option', null, 'Same as the desktop'); o1.value = 'same'; lsel.appendChild(o1);
       Object.keys(shell.walls).forEach(function (id) { var op = el('option', null, shell.walls[id].name); op.value = id; if (lw === id) op.selected = true; lsel.appendChild(op); });
       lsel.onchange = function () { set('lockWallpaper', lsel.value === 'same' ? 'same' : { type: 'preset', id: lsel.value }); };
-      row(s3, 'Lock screen picture', 'Shown when Mist starts and when you lock it.', lsel);
+      row(s3, 'Lock screen picture', 'Shown when Panes starts and when you lock it.', lsel);
       row(s3, '24-hour clock', null, toggle(p.clock24, function (v) { set('clock24', v); }));
     }
     // Make a photo small enough to store and sync (max 1920×1080, JPEG)
@@ -232,7 +232,7 @@
         return;
       }
       row(s, 'Profile', 'Avatar, colour, bio and favourite game.', btn('Edit profile', function () { if (o.editProfile) o.editProfile(); }));
-      row(s, 'Mist Supporter', '$5/month: Mist PC, gold outline, extra avatars and more.', btn('💛 Support Mist', function () { if (o.openSupport) o.openSupport(); }));
+      row(s, 'Mist Supporter', '$5/month: Mist PC, gold outline, extra avatars and more.', btn('💛 Support Panes', function () { if (o.openSupport) o.openSupport(); }));
       row(s, 'Password', null, btn('Change password', function () { if (o.changePassword) o.changePassword(); }));
       row(s, 'Cloud saves', 'Back up this computer’s game saves now.', btn('Sync now', function () { if (o.syncNow) o.syncNow(); }));
       var adminRow = row(s, 'Admin dashboard', 'Announcements, players, bans.', btn('Open', function () { if (o.openAdmin) o.openAdmin(); }));
@@ -252,12 +252,12 @@
     /* ---------------- About ---------------- */
     function about() {
       h('About');
-      var card = el('div', 'st-acct'); card.appendChild(shell.appIcon('mist', 64));
-      var t = el('div'); t.appendChild(el('b', null, 'Mist')); t.appendChild(el('small', null, 'A desktop for your games, friends and the web. Runs in a browser tab.')); card.appendChild(t);
+      var card = el('div', 'st-acct'); card.appendChild(shell.appIcon('panes', 64));
+      var t = el('div'); t.appendChild(el('b', null, 'Panes')); t.appendChild(el('small', null, 'A desktop for your games, friends and the web. Runs in a browser tab.')); card.appendChild(t);
       pane.appendChild(card);
       var s = section();
       var e = o.getEngine();
-      row(s, 'Mist server', e ? e.server : 'Not set', null);
+      row(s, 'Panes server', e ? e.server : 'Not set', null);
       row(s, 'Version', o.version || '', null);
       row(s, 'Apps', 'Mist (games), Concord (chat), Gleam (web), Settings', null);
       var s2 = section('Reset');

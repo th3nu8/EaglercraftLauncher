@@ -1,7 +1,12 @@
-# Eaglercraft Launcher (bookmarklet)
+# Panes
 
-A desktop-launcher-style front end for Eaglercraft that opens in an `about:blank`
-window from a single bookmarklet. Everything is served from your GitHub repo.
+<img src="images/apps/panes.png" width="96" alt="Panes logo">
+
+A Windows-style desktop that opens in an `about:blank` window from a single bookmarklet: sign-in
+screen, windows, taskbar and Start menu, with four apps: **Mist** (the game store and library),
+**Concord** (chat), **Gleam** (web browser) and **Settings**. Everything is served from this GitHub
+repo (the repo keeps its old name, EaglercraftLauncher, so existing bookmarks keep working).
+The bookmark page is `/getpanes` on the server (the old `/getmist` still works).
 
 ```
 eaglercraft-launcher/
@@ -218,9 +223,9 @@ What gets synced: every IndexedDB database on the site whose name contains
 large), plus `localStorage` keys containing "eagler" (game settings). If a version
 uses other database names, list them in that version's `"databases": ["name"]`.
 
-### The Mist desktop
+### The Panes desktop
 
-Mist opens as a desktop, like Windows, in dark mode by default:
+Panes opens as a desktop, like Windows, in dark mode by default:
 
 - **Sign-in screen**: shows a clock. Click or press a key to sign in, create an account or
   **Continue as guest**. Guests can browse and play installed games. Concord and Gleam ask them to sign in.

@@ -1,5 +1,5 @@
 /*!
- * Mist desktop — a Windows-style desktop that runs inside the Mist tab.
+ * Panes — a Windows-style desktop that runs inside the browser tab (formerly the Mist desktop).
  * Sign-in (lock) screen, desktop with icons, taskbar, Start menu, notifications and a window manager:
  * every window can be dragged, resized, snapped, minimised, maximised, made full screen and closed.
  * Apps register with MistShell; app.js registers Mist, Concord, Gleam and Settings, and game windows.
@@ -36,7 +36,7 @@
 
     /* ================================================================ preferences */
     var DEFAULTS = {
-      theme: 'dark', accent: '#3d8bfd', wallpaper: { type: 'preset', id: 'mist' }, lockWallpaper: 'same',
+      theme: 'dark', accent: '#5b68f0', wallpaper: { type: 'preset', id: 'mist' }, lockWallpaper: 'same',
       transparency: true, animations: true, corners: 'round', scale: 100,
       taskbarPos: 'bottom', taskbarAlign: 'center', autoHide: false, clock24: false, clockSeconds: false, showDate: true,
       iconSize: 'medium', gameIcons: true, iconLabels: true, iconPos: {}, windows: {}, pinned: ['mist', 'concord', 'gleam', 'settings'],
@@ -401,8 +401,8 @@
       var w = openWindow({ app: a.id, title: a.name, width: 460, height: 340, minW: 340, minH: 260 });
       w.body.classList.add('sh-signin');
       w.body.appendChild(appIcon(a.id, 64));
-      w.body.appendChild(el('h2', null, a.name + ' needs a Mist account'));
-      w.body.appendChild(el('p', null, guest ? 'You’re using Mist as a guest. Sign in or create a free account to use ' + a.name + '.' : 'Sign in to use ' + a.name + '.'));
+      w.body.appendChild(el('h2', null, a.name + ' needs a Panes account'));
+      w.body.appendChild(el('p', null, guest ? 'You’re using Panes as a guest. Sign in or create a free account to use ' + a.name + '.' : 'Sign in to use ' + a.name + '.'));
       var b = el('button', 'sh-btn acc', 'Sign in'); b.onclick = function () { w.close(true); switchUser(); };
       w.body.appendChild(b);
     }
@@ -501,11 +501,13 @@
     document.addEventListener('pointerdown', function (e) { if (!e.target.closest('.sh-menu')) closeMenu(); }, true);
 
     /* ================================================================ taskbar */
-    var bStart = el('button', 'sh-tb sh-startbtn'); bStart.title = 'Start'; bStart.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 4.5l8-1.2v8.1H3zM12.2 3.1L21 1.8v9.6h-8.8zM3 12.6h8v8.1l-8-1.2zM12.2 12.6H21v9.6l-8.8-1.3z" fill="currentColor"/></svg>';
+    var bStart = el('button', 'sh-tb sh-startbtn'); bStart.title = 'Start';
+    if (window.MIST_ICONS && MIST_ICONS.panes) { var bsi = el('img', 'sh-panes'); bsi.src = MIST_ICONS.panes; bsi.alt = 'Start'; bsi.draggable = false; bStart.appendChild(bsi); bStart.classList.add('logo'); }
+    else bStart.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 4.5l8-1.2v8.1H3zM12.2 3.1L21 1.8v9.6h-8.8zM3 12.6h8v8.1l-8-1.2zM12.2 12.6H21v9.6l-8.8-1.3z" fill="currentColor"/></svg>';
     bStart.onclick = function (e) { e.stopPropagation(); toggleStart(); };
     var mid = el('div', 'sh-tbmid'), tray = el('div', 'sh-tray');
     var clock = el('button', 'sh-clock'); clock.title = 'Notifications'; clock.onclick = function (e) { e.stopPropagation(); toggleNotifs(); };
-    var net = el('span', 'sh-net'); net.title = 'Mist server';
+    var net = el('span', 'sh-net'); net.title = 'Panes server';
     tray.appendChild(net); tray.appendChild(clock);
     bar.appendChild(mid); bar.appendChild(tray);
     function drawBar() {
@@ -559,9 +561,9 @@
     setInterval(drawClock, 1000);
     function checkNet() {
       var e = ctx.getEngine();
-      if (!e) { net.className = 'sh-net off'; net.title = 'No Mist server set'; return; }
-      fetch(e.server.replace(/\/+$/, '') + '/api/announcement', { cache: 'no-store' }).then(function (r) { net.className = 'sh-net' + (r.ok ? ' ok' : ' off'); net.title = r.ok ? 'Connected to the Mist server' : 'Mist server error'; },
-        function () { net.className = 'sh-net off'; net.title = 'Can’t reach the Mist server'; });
+      if (!e) { net.className = 'sh-net off'; net.title = 'No Panes server set'; return; }
+      fetch(e.server.replace(/\/+$/, '') + '/api/announcement', { cache: 'no-store' }).then(function (r) { net.className = 'sh-net' + (r.ok ? ' ok' : ' off'); net.title = r.ok ? 'Connected to the Panes server' : 'Panes server error'; },
+        function () { net.className = 'sh-net off'; net.title = 'Can’t reach the Panes server'; });
     }
     setInterval(checkNet, 60000);
 
@@ -630,7 +632,7 @@
         e.stopPropagation(); var r = pw.getBoundingClientRect();
         var items = [['Lock', lockNow]];
         if (eng()) items.push(['Sign out', signOut]); else items.push(['Switch user', switchUser]);
-        items.push(['Restart Mist', function () { if (confirm('Restart Mist? Running games and open pages close.')) location.reload(); }]);
+        items.push(['Restart Panes', function () { if (confirm('Restart Panes? Running games and open pages close.')) location.reload(); }]);
         menu(r.right - 180, r.top - 8 - 40 * items.length, items);
       };
       foot.appendChild(pw);
@@ -695,6 +697,9 @@
     /* ================================================================ lock / sign-in screen */
     var lockBg = el('div', 'sh-lbg'), lockDim = el('div', 'sh-ldim'), lockTime = el('div', 'sh-ltime'), lockPanel = el('div', 'sh-lpanel');
     lock.appendChild(lockBg); lock.appendChild(lockDim); lock.appendChild(lockTime); lock.appendChild(lockPanel);
+    var lockBrand = el('div', 'sh-lbrand');
+    if (window.MIST_ICONS && MIST_ICONS.panes) { var lbi = el('img'); lbi.src = MIST_ICONS.panes; lbi.alt = ''; lockBrand.appendChild(lbi); }
+    lockBrand.appendChild(el('span', null, 'Panes')); lock.appendChild(lockBrand);
     var lockStage = 'clock';
     function lockClock() {
       if (!prefs) return;
@@ -735,12 +740,12 @@
       }
       if (!e) {
         lockPanel.appendChild(el('div', 'sh-lname', 'Guest'));
-        lockPanel.appendChild(el('p', 'sh-lnote', 'No Mist server is set up, so accounts aren’t available.'));
+        lockPanel.appendChild(el('p', 'sh-lnote', 'No Panes server is set up, so accounts aren’t available.'));
         var g2 = el('button', 'sh-lgo', 'Continue as guest'); g2.onclick = function () { unlock(true); }; lockPanel.appendChild(g2);
         return;
       }
       var reg = mode === 'register';
-      lockPanel.appendChild(el('div', 'sh-lname', reg ? 'Create a Mist account' : 'Sign in to Mist'));
+      lockPanel.appendChild(el('div', 'sh-lname', reg ? 'Create a Panes account' : 'Sign in to Panes'));
       var f = el('form', 'sh-lform');
       function inp(name, ph, type, auto) { var i = el('input'); i.name = name; i.placeholder = ph; i.type = type; i.autocomplete = auto; i.spellcheck = false; f.appendChild(i); return i; }
       var iu = inp('u', 'Account name', 'text', 'username'), ip = inp('p', 'Password', 'password', reg ? 'new-password' : 'current-password');

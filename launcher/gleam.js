@@ -1,6 +1,6 @@
 /*!
  * Gleam — the web browser on the Mist desktop (Chrome-style tabs).
- * Every tab is an iframe of the Mist Browser page on the Mist server (/browse/), which loads sites through
+ * Every tab is an iframe of the Mist Browser page on the Panes server (/browse/), which loads sites through
  * Ultraviolet and the server's relay. Only signed-in players can use it: the server hands out a browser
  * ticket for the account, and the relay refuses anything without one.
  */
@@ -39,7 +39,7 @@
       ui.homeB = nav('⌂', 'New tab page', function () { var t = cur(); if (t) { t.url = ''; t.title = ''; t.home = true; render(); } });
       [ui.back, ui.fwd, ui.rel, ui.homeB].forEach(function (b) { bar.appendChild(b); });
       var omni = el('div', 'gl-omni');
-      ui.lockI = el('span', 'gl-lock', '🔒'); ui.lockI.title = 'Loads through the Mist server';
+      ui.lockI = el('span', 'gl-lock', '🔒'); ui.lockI.title = 'Loads through the Panes server';
       ui.addr = el('input', 'gl-addr'); ui.addr.placeholder = 'Search DuckDuckGo or type a web address'; ui.addr.spellcheck = false; ui.addr.autocomplete = 'off';
       ui.addr.onkeydown = function (e) {
         if (e.key === 'Enter') { var t = cur(); if (t && ui.addr.value.trim()) navigate(t, ui.addr.value); ui.addr.blur(); }
@@ -71,7 +71,7 @@
         g.appendChild(a);
       });
       box.appendChild(g);
-      box.appendChild(el('p', 'gl-note', 'Pages load through the Mist server, so sites see the server instead of you. Which sites each account opens is logged, and some sites are blocked. Google sign-in and similar may not work here.'));
+      box.appendChild(el('p', 'gl-note', 'Pages load through the Panes server, so sites see the server instead of you. Which sites each account opens is logged, and some sites are blocked. Google sign-in and similar may not work here.'));
       ui.home.appendChild(box);
       ui.homeQ = q;
     }
@@ -80,7 +80,7 @@
     function engine() { return o.getEngine(); }
     function getTicket(force) {
       var e = engine();
-      if (!e || !e.signedIn()) return Promise.reject(new Error('Sign in to Mist to use Gleam.'));
+      if (!e || !e.signedIn()) return Promise.reject(new Error('Sign in to Panes to use Gleam.'));
       if (!force && ticket && ticket.exp - Date.now() > 30 * 60e3) return Promise.resolve(ticket);
       if (ticketP) return ticketP;
       ticketP = e.api('POST', '/api/browser/ticket').then(function (r) {
@@ -89,7 +89,7 @@
         ticketP = null; return ticket;
       }, function (er) {
         ticketP = null;
-        if (er && er.status === 404) throw new Error('The Mist server hasn’t been updated for Gleam yet.');
+        if (er && er.status === 404) throw new Error('The Panes server hasn’t been updated for Gleam yet.');
         throw er;
       });
       return ticketP;
@@ -153,7 +153,7 @@
           f.src = tk.base;
           t.frame = f; t.origin = tk.origin;
           t.onReady = function () { t.ready = true; send(t, { mb: 'init', ticket: tk.value }); resolve(); };
-          setTimeout(function () { if (!t.ready) { t.frameP = null; if (t.frame) t.frame.remove(); t.frame = null; reject(new Error('Gleam didn’t load. Check that the Mist server is online.')); } }, 20000);
+          setTimeout(function () { if (!t.ready) { t.frameP = null; if (t.frame) t.frame.remove(); t.frame = null; reject(new Error('Gleam didn’t load. Check that the Panes server is online.')); } }, 20000);
           if (!ui) return reject(new Error('closed'));
           ui.frames.appendChild(f);
           render();

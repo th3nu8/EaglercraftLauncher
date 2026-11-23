@@ -55,7 +55,7 @@
   var settings = {
     mode: store.get('mode', 'iframe'),
     debug: store.get('debugGames', 'off'),
-    title: store.get('title', LAUNCHER_NAME),
+    title: store.get('title', 'Panes'),
     server: store.get('syncServer', '')
   };
   // old server address saved in Settings -> fall back to the repo's current one
@@ -211,7 +211,7 @@
      * checking they exist and crash during startup. Hand back a detached stand-in for those ids only. */
     'try{var gi=Document.prototype.getElementById;Document.prototype.getElementById=function(id){var el=gi.call(this,id);if(!el&&/^app-link-/i.test(String(id))){el=this.createElement("div");el.id=id}return el}}catch(e){}' +
     '})();<\/script>';
-  /* PolyTrack: send its online leaderboard requests (vps.kodub.com/v6/...) to the Mist server, so the in-game
+  /* PolyTrack: send its online leaderboard requests (vps.kodub.com/v6/...) to the Panes server, so the in-game
    * leaderboards list Mist players only. MIST_PT is a PolyTrack-only token, not the player's Mist sign-in.
    * Track of the Week and multiplayer still use the official servers. */
   var PT_SHIM = '<script>(function(){var S=window.MIST_SERVER;if(!S)return;S=String(S).replace(/\\/+$/,"");var T=window.MIST_PT||"",B="https://vps.kodub.com/v6/",K=/^(leaderboard|leaderboardUserEntry|recordings|user|verifyRecordings)(\\?|$)/;' +
@@ -1132,7 +1132,7 @@
   $('#setDebug').onchange = function () { settings.debug = this.value; store.set('debugGames', settings.debug); toast(this.value === 'on' ? 'Debug panel on for the next game you open' : 'Debug panel off'); };
   $('#setMode').onchange = function () { settings.mode = this.value; store.set('mode', settings.mode); toast('Saved'); };
   $('#setTitle').onchange = function () {
-    settings.title = this.value.trim() || LAUNCHER_NAME; store.set('title', settings.title);
+    settings.title = this.value.trim() || 'Panes'; store.set('title', settings.title);
     if (!gameFrame) document.title = settings.title; toast('Saved');
   };
   $('#clearCache').onclick = function () {
@@ -1334,7 +1334,7 @@
       storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
       avatar: function (n, s) { return social ? social.avatar(n, s) : el('span', 'sh-guestav', n.charAt(0).toUpperCase()); },
       auth: function (mode, u, p) {
-        if (!engine) return Promise.reject(new Error('No Mist server is set up.'));
+        if (!engine) return Promise.reject(new Error('No Panes server is set up.'));
         return engine.auth(mode, u, p).then(function () { if (!gameFrame) runSync(false); });
       },
       signOut: function () { return engine && engine.signedIn() ? engine.signOut() : null; },

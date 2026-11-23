@@ -116,6 +116,10 @@ body.sh-left .sh-tbmid{left:10px;transform:none}
 .sh-tb.act::after{width:16px;margin-left:-8px;background:var(--acc)}
 .sh-startbtn svg{width:22px;height:22px;color:var(--acc);filter:drop-shadow(0 0 6px var(--acc-soft))}
 .sh-startbtn.act svg{transform:scale(.9)}
+.sh-startbtn .sh-panes{width:24px;height:24px;filter:drop-shadow(0 0 5px rgba(90,104,240,.45));transition:transform .12s;pointer-events:none}
+.sh-startbtn.act .sh-panes,.sh-startbtn:active .sh-panes{transform:scale(.88)}
+.sh-lbrand{position:absolute;left:0;right:0;bottom:5vh;display:flex;align-items:center;justify-content:center;gap:10px;font-size:20px;font-weight:600;letter-spacing:.02em;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.4);pointer-events:none;opacity:.92}
+.sh-lbrand img{width:34px;height:34px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.35))}
 .sh-tray{margin-left:auto;display:flex;align-items:center;gap:4px}
 .sh-net{width:10px;height:10px;border-radius:50%;background:var(--sh-muted);margin:0 8px;box-shadow:0 0 0 3px rgba(255,255,255,.05)}
 .sh-net.ok{background:#38c172}.sh-net.off{background:#e5484d}

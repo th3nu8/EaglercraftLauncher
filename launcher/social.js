@@ -323,7 +323,7 @@ window.MistSocial = function (ctx) {
   function openAddFriend() {
     ctx.openModal(function (box) {
       box.appendChild(el('h3', null, 'Add a friend'));
-      box.appendChild(el('p', null, 'Enter their Mist account name. They’ll see your request next time they open Mist.'));
+      box.appendChild(el('p', null, 'Enter their Panes account name. They’ll see your request next time they open Mist.'));
       var form = el('form');
       form.appendChild(ctx.field('Account name', 'text', 'n', 'off'));
       var err = el('div', 'm-err'); form.appendChild(err);
@@ -359,7 +359,7 @@ window.MistSocial = function (ctx) {
   }
   function oldServerNote() {
     var n = el('div', 'old-server');
-    n.appendChild(el('b', null, 'Your Mist server needs updating.'));
+    n.appendChild(el('b', null, 'Your Panes server needs updating.'));
     n.appendChild(el('span', null, ' Game achievements and totals need the newest server.js. On the server: git pull, copy server/server.js to /opt/eaglercraft-saves/, then restart the service.'));
     return n;
   }
@@ -1305,14 +1305,14 @@ window.MistSocial = function (ctx) {
     host.appendChild(list);
   }
 
-  /* ---------- Mist Supporter ($5/month or more on Patreon, linked to the Mist account) ---------- */
+  /* ---------- Mist Supporter ($5/month or more on Patreon, linked to the Panes account) ---------- */
   var supportInfo = null;
   function loadSupport() { if (!eng()) return Promise.resolve(null); return api('GET', '/api/support').then(function (r) { supportInfo = r; return r; }, function () { return null; }); }
   function perksList() {
     var ul = el('ul', 'sup-perks');
     [['🖥️', 'Mist PC: stream your own computer into Mist and play PC games (like Roblox) from anywhere'],
      ['🟡', 'Gold outline on your avatar everywhere in Mist'], ['🎨', PLUS_AVATARS.length + ' extra supporter-only avatars (twice as many)'],
-     ['💛', 'Mist Supporter achievement: +2,500 XP while you’re subscribed'], ['🚀', 'Helps keep the Mist server running']].forEach(function (p) {
+     ['💛', 'Mist Supporter achievement: +2,500 XP while you’re subscribed'], ['🚀', 'Helps keep the Panes server running']].forEach(function (p) {
       var li = el('li'); li.appendChild(el('span', null, p[0])); li.appendChild(el('span', null, p[1])); ul.appendChild(li);
     });
     return ul;

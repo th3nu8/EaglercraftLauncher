@@ -1,7 +1,7 @@
 /*!
  * Mist — MY PC (Mist PC Connect, a supporter perk)
  * Stream your own PC into Mist: the Mist PC helper on the PC shares its screen over WebRTC, and Mist sends
- * the mouse and keyboard back. The Mist server pairs PCs with accounts (one-time codes) and passes the
+ * the mouse and keyboard back. The Panes server pairs PCs with accounts (one-time codes) and passes the
  * connection messages; the video goes directly between the two, or through the server's TURN relay.
  */
 (function () {
@@ -54,7 +54,7 @@
       }, function (e) {
         if (my !== seq) return;
         body.textContent = '';
-        body.appendChild(el('div', 'fp-empty', e.status === 404 ? 'The Mist server needs an update for Mist PC.' : e.message));
+        body.appendChild(el('div', 'fp-empty', e.status === 404 ? 'The Panes server needs an update for Mist PC.' : e.message));
       });
     }
     function upsell(body, devices) {
@@ -97,8 +97,8 @@
       s.appendChild(el('summary', null, 'How it works and tips'));
       [['Your PC needs to stay on', 'Mist PC runs on your PC with Chrome or Edge. Leave it running (it can be minimised). Turn off sleep mode if you want to connect while you’re away.'],
        ['Game mode', 'In games that turn the camera with the mouse (Roblox, shooters), press the 🎮 button or click the stream to lock the mouse. Press Esc to let go of it.'],
-       ['Only you can connect', 'A PC only accepts connections from the Mist account that paired it. The Mist PC window shows when someone is connected and can block the mouse and keyboard at any time.'],
-       ['Laggy or won’t connect?', turn ? 'Mist tries a direct connection first and uses the Mist server as a relay if the network blocks it. A wired connection on the PC helps most.' : 'Some networks block direct connections; ask the server owner to run server/pc-setup.sh so Mist can relay the stream.'],
+       ['Only you can connect', 'A PC only accepts connections from the Panes account that paired it. The Mist PC window shows when someone is connected and can block the mouse and keyboard at any time.'],
+       ['Laggy or won’t connect?', turn ? 'Mist tries a direct connection first and uses the Panes server as a relay if the network blocks it. A wired connection on the PC helps most.' : 'Some networks block direct connections; ask the server owner to run server/pc-setup.sh so Mist can relay the stream.'],
        ['Things it can’t do', 'It can’t click on the Windows sign-in screen or “allow changes” (UAC) prompts. Unlock your PC and keep it unlocked.']
       ].forEach(function (x) { var r = el('div', 'pc-how-r'); r.appendChild(el('b', null, x[0])); r.appendChild(el('span', null, x[1])); s.appendChild(r); });
       return s;
@@ -122,7 +122,7 @@
         box.appendChild(steps);
         var code = el('div', 'pc-code', '······'); box.appendChild(code);
         var exp = el('p', 'pc-exp', 'Getting a code…'); box.appendChild(exp);
-        var server = el('p', 'pc-note', 'Mist server: ' + serverBase()); box.appendChild(server);
+        var server = el('p', 'pc-note', 'Panes server: ' + serverBase()); box.appendChild(server);
         var acts = el('div', 'm-actions');
         acts.appendChild(ctx.button('ghost', 'Done', null, function () { ctx.closeModal(); render(); }));
         box.appendChild(acts);
@@ -189,7 +189,7 @@
       ov.addEventListener('mousemove', function (e) { if (!gameMode && e.clientY < 60) peek(); });
       peek();
 
-      /* ---- signalling over the Mist server ---- */
+      /* ---- signalling over the Panes server ---- */
       function send(m) { if (sid) api('POST', '/api/pc/view/send', { sid: sid, msg: m }).catch(function () {}); }
       function poll() {
         if (closed || !sid) return;

@@ -38,7 +38,7 @@
         if (view.kind === 'server' && !server(view.server)) { view.kind = 'home'; view.server = null; }
         badge(); draw();
         if (!polling) poll();
-      }, function (e) { if (ui && e.status === 404) { ui.main.textContent = ''; ui.main.appendChild(el('div', 'cc-empty', 'The Mist server needs an update for Concord.')); } });
+      }, function (e) { if (ui && e.status === 404) { ui.main.textContent = ''; ui.main.appendChild(el('div', 'cc-empty', 'The Panes server needs an update for Concord.')); } });
     }
     function poll() {
       if (!eng() || polling) return;
@@ -236,7 +236,7 @@
       p.appendChild(avatar(S.me || '?', 32, 'online'));
       var t = el('span', 'cc-dmt'); t.appendChild(el('b', null, S.me || '')); t.appendChild(el('small', null, 'Online')); p.appendChild(t);
       var gear = el('button', 'cc-ib', '⚙'); gear.title = 'Notification settings'; gear.onclick = function () { shell.launch('settings', 'notifs'); }; p.appendChild(gear);
-      var prof = el('button', 'cc-ib', '👤'); prof.title = 'Your Mist profile'; prof.onclick = function () { if (o.showProfile) o.showProfile(S.me); }; p.appendChild(prof);
+      var prof = el('button', 'cc-ib', '👤'); prof.title = 'Your profile'; prof.onclick = function () { if (o.showProfile) o.showProfile(S.me); }; p.appendChild(prof);
       return p;
     }
 
@@ -472,7 +472,7 @@
       if (!d) { body.appendChild(el('div', 'cc-empty', 'Loading friends…')); if (soc()) soc().refresh(); return; }
       if (view.homeTab === 'add') {
         body.appendChild(el('h3', null, 'Add a friend'));
-        body.appendChild(el('p', 'cc-muted', 'Type their Mist account name.'));
+        body.appendChild(el('p', 'cc-muted', 'Type their Panes account name.'));
         var f = el('form', 'cc-addf'); var i = el('input'); i.placeholder = 'Account name'; i.spellcheck = false; i.autocomplete = 'off';
         var b2 = el('button', 'cc-btn acc', 'Send request'); f.appendChild(i); f.appendChild(b2);
         f.onsubmit = function (e) { e.preventDefault(); var n = i.value.trim(); if (!n) return; api('POST', '/api/friends/request', { username: n }).then(function (r) { toast(r && r.friends ? 'You and ' + n + ' are now friends' : 'Friend request sent to ' + n); i.value = ''; soc().refresh(); }, function (er) { toast(er.message); }); };
@@ -627,7 +627,7 @@
     function invite(sv) {
       api('POST', '/api/concord/invite', { server: sv.id }).then(function (r) {
         dialog('Invite friends to ' + sv.name, function (box, close) {
-          if (r.code === 'lounge') { box.appendChild(el('p', null, 'Everyone on Mist is already in the Mist Lounge.')); btns(box, [['OK', close, 'acc']]); return; }
+          if (r.code === 'lounge') { box.appendChild(el('p', null, 'Everyone on Panes is already in the Panes Lounge.')); btns(box, [['OK', close, 'acc']]); return; }
           box.appendChild(el('p', 'cc-muted', 'Send them this code. In Concord they press + and type it under “Have an invite?”. It works for 7 days.'));
           var c = el('div', 'cc-code-big', r.code); box.appendChild(c);
           var fl = friends();

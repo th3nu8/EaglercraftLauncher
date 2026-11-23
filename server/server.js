@@ -1959,7 +1959,7 @@ function messageRateLimited(uid) {
 /* ---------------- Concord (the Mist desktop's chat app) ----------------
  * Servers with text channels, members and invites, plus live updates over long polling (works through the
  * Cloudflare tunnel). Friends' DMs use /api/messages; new DMs are announced here too. Everyone is in the
- * official "Mist Lounge"; site admins moderate it (and can delete messages anywhere). */
+ * official "Panes Lounge"; site admins moderate it (and can delete messages anywhere). */
 db.concord = db.concord || { servers: {}, msgs: {}, seq: 0, left: {} };
 const CC = db.concord;
 CC.left = CC.left || {};
@@ -1971,9 +1971,10 @@ function ccChan(name, topic, readOnly) { return { id: crypto.randomBytes(6).toSt
 function ccCleanName(n, max) { return String(n || '').replace(/[\u0000-\u001f​-‏‪-‮]/g, '').replace(/\s+/g, ' ').trim().slice(0, max || 40); }
 function ccChanName(n) { return String(n || '').toLowerCase().replace(/[^a-z0-9\-_ ]/g, '').trim().replace(/\s+/g, '-').slice(0, 30); }
 (function ccLounge() {
-  if (CC.servers[CC_LOUNGE]) return;
-  CC.servers[CC_LOUNGE] = { id: CC_LOUNGE, name: 'Mist Lounge', emoji: '☁️', color: '#3d8bfd', owner: null, official: true, created: Date.now(), members: {}, invites: {},
-    channels: [ccChan('announcements', 'News from the Mist team', true), ccChan('general', 'Talk about anything'), ccChan('looking-for-group', 'Find people to play with'),
+  const L = CC.servers[CC_LOUNGE];
+  if (L) { if (L.name === 'Mist Lounge') { L.name = 'Panes Lounge'; L.emoji = '🔷'; L.color = '#5b68f0'; } return; }   // the project is called Panes now
+  CC.servers[CC_LOUNGE] = { id: CC_LOUNGE, name: 'Panes Lounge', emoji: '🔷', color: '#5b68f0', owner: null, official: true, created: Date.now(), members: {}, invites: {},
+    channels: [ccChan('announcements', 'News from the Panes team', true), ccChan('general', 'Talk about anything'), ccChan('looking-for-group', 'Find people to play with'),
       ccChan('game-help', 'Stuck? Ask here'), ccChan('off-topic', 'Everything else')] };
 })();
 function ccRole(sv, user) {
@@ -2054,7 +2055,7 @@ async function handle(req, res) {
   if (req.method === 'GET' || req.method === 'HEAD') {
     // Front page is Grant Canyon (public/grantcanyon/); the Mist bookmark page (public/index.html) lives at /getmist.
     if (p === '/' && await serveStatic(req, res, '/grantcanyon/index.html')) return;
-    if ((p === '/getmist' || p === '/getmist/') && await serveStatic(req, res, '/index.html')) return;
+    if (/^\/get(mist|panes)\/?$/.test(p) && await serveStatic(req, res, '/index.html')) return;   // /getpanes (and the old /getmist)
   }
   if ((req.method === 'GET' || req.method === 'HEAD') && !p.startsWith('/api/') && await serveStatic(req, res, p)) return;
   if (p.startsWith('/pt/v6/')) return handlePolytrack(req, res, p, url);
@@ -2325,7 +2326,7 @@ async function handle(req, res) {
       return send(res, 200, { server: ccServerView(sv, user) });
     }
     if (p === '/api/concord/server/delete') {
-      if (sv.official) return fail(res, 400, 'The Mist Lounge can’t be deleted.');
+      if (sv.official) return fail(res, 400, 'The Panes Lounge can’t be deleted.');
       if (sv.owner !== user.id && !isAdmin(user)) return fail(res, 403, 'Only the owner can delete this server.');
       const members = Object.keys(sv.members);
       sv.channels.forEach(c => delete CC.msgs[c.id]);
@@ -3007,7 +3008,7 @@ const PATH_APPS = [
   a.portLinks = new RegExp('(?:(?:https?|wss?):)?//[A-Za-z0-9.-]+:(?:' + a.ports.join('|') + ')(?=[/"\'`?#\\s)]|$)', 'g');
   return a;
 });
-const MIST_ONLY = /^\/(api|browse|assets|pt|getmist|overboost)(\/|$|\?)/;      // never handed to a game
+const MIST_ONLY = /^\/(api|browse|assets|pt|getmist|getpanes|overboost)(\/|$|\?)/;      // never handed to a game
 function pathAppFor(req) {
   const u = req.url || '';
   for (const a of PATH_APPS) {
