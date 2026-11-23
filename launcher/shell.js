@@ -36,7 +36,7 @@
 
     /* ================================================================ preferences */
     var DEFAULTS = {
-      theme: 'dark', accent: '#5b68f0', wallpaper: { type: 'preset', id: 'mist' }, lockWallpaper: 'same',
+      osTheme: 'panes', theme: 'dark', accent: '#5b68f0', wallpaper: { type: 'preset', id: 'mist' }, lockWallpaper: 'same',
       transparency: true, animations: true, corners: 'round', scale: 100,
       taskbarPos: 'bottom', taskbarAlign: 'center', autoHide: false, clock24: false, clockSeconds: false, showDate: true,
       iconSize: 'medium', gameIcons: true, iconLabels: true, iconPos: {}, windows: {}, pinned: ['mist', 'concord', 'gleam', 'settings'],
@@ -76,13 +76,18 @@
 
     function applyPrefs() {
       var p = prefs, b = document.body;
-      b.classList.toggle('sh-light', p.theme === 'light');
+      b.classList.toggle('sh-light', p.theme === 'light' && !themeOf(p).fixed);   // the retro looks have their own colours
       b.classList.toggle('sh-solid', !p.transparency);
       b.classList.toggle('sh-noanim', !p.animations);
       b.classList.toggle('sh-square', p.corners === 'square');
-      b.classList.toggle('sh-top', p.taskbarPos === 'top');
+      var T = themeOf(p), own = T.layout !== 'bar';   // themes with their own layout ignore taskbar position / auto-hide
+      THEMES.forEach(function (x) { b.classList.remove('os-' + x.id); b.classList.remove('osf-' + x.family); });
+      ['osl-bar', 'osl-dock', 'osl-side', 'osl-mbar'].forEach(function (c) { b.classList.remove(c); });
+      b.classList.add('os-' + T.id); b.classList.add('osf-' + T.family); b.classList.add('osl-' + T.layout);
+      if (T.layout !== 'bar') b.classList.add('osl-mbar');
+      b.classList.toggle('sh-top', p.taskbarPos === 'top' && !own);
       b.classList.toggle('sh-left', p.taskbarAlign === 'left');
-      b.classList.toggle('sh-autohide', !!p.autoHide);
+      b.classList.toggle('sh-autohide', !!p.autoHide && !own);
       b.classList.toggle('sh-nolabels', !p.iconLabels);
       b.dataset.icons = p.iconSize;
       var a = /^#[0-9a-f]{6}$/i.test(p.accent) ? p.accent : DEFAULTS.accent;
@@ -166,6 +171,71 @@
       } },
       graphite: { name: 'Graphite', thumb: '#2b2f36', css: function () { return 'radial-gradient(ellipse at 30% 20%,#3a404a 0,#1c1f24 55%,#0f1114 100%)'; } }
     };
+    // wallpapers that go with the OS themes (all drawn here, no photos)
+    function hills(sky, bands, sun) {
+      var r = rnd(bands.length * 7 + 3), s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1">' +
+        sky.map(function (c, i) { return '<stop offset="' + (i / (sky.length - 1)) + '" stop-color="' + c + '"/>'; }).join('') + '</linearGradient></defs><rect width="1600" height="900" fill="url(#s)"/>' + (sun || '');
+      bands.forEach(function (b) { s += '<path d="' + ridge(r, b[1], b[2], b[3] || 8, 1600, 900) + '" fill="' + b[0] + '"/>'; });
+      return svgUrl(s + '</svg>') + ' center/cover';
+    }
+    function glow(base, spots) { return spots.map(function (g) { return 'radial-gradient(' + g + ')'; }).join(',') + ',' + base; }
+    Object.assign(WALLS, {
+      w1: { name: 'Dither', thumb: '#9a9a9a', theme: 1, css: function () { return 'repeating-conic-gradient(#fff 0 25%,#a8a8a8 0 50%) 0 0/4px 4px'; } },
+      w31: { name: 'Program Manager', thumb: '#008080', theme: 1, css: function () { return '#008080'; } },
+      teal: { name: 'Teal', thumb: '#008080', theme: 1, css: function () { return '#008080'; } },
+      me: { name: 'Millennium', thumb: '#3a7c9a', theme: 1, css: function () { return 'linear-gradient(180deg,#2c6f8e,#3e8aa6)'; } },
+      w2k: { name: 'Steel blue', thumb: '#3a6ea5', theme: 1, css: function () { return '#3a6ea5'; } },
+      xp: { name: 'Green hill', thumb: '#4f9bdc', theme: 1, css: function () {
+        return hills(['#2f6fd0', '#5ea6ea', '#a9d6f7'], [['#4f9a2c', 650, 60, 5], ['#3f8a22', 760, 50, 4]],
+          '<ellipse cx="420" cy="230" rx="240" ry="40" fill="#fff" opacity=".75"/><ellipse cx="1150" cy="170" rx="300" ry="46" fill="#fff" opacity=".6"/>'); } },
+      vista: { name: 'Swoosh', thumb: '#1f5f4f', theme: 1, css: function () { return glow('linear-gradient(160deg,#04141a,#0c3b36 55%,#15553f)', ['ellipse 70% 18% at 60% 55%,rgba(140,255,200,.35),transparent 70%', 'ellipse 50% 10% at 40% 62%,rgba(120,220,255,.3),transparent 70%']); } },
+      seven: { name: 'Sky glow', thumb: '#1f6fb5', theme: 1, css: function () { return glow('linear-gradient(180deg,#0a3d7a,#1a6cb8 60%,#4aa3e0)', ['circle at 50% 45%,rgba(255,255,255,.45),transparent 35%', 'ellipse 80% 30% at 50% 100%,rgba(140,220,90,.35),transparent 70%']); } },
+      eight: { name: 'Plum', thumb: '#3a1a5c', theme: 1, css: function () { return glow('#2a1046', ['ellipse 60% 50% at 80% 20%,rgba(160,80,220,.45),transparent 70%', 'ellipse 50% 60% at 10% 90%,rgba(60,30,120,.8),transparent 70%']); } },
+      ten: { name: 'Light beam', thumb: '#0b3d91', theme: 1, css: function () { return glow('linear-gradient(180deg,#020b24,#06215a)', ['ellipse 18% 70% at 55% 60%,rgba(80,170,255,.55),transparent 70%', 'ellipse 40% 25% at 55% 75%,rgba(40,120,255,.4),transparent 70%']); } },
+      eleven: { name: 'Bloom blue', thumb: '#5b8fd8', theme: 1, css: function () { return glow('linear-gradient(180deg,#a9c7ee,#7fa6dd)', ['ellipse 40% 45% at 50% 55%,rgba(40,90,220,.75),transparent 70%', 'ellipse 22% 28% at 50% 52%,rgba(120,170,255,.9),transparent 70%']); } },
+      mac9: { name: 'Periwinkle', thumb: '#6666aa', theme: 1, css: function () { return 'repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 6px),linear-gradient(180deg,#5c5ca8,#7a7ac0)'; } },
+      aqua: { name: 'Aqua', thumb: '#3b7fd4', theme: 1, css: function () { return glow('linear-gradient(170deg,#0d3c8c,#2f7fd6 55%,#6fb6f2)', ['ellipse 90% 20% at 30% 60%,rgba(255,255,255,.25),transparent 70%', 'ellipse 70% 14% at 70% 72%,rgba(255,255,255,.18),transparent 70%']); } },
+      macos: { name: 'Dunes', thumb: '#b56a6a', theme: 1, css: function () { return hills(['#232454', '#7d4b8a', '#e49a7a'], [['#5a3b78', 560, 70, 6], ['#3d2a5e', 660, 60, 5], ['#241a40', 770, 50, 5]]); } },
+      ubuntu: { name: 'Warty', thumb: '#77216f', theme: 1, css: function () { return glow('linear-gradient(135deg,#2c001e,#77216f 55%,#e95420)', ['ellipse 50% 40% at 75% 75%,rgba(255,140,60,.45),transparent 70%']); } },
+      gnome: { name: 'Adwaita', thumb: '#2a4a7a', theme: 1, css: function () { return glow('linear-gradient(160deg,#1c2b4a,#24457a 60%,#3b6aa8)', ['ellipse 80% 30% at 20% 90%,rgba(255,255,255,.12),transparent 70%', 'ellipse 60% 26% at 80% 80%,rgba(120,170,255,.2),transparent 70%']); } },
+      kde: { name: 'Breeze', thumb: '#1d99f3', theme: 1, css: function () {
+        var r = rnd(9), s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><rect width="1600" height="900" fill="#1b5e9c"/>';
+        for (var y = 0; y < 10; y++) for (var x = 0; x < 17; x++) {
+          var X = x * 100, Y = y * 100, c = function () { var l = 30 + r() * 30 + y * 2; return 'hsl(' + (200 + r() * 15).toFixed(0) + ',70%,' + l.toFixed(0) + '%)'; };
+          s += '<path d="M' + X + ',' + Y + 'h100v100z" fill="' + c() + '"/><path d="M' + X + ',' + Y + 'v100h100z" fill="' + c() + '"/>';
+        }
+        return svgUrl(s + '</svg>') + ' center/cover'; } }
+    });
+    // OS looks. family = which CSS skin; layout: bar (taskbar), dock (top menu bar + dock), side (top bar + dock on the left), mbar (top menu bar + taskbar)
+    var THEMES = [
+      { id: 'panes', name: 'Panes', group: 'Panes', family: 'panes', wall: 'mist', accent: '#5b68f0', layout: 'bar' },
+      { id: 'win1', name: 'Windows 1.0', group: 'Windows', family: 'win1', wall: 'w1', accent: '#000000', layout: 'bar', fixed: 1 },
+      { id: 'win31', name: 'Windows 3.1', group: 'Windows', family: 'win31', wall: 'w31', accent: '#000080', layout: 'bar', fixed: 1 },
+      { id: 'win95', name: 'Windows 95', group: 'Windows', family: 'classic', wall: 'teal', accent: '#000080', layout: 'bar', fixed: 1 },
+      { id: 'win98', name: 'Windows 98', group: 'Windows', family: 'classic', wall: 'teal', accent: '#000080', layout: 'bar', fixed: 1 },
+      { id: 'winme', name: 'Windows Me', group: 'Windows', family: 'classic', wall: 'me', accent: '#0a246a', layout: 'bar', fixed: 1 },
+      { id: 'win2k', name: 'Windows 2000', group: 'Windows', family: 'classic', wall: 'w2k', accent: '#0a246a', layout: 'bar', fixed: 1 },
+      { id: 'winxp', name: 'Windows XP', group: 'Windows', family: 'xp', wall: 'xp', accent: '#0058ee', layout: 'bar', fixed: 1 },
+      { id: 'winvista', name: 'Windows Vista', group: 'Windows', family: 'aero', wall: 'vista', accent: '#2f8fd8', layout: 'bar', fixed: 1 },
+      { id: 'win7', name: 'Windows 7', group: 'Windows', family: 'aero', wall: 'seven', accent: '#3c7fb1', layout: 'bar', fixed: 1 },
+      { id: 'win8', name: 'Windows 8', group: 'Windows', family: 'metro', wall: 'eight', accent: '#8a2be2', layout: 'bar' },
+      { id: 'win10', name: 'Windows 10', group: 'Windows', family: 'metro', wall: 'ten', accent: '#0078d7', layout: 'bar' },
+      { id: 'win11', name: 'Windows 11', group: 'Windows', family: 'panes', wall: 'eleven', accent: '#0067c0', layout: 'bar' },
+      { id: 'mac9', name: 'Mac OS 9', group: 'Mac', family: 'mac9', wall: 'mac9', accent: '#5c5ca8', layout: 'mbar', fixed: 1 },
+      { id: 'macaqua', name: 'Mac OS X Aqua', group: 'Mac', family: 'aqua', wall: 'aqua', accent: '#3b82f6', layout: 'dock', fixed: 1 },
+      { id: 'macos', name: 'macOS', group: 'Mac', family: 'macos', wall: 'macos', accent: '#0a84ff', layout: 'dock' },
+      { id: 'ubuntu', name: 'Ubuntu', group: 'Linux', family: 'ubuntu', wall: 'ubuntu', accent: '#e95420', layout: 'side' },
+      { id: 'gnome', name: 'GNOME', group: 'Linux', family: 'gnome', wall: 'gnome', accent: '#3584e4', layout: 'dock' },
+      { id: 'kde', name: 'KDE Plasma', group: 'Linux', family: 'kde', wall: 'kde', accent: '#3daee9', layout: 'bar' }
+    ];
+    function themeOf(p) { var id = (p || prefs || {}).osTheme; for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) return THEMES[i]; return THEMES[0]; }
+    // pick a look: it brings its own wallpaper and accent colour (both can be changed afterwards)
+    function setTheme(id) {
+      var t = THEMES.filter(function (x) { return x.id === id; })[0]; if (!t) return;
+      prefs.osTheme = t.id; prefs.wallpaper = { type: 'preset', id: t.wall }; prefs.accent = t.accent;
+      if (t.id === 'panes') prefs.wallpaper = { type: 'preset', id: 'mist' };
+      setPref('osTheme', t.id);
+    }
     var wallCache = {};
     function wallCss(w) {
       w = w || DEFAULTS.wallpaper;
@@ -504,16 +574,31 @@
     var bStart = el('button', 'sh-tb sh-startbtn'); bStart.title = 'Start';
     if (window.MIST_ICONS && MIST_ICONS.panes) { var bsi = el('img', 'sh-panes'); bsi.src = MIST_ICONS.panes; bsi.alt = 'Start'; bsi.draggable = false; bStart.appendChild(bsi); bStart.classList.add('logo'); }
     else bStart.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 4.5l8-1.2v8.1H3zM12.2 3.1L21 1.8v9.6h-8.8zM3 12.6h8v8.1l-8-1.2zM12.2 12.6H21v9.6l-8.8-1.3z" fill="currentColor"/></svg>';
+    bStart.appendChild(el('span', 'sh-stxt', 'Start'));
     bStart.onclick = function (e) { e.stopPropagation(); toggleStart(); };
+    // top menu bar for the Mac and Linux looks: logo / Activities, the front app's name, clock
+    var mbar = el('div', 'sh-mbar'), mbLogo = el('button', 'sh-mb-logo'), mbAct = el('button', 'sh-mb-act', 'Activities'), mbApp = el('b', 'sh-mb-app'), mbClock = el('button', 'sh-mb-clock');
+    if (window.MIST_ICONS && MIST_ICONS.panes) { var mbi = el('img'); mbi.src = MIST_ICONS.panes; mbi.alt = ''; mbLogo.appendChild(mbi); } else mbLogo.textContent = '◭';
+    mbLogo.title = mbAct.title = 'Start';
+    mbLogo.onclick = mbAct.onclick = function (e) { e.stopPropagation(); toggleStart(); };
+    mbClock.onclick = function (e) { e.stopPropagation(); toggleNotifs(); };
+    mbar.appendChild(mbLogo); mbar.appendChild(mbAct); mbar.appendChild(mbApp);
+    ['File', 'Edit', 'View', 'Window', 'Help'].forEach(function (t) { mbar.appendChild(el('span', 'sh-mb-m', t)); });
+    var mbSp = el('span', 'sh-mb-sp'); mbar.appendChild(mbSp); mbar.appendChild(mbClock);
+    function drawMbar() {
+      var f = null; wins.forEach(function (w) { if (w.el.classList.contains('win-front') && w.state !== 'min' && !w.hidden) f = w; });
+      mbApp.textContent = f ? (apps[f.app] ? apps[f.app].name : f.title) : 'Panes';
+    }
     var mid = el('div', 'sh-tbmid'), tray = el('div', 'sh-tray');
     var clock = el('button', 'sh-clock'); clock.title = 'Notifications'; clock.onclick = function (e) { e.stopPropagation(); toggleNotifs(); };
     var net = el('span', 'sh-net'); net.title = 'Panes server';
     tray.appendChild(net); tray.appendChild(clock);
+    root.appendChild(mbar);
     bar.appendChild(mid); bar.appendChild(tray);
     function drawBar() {
       if (!prefs) return;
       mid.textContent = '';
-      mid.appendChild(bStart);
+      mid.appendChild(bStart); drawMbar();
       var shown = {};
       (prefs.pinned || DEFAULTS.pinned).concat(appOrder).forEach(function (id) {
         if (shown[id] || !apps[id] || apps[id].hidden) return;
@@ -531,6 +616,7 @@
       var b = el('button', 'sh-tb' + (w ? ' run' : '') + (w && w.el.classList.contains('win-front') && w.state !== 'min' ? ' act' : ''));
       b.title = w ? w.title || name : name; b.dataset.app = id;
       b.appendChild(iconFn());
+      b.appendChild(el('span', 'sh-tbl', w ? w.title || name : name));   // label, shown by the older Windows looks
       if (badges[id]) b.appendChild(el('span', 'sh-badge', badges[id] > 99 ? '99+' : String(badges[id])));
       b.onclick = function () {
         if (!w) { launch(id); return; }
@@ -556,6 +642,7 @@
       if (prefs.showDate) clock.appendChild(el('small', null, d.toLocaleDateString()));
       var n = notifs.filter(function (x) { return !x.read; }).length;
       if (n) clock.appendChild(el('span', 'sh-badge', String(n)));
+      mbClock.textContent = d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + '  ' + d.toLocaleTimeString([], o);
       lockClock();
     }
     setInterval(drawClock, 1000);
@@ -795,7 +882,7 @@
       registerApp: registerApp, launch: launch, openWindow: openWindow, findWin: findWin, appIcon: appIcon,
       notify: pushNotif, setBadge: setBadge, refreshDesktop: function () { drawIcons(); drawBar(); },
       prefs: function () { return prefs; }, setPref: setPref, onPrefs: function (f) { prefListeners.push(f); },
-      walls: WALLS, wallCss: wallCss, defaults: DEFAULTS,
+      walls: WALLS, wallCss: wallCss, defaults: DEFAULTS, themes: THEMES, theme: function () { return themeOf(); }, setTheme: setTheme,
       lock: lockNow, switchUser: switchUser, signOut: signOut, isGuest: function () { return guest; }, isLocked: function () { return locked; },
       activeWin: activeWin, windows: function () { return wins.slice(); },
       authChanged: function () {

@@ -1,0 +1,451 @@
+/* ================================================================ Panes OS looks (Settings › Personalise › Theme)
+   body gets os-<id> (the look), osf-<family> (shared skin) and osl-<layout> (bar / dock / side / mbar).
+   Every look keeps the same controls: drag, resize, minimise, maximise, full screen, close. */
+
+.sh-stxt,.sh-tbl,.sh-mbar{display:none}
+
+/* ---------------------------------------------------------------- layouts */
+.osl-mbar .sh-mbar{display:flex;position:absolute;left:0;right:0;top:0;height:var(--mb-h,24px);z-index:2147450001;align-items:center;gap:2px;padding:0 10px;font-size:13px}
+.sh-mbar button{height:100%;padding:0 9px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sh-mb-logo img{width:16px;height:16px}
+.sh-mbar .sh-mb-act,.sh-mbar .sh-mb-m{display:none}
+.sh-mb-app{padding:0 9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30vw}
+.sh-mb-m{padding:0 9px;opacity:.9}
+.sh-mb-sp{flex:1}
+.osl-mbar .sh-desk,.osl-mbar .sh-area{top:var(--mb-h,24px)}
+.osl-mbar .sh-start{top:calc(var(--mb-h,24px) + 4px);bottom:auto;left:6px;transform:none}
+.osl-mbar .sh-notifs{top:calc(var(--mb-h,24px) + 4px);bottom:auto}
+.osl-mbar .toast{bottom:90px!important}
+/* dock: the taskbar floats at the bottom and only holds icons */
+.osl-dock .sh-desk,.osl-dock .sh-area{bottom:var(--dock-space,78px)}
+.osl-dock .sh-bar{left:50%;right:auto;bottom:6px;transform:translateX(-50%);height:64px;padding:0 8px;border-radius:18px;border:1px solid var(--sh-line)}
+.osl-dock .sh-tbmid{position:static;transform:none;max-width:calc(100vw - 40px)}
+.osl-dock .sh-tray{display:none}
+.osl-dock .sh-tb{width:54px;height:54px}
+.osl-dock .sh-tb .sh-ico{width:44px!important;height:44px!important}
+.osl-dock .sh-startbtn .sh-panes{width:40px;height:40px}
+.osl-dock .sh-tb.act{background:none}
+.osl-dock .sh-tb.run::after,.osl-dock .sh-tb.act::after{width:5px;height:5px;margin-left:-2.5px;border-radius:50%;bottom:0;background:var(--sh-text);opacity:.8}
+.osl-dock .sh-tb:hover .sh-ico{transform:translateY(-4px) scale(1.08)}
+.osl-dock .sh-tb .sh-ico{transition:transform .15s}
+/* side: a dock down the left edge */
+.osl-side .sh-desk,.osl-side .sh-area{left:var(--side-w,62px);bottom:0}
+.osl-side .sh-bar{left:0;right:auto;top:var(--mb-h,28px);bottom:0;width:var(--side-w,62px);height:auto;flex-direction:column;padding:8px 0;border-top:0;border-right:1px solid var(--sh-line)}
+.osl-side .sh-tbmid{position:static;transform:none;flex-direction:column;max-width:none;height:100%;gap:6px}
+.osl-side .sh-startbtn{order:99;margin-top:auto}
+.osl-side .sh-tray{display:none}
+.osl-side .sh-tb{width:50px;height:50px}
+.osl-side .sh-tb .sh-ico{width:38px!important;height:38px!important}
+.osl-side .sh-tb.run::after{left:-1px;top:50%;bottom:auto;width:4px;height:4px;margin:-2px 0 0;border-radius:50%;background:var(--acc)}
+.osl-side .sh-tb.act::after{height:12px;margin-top:-6px;width:4px;margin-left:0;border-radius:2px}
+.osl-side .sh-start{top:auto;bottom:8px;left:calc(var(--side-w,62px) + 6px)}
+.osl-side .sh-desk .sh-icons{left:0}
+/* traffic-light title bars (Mac looks): close, minimise, zoom on the left; full screen stays on the right */
+.osf-mac9 .win-btns,.osf-aqua .win-btns,.osf-macos .win-btns{display:contents}
+.osf-mac9 .win-ico,.osf-aqua .win-ico,.osf-macos .win-ico{display:none}
+.osf-aqua .wb-x,.osf-macos .wb-x{order:-3}.osf-aqua .wb-min,.osf-macos .wb-min{order:-2}.osf-aqua .wb-max,.osf-macos .wb-max{order:-1}
+.osf-aqua .wb-fs,.osf-macos .wb-fs{order:9}
+.osf-aqua .win-title,.osf-macos .win-title,.osf-mac9 .win-title{margin:0 auto;font-weight:600}
+.osf-aqua .win-tbx:empty,.osf-macos .win-tbx:empty,.osf-mac9 .win-tbx:empty{display:none}
+/* centred titles on the Linux looks */
+.osf-ubuntu .win-title,.osf-gnome .win-title,.osf-kde .win-title{margin:0 auto;font-weight:700}
+.osf-ubuntu .win-ico,.osf-gnome .win-ico{display:none}
+.osf-ubuntu .win-tbx:empty,.osf-gnome .win-tbx:empty,.osf-kde .win-tbx:empty{display:none}
+.osf-ubuntu .win-tb,.osf-gnome .win-tb,.osf-kde .win-tb{padding-left:44px}
+
+/* ---------------------------------------------------------------- shared: the "label" taskbars (95 – Vista) */
+.osf-classic .sh-tbmid,.osf-xp .sh-tbmid,.os-winvista .sh-tbmid,.osf-win31 .sh-tbmid,.osf-mac9 .sh-tbmid{position:static;transform:none;flex:1;max-width:none;gap:3px}
+.osf-classic .sh-tb.run,.osf-xp .sh-tb.run,.os-winvista .sh-tb.run,.osf-win31 .sh-tb.run,.osf-mac9 .sh-tb.run{width:auto;min-width:0;flex:0 1 160px;justify-content:start;display:flex;gap:5px;padding:0 6px}
+.osf-classic .sh-tb.run .sh-tbl,.osf-xp .sh-tb.run .sh-tbl,.os-winvista .sh-tb.run .sh-tbl,.osf-win31 .sh-tb.run .sh-tbl,.osf-mac9 .sh-tb.run .sh-tbl{display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.osf-classic .sh-tb .sh-ico,.osf-xp .sh-tb .sh-ico,.os-winvista .sh-tb .sh-ico,.osf-win31 .sh-tb .sh-ico,.osf-mac9 .sh-tb .sh-ico{width:16px!important;height:16px!important}
+.osf-classic .sh-tb::after,.osf-xp .sh-tb::after,.os-winvista .sh-tb::after,.osf-win31 .sh-tb::after,.osf-mac9 .sh-tb::after{display:none}
+
+/* ================================================================ Windows 95 / 98 / Me / 2000 */
+body.osf-classic{--bar-h:30px;--bv-out:inset -1px -1px #0a0a0a,inset 1px 1px #dfdfdf,inset -2px -2px #808080,inset 2px 2px #fff;--bv-in:inset -1px -1px #fff,inset 1px 1px #0a0a0a,inset -2px -2px #dfdfdf,inset 2px 2px #808080;
+  --tt-a:#000080;--tt-b:#000080;--tt-i:#808080;--tt-i2:#808080}
+body.os-win98,body.os-winme{--tt-b:#1084d0;--tt-i2:#b5b5b5}
+body.os-win2k{--tt-a:#0a246a;--tt-b:#a6caf0;--tt-i2:#c0c0c0}
+body.osf-classic .sh,body.osf-win31 .sh,body.osf-win1 .sh{
+  --r:0px;--sh-glass:#c0c0c0;--sh-glass2:#c0c0c0;--sh-solid:#c0c0c0;--sh-text:#000;--sh-muted:#404040;--sh-line:#808080;--sh-hover:rgba(0,0,128,.1);--sh-hover2:rgba(0,0,128,.18);
+  --win-bg:#c0c0c0;--win-tb:#000080;--win-tb-in:#d4d0c8;--win-text:#000;--win-muted:#3a3a3a;--win-card:#d4d0c8;--win-card2:#e0e0e0;--win-input:#fff;
+  font:calc(12px * var(--ui))/1.35 Tahoma,"MS Sans Serif","Microsoft Sans Serif",Geneva,Arial,sans-serif;-webkit-font-smoothing:none}
+.osf-classic .win{background:#c0c0c0;box-shadow:var(--bv-out),2px 2px 0 rgba(0,0,0,.25);padding:3px;border-radius:0}
+.osf-classic .win.win-max{padding:2px}
+.osf-classic .win-tb{height:20px;padding:0 2px 0 3px;gap:4px;background:linear-gradient(90deg,var(--tt-i),var(--tt-i2));border-radius:0}
+.osf-classic .win.win-front .win-tb{background:linear-gradient(90deg,var(--tt-a),var(--tt-b))}
+.osf-classic .win-title,.osf-classic .win.win-front .win-title{color:#fff;font-weight:700;font-size:calc(12px * var(--ui))}
+.osf-classic .win:not(.win-front) .win-title{color:#d4d0c8}
+.osf-classic .win-btns{height:auto;align-items:center;gap:0}
+.osf-classic .wb{width:16px;height:14px;margin-left:0;background:#c0c0c0;box-shadow:var(--bv-out);color:#000}
+.osf-classic .wb:hover{background:#c0c0c0}
+.osf-classic .wb:active{box-shadow:var(--bv-in)}
+.osf-classic .wb-x{margin-left:2px}
+.osf-classic .wb-x:hover{background:#c0c0c0;color:#000}
+.osf-classic .wb-min::before{width:6px;height:2px;transform:translate(-60%,3px)}
+.osf-classic .wb-max::before{width:7px;height:6px;border:1px solid #000;border-top-width:2px;border-radius:0}
+.osf-classic .win-max .wb-max::before{width:5px;height:4px;transform:translate(-30%,-30%);box-shadow:-2px 2px 0 -1px #c0c0c0,-3px 3px 0 0 #000}
+.osf-classic .wb-x::before,.osf-classic .wb-x::after{width:8px;height:2px}
+.osf-classic .wb-fs::before{width:8px;height:8px}
+.osf-classic .win-body{border-radius:0;margin-top:2px}
+.osf-classic .sh-bar{background:#c0c0c0;border-top:0;box-shadow:inset 0 1px #dfdfdf,inset 0 2px #fff;backdrop-filter:none;padding:2px 2px 0}
+.osf-classic .sh-tb{height:22px;width:24px;border-radius:0}
+.osf-classic .sh-tb:hover{background:none}
+.osf-classic .sh-tb.run{box-shadow:var(--bv-out);font-size:calc(11.5px * var(--ui))}
+.osf-classic .sh-tb.run.act{box-shadow:var(--bv-in);background:repeating-conic-gradient(#fff 0 25%,#c0c0c0 0 50%) 0 0/2px 2px;font-weight:700}
+.osf-classic .sh-startbtn{width:auto;display:flex;gap:4px;padding:0 6px 0 4px;margin-right:4px;box-shadow:var(--bv-out);font-weight:700}
+.osf-classic .sh-startbtn.act{box-shadow:var(--bv-in)}
+.osf-classic .sh-startbtn .sh-panes{width:16px;height:16px;filter:none}
+.osf-classic .sh-stxt{display:block}
+.osf-classic .sh-tray{height:22px;padding:0 6px;box-shadow:inset -1px -1px #fff,inset 1px 1px #808080;margin-right:2px}
+.osf-classic .sh-clock{height:20px;padding:0 4px;border-radius:0}
+.osf-classic .sh-clock small{display:none}
+.osf-classic .sh-clock b{font-weight:400;font-size:calc(11.5px * var(--ui))}
+.osf-classic .sh-net{width:8px;height:8px;margin:0 4px;box-shadow:none}
+.osf-classic .sh-start,.osf-classic .sh-notifs,.osf-classic .sh-menu{background:#c0c0c0;box-shadow:var(--bv-out),2px 2px 0 rgba(0,0,0,.3);border:0;border-radius:0;backdrop-filter:none}
+.osf-classic .sh-start{left:2px;transform:none;bottom:28px;width:min(380px,calc(100vw - 8px));height:min(520px,calc(100vh - 40px));padding-left:26px;animation:none!important}
+.osf-classic .sh-start::before{content:"Panes";position:absolute;left:3px;top:3px;bottom:3px;width:22px;background:linear-gradient(0deg,var(--tt-a),var(--tt-b));color:#c0c0c0;font:700 18px/22px Arial,sans-serif;writing-mode:vertical-rl;transform:rotate(180deg);padding-top:8px}
+body.os-win95 .sh-start::before{content:"Panes 95";background:#808080}
+body.os-win98 .sh-start::before{content:"Panes 98"}
+body.os-winme .sh-start::before{content:"Panes Me"}
+body.os-win2k .sh-start::before{content:"Panes 2000"}
+.osf-classic .sh-sq,.osf-win31 .sh-sq,.osf-mac9 .sh-sq,.osf-win1 .sh-sq{border-radius:0;border:0;box-shadow:inset -1px -1px #fff,inset 1px 1px #808080,inset -2px -2px #dfdfdf,inset 2px 2px #0a0a0a;background:#fff;color:#000}
+.osf-classic .sh-menu button{border-radius:0}
+.osf-classic .sh-menu button:hover,.osf-classic .sh-start button:hover{background:#000080;color:#fff}
+.osf-classic .sh-di{border-radius:0}
+.osf-classic .sh-di.sel{background:transparent;border:1px dotted #fff}
+.osf-classic .sh-di.sel .sh-dl{background:#000080}
+.osf-classic .sh-dl{text-shadow:none}
+
+/* ================================================================ Windows 3.1 */
+body.osf-win31{--bar-h:28px;--bv-out:inset -1px -1px #000,inset 1px 1px #fff,inset -2px -2px #808080}
+.osf-win31 .win{background:#fff;border:4px solid #c0c0c0;outline:1px solid #000;box-shadow:none;border-radius:0}
+.osf-win31 .win.win-front{border-color:#c0c0c0}
+.osf-win31 .win-tb{height:20px;padding:0;gap:0;background:#fff;border-bottom:1px solid #000;border-radius:0}
+.osf-win31 .win.win-front .win-tb{background:#000080}
+.osf-win31 .win-title{flex:1;text-align:center;font:700 calc(12px * var(--ui)) "MS Sans Serif",Arial,sans-serif;color:#000}
+.osf-win31 .win.win-front .win-title{color:#fff}
+.osf-win31 .win-ico{width:20px;height:20px;background:#c0c0c0;border-right:1px solid #000;position:relative}
+.osf-win31 .win-ico>*{display:none}
+.osf-win31 .win-ico::after{content:"";position:absolute;left:4px;right:4px;top:8px;height:3px;background:#fff;border:1px solid #000;box-shadow:1px 1px 0 #808080}
+.osf-win31 .win-btns{gap:0}
+.osf-win31 .wb{width:20px;height:20px;background:#c0c0c0;border-left:1px solid #000;box-shadow:var(--bv-out);color:#000}
+.osf-win31 .wb:hover,.osf-win31 .wb-x:hover{background:#c0c0c0;color:#000}
+.osf-win31 .wb-min::before{width:0;height:0;background:none;border:4px solid transparent;border-top:5px solid #000;transform:translate(-50%,-25%)}
+.osf-win31 .wb-max::before{width:0;height:0;border:4px solid transparent;border-bottom:5px solid #000;border-top:0;transform:translate(-50%,-60%)}
+.osf-win31 .win-max .wb-max::before{box-shadow:none;border-bottom-width:4px;transform:translate(-50%,-110%)}
+.osf-win31 .win-max .wb-max::after{content:"";width:0;height:0;border:4px solid transparent;border-top:4px solid #000;transform:translate(-50%,15%)}
+.osf-win31 .wb-x::before,.osf-win31 .wb-x::after{width:10px;height:2px}
+.osf-win31 .win-body{border-radius:0}
+.osf-win31 .sh-bar{background:#c0c0c0;border-top:1px solid #000;backdrop-filter:none;padding:2px}
+.osf-win31 .sh-tb{height:22px;border-radius:0}
+.osf-win31 .sh-tb.run{box-shadow:var(--bv-out);background:#c0c0c0}
+.osf-win31 .sh-tb.run.act{background:#000080;color:#fff}
+.osf-win31 .sh-startbtn{width:auto;display:flex;gap:4px;padding:0 6px;box-shadow:var(--bv-out);font-weight:700}
+.osf-win31 .sh-stxt{display:block}
+.osf-win31 .sh-startbtn .sh-panes{width:16px;height:16px;filter:none}
+.osf-win31 .sh-start,.osf-win31 .sh-notifs,.osf-win31 .sh-menu{background:#fff;border:1px solid #000;border-radius:0;box-shadow:2px 2px 0 #000;backdrop-filter:none}
+.osf-win31 .sh-start{left:2px;transform:none;width:min(380px,calc(100vw - 8px));height:min(500px,calc(100vh - 40px))}
+.osf-win31 .sh-menu button:hover,.osf-win31 .sh-start button:hover{background:#000080;color:#fff}
+.osf-win31 .sh-clock{border-radius:0}.osf-win31 .sh-clock small{display:none}
+.osf-win31 .sh-dl{text-shadow:none;background:#008080;padding:0 2px}
+.osf-win31 .sh-di.sel .sh-dl{background:#000080}
+
+/* ================================================================ Windows 1.0 */
+body.osf-win1{--bar-h:34px}
+body.osf-win1 .sh{font:700 calc(12px * var(--ui))/1.35 "Lucida Console","Courier New",monospace;--win-bg:#fff;--win-card:#fff;--win-card2:#eee;--sh-glass:#fff;--sh-glass2:#fff}
+.osf-win1 .win{background:#fff;border:2px solid #000;box-shadow:none;border-radius:0}
+.osf-win1 .win-tb{height:20px;padding:0 0 0 4px;background:#fff;border-bottom:2px solid #000;border-radius:0}
+.osf-win1 .win.win-front .win-tb{background:#0000aa}
+.osf-win1 .win-title{flex:1;text-align:center;color:#000}
+.osf-win1 .win.win-front .win-title{color:#fff}
+.osf-win1 .win-ico{display:none}
+.osf-win1 .wb{width:22px;color:#000;background:#fff;border-left:2px solid #000}
+.osf-win1 .win.win-front .wb{color:#fff;background:#0000aa;border-color:#fff}
+.osf-win1 .wb:hover,.osf-win1 .wb-x:hover{background:#000;color:#fff}
+.osf-win1 .win-body{border-radius:0}
+.osf-win1 .sh-bar{background:#fff;border-top:2px solid #000;backdrop-filter:none;padding:0 6px}
+.osf-win1 .sh-tbmid{position:static;transform:none;flex:1;max-width:none}
+.osf-win1 .sh-tb{border-radius:0;width:34px;height:30px}
+.osf-win1 .sh-tb.act{background:#000;}
+.osf-win1 .sh-tb.run::after{background:#000;width:20px;margin-left:-10px;height:2px;border-radius:0}
+.osf-win1 .sh-start,.osf-win1 .sh-notifs,.osf-win1 .sh-menu{background:#fff;border:2px solid #000;border-radius:0;box-shadow:none;backdrop-filter:none}
+.osf-win1 .sh-start{left:4px;transform:none;width:min(380px,calc(100vw - 8px));height:min(480px,calc(100vh - 44px))}
+.osf-win1 .sh-menu button:hover,.osf-win1 .sh-start button:hover{background:#000;color:#fff}
+.osf-win1 .sh-dl{text-shadow:none;background:#fff;color:#000;padding:0 2px}
+.osf-win1 .sh-clock small{display:none}
+
+/* ================================================================ Windows XP */
+body.osf-xp{--bar-h:30px}
+body.osf-xp .sh{--r:0px;--sh-glass:#245edb;--sh-glass2:#fff;--sh-text:#fff;--sh-muted:#d6e4ff;--sh-line:rgba(0,0,0,.2);--sh-hover:rgba(255,255,255,.18);--sh-hover2:rgba(255,255,255,.26);
+  --win-bg:#ece9d8;--win-tb:#0058ee;--win-tb-in:#7a96df;--win-text:#000;--win-muted:#555;--win-card:#fff;--win-card2:#f4f3ee;--win-input:#fff;
+  font:calc(12px * var(--ui))/1.35 Tahoma,Verdana,Geneva,sans-serif}
+.osf-xp .win{background:#ece9d8;border:3px solid #7a96df;border-top:0;border-radius:8px 8px 0 0;box-shadow:2px 3px 12px rgba(0,0,0,.35)}
+.osf-xp .win.win-front{border-color:#0055e5}
+.osf-xp .win-tb{height:28px;margin:0 -3px;padding:0 5px 0 8px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#9db9eb,#7a96df 12%,#7593da 60%,#6e8bd3)}
+.osf-xp .win.win-front .win-tb{background:linear-gradient(180deg,#0997ff 0,#0053ee 9%,#0050ee 18%,#06f 50%,#0066ff 85%,#003dd7)}
+.osf-xp .win-title{font:700 calc(13px * var(--ui)) "Trebuchet MS",Tahoma,sans-serif;color:#d8e4f8;text-shadow:1px 1px #0a1883}
+.osf-xp .win.win-front .win-title{color:#fff}
+.osf-xp .win-btns{align-items:center;gap:2px}
+.osf-xp .wb{width:21px;height:21px;border-radius:3px;border:1px solid #fff;color:#fff;background:radial-gradient(circle at 90% 90%,#0054e3 0,transparent 60%),linear-gradient(135deg,#5fa1fc,#2263e0)}
+.osf-xp .win:not(.win-front) .wb{opacity:.75}
+.osf-xp .wb:hover{filter:brightness(1.15);background:linear-gradient(135deg,#7bb4ff,#3778f0)}
+.osf-xp .wb-x,.osf-xp .wb-x:hover{background:radial-gradient(circle at 90% 90%,#b2290c 0,transparent 60%),linear-gradient(135deg,#ec8b6d,#d64a1d);color:#fff}
+.osf-xp .wb::before,.osf-xp .wb::after{filter:drop-shadow(0 0 0 #fff)}
+.osf-xp .wb-min::before{width:7px;height:3px;transform:translate(-80%,3px);background:#fff}
+.osf-xp .wb-max::before{width:9px;height:8px;border:1px solid #fff;border-top-width:3px}
+.osf-xp .wb-x::before,.osf-xp .wb-x::after{width:11px;height:2px}
+.osf-xp .win-body{border-radius:0}
+.osf-xp .win.win-max{border-width:0;border-radius:0}.osf-xp .win.win-max .win-tb{margin:0;border-radius:0}
+.osf-xp .sh-bar{padding:0;backdrop-filter:none;border-top:0;background:linear-gradient(180deg,#3168d5 0,#4993e6 6%,#2157d7 14%,#2663e0 60%,#2663e0 88%,#1941a5)}
+.osf-xp .sh-tbmid{padding-right:8px}
+.osf-xp .sh-tb{height:24px;border-radius:3px}
+.osf-xp .sh-tb.run{background:linear-gradient(180deg,#3c81f3,#3576ee);box-shadow:inset 0 1px rgba(255,255,255,.3),0 0 0 1px rgba(0,0,0,.25);color:#fff}
+.osf-xp .sh-tb.run.act{background:linear-gradient(180deg,#1e52b7,#1d4ea9);box-shadow:inset 1px 1px 2px rgba(0,0,0,.5)}
+.osf-xp .sh-startbtn{width:auto;height:30px;display:flex;gap:6px;padding:0 22px 0 10px;margin-right:12px;border-radius:0 14px 14px 0;
+  background:linear-gradient(180deg,#3c9a35 0,#6bbd60 10%,#3e9c37 25%,#3c9a35 70%,#2f7f28);box-shadow:inset -2px -2px 4px rgba(0,0,0,.3),2px 0 3px rgba(0,0,0,.3)}
+.osf-xp .sh-startbtn:hover{filter:brightness(1.08);background:linear-gradient(180deg,#3c9a35 0,#6bbd60 10%,#3e9c37 25%,#3c9a35 70%,#2f7f28)}
+.osf-xp .sh-stxt{display:block;font:italic 700 19px/1 "Trebuchet MS",Arial,sans-serif;color:#fff;text-shadow:1px 1px 2px rgba(0,0,0,.6);text-transform:lowercase}
+.osf-xp .sh-startbtn .sh-panes{width:20px;height:20px;filter:drop-shadow(1px 1px 1px rgba(0,0,0,.5))}
+.osf-xp .sh-tray{height:100%;padding:0 10px;background:linear-gradient(180deg,#0c59b9,#139ee9 6%,#18b5f2 12%,#139beb 50%,#1290e8 88%,#0d5ebd);border-left:1px solid #092e72;box-shadow:inset 1px 0 #19b9f3}
+.osf-xp .sh-clock{height:100%;border-radius:0;color:#fff}.osf-xp .sh-clock small{display:none}
+.osf-xp .sh-start{left:0;transform:none;bottom:30px;width:min(420px,100vw);height:min(560px,calc(100vh - 34px));border:0;border-radius:8px 8px 0 0;background:#fff;color:#000;box-shadow:2px 0 10px rgba(0,0,0,.5);overflow:hidden;animation:none!important}
+.osf-xp .sh-start::before{content:"";height:10px;background:linear-gradient(180deg,#1868ce,#0e60cb 40%,#0e60cb 60%,#1564c8);flex:none}
+.osf-xp .sh-notifs,.osf-xp .sh-menu{background:#fff;color:#000;border:1px solid #808080;border-radius:0;backdrop-filter:none}
+.osf-xp .sh-menu button:hover,.osf-xp .sh-start button:hover{background:#316ac5;color:#fff}
+.osf-xp .sh-sq{border-radius:0;border:1px solid #7f9db9}
+
+/* ================================================================ Windows Vista / 7 (glass) */
+body.osf-aero{--bar-h:40px}
+body.os-winvista{--bar-h:32px}
+body.osf-aero .sh{--r:6px;--sh-glass:rgba(20,40,60,.55);--sh-glass2:rgba(30,45,60,.82);--sh-text:#fff;--sh-muted:#c9d6e2;--sh-line:rgba(255,255,255,.25);
+  --win-bg:#f0f0f0;--win-tb:transparent;--win-tb-in:transparent;--win-text:#000;--win-muted:#444;--win-card:#fff;--win-card2:#e9eef3;--win-input:#fff;
+  --glass:rgba(160,198,232,.62);--glass-i:rgba(190,210,230,.5);
+  font:calc(12px * var(--ui))/1.4 "Segoe UI",Tahoma,sans-serif}
+body.os-winvista .sh{--glass:rgba(24,36,48,.62);--glass-i:rgba(60,70,80,.45)}
+.osf-aero .win{padding:0 7px 7px;background:var(--glass-i);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45),0 8px 28px rgba(0,0,0,.45)}
+.osf-aero .win.win-front{background:var(--glass)}
+.osf-aero .win-tb{height:30px;padding:0 0 0 2px;background:transparent!important;align-items:flex-start;padding-top:6px}
+.osf-aero .win-title{color:#000;font-size:calc(12.5px * var(--ui));text-shadow:0 0 8px #fff,0 0 8px #fff,0 0 3px #fff}
+body.os-winvista .win-title,body.os-winvista .win.win-front .win-title{color:#fff;text-shadow:0 0 8px rgba(0,0,0,.6)}
+.osf-aero .win-btns{height:20px;margin-top:-6px;border:1px solid rgba(0,0,0,.5);border-top:0;border-radius:0 0 5px 5px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.5)}
+.osf-aero .wb{width:27px;height:19px;color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.2) 48%,rgba(0,0,0,.12) 52%,rgba(255,255,255,.25));border-left:1px solid rgba(0,0,0,.35)}
+.osf-aero .wb:first-child{border-left:0}
+.osf-aero .wb:hover{background:linear-gradient(180deg,#bfe4ff,#6fb2e6 48%,#3e8fd0 52%,#77c3ff)}
+.osf-aero .wb-x{width:46px;background:linear-gradient(180deg,#e8a493,#d36a54 48%,#c2391f 52%,#d4673f)}
+.osf-aero .wb-x:hover{background:linear-gradient(180deg,#ffb4a4,#ef6a4f 48%,#e0371a 52%,#f2814e);color:#fff}
+.osf-aero .wb::before,.osf-aero .wb::after{filter:drop-shadow(0 0 1px #000)}
+.osf-aero .wb-min::before{width:8px;height:2px;transform:translate(-50%,2px)}
+.osf-aero .wb-x::before,.osf-aero .wb-x::after{width:11px;height:2px}
+.osf-aero .win-body,.osf-aqua .win-body{background:var(--win-bg)}
+.osf-aero .win-body{border:1px solid rgba(0,0,0,.45);border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+.osf-aero .win.win-max{padding:0 2px 2px}
+.osf-aero .sh-bar{padding:0;border-top:1px solid rgba(255,255,255,.35);background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.05) 50%,rgba(0,0,0,.15) 50%),rgba(20,45,70,.55);backdrop-filter:blur(12px)}
+body.os-winvista .sh-bar{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.04) 50%,rgba(0,0,0,.25) 50%),rgba(0,0,0,.78)}
+.osf-aero .sh-tbmid{position:static;transform:none;padding-left:56px;gap:2px}
+body.os-winvista .sh-tbmid{padding-left:50px}
+.osf-aero .sh-startbtn{position:absolute;left:4px;bottom:1px;width:46px;height:46px;border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.75),transparent 45%),radial-gradient(circle at 50% 110%,#7fd0ff,transparent 60%),radial-gradient(circle,#2a6fc4,#123e78 70%);box-shadow:0 0 0 1px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.4),0 2px 8px rgba(0,0,0,.5)}
+body.os-winvista .sh-startbtn{width:40px;height:40px;bottom:-4px}
+.osf-aero .sh-startbtn:hover{filter:brightness(1.2)}
+.osf-aero .sh-startbtn .sh-panes{width:24px;height:24px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.osf-aero .sh-tb{width:58px;height:38px;border-radius:3px;border:1px solid transparent}
+.osf-aero .sh-tb.run{background:linear-gradient(180deg,rgba(255,255,255,.25),rgba(255,255,255,.05));border-color:rgba(255,255,255,.3)}
+.osf-aero .sh-tb.act{background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.12));border-color:rgba(255,255,255,.55)}
+.osf-aero .sh-tb::after{display:none}
+.osf-aero .sh-tb .sh-ico{width:28px!important;height:28px!important}
+body.os-winvista .sh-tb{height:26px;color:#fff}
+body.os-winvista .sh-tb.run{flex:0 1 160px}
+.osf-aero .sh-start,.osf-aero .sh-notifs{border-radius:8px;background:rgba(20,40,60,.72);border:1px solid rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 10px 30px rgba(0,0,0,.5)}
+.osf-aero .sh-start{left:0;transform:none;width:min(440px,100vw)}
+.osf-aero .sh-menu{background:#f0f0f0;color:#000;border:1px solid #979797;border-radius:0}
+.osf-aero .sh-menu button:hover{background:#dbe8f6}
+
+/* ================================================================ Windows 8 / 10 (flat) */
+body.osf-metro{--bar-h:40px}
+body.osf-metro .sh{--r:0px;--sh-glass:rgba(16,16,16,.88);--sh-glass2:rgba(31,31,31,.96);--sh-text:#fff;--sh-muted:#bbb;--sh-line:rgba(255,255,255,.1);
+  font:calc(12.5px * var(--ui))/1.4 "Segoe UI",Tahoma,sans-serif}
+body.osf-metro.sh-light .sh{--win-tb:#fff;--win-tb-in:#fff}
+.osf-metro .win{border-radius:0;box-shadow:0 0 0 1px var(--acc),0 8px 30px rgba(0,0,0,.35)}
+.osf-metro .win:not(.win-front){box-shadow:0 0 0 1px #aaa,0 6px 20px rgba(0,0,0,.25)}
+.osf-metro .win-tb{height:31px;border-radius:0}
+.osf-metro .wb{width:46px}
+.osf-metro .wb-x:hover{background:#e81123}
+.osf-metro .win-body{border-radius:0}
+body.os-win8 .win{border:7px solid var(--acc);border-top:0;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+body.os-win8 .win:not(.win-front){border-color:#c7c7c7}
+body.os-win8 .win-tb,body.os-win8 .win.win-front .win-tb{background:var(--acc);margin:0 -7px;padding-left:12px}
+body.os-win8 .win:not(.win-front) .win-tb{background:#c7c7c7}
+body.os-win8 .win-title{flex:1;text-align:center;color:var(--acc-text)!important}
+body.os-win8 .wb{color:var(--acc-text)}
+body.os-win8 .wb-x{background:#c75050;color:#fff}
+body.os-win8 .win.win-max{border-width:0}body.os-win8 .win.win-max .win-tb{margin:0}
+.osf-metro .sh-bar{padding:0;border-top:0;backdrop-filter:blur(20px)}
+.osf-metro .sh-tbmid{left:0;transform:none;gap:0}
+.osf-metro .sh-tb{width:48px;height:40px;border-radius:0}
+.osf-metro .sh-tb.run{background:rgba(255,255,255,.04)}
+.osf-metro .sh-tb.act{background:rgba(255,255,255,.14)}
+.osf-metro .sh-tb.run::after{left:4px;right:4px;width:auto;margin:0;bottom:0;height:2px;border-radius:0;background:var(--acc)}
+.osf-metro .sh-tb.act::after{left:0;right:0;width:auto;margin:0}
+.osf-metro .sh-startbtn .sh-panes{width:18px;height:18px;filter:none}
+.osf-metro .sh-startbtn:hover .sh-panes{filter:brightness(1.3)}
+.osf-metro .sh-clock{border-radius:0;align-items:center}
+.osf-metro .sh-start{left:0;transform:none;bottom:40px;border-radius:0;border:0;width:min(640px,100vw);height:min(640px,calc(100vh - 40px));animation:none!important}
+.osf-metro .sh-notifs{right:0;bottom:40px;border-radius:0;height:calc(100vh - 40px);max-height:none}
+.osf-metro .sh-menu,.osf-metro .sh-sq{border-radius:0}
+
+/* ================================================================ Windows 11 (the Panes look, Windows colours) */
+body.os-win11 .sh{font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif}
+
+/* ================================================================ Mac OS 9 (Platinum) */
+body.osf-mac9{--mb-h:20px;--bar-h:26px}
+body.osf-mac9 .sh{--r:0px;--sh-glass:#dddddd;--sh-glass2:#eeeeee;--sh-text:#000;--sh-muted:#555;--sh-line:#999;--sh-hover:rgba(51,51,153,.15);--sh-hover2:rgba(51,51,153,.25);
+  --win-bg:#eeeeee;--win-tb:#dddddd;--win-tb-in:#eeeeee;--win-text:#000;--win-muted:#555;--win-card:#fff;--win-card2:#e4e4e4;--win-input:#fff;
+  font:calc(12px * var(--ui))/1.35 Charcoal,Chicago,Geneva,Verdana,sans-serif}
+.osf-mac9 .sh-mbar{background:#ddd;color:#000;border-bottom:1px solid #000;box-shadow:inset 0 -1px #999;font:700 12px Charcoal,Chicago,Geneva,sans-serif}
+.osf-mac9 .sh-mbar .sh-mb-m{display:block}
+.osf-mac9 .sh-mbar button:hover,.osf-mac9 .sh-mb-m:hover{background:#333399;color:#fff}
+.osf-mac9 .win{background:#ddd;border:1px solid #000;box-shadow:1px 1px 0 #555;border-radius:0;padding:0 4px 4px}
+.osf-mac9 .win-tb{height:20px;padding:0 2px;gap:6px;background:#ddd;border-radius:0}
+.osf-mac9 .win.win-front .win-tb{background:repeating-linear-gradient(180deg,#ddd 0 1px,#999 1px 2px) 0 4px/100% 12px no-repeat,#ddd}
+.osf-mac9 .win-title{background:#ddd;padding:0 8px;color:#555;font-weight:700}
+.osf-mac9 .win.win-front .win-title{color:#000}
+.osf-mac9 .wb-x{order:-3}
+.osf-mac9 .wb{width:13px;height:13px;background:linear-gradient(135deg,#888,#fff);border:1px solid #000;box-shadow:inset 1px 1px #fff,inset -1px -1px #666;color:transparent}
+.osf-mac9 .wb:hover{background:linear-gradient(135deg,#666,#ccc)}
+.osf-mac9 .wb-x:hover{background:linear-gradient(135deg,#666,#ccc)}
+.osf-mac9 .wb::before,.osf-mac9 .wb::after{display:none}
+.osf-mac9 .wb-max{background:linear-gradient(135deg,#888,#fff) ,#ddd}
+.osf-mac9 .wb-min{background:linear-gradient(180deg,transparent 45%,#000 45% 60%,transparent 60%),linear-gradient(135deg,#888,#fff)}
+.osf-mac9 .win-body{border:1px solid #000;border-radius:0;box-shadow:-1px -1px #888,1px 1px #fff}
+.osf-mac9 .sh-bar{background:#ddd;border-top:1px solid #000;backdrop-filter:none;padding:0 2px}
+.osf-mac9 .sh-tb{height:22px;border-radius:0}
+.osf-mac9 .sh-tb.run{box-shadow:inset 1px 1px #fff,inset -1px -1px #888;background:#ddd}
+.osf-mac9 .sh-tb.run.act{background:#333399;color:#fff}
+.osf-mac9 .sh-startbtn{display:none}
+.osf-mac9 .sh-tray{display:none}
+.osf-mac9 .sh-mb-clock{font-weight:700}
+.osf-mac9 .sh-start,.osf-mac9 .sh-notifs,.osf-mac9 .sh-menu{background:#eee;border:1px solid #000;border-radius:0;box-shadow:2px 2px 0 rgba(0,0,0,.4);backdrop-filter:none;animation:none!important}
+.osf-mac9 .sh-start{left:0;width:min(380px,100vw);height:min(500px,calc(100vh - 54px))}
+.osf-mac9 .sh-menu button:hover,.osf-mac9 .sh-start button:hover{background:#333399;color:#fff}
+.osf-mac9 .sh-dl{text-shadow:none;color:#000;background:#fff;padding:0 3px}
+
+/* ================================================================ Mac OS X Aqua */
+body.osf-aqua{--mb-h:22px;--dock-space:74px}
+body.osf-aqua .sh{--r:6px;--sh-glass:rgba(255,255,255,.4);--sh-glass2:rgba(246,246,246,.95);--sh-text:#000;--sh-muted:#555;--sh-line:rgba(255,255,255,.6);--sh-hover:rgba(0,0,0,.06);--sh-hover2:rgba(56,117,215,.2);
+  --win-bg:#ececec;--win-tb:#e6e6e6;--win-tb-in:#f0f0f0;--win-text:#000;--win-muted:#555;--win-card:#fff;--win-card2:#e8e8e8;--win-input:#fff;
+  font:calc(13px * var(--ui))/1.35 "Lucida Grande","Lucida Sans Unicode",Geneva,Verdana,sans-serif}
+.osf-aqua .sh-mbar{background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(232,232,232,.92));color:#000;border-bottom:1px solid #999;font-size:13px}
+.osf-aqua .sh-mbar .sh-mb-m{display:block}
+.osf-aqua .sh-mbar button:hover,.osf-aqua .sh-mb-m:hover{background:linear-gradient(#4d8ae8,#2667d4);color:#fff}
+.osf-aqua .win{background:repeating-linear-gradient(180deg,#f1f1f1 0 2px,#e7e7e7 2px 4px);border-radius:7px 7px 3px 3px;box-shadow:0 0 0 1px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.45)}
+.osf-aqua .win-tb{height:24px;padding:0 8px;gap:8px;background:transparent!important}
+.osf-aqua .win-title{color:#000;font-weight:400}
+.osf-aqua .win:not(.win-front) .win-title{color:#777}
+.osf-aqua .wb{width:14px;height:14px;border-radius:50%;color:transparent;box-shadow:inset 0 1px 2px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.7);margin-right:-2px}
+.osf-aqua .wb::before,.osf-aqua .wb::after{display:none}
+.osf-aqua .wb-x{background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.85),transparent 45%),radial-gradient(circle at 50% 100%,#ffc2a6,transparent 60%),#e0422a}
+.osf-aqua .wb-min{background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.85),transparent 45%),radial-gradient(circle at 50% 100%,#ffe7a0,transparent 60%),#f0a91f}
+.osf-aqua .wb-max{background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.85),transparent 45%),radial-gradient(circle at 50% 100%,#c7f5a8,transparent 60%),#4fb233}
+.osf-aqua .wb-fs{border-radius:3px;width:18px;background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.9),transparent 50%),#c9c9c9}
+.osf-aqua .win:not(.win-front) .wb{background:radial-gradient(circle at 50% 25%,rgba(255,255,255,.85),transparent 45%),#bdbdbd}
+.osf-aqua .wb:hover{filter:brightness(.9)}
+.osf-aqua .win-body{border-radius:0 0 3px 3px;box-shadow:0 -1px 0 rgba(0,0,0,.2)}
+.osf-aqua .sh-bar{background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.25));border:1px solid rgba(255,255,255,.7);border-radius:8px 8px 0 0;bottom:0;box-shadow:0 0 20px rgba(0,0,0,.25);backdrop-filter:blur(6px)}
+.osf-aqua .sh-tb.run::after{width:0;height:0;border-radius:0;margin-left:-4px;background:none;border:4px solid transparent;border-bottom:5px solid #000;bottom:-2px;opacity:.9}
+.osf-aqua .sh-start,.osf-aqua .sh-notifs{border-radius:0 0 6px 6px;background:rgba(246,246,246,.96);border:1px solid #999}
+.osf-aqua .sh-menu button:hover,.osf-aqua .sh-start button:hover{background:linear-gradient(#4d8ae8,#2667d4);color:#fff}
+.osf-aqua .sh-sq{border-radius:12px}
+
+/* ================================================================ macOS (current) */
+body.osf-macos{--mb-h:26px;--dock-space:80px}
+body.osf-macos .sh{--r:11px;--sh-glass:rgba(40,40,44,.45);--sh-glass2:rgba(40,40,44,.82);--win-bg:#1e1e1e;--win-tb:#2c2c2e;--win-tb-in:#262628;--win-card:#2c2c2e;--win-card2:#3a3a3c;--win-input:#1c1c1e;
+  font:calc(13px * var(--ui))/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif}
+body.osf-macos.sh-light .sh{--sh-glass:rgba(255,255,255,.4);--sh-glass2:rgba(246,246,246,.88);--win-bg:#fff;--win-tb:#ececec;--win-tb-in:#f5f5f5;--win-card:#f5f5f7;--win-card2:#e8e8ed;--win-input:#fff}
+.osf-macos .sh-mbar{background:rgba(20,20,22,.35);color:#fff;backdrop-filter:blur(30px) saturate(1.8);font-weight:500}
+.osf-macos.sh-light .sh-mbar{background:rgba(255,255,255,.4);color:#000}
+.osf-macos .sh-mbar .sh-mb-m{display:block;font-weight:400}
+.osf-macos .sh-mbar button,.osf-macos .sh-mb-m{border-radius:5px;height:20px}
+.osf-macos .sh-mbar button:hover,.osf-macos .sh-mb-m:hover{background:rgba(255,255,255,.2)}
+.osf-macos .win{border-radius:11px;box-shadow:0 0 0 1px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.1),0 20px 50px rgba(0,0,0,.45)}
+.osf-macos .win-tb{height:30px;padding:0 10px;gap:8px;border-radius:11px 11px 0 0}
+.osf-macos .win-title{font-weight:600;font-size:calc(13px * var(--ui))}
+.osf-macos .wb{width:12px;height:12px;border-radius:50%;color:transparent;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.25)}
+.osf-macos .wb-x{background:#ff5f57}.osf-macos .wb-min{background:#febc2e}.osf-macos .wb-max{background:#28c840}
+.osf-macos .wb-fs{width:22px;height:22px;border-radius:5px;background:none;color:var(--win-muted);box-shadow:none}
+.osf-macos .wb-fs:hover{background:var(--sh-hover)}
+.osf-macos .win:not(.win-front) .wb:not(.wb-fs){background:#5a5a5c}
+.osf-macos.sh-light .win:not(.win-front) .wb:not(.wb-fs){background:#d1d1d1}
+.osf-macos .wb:not(.wb-fs)::before,.osf-macos .wb:not(.wb-fs)::after{opacity:0;color:rgba(0,0,0,.6);transform-origin:center}
+.osf-macos .win-tb:hover .wb::before,.osf-macos .win-tb:hover .wb::after{opacity:1}
+.osf-macos .wb-x::before,.osf-macos .wb-x::after{width:7px}
+.osf-macos .wb-min::before{width:7px}
+.osf-macos .wb-max::before{width:6px;height:6px;border:0;background:linear-gradient(135deg,rgba(0,0,0,.6) 0 40%,transparent 40% 60%,rgba(0,0,0,.6) 60%)}
+.osf-macos .win-max .wb-max::before{box-shadow:none}
+.osf-macos .wb:hover{background-color:inherit;filter:brightness(1.05)}
+.osf-macos .wb-x:hover{background:#ff5f57}
+.osf-macos .sh-bar{border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.osf-macos .sh-start{border-radius:12px}
+
+/* ================================================================ Ubuntu */
+body.osf-ubuntu{--mb-h:28px;--side-w:62px}
+body.osf-ubuntu .sh{--r:12px;--sh-glass:rgba(23,23,23,.88);--sh-glass2:rgba(40,40,40,.96);--sh-text:#fff;--sh-muted:#bbb;--win-bg:#2c2c2c;--win-tb:#303030;--win-tb-in:#2a2a2a;--win-card:#363636;--win-card2:#404040;--win-input:#222;
+  font:calc(13.5px * var(--ui))/1.4 Ubuntu,Cantarell,"Noto Sans","DejaVu Sans",sans-serif}
+body.osf-ubuntu.sh-light .sh{--win-bg:#fafafa;--win-tb:#ebebeb;--win-tb-in:#f2f2f2;--win-card:#fff;--win-card2:#ececec;--win-input:#fff;--sh-text:#fff}
+.osf-ubuntu .sh-mbar,.osf-gnome .sh-mbar{background:#000;color:#fff;font-weight:600;font-size:13.5px}
+.osf-ubuntu .sh-mb-logo,.osf-gnome .sh-mb-logo{display:none}
+.osf-ubuntu .sh-mbar .sh-mb-act,.osf-gnome .sh-mbar .sh-mb-act{display:flex;border-radius:14px;height:22px;margin:0 2px}
+.osf-ubuntu .sh-mbar button:hover,.osf-gnome .sh-mbar button:hover{background:rgba(255,255,255,.15)}
+.osf-ubuntu .sh-mb-clock,.osf-gnome .sh-mb-clock{position:absolute;left:50%;transform:translateX(-50%);border-radius:14px;height:22px}
+.osf-ubuntu .sh-mb-app{font-weight:600}
+.osf-ubuntu .sh-bar{background:rgba(30,30,30,.82);border-right:0;backdrop-filter:blur(12px)}
+.osf-ubuntu .sh-tb{border-radius:10px}
+.osf-ubuntu .win{box-shadow:0 0 0 1px rgba(0,0,0,.5),0 14px 40px rgba(0,0,0,.45)}
+.osf-ubuntu .win-tb{height:38px;padding-right:6px;border-radius:12px 12px 0 0}
+.osf-ubuntu .win-btns,.osf-gnome .win-btns{align-items:center;gap:8px;padding-right:2px}
+.osf-ubuntu .wb,.osf-gnome .wb{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1)}
+.osf-ubuntu.sh-light .wb,.osf-gnome.sh-light .wb{background:rgba(0,0,0,.08)}
+.osf-ubuntu .win .wb.wb-x{background:#e95420;color:#fff}
+.osf-ubuntu .wb:hover,.osf-gnome .wb:hover{background:rgba(255,255,255,.2)}
+.osf-ubuntu .win .wb.wb-x:hover{background:#f06b3a}
+.osf-gnome .wb-x:hover{background:rgba(255,255,255,.25);color:inherit}
+.osf-ubuntu .wb-min::before,.osf-gnome .wb-min::before{width:9px;height:2px}
+.osf-ubuntu .wb-x::before,.osf-ubuntu .wb-x::after,.osf-gnome .wb-x::before,.osf-gnome .wb-x::after{width:10px;height:2px}
+.osf-ubuntu .wb-max::before,.osf-gnome .wb-max::before{width:8px;height:8px;border-width:2px}
+.osf-ubuntu .sh-start{border-radius:16px}
+
+/* ================================================================ GNOME */
+body.osf-gnome{--mb-h:32px;--dock-space:84px}
+body.osf-gnome .sh{--r:12px;--sh-glass:rgba(48,48,48,.92);--sh-glass2:rgba(48,48,48,.97);--sh-text:#fff;--sh-muted:#bbb;--win-bg:#242424;--win-tb:#303030;--win-tb-in:#242424;--win-card:#303030;--win-card2:#3a3a3a;--win-input:#1e1e1e;
+  font:calc(14px * var(--ui))/1.4 Cantarell,"Noto Sans","DejaVu Sans",sans-serif}
+body.osf-gnome.sh-light .sh{--win-bg:#fafafa;--win-tb:#ebebeb;--win-tb-in:#fafafa;--win-card:#fff;--win-card2:#ececec;--win-input:#fff;--sh-text:#fff}
+.osf-gnome .sh-mb-app{display:none}
+.osf-gnome .win{box-shadow:0 0 0 1px rgba(0,0,0,.35),0 14px 44px rgba(0,0,0,.4)}
+.osf-gnome .win-tb{height:46px;padding-right:8px;border-radius:12px 12px 0 0}
+.osf-gnome .sh-bar{border-radius:22px;padding:0 10px;border:0;backdrop-filter:blur(10px)}
+.osf-gnome .sh-tb{border-radius:12px}
+.osf-gnome .sh-tb.run::after{background:#fff}
+
+/* ================================================================ KDE Plasma */
+body.osf-kde{--bar-h:44px}
+body.osf-kde .sh{--r:5px;--sh-glass:rgba(35,38,41,.94);--sh-glass2:rgba(42,46,50,.97);--sh-text:#fcfcfc;--sh-muted:#a1a9b1;--sh-line:rgba(255,255,255,.08);
+  --win-bg:#1b1e20;--win-tb:#2a2e32;--win-tb-in:#202326;--win-card:#2a2e32;--win-card2:#31363b;--win-input:#141618;
+  font:calc(13px * var(--ui))/1.4 "Noto Sans",Oxygen,"DejaVu Sans",sans-serif}
+body.osf-kde.sh-light .sh{--sh-glass:rgba(239,240,241,.96);--sh-glass2:rgba(239,240,241,.98);--sh-text:#232629;--sh-muted:#5a6068;--win-bg:#eff0f1;--win-tb:#dee0e2;--win-tb-in:#e8e9ea;--win-card:#fff;--win-card2:#e3e5e7;--win-input:#fff}
+.osf-kde .win{border-radius:5px 5px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 10px 34px rgba(0,0,0,.45)}
+.osf-kde .win-tb{height:32px;border-radius:5px 5px 0 0;padding-right:6px}
+.osf-kde .win-btns{align-items:center;gap:6px}
+.osf-kde .wb{width:20px;height:20px;border-radius:50%}
+.osf-kde .wb:hover{background:var(--sh-hover2)}
+.osf-kde .wb-x:hover{background:#da4453;color:#fff}
+.osf-kde .wb-min::before{width:0;height:0;background:none;border:5px solid transparent;border-top:5px solid currentColor;transform:translate(-50%,-20%)}
+.osf-kde .wb-max::before{width:0;height:0;border:5px solid transparent;border-bottom:5px solid currentColor;border-top:0;transform:translate(-50%,-60%);border-radius:0}
+.osf-kde .win-max .wb-max::before{box-shadow:none;transform:translate(-50%,-30%) rotate(45deg)}
+.osf-kde .win-body{border-radius:0}
+.osf-kde .sh-bar{padding:0 4px;border-top:1px solid var(--sh-line);backdrop-filter:blur(14px)}
+.osf-kde .sh-tbmid{left:0;transform:none;gap:2px}
+.osf-kde .sh-tb{width:44px;height:44px;border-radius:2px}
+.osf-kde .sh-tb.run::after{top:0;bottom:auto;left:6px;right:6px;width:auto;margin:0;height:3px;border-radius:0;background:var(--sh-muted)}
+.osf-kde .sh-tb.act::after{background:var(--acc);left:2px;right:2px}
+.osf-kde .sh-clock{flex-direction:column;align-items:center}
+.osf-kde .sh-clock b{font-size:calc(14px * var(--ui))}
+.osf-kde .sh-start{left:2px;transform:none;border-radius:4px}

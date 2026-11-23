@@ -246,7 +246,7 @@ The only apps are:
 | **Mist** | The store and library. Install games here; they appear on the desktop and in Start. |
 | **Concord** | Chat. Everyone is in the Mist Lounge. You can make your own servers with channels, invite friends with a code, and send DMs (the same messages as Mist's friends chat), all live. It also handles friends, mentions, replies, edits and server admin roles, kicks and bans. |
 | **Gleam** | The web browser: tabs, back/forward, address bar, through the Mist server (see below). |
-| **Settings** | Light/dark mode, accent colour, wallpaper (8 built-in, a solid colour, a gradient, your own photo or an image link), lock screen picture, transparency, animations, corners, size, taskbar position and alignment, auto-hide, clock, pinned apps, desktop icons, notifications, account, plus Mist's game and cloud-save settings. |
+| **Settings** | Themes that make Panes look like Windows 1.0, 3.1, 95, 98, Me, 2000, XP, Vista, 7, 8, 10 and 11, Mac OS 9, Mac OS X Aqua, macOS, Ubuntu, GNOME or KDE Plasma (windows, buttons, taskbar or dock, Start, fonts and wallpaper); light/dark mode, accent colour, wallpaper (8 built-in, a solid colour, a gradient, your own photo or an image link), lock screen picture, transparency, animations, corners, size, taskbar position and alignment, auto-hide, clock, pinned apps, desktop icons, notifications, account, plus Mist's game and cloud-save settings. |
 
 Personalisation is saved to your account (`/api/prefs` on the Mist server), so it follows you to any
 computer. Guests' settings stay on that device.

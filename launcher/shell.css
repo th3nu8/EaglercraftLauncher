@@ -37,8 +37,8 @@ body.sh-on.sh-top .toast{bottom:14px}
 
 /* ---------- wallpaper, desktop, windows area ---------- */
 .sh-wall{position:absolute;inset:0;background:#1b2838}
-.sh-desk,.sh-area{position:absolute;left:0;right:0;top:0;bottom:48px}
-body.sh-top .sh-desk,body.sh-top .sh-area{top:48px;bottom:0}
+.sh-desk,.sh-area{position:absolute;left:0;right:0;top:0;bottom:var(--bar-h,48px)}
+body.sh-top .sh-desk,body.sh-top .sh-area{top:var(--bar-h,48px);bottom:0}
 body.sh-autohide .sh-desk,body.sh-autohide .sh-area{top:0;bottom:0}
 .sh-area{pointer-events:none}
 .sh-area>*{pointer-events:auto}
@@ -102,7 +102,7 @@ body.sh-drag iframe,body.sh-drag video{pointer-events:none!important}
 .sh-signin p{margin:0 0 6px;color:var(--win-muted);max-width:40ch}
 
 /* ---------- taskbar ---------- */
-.sh-bar{position:absolute;left:0;right:0;bottom:0;height:48px;z-index:2147450000;display:flex;align-items:center;padding:0 10px;background:var(--sh-glass);backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);border-top:1px solid var(--sh-line)}
+.sh-bar{position:absolute;left:0;right:0;bottom:0;height:var(--bar-h,48px);z-index:2147450000;display:flex;align-items:center;padding:0 10px;background:var(--sh-glass);backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);border-top:1px solid var(--sh-line)}
 body.sh-top .sh-bar{top:0;bottom:auto;border-top:0;border-bottom:1px solid var(--sh-line)}
 body.sh-autohide .sh-bar{transform:translateY(calc(100% - 3px));transition:transform .2s .3s}
 body.sh-autohide.sh-top .sh-bar{transform:translateY(calc(-100% + 3px))}
@@ -130,10 +130,10 @@ body.sh-left .sh-tbmid{left:10px;transform:none}
 .sh-clock .sh-badge{top:0;right:0}
 
 /* ---------- start menu ---------- */
-.sh-start,.sh-notifs{position:absolute;bottom:56px;z-index:2147460000;display:none;flex-direction:column;background:var(--sh-glass2);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);border:1px solid var(--sh-line);border-radius:calc(var(--r) + 4px);box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.sh-start,.sh-notifs{position:absolute;bottom:calc(var(--bar-h,48px) + 8px);z-index:2147460000;display:none;flex-direction:column;background:var(--sh-glass2);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);border:1px solid var(--sh-line);border-radius:calc(var(--r) + 4px);box-shadow:0 20px 60px rgba(0,0,0,.45)}
 .sh-start{left:50%;transform:translateX(-50%);width:min(620px,calc(100vw - 16px));height:min(640px,calc(100vh - 72px))}
 body.sh-left .sh-start{left:8px;transform:none}
-body.sh-top .sh-start,body.sh-top .sh-notifs{top:56px;bottom:auto}
+body.sh-top .sh-start,body.sh-top .sh-notifs{top:calc(var(--bar-h,48px) + 8px);bottom:auto}
 .sh-start.on,.sh-notifs.on{display:flex;animation:startIn .16s ease-out}
 @keyframes startIn{from{opacity:0;margin-bottom:-14px}}
 .sh-sq{margin:22px 26px 10px;height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--sh-line);background:var(--win-input);outline:none}
@@ -502,3 +502,19 @@ body.sh-light .cc-at{color:#4752c4}
 /* app logos (launcher/appicons.js) */
 .sh-ico>img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
 html.mist-logo .brand-ico{background:var(--mist-logo) center/contain no-repeat;border-radius:0}
+
+/* Settings › Themes */
+.st-themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:4px 0 8px}
+.st-theme{display:grid;gap:6px;justify-items:center;text-align:center;font-size:12.5px;color:var(--win-muted);padding:6px;border-radius:8px}
+.st-theme:hover{background:var(--sh-hover)}
+.st-theme.on{color:var(--win-text);font-weight:600}
+.st-theme.on .st-tprev{outline:3px solid var(--acc);outline-offset:2px}
+.st-tprev{position:relative;display:block;width:100%;aspect-ratio:16/10;border-radius:6px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.st-tw{position:absolute;left:18%;top:20%;width:58%;height:52%;box-shadow:0 2px 8px rgba(0,0,0,.35);border:1px solid rgba(0,0,0,.25)}
+.st-tw u{position:absolute;left:0;right:0;top:0;height:16%;text-decoration:none}
+.st-tbar{position:absolute;left:0;right:0;bottom:0;height:11%;text-decoration:none}
+.st-ttop{position:absolute;left:0;right:0;top:0;height:7%;background:rgba(0,0,0,.65)}
+.l-dock .st-tbar{left:28%;right:28%;bottom:4%;height:12%;border-radius:4px}
+.l-side .st-tbar{left:0;right:auto;top:7%;bottom:0;width:9%;height:auto}
+.l-side .st-tw,.l-dock .st-tw{top:22%}
+.l-mbar .st-ttop{background:#ddd;border-bottom:1px solid #000}

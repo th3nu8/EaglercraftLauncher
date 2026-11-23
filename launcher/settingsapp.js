@@ -10,7 +10,7 @@
     var win = null, nav = null, pane = null, page = 'personal';
     var ACCENTS = ['#5b68f0', '#3d8bfd', '#0ea5e9', '#14b8a6', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#ec4899', '#a855f7', '#94a3b8'];
     var SOLIDS = ['#0f172a', '#1b2838', '#1f2937', '#111827', '#3b0764', '#14532d', '#7c2d12', '#0c4a6e', '#831843', '#374151', '#000000', '#e5e7eb'];
-    var PAGES = [['personal', '🎨', 'Personalisation'], ['taskbar', '▭', 'Taskbar & Start'], ['desktop', '🖥', 'Desktop'], ['notifs', '🔔', 'Notifications'],
+    var PAGES = [['themes', '🪟', 'Themes'], ['personal', '🎨', 'Personalisation'], ['taskbar', '▭', 'Taskbar & Start'], ['desktop', '🖥', 'Desktop'], ['notifs', '🔔', 'Notifications'],
       ['account', '👤', 'Account'], ['games', '🎮', 'Games & saves'], ['about', 'ℹ', 'About']];
 
     function P() { return shell.prefs(); }
@@ -44,7 +44,7 @@
       });
       if (o.onGamesClosed && page !== 'games') o.onGamesClosed();
       pane.textContent = '';
-      ({ personal: personal, taskbar: taskbar, desktop: desktop, notifs: notifs, account: account, games: games, about: about })[page]();
+      ({ themes: themes, personal: personal, taskbar: taskbar, desktop: desktop, notifs: notifs, account: account, games: games, about: about })[page]();
     }
 
     /* ---------------- building blocks ---------------- */
@@ -77,6 +77,37 @@
     }
 
     /* ---------------- Personalisation ---------------- */
+    /* ---------------- Themes: look like another OS ---------------- */
+    // [window, title bar, taskbar] colours for the little previews
+    var PV = {
+      panes: ['#1d2026', '#15171b', 'rgba(28,31,37,.85)'], win1: ['#fff', '#0000aa', '#fff'], win31: ['#fff', '#000080', '#c0c0c0'],
+      win95: ['#c0c0c0', '#000080', '#c0c0c0'], win98: ['#c0c0c0', 'linear-gradient(90deg,#000080,#1084d0)', '#c0c0c0'], winme: ['#c0c0c0', 'linear-gradient(90deg,#0a246a,#1084d0)', '#c0c0c0'],
+      win2k: ['#d4d0c8', 'linear-gradient(90deg,#0a246a,#a6caf0)', '#d4d0c8'], winxp: ['#ece9d8', 'linear-gradient(#0997ff,#0053ee 25%,#06f)', 'linear-gradient(#3168d5,#2663e0)'],
+      winvista: ['#f0f0f0', 'rgba(24,36,48,.75)', 'rgba(0,0,0,.85)'], win7: ['#f0f0f0', 'rgba(160,198,232,.9)', 'rgba(20,45,70,.75)'], win8: ['#fff', '#8a2be2', 'rgba(16,16,16,.9)'],
+      win10: ['#fff', '#fff', '#101010'], win11: ['#f3f3f3', '#e9ecf0', 'rgba(243,245,248,.88)'],
+      mac9: ['#eee', 'repeating-linear-gradient(#ddd 0 1px,#999 1px 2px)', '#ddd'], macaqua: ['#ececec', 'repeating-linear-gradient(#f1f1f1 0 2px,#e2e2e2 2px 4px)', 'rgba(255,255,255,.6)'],
+      macos: ['#1e1e1e', '#2c2c2e', 'rgba(60,60,64,.7)'], ubuntu: ['#2c2c2c', '#303030', 'rgba(30,30,30,.9)'], gnome: ['#242424', '#303030', 'rgba(48,48,48,.92)'], kde: ['#1b1e20', '#2a2e32', 'rgba(35,38,41,.95)']
+    };
+    function themes() {
+      var cur = shell.theme();
+      h('Themes', 'Make Panes look like another computer. A theme brings its own wallpaper and accent colour; you can change those afterwards in Personalisation.');
+      ['Panes', 'Windows', 'Mac', 'Linux'].forEach(function (g) {
+        var sec = section(g === 'Panes' ? null : g), grid = el('div', 'st-themes'); sec.appendChild(grid);
+        shell.themes.filter(function (t) { return t.group === g; }).forEach(function (t) {
+          var c = PV[t.id] || PV.panes, b = el('button', 'st-theme' + (t.id === cur.id ? ' on' : ''));
+          var pv = el('i', 'st-tprev l-' + t.layout); pv.style.background = shell.wallCss({ type: 'preset', id: t.wall });
+          var w = el('b', 'st-tw'); w.style.background = c[0]; var tb = el('u'); tb.style.background = c[1]; w.appendChild(tb); pv.appendChild(w);
+          var bar = el('s', 'st-tbar'); bar.style.background = c[2]; pv.appendChild(bar);
+          if (t.layout !== 'bar') { var top = el('em', 'st-ttop'); pv.appendChild(top); }
+          b.appendChild(pv); b.appendChild(el('span', null, t.name + (t.id === 'panes' ? ' (default)' : '')));
+          b.onclick = function () { shell.setTheme(t.id); draw(); toast(t.name + ' theme'); };
+          grid.appendChild(b);
+        });
+      });
+      var s2 = section('Notes');
+      s2.appendChild(el('p', 'st-tip', 'Every theme keeps the same controls: drag windows by the title bar, resize from any edge, and use minimise, maximise, full screen and close (on the Mac themes those are the coloured buttons on the left). The older Windows and Mac themes have fixed colours, so light/dark mode doesn’t change them.'));
+    }
+
     function personal() {
       var p = P();
       h('Personalisation', 'Wallpaper, colours and how the desktop looks. Changes save to your account.');
@@ -84,6 +115,9 @@
       var mini = el('div', 'st-prev-bar'); mini.style.background = p.theme === 'light' ? 'rgba(243,245,248,.85)' : 'rgba(28,31,37,.8)'; prev.appendChild(mini);
       var mw = el('div', 'st-prev-win'); mw.style.background = p.theme === 'light' ? '#f7f8fa' : '#1d2026'; var mwb = el('i'); mwb.style.background = p.accent; mw.appendChild(mwb); prev.appendChild(mw);
       pane.appendChild(prev);
+
+      var th = section('Theme');
+      row(th, shell.theme().name, 'Look like Windows, Mac or Linux.', btn('Change theme', function () { page = 'themes'; draw(); }));
 
       var s1 = section('Colours');
       row(s1, 'Mode', 'Dark is easier on the eyes; light suits bright rooms.', seg([['dark', '🌙 Dark'], ['light', '☀️ Light']], p.theme, function (v) { set('theme', v); }));
