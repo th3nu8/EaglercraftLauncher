@@ -267,11 +267,13 @@
     // On the Mist desktop every game gets its own window (drag, resize, minimise, full screen, close).
     gameWin = shell ? shell.openWindow({
       app: 'game:' + (g ? g.id : 'local'), title: name, cls: 'win-game', width: 1280, height: 760, minW: 360, minH: 240, signOutWarn: true,
+      maximized: !((shell.prefs() || {}).windows || {})['game:' + (g ? g.id : 'local')],   // first launch: as big as the screen allows
       iconEl: function () { var b = el('span', 'sh-ico sh-gico'); b.style.width = b.style.height = '24px'; if (g) artInto(b, g, 'icon'); else b.textContent = '🎮'; return b; },
       onClose: function () { closeGame(false); return false; },
       onFocus: function () { setTimeout(function () { try { gameFrame && gameFrame.focus(); } catch (e) {} }, 0); }
     }) : null;
     (gameWin ? gameWin.body : document.body).appendChild(gameFrame);
+    if (gameWin) setupGameWindow(gameWin, g);
     // Write the game straight into the frame instead of using a blob: URL. The frame then shares
     // this tab's normal web address, which Ruffle (Flash games) and other loaders need to work out
     // where their files are. A blob: address makes Ruffle crash with an "update Ruffle" screen.
@@ -289,6 +291,33 @@
     if (clips) clips.start(gameFrame.contentWindow, g ? g.name : name);
     var b = $('#mistBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 3000);
   }
+  // A game's window: Mist overlay button, and "fit to window" scaling. Games were made for a whole
+  // browser tab, so by default the game sees a screen-sized page, scaled down to fit the window,
+  // and nothing is cut off. "Actual size" gives the game the window's real size instead.
+  function setupGameWindow(w, g) {
+    var key = 'gameFit:' + (g ? g.id : 'local'), fit = store.get(key, true) !== false;
+    var mb = el('button', 'win-gbtn win-mistbtn'); mb.setAttribute('data-nodrag', ''); mb.title = 'Mist overlay: friends, achievements, screenshots (Shift+Tab)';
+    mb.appendChild(el('span', 'brand-ico')); mb.appendChild(el('span', null, 'Mist')); mb.onclick = function (e) { e.stopPropagation(); toggleMistOverlay(); };
+    var fb = el('button', 'win-gbtn'); fb.setAttribute('data-nodrag', '');
+    function drawFit() {
+      fb.textContent = fit ? '⤢ Fit' : '1:1';
+      fb.title = fit ? 'Fit to window: the whole game is scaled to fit. Click for actual size.' : 'Actual size: the game uses the window as it is and may be cut off when small. Click to fit the whole game.';
+    }
+    fb.onclick = function (e) { e.stopPropagation(); fit = !fit; store.set(key, fit); drawFit(); layout(); toast(fit ? 'Fit to window' : 'Actual size'); };
+    w.tbExtra.appendChild(mb); w.tbExtra.appendChild(fb); drawFit();
+    w.body.appendChild($('#mistOv')); w.body.appendChild($('#mistBtn'));   // the overlay covers just this window
+    function layout() {
+      if (!gameFrame || gameWin !== w) return;
+      var bw = w.body.clientWidth, bh = w.body.clientHeight; if (!bw || !bh) return;
+      var s = fit ? Math.min(1, bw / window.innerWidth, bh / window.innerHeight) : 1;
+      gameFrame.style.width = Math.round(bw / s) + 'px'; gameFrame.style.height = Math.round(bh / s) + 'px';
+      gameFrame.style.transform = s < 1 ? 'scale(' + s + ')' : '';
+    }
+    if (window.ResizeObserver) { w._ro = new ResizeObserver(layout); w._ro.observe(w.body); }
+    window.addEventListener('resize', layout);
+    layout();
+  }
+
   function closeGame(silent) {
     if (!gameFrame) return;
     if (!silent && !confirm((shell ? 'Close ' + (runningGame ? runningGame.name : 'the game') + '?' : 'Return to the library?') + ' Unsaved progress in the running game will be lost.')) return;
@@ -296,6 +325,7 @@
     stopHooks();
     if (clips) clips.stop();
     closeMistOverlay(true);
+    if (gameWin) { document.body.appendChild($('#mistOv')); document.body.appendChild($('#mistBtn')); if (gameWin._ro) gameWin._ro.disconnect(); }
     gameFrame.remove(); gameFrame = null; runningGame = null;
     if (gameWin) { var gw = gameWin; gameWin = null; gw.close(true); }
     if (social) social.setPlaying(null);
@@ -354,6 +384,7 @@
         var d = document, inFs = d.fullscreenElement || d.webkitFullscreenElement;
         try {
           if (inFs) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+          else if (gameWin) gameWin.fullscreen();   // just the game's window, not the whole desktop
           else { var r = d.documentElement; (r.requestFullscreen || r.webkitRequestFullscreen).call(r); }
         } catch (e) { toast('Fullscreen isn’t available here'); }
         closeMistOverlay();
@@ -371,7 +402,7 @@
     };
     if (g) acts.appendChild(rl);
     if (g) { var sp = el('button', 'btn', 'ⓘ Store page'); sp.onclick = function () { if (!confirm('Leave ' + name + ' and open its store page?')) return; closeMistOverlay(true); closeGame(true); go('game', g); }; acts.appendChild(sp); }
-    var lib = el('button', 'btn ghost', '◀ Quit to library'); lib.onclick = function () { closeMistOverlay(true); closeGame(false); }; acts.appendChild(lib);
+    var lib = el('button', 'btn ghost', gameWin ? '✕ Close game' : '◀ Quit to library'); lib.onclick = function () { closeMistOverlay(true); closeGame(false); }; acts.appendChild(lib);
     left.appendChild(acts);
     var notes = el('div', 'mo-card');
     notes.appendChild(el('h5', null, 'Notes'));

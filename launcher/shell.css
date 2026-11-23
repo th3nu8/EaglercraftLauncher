@@ -20,7 +20,7 @@ body.sh-noanim .sh *{animation:none!important;transition:none!important}
 body.sh-on{background:#000}
 body.sh-on>#app{display:none}
 body.sh-on.in-game #app{visibility:visible}
-body.sh-on #mistBtn,body.sh-on .friends,body.sh-on .chatwin,body.sh-on .dlbar .fr-btn{display:none!important}
+body.sh-on>#mistBtn,body.sh-on .win-game:not(.win-fs) #mistBtn,body.sh-on .friends,body.sh-on .chatwin,body.sh-on .dlbar .fr-btn{display:none!important}
 body.sh-on .toast{bottom:62px;right:14px;z-index:30}
 body.sh-on.sh-top .toast{bottom:14px}
 :where(.sh) :where(button){font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -227,7 +227,15 @@ body.sh-top .sh-pops{bottom:12px}
   #app .nav{font-size:12.5px;padding:0 6px;letter-spacing:.02em}
 }
 .win-game .win-body{background:#000}
-.win-game #game{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:auto;background:#000}
+.win-game .win-body{overflow:hidden}
+.win-game #game{position:absolute;left:0;top:0;width:100%;height:100%;border:0;z-index:auto;background:#000;transform-origin:0 0}
+.win-game .mist-ov{position:absolute;z-index:5}
+.win-game .mist-btn{position:absolute;z-index:4}
+.win-gbtn{height:24px;padding:0 9px;border-radius:5px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--win-muted);background:var(--sh-hover);flex:none}
+.win-gbtn:hover{background:var(--sh-hover2);color:var(--win-text)}
+.win-mistbtn{margin-left:auto}
+.win-mistbtn .brand-ico{width:15px;height:15px}
+@container (max-width:980px){.win-game .mo-body{grid-template-columns:minmax(0,1fr)}}
 
 /* ================================================================ Settings app */
 .st{display:flex;height:100%;color:var(--win-text);user-select:text}
