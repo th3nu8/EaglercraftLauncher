@@ -291,31 +291,65 @@
     if (clips) clips.start(gameFrame.contentWindow, g ? g.name : name);
     var b = $('#mistBtn'); b.classList.add('peek'); setTimeout(function () { b.classList.remove('peek'); }, 3000);
   }
-  // A game's window: Mist overlay button, and "fit to window" scaling. Games were made for a whole
-  // browser tab, so by default the game sees a screen-sized page, scaled down to fit the window,
-  // and nothing is cut off. "Actual size" gives the game the window's real size instead.
+  // A game's window: the Mist overlay button, and automatic fitting. Games were made for a whole
+  // browser tab, and some (Idle Breakout) are a fixed size, so a smaller window would cut them off.
+  // Mist measures what the game actually draws and, only if it doesn't fit, scales the game down
+  // just enough to show all of it. Games that resize themselves stay sharp at 1:1.
   function setupGameWindow(w, g) {
-    var key = 'gameFit:' + (g ? g.id : 'local'), fit = store.get(key, true) !== false;
     var mb = el('button', 'win-gbtn win-mistbtn'); mb.setAttribute('data-nodrag', ''); mb.title = 'Mist overlay: friends, achievements, screenshots (Shift+Tab)';
     mb.appendChild(el('span', 'brand-ico')); mb.appendChild(el('span', null, 'Mist')); mb.onclick = function (e) { e.stopPropagation(); toggleMistOverlay(); };
-    var fb = el('button', 'win-gbtn'); fb.setAttribute('data-nodrag', '');
-    function drawFit() {
-      fb.textContent = fit ? '⤢ Fit' : '1:1';
-      fb.title = fit ? 'Fit to window: the whole game is scaled to fit. Click for actual size.' : 'Actual size: the game uses the window as it is and may be cut off when small. Click to fit the whole game.';
-    }
-    fb.onclick = function (e) { e.stopPropagation(); fit = !fit; store.set(key, fit); drawFit(); layout(); toast(fit ? 'Fit to window' : 'Actual size'); };
-    w.tbExtra.appendChild(mb); w.tbExtra.appendChild(fb); drawFit();
+    w.tbExtra.appendChild(mb);
     w.body.appendChild($('#mistOv')); w.body.appendChild($('#mistBtn'));   // the overlay covers just this window
-    function layout() {
-      if (!gameFrame || gameWin !== w) return;
-      var bw = w.body.clientWidth, bh = w.body.clientHeight; if (!bw || !bh) return;
-      var s = fit ? Math.min(1, bw / window.innerWidth, bh / window.innerHeight) : 1;
-      gameFrame.style.width = Math.round(bw / s) + 'px'; gameFrame.style.height = Math.round(bh / s) + 'px';
-      gameFrame.style.transform = s < 1 ? 'scale(' + s + ')' : '';
+    var frame = gameFrame, scale = 1, shrinks = 0, settle = null, ticks = 0, timer = null, pending = null;
+    function alive() { return gameFrame === frame && gameWin === w; }
+    function apply() {
+      var bw = w.body.clientWidth, bh = w.body.clientHeight;
+      frame.style.width = Math.round(bw / scale) + 'px'; frame.style.height = Math.round(bh / scale) + 'px';
+      frame.style.transform = scale < 0.999 ? 'scale(' + scale + ')' : '';
     }
-    if (window.ResizeObserver) { w._ro = new ResizeObserver(layout); w._ro.observe(w.body); }
-    window.addEventListener('resize', layout);
-    layout();
+    // how much room the game needs: anything big it draws (canvas, Flash, video, inner frames), plus
+    // the page itself when it's only a little too big. A long page (instructions under the game)
+    // just scrolls, as it would in a tab, instead of being shrunk to nothing.
+    function need() {
+      var d; try { d = frame.contentDocument; } catch (e) { return null; }
+      if (!d || !d.documentElement) return null;
+      var de = d.documentElement, bd = d.body, cw = frame.contentWindow, vw = cw.innerWidth, vh = cw.innerHeight;   // (clientHeight lies on pages with no doctype)
+      var dw = Math.max(de.scrollWidth, bd ? bd.scrollWidth : 0), dh = Math.max(de.scrollHeight, bd ? bd.scrollHeight : 0), ww = 0, hh = 0;
+      var els = d.querySelectorAll('canvas,iframe,embed,object,video,ruffle-player,ruffle-embed');
+      for (var i = 0; i < els.length && i < 40; i++) {
+        var r = els[i].getBoundingClientRect(); if (r.width < 80 || r.height < 80) continue;
+        ww = Math.max(ww, r.width <= vw ? r.right + d.defaultView.scrollX : r.width, r.right + Math.max(0, -r.left));   // centred and cut off on both sides counts too
+        hh = Math.max(hh, r.height <= vh ? r.bottom + d.defaultView.scrollY : r.height, r.bottom + Math.max(0, -r.top));
+      }
+      if (Math.min(vw / dw, vh / dh) >= 0.8) { ww = Math.max(ww, dw); hh = Math.max(hh, dh); }
+      return { w: ww, h: hh, vw: vw, vh: vh };
+    }
+    function fit(fresh) {
+      if (!alive()) return;
+      var bw = w.body.clientWidth, bh = w.body.clientHeight; if (!bw || !bh) return;
+      if (fresh) { scale = 1; shrinks = 0; pending = null; }
+      apply();
+      var n = need(); if (!n || !n.vw) return;
+      var slack = 12;                                  // ignore margins and scrollbars
+      var over = n.w > n.vw + slack || n.h > n.vh + slack;
+      if (pending && (n.vw > pending.vw + 20 || n.vh > pending.vh + 20)) {
+        // we gave the game more room last time: if what it needs grew just as much, the page simply
+        // follows the window size (e.g. 100vh plus a margin) and scaling can never help, so undo
+        var p = pending; pending = null;
+        if (over && ((n.w - p.w) > 0.7 * (n.vw - p.vw) && n.vw - p.vw > 20 || (n.h - p.h) > 0.7 * (n.vh - p.vh) && n.vh - p.vh > 20)) { scale = 1; shrinks = 4; apply(); return; }
+      }
+      if (!over) return;
+      if (shrinks >= 4) return;                       // the page grows with the window (e.g. 100vh + margin): stop chasing it
+      var ns = Math.max(0.3, Math.min(scale, scale * n.vw / n.w, scale * n.vh / n.h));
+      if (ns > scale - 0.004) return;
+      pending = n; scale = ns; shrinks++; apply();
+    }
+    function tick() { if (!alive()) return; fit(false); ticks++; timer = setTimeout(tick, ticks < 15 ? 1000 : 4000); }
+    function resized() { if (!alive()) return; apply(); clearTimeout(settle); settle = setTimeout(function () { fit(true); }, 180); }
+    if (window.ResizeObserver) { w._ro = new ResizeObserver(resized); w._ro.observe(w.body); }
+    window.addEventListener('resize', resized);
+    frame.addEventListener('load', function () { fit(true); });
+    apply(); timer = setTimeout(tick, 300);
   }
 
   function closeGame(silent) {
