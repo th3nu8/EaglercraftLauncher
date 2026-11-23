@@ -192,6 +192,7 @@
       box.style.width = box.style.height = size + 'px';
       var a = apps[id];
       if (a && a.iconInto) a.iconInto(box);
+      else if (window.MIST_ICONS && MIST_ICONS[id]) { var im = el('img'); im.src = MIST_ICONS[id]; im.alt = ''; im.draggable = false; box.appendChild(im); }
       else box.innerHTML = ICONS[id] || ICONS.mist;
       return box;
     }

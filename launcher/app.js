@@ -1334,6 +1334,7 @@
     openChat: window.MistShell ? function (name) { if (shell) shell.launch('concord', { dm: name }); } : null,
     onData: function () { if (concord) concord.onSocial(); }
   }) : null;
+  if (window.MIST_ICONS) { document.documentElement.style.setProperty('--mist-logo', 'url("' + MIST_ICONS.mist + '")'); document.documentElement.classList.add('mist-logo'); }
   if (window.MistShell) startDesktop();
   // MY PC: stream your own PC into Mist (supporters)
   pcConnect = window.MistPC ? MistPC({
