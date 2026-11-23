@@ -11,6 +11,10 @@ eaglercraft-launcher/
 ├── launcher/
 │   ├── index.html     ← launcher layout
 │   ├── style.css      ← launcher look
+│   ├── shell.js/.css  ← the Mist desktop (sign-in screen, windows, taskbar, Start)
+│   ├── concord.js     ← Concord (chat app)
+│   ├── gleam.js       ← Gleam (web browser app)
+│   ├── settingsapp.js ← Settings app
 │   ├── sync.js        ← cloud saves (world snapshot + sync)
 │   └── app.js         ← launcher logic (download, cache, launch, accounts)
 ├── versions/          ← put your Eaglercraft .html builds here
@@ -214,10 +218,37 @@ What gets synced: every IndexedDB database on the site whose name contains
 large), plus `localStorage` keys containing "eagler" (game settings). If a version
 uses other database names, list them in that version's `"databases": ["name"]`.
 
-### Mist Browser (web tabs)
+### The Mist desktop
 
-Mist has a tab strip across the top. The first tab is Mist itself and can't be closed; **+** opens a
-browser tab that loads websites through the Mist server (Ultraviolet in the page, a wisp relay on the
+Mist opens as a desktop, like Windows, in dark mode by default:
+
+- **Sign-in screen**: shows a clock. Click or press a key to sign in, create an account or
+  **Continue as guest**. Guests can browse and play installed games. Concord and Gleam ask them to sign in.
+  **Lock** in Start's power menu returns to it.
+- **Windows**: every app and every game opens in a window you can drag by its title bar, resize from any
+  edge or corner, snap (drag to the top to maximise, to a side for half the screen), minimise to the
+  taskbar, maximise, make full screen (the ⛶ button; Esc leaves) and close. Double-clicking the title
+  bar maximises.
+- **Taskbar and Start**: pinned apps, running windows, unread badges, server status, clock and
+  notifications. Start searches apps and your installed games, and can search the web in Gleam.
+- **Desktop**: app icons plus a shortcut for every installed game. Drag them anywhere. Right-click for
+  options.
+
+The only apps are:
+
+| App | What it does |
+| --- | --- |
+| **Mist** | The store and library. Install games here; they appear on the desktop and in Start. |
+| **Concord** | Chat. Everyone is in the Mist Lounge. You can make your own servers with channels, invite friends with a code, and send DMs (the same messages as Mist's friends chat), all live. It also handles friends, mentions, replies, edits and server admin roles, kicks and bans. |
+| **Gleam** | The web browser: tabs, back/forward, address bar, through the Mist server (see below). |
+| **Settings** | Light/dark mode, accent colour, wallpaper (8 built-in, a solid colour, a gradient, your own photo or an image link), lock screen picture, transparency, animations, corners, size, taskbar position and alignment, auto-hide, clock, pinned apps, desktop icons, notifications, account, plus Mist's game and cloud-save settings. |
+
+Personalisation is saved to your account (`/api/prefs` on the Mist server), so it follows you to any
+computer. Guests' settings stay on that device.
+
+### Gleam (web browser)
+
+Gleam opens websites through the Mist server (Ultraviolet in the page, a wisp relay on the
 server). Only signed-in players can open tabs: Mist asks the server for a 12-hour browser ticket, and the
 relay refuses connections without a valid one.
 

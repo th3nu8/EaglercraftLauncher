@@ -174,7 +174,7 @@
   }
 
   /* ---------- launching ---------- */
-  var gameFrame = null, gameUrl = null;
+  var gameFrame = null, gameUrl = null, gameWin = null;
   function play(g, v) {
     if (!g || !v) return;
     addToLibrary(g); setSelVersion(g, v);
@@ -264,7 +264,14 @@
     gameFrame.id = 'game';
     gameFrame.setAttribute('allow', 'fullscreen; pointer-lock; autoplay; gamepad; clipboard-read; clipboard-write; microphone; cross-origin-isolated');
     gameFrame.setAttribute('allowfullscreen', '');
-    document.body.appendChild(gameFrame);
+    // On the Mist desktop every game gets its own window (drag, resize, minimise, full screen, close).
+    gameWin = shell ? shell.openWindow({
+      app: 'game:' + (g ? g.id : 'local'), title: name, cls: 'win-game', width: 1280, height: 760, minW: 360, minH: 240, signOutWarn: true,
+      iconEl: function () { var b = el('span', 'sh-ico sh-gico'); b.style.width = b.style.height = '24px'; if (g) artInto(b, g, 'icon'); else b.textContent = '🎮'; return b; },
+      onClose: function () { closeGame(false); return false; },
+      onFocus: function () { setTimeout(function () { try { gameFrame && gameFrame.focus(); } catch (e) {} }, 0); }
+    }) : null;
+    (gameWin ? gameWin.body : document.body).appendChild(gameFrame);
     // Write the game straight into the frame instead of using a blob: URL. The frame then shares
     // this tab's normal web address, which Ruffle (Flash games) and other loaders need to work out
     // where their files are. A blob: address makes Ruffle crash with an "update Ruffle" screen.
@@ -284,12 +291,13 @@
   }
   function closeGame(silent) {
     if (!gameFrame) return;
-    if (!silent && !confirm('Return to the library? Unsaved progress in the running game will be lost.')) return;
+    if (!silent && !confirm((shell ? 'Close ' + (runningGame ? runningGame.name : 'the game') + '?' : 'Return to the library?') + ' Unsaved progress in the running game will be lost.')) return;
     var hadSaves = !runningGame || runningGame.cloudSaves;
     stopHooks();
     if (clips) clips.stop();
     closeMistOverlay(true);
     gameFrame.remove(); gameFrame = null; runningGame = null;
+    if (gameWin) { var gw = gameWin; gameWin = null; gw.close(true); }
     if (social) social.setPlaying(null);
     if (gameUrl) { URL.revokeObjectURL(gameUrl); gameUrl = null; }
     document.body.classList.remove('in-game');
@@ -551,7 +559,7 @@
     else if (view.page === 'achievements') { if (social) social.renderAchPage(); }
     else if (view.page === 'pc') { if (pcConnect) pcConnect.render($('#pcPage')); }
   }
-  function renderAll() { renderPage(); renderDownloads(); renderAccount(); }
+  function renderAll() { renderPage(); renderDownloads(); renderAccount(); if (shell) shell.refreshDesktop(); }
 
   /* ---------- STORE ---------- */
   var PAGE = 48;
@@ -912,6 +920,7 @@
     });
   }
   function openAuth(mode) {
+    if (shell) { closeModal(); shell.switchUser(mode); return; }
     openModal(function (box) {
       var tabs = el('div', 'm-tabs');
       var tIn = el('button', mode === 'login' ? 'active' : '', 'Sign in'), tUp = el('button', mode === 'register' ? 'active' : '', 'Create account');
@@ -1026,7 +1035,7 @@
   document.title = settings.title;
   $('#brandName').textContent = LAUNCHER_NAME;
   $$('.nav').forEach(function (n) { n.onclick = function () { go(n.dataset.page); }; });
-  $('#settingsBtn').onclick = function () { go(view.page === 'settings' ? 'library' : 'settings'); };
+  $('#settingsBtn').onclick = function () { if (shell) { shell.launch('settings', 'games'); return; } go(view.page === 'settings' ? 'library' : 'settings'); };
   $('#profileBtn').onclick = openAccount;
   $('#libHome').onclick = function () { go('library', null); };
   $('#storeSearch').oninput = function () { storeState.shown = PAGE; renderGrid(); };
@@ -1207,9 +1216,10 @@
   }
 
   var social = null, clips = null, browser = null, pcConnect = null, lastUser;
+  var shell = null, concord = null, settingsApp = null, mistWin = null;
   function authChanged() {
     var u = engine && engine.signedIn() ? engine.user : null;
-    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); if (browser) browser.onAuthChange(); if (pcConnect) pcConnect.onAuthChange(); pollAnnouncement(); }
+    if (u !== lastUser) { lastUser = u; ptToken = null; ptPromise = null; if (social) social.onAuthChange(); if (browser) browser.onAuthChange(); if (pcConnect) pcConnect.onAuthChange(); if (concord) concord.onAuthChange(); if (shell) shell.authChanged(); if (settingsApp) settingsApp.redraw(); pollAnnouncement(); }
   }
   /* PolyTrack-only token for Mist leaderboards (fetched once per sign-in). */
   var ptToken = null, ptPromise = null;
@@ -1234,6 +1244,70 @@
   }
   function gameByName(n) { for (var i = 0; i < GAMES.length; i++) if (GAMES[i].name === n) return GAMES[i]; return null; }
 
+  /* ---------- the Mist desktop: sign-in screen, windows, taskbar, and the apps on it ---------- */
+  function desktopGames(all) {
+    if (!library) return [];
+    return GAMES.filter(function (g) { return inLibrary(g) && (all || anyInstalled(g)); })
+      .sort(function (a, b) { return a.name.localeCompare(b.name); })
+      .map(function (g) {
+        return { id: g.id, name: g.name, installed: anyInstalled(g),
+          iconInto: function (b) { artInto(b, g, 'icon'); },
+          play: function () {
+            var v = selVersion(g), inst = g.versions.filter(function (x) { return isInstalled(g, x); });
+            if (gameFrame && runningGame === g && gameWin) { gameWin.show(); return; }
+            if (gameFrame && !confirm('Close ' + (runningGame ? runningGame.name : 'the running game') + ' and start ' + g.name + '?')) return;
+            play(g, v && isInstalled(g, v) ? v : inst[0] || v);
+          },
+          show: function () { shell.launch('mist'); go('library', g); } };
+      });
+  }
+  var settingsNode = null;
+  function startDesktop() {
+    settingsNode = $('#page-settings .settings');
+    shell = MistShell({
+      el: el, toast: toast, ago: ago, getEngine: function () { return engine; },
+      storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
+      avatar: function (n, s) { return social ? social.avatar(n, s) : el('span', 'sh-guestav', n.charAt(0).toUpperCase()); },
+      auth: function (mode, u, p) {
+        if (!engine) return Promise.reject(new Error('No Mist server is set up.'));
+        return engine.auth(mode, u, p).then(function () { if (!gameFrame) runSync(false); });
+      },
+      signOut: function () { return engine && engine.signedIn() ? engine.signOut() : null; },
+      games: desktopGames,
+      showProfile: function (n) { shell.launch('mist'); go('profile', n); },
+      onDesktop: function () { if ((shell.prefs() || {}).openMist !== false) shell.launch('mist'); }
+    });
+    shell.registerApp({ id: 'mist', name: 'Mist',
+      open: function () {
+        mistWin = shell.openWindow({ app: 'mist', title: 'Mist', cls: 'win-mist', keepAlive: true, width: 1240, height: 780, minW: 560, minH: 400 });
+        mistWin.body.appendChild($('#app'));
+        renderAll();
+        return mistWin;
+      },
+      reopen: function (w, arg) { if (arg && arg.page) go(arg.page, arg.game); } });
+    concord = window.MistConcord ? MistConcord({ el: el, toast: toast, shell: shell, getEngine: function () { return engine; }, social: function () { return social; },
+      storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
+      showProfile: function (n) { shell.launch('mist'); go('profile', n); } }) : null;
+    if (concord) shell.registerApp({ id: 'concord', name: 'Concord', needsAccount: true,
+      open: function (arg) { return concord.open(arg); }, reopen: function (w, arg) { if (arg && arg.dm) concord.openDm(arg.dm); } });
+    browser = window.MistGleam ? MistGleam({ el: el, toast: toast, shell: shell, getEngine: function () { return engine; } }) : null;
+    if (browser) shell.registerApp({ id: 'gleam', name: 'Gleam', needsAccount: true,
+      open: function (url) { return browser.open(url); }, reopen: function (w, url) { if (typeof url === 'string') browser.openUrl(url); } });
+    settingsApp = window.MistSettings ? MistSettings({ el: el, toast: toast, shell: shell, getEngine: function () { return engine; },
+      avatar: function (n, s) { return social ? social.avatar(n, s) : el('span'); },
+      editProfile: function () { if (engine && engine.signedIn()) { shell.launch('mist'); go('profile', engine.user); } },
+      openSupport: function () { if (social) social.openSupport(); },
+      changePassword: openChangePassword, openAdmin: function () { openAdmin(); },
+      syncNow: function () { if (gameFrame) { toast('Close the game first'); return; } runSync(true); },
+      version: (CFG.base.match(/\/([0-9a-f]{40})\/$/) || [, 'latest'])[1].slice(0, 7),
+      gamesPanel: function (host) { host.appendChild(settingsNode); renderSettings(); },
+      onGamesClosed: function () { var pg = $('#page-settings'); if (settingsNode && pg && settingsNode.parentNode !== pg) pg.appendChild(settingsNode); }
+    }) : null;
+    if (settingsApp) shell.registerApp({ id: 'settings', name: 'Settings',
+      open: function (pg) { return settingsApp.open(pg); }, reopen: function (w, pg) { if (pg) settingsApp.open(pg); } });
+    if (concord) concord.start();
+  }
+
   makeEngine();
   lastUser = engine && engine.signedIn() ? engine.user : null;
   // Pages that block storage: games can't keep progress and nothing can be synced. Say so once.
@@ -1256,13 +1330,11 @@
     showSocial: function (tab) { go('social', tab || 'friends'); },
     storeGet: function (k, d) { return store.get(k, d); }, storeSet: function (k, v) { store.set(k, v); },
     showAchievements: function () { go('achievements'); },
-    gameNames: function () { return GAMES.map(function (g) { return g.name; }); }
+    gameNames: function () { return GAMES.map(function (g) { return g.name; }); },
+    openChat: window.MistShell ? function (name) { if (shell) shell.launch('concord', { dm: name }); } : null,
+    onData: function () { if (concord) concord.onSocial(); }
   }) : null;
-  // browser tabs: Mist is the first tab and can't be closed; "+" opens web pages through the Mist server
-  browser = window.MistBrowser ? MistBrowser({
-    el: el, toast: toast, getEngine: function () { return engine; }, openAuth: openAuth,
-    onMist: function () { document.title = runningGame ? document.title : settings.title; }
-  }) : null;
+  if (window.MistShell) startDesktop();
   // MY PC: stream your own PC into Mist (supporters)
   pcConnect = window.MistPC ? MistPC({
     el: el, toast: toast, ago: ago, getEngine: function () { return engine; }, openAuth: openAuth,

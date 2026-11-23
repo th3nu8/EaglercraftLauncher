@@ -1956,6 +1956,91 @@ function messageRateLimited(uid) {
   return ++h.n > 30;
 }
 
+/* ---------------- Concord (the Mist desktop's chat app) ----------------
+ * Servers with text channels, members and invites, plus live updates over long polling (works through the
+ * Cloudflare tunnel). Friends' DMs use /api/messages; new DMs are announced here too. Everyone is in the
+ * official "Mist Lounge"; site admins moderate it (and can delete messages anywhere). */
+db.concord = db.concord || { servers: {}, msgs: {}, seq: 0, left: {} };
+const CC = db.concord;
+CC.left = CC.left || {};
+const CC_MAX_MSGS = 400, CC_MAX_OWNED = 10, CC_MAX_JOINED = 100, CC_MAX_CHANNELS = 30, CC_LOUNGE = 'lounge';
+const ccIdCache = new Map();
+function ccUser(uid) { let u = ccIdCache.get(uid); if (!u || !db.users[u.name.toLowerCase()]) { u = userById(uid); if (u) ccIdCache.set(uid, u); } return u; }
+function ccName(uid) { const u = ccUser(uid); return u ? u.name : 'Deleted player'; }
+function ccChan(name, topic, readOnly) { return { id: crypto.randomBytes(6).toString('base64url'), name, topic: topic || '', readOnly: !!readOnly, created: Date.now() }; }
+function ccCleanName(n, max) { return String(n || '').replace(/[\u0000-\u001f​-‏‪-‮]/g, '').replace(/\s+/g, ' ').trim().slice(0, max || 40); }
+function ccChanName(n) { return String(n || '').toLowerCase().replace(/[^a-z0-9\-_ ]/g, '').trim().replace(/\s+/g, '-').slice(0, 30); }
+(function ccLounge() {
+  if (CC.servers[CC_LOUNGE]) return;
+  CC.servers[CC_LOUNGE] = { id: CC_LOUNGE, name: 'Mist Lounge', emoji: '☁️', color: '#3d8bfd', owner: null, official: true, created: Date.now(), members: {}, invites: {},
+    channels: [ccChan('announcements', 'News from the Mist team', true), ccChan('general', 'Talk about anything'), ccChan('looking-for-group', 'Find people to play with'),
+      ccChan('game-help', 'Stuck? Ask here'), ccChan('off-topic', 'Everything else')] };
+})();
+function ccRole(sv, user) {
+  if (!sv || !user) return null;
+  const m = sv.members[user.id];
+  if (!m) return null;
+  return sv.owner === user.id ? 'owner' : m.role || 'member';
+}
+function ccCanManage(sv, user) { const r = ccRole(sv, user); return r === 'owner' || r === 'admin' || isAdmin(user); }
+function ccFindChannel(cid) {
+  for (const sv of Object.values(CC.servers)) { const c = sv.channels.find(x => x.id === cid); if (c) return { sv, c }; }
+  return null;
+}
+function ccMsgView(m) {
+  const r = m.reply ? (CC_reply(m)) : null;
+  return { id: m.id, from: ccName(m.uid), text: m.text, at: m.at, edited: m.edited || null, reply: r };
+}
+function CC_reply(m) { return m.reply ? { id: m.reply.id, from: ccName(m.reply.uid), text: m.reply.text } : null; }
+function ccServerView(sv, user) {
+  const msgs = CC.msgs;
+  return { id: sv.id, name: sv.name, emoji: sv.emoji || '', color: sv.color || '#5865f2', official: !!sv.official, owner: sv.owner ? ccName(sv.owner) : null,
+    role: ccRole(sv, user) || (isAdmin(user) ? 'admin' : 'member'), manage: ccCanManage(sv, user), members: Object.keys(sv.members).length,
+    channels: sv.channels.map(c => { const l = msgs[c.id]; return { id: c.id, name: c.name, topic: c.topic, readOnly: !!c.readOnly, last: l && l.length ? l[l.length - 1].id : 0 }; }) };
+}
+// live updates: an event log, read by long-polling clients
+const ccLog = []; let ccEvSeq = 0; const ccWaiters = new Map(), ccTyping = new Map();
+function ccSees(ev, uid) {
+  if (ev.to) return ev.to.includes(uid);
+  if (ev.server) { const sv = CC.servers[ev.server]; return !!(sv && sv.members[uid]); }
+  return false;
+}
+function ccEmit(aud, data) {
+  const ev = Object.assign({ seq: ++ccEvSeq, data }, aud);
+  ccLog.push(ev); if (ccLog.length > 4000) ccLog.splice(0, ccLog.length - 4000);
+  for (const [uid, set] of ccWaiters) {
+    if (!ccSees(ev, uid)) continue;
+    for (const w of set) w.wake();
+  }
+}
+function ccEventsFor(uid, cursor) {
+  const out = [];
+  for (let i = ccLog.length - 1; i >= 0 && ccLog[i].seq > cursor; i--) if (ccSees(ccLog[i], uid)) out.push(ccLog[i].data);
+  return out.reverse();
+}
+function ccPoll(user, cursor, res) {
+  const tooOld = ccLog.length && cursor < ccLog[0].seq - 1;
+  if (!cursor || cursor > ccEvSeq || tooOld) return send(res, 200, { cursor: ccEvSeq, events: [], reset: !!cursor });
+  const now = ccEventsFor(user.id, cursor);
+  if (now.length) return send(res, 200, { cursor: ccEvSeq, events: now });
+  let set = ccWaiters.get(user.id); if (!set) { set = new Set(); ccWaiters.set(user.id, set); }
+  const w = { wake: () => { finish(); } };
+  const timer = setTimeout(() => finish(), 25000);
+  function finish() {
+    clearTimeout(timer); set.delete(w); if (!set.size) ccWaiters.delete(user.id);
+    if (res.writableEnded) return;
+    send(res, 200, { cursor: ccEvSeq, events: ccEventsFor(user.id, cursor) });
+  }
+  set.add(w);
+  res.on('close', () => { clearTimeout(timer); set.delete(w); if (!set.size) ccWaiters.delete(user.id); });
+}
+const ccHits = new Map();
+function ccRateLimited(uid, n, ms) {
+  const now = Date.now(); let h = ccHits.get(uid);
+  if (!h || now - h.t > ms) { h = { t: now, n: 0 }; ccHits.set(uid, h); }
+  return ++h.n > n;
+}
+
 /* ---------------- routes ---------------- */
 async function handle(req, res) {
   const url = new URL(req.url, 'http://x');
@@ -2087,6 +2172,207 @@ async function handle(req, res) {
 
   const user = authUser(req);
   if (p.startsWith('/api/') && !user) return fail(res, 401, 'Signed out. Please sign in again.');
+
+  // Desktop settings (wallpaper, colours, taskbar...) that follow the account
+  if (p === '/api/prefs') {
+    db.prefs = db.prefs || {};
+    if (req.method === 'GET') return send(res, 200, { prefs: db.prefs[user.id] || null });
+    if (req.method === 'POST') {
+      let body; try { body = await readJson(req, 1600000); } catch (e) { return fail(res, 413, 'Too big.'); }
+      if (!body || typeof body.prefs !== 'object' || Array.isArray(body.prefs)) return fail(res, 400, 'Bad request.');
+      const raw = JSON.stringify(body.prefs);
+      if (raw.length > 1500000) return fail(res, 413, 'Your settings are too big to sync (try a smaller wallpaper).');
+      db.prefs[user.id] = body.prefs; saveDbSoon();
+      return send(res, 200, { ok: true });
+    }
+  }
+
+  // Concord
+  if (p.startsWith('/api/concord/')) {
+    const q = url.searchParams;
+    const lounge = CC.servers[CC_LOUNGE];
+    if (lounge && !lounge.members[user.id] && !CC.left[user.id]) { lounge.members[user.id] = { role: 'member', joined: Date.now() }; saveDbSoon(); }
+    if (req.method === 'GET' && p === '/api/concord/state') {
+      const mine = Object.values(CC.servers).filter(sv => sv.members[user.id]).sort((a, b) => (b.official ? 1 : 0) - (a.official ? 1 : 0) || a.created - b.created);
+      return send(res, 200, { cursor: ccEvSeq, me: user.name, admin: isAdmin(user), servers: mine.map(sv => ccServerView(sv, user)) });
+    }
+    if (req.method === 'GET' && p === '/api/concord/members') {
+      const sv = CC.servers[q.get('server')];
+      if (!sv || !sv.members[user.id]) return fail(res, 404, 'No such server.');
+      const rows = Object.keys(sv.members).map(uid => { const pr = presenceOf(uid); return { uid, name: ccName(uid), role: sv.owner === uid ? 'owner' : sv.members[uid].role || 'member', state: pr.state, game: pr.game }; })
+        .filter(r => ccUser(r.uid));
+      const rank = r => (r.state === 'offline' ? 10 : 0) + (r.role === 'owner' ? 0 : r.role === 'admin' ? 1 : 2);
+      rows.sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+      const shown = rows.slice(0, 200);
+      return send(res, 200, { total: rows.length, online: rows.filter(r => r.state !== 'offline').length, members: shown.map(r => ({ name: r.name, role: r.role, state: r.state, game: r.game })), looks: looksFor(shown.map(r => r.uid)) });
+    }
+    if (req.method === 'GET' && p === '/api/concord/messages') {
+      const f = ccFindChannel(q.get('channel'));
+      if (!f || !f.sv.members[user.id]) return fail(res, 404, 'No such channel.');
+      const list = CC.msgs[f.c.id] || [], before = +q.get('before') || Infinity;
+      const page = list.filter(m => m.id < before).slice(-50);
+      return send(res, 200, { messages: page.map(ccMsgView), more: list.length && page.length && list[0].id < page[0].id, looks: looksFor([...new Set(page.map(m => m.uid))]) });
+    }
+    if (req.method === 'POST' && p === '/api/concord/poll') {
+      let body; try { body = await readJson(req); } catch (e) { body = {}; }
+      return ccPoll(user, +body.cursor || 0, res);
+    }
+    if (req.method !== 'POST') return fail(res, 405, 'Method not allowed.');
+    let body; try { body = await readJson(req, 65536); } catch (e) { return fail(res, 400, 'Bad request.'); }
+    const svOf = () => { const sv = CC.servers[String(body.server || '')]; return sv && sv.members[user.id] ? sv : null; };
+    const emitServer = sv => ccEmit({ server: sv.id }, { type: 'server', server: sv.id });
+
+    if (p === '/api/concord/send') {
+      const f = ccFindChannel(String(body.channel || ''));
+      if (!f || !f.sv.members[user.id]) return fail(res, 404, 'No such channel.');
+      if (f.c.readOnly && !ccCanManage(f.sv, user)) return fail(res, 403, 'Only admins can post in #' + f.c.name + '.');
+      if (ccRateLimited(user.id, 12, 10e3) || messageRateLimited(user.id)) return fail(res, 429, 'Slow down a little.');
+      const text = String(body.text || '').replace(/\s+$/, '').slice(0, 2000);
+      if (!text.trim()) return fail(res, 400, 'Empty message.');
+      const list = CC.msgs[f.c.id] || (CC.msgs[f.c.id] = []);
+      const msg = { id: ++CC.seq, uid: user.id, text, at: Date.now() };
+      if (body.reply) { const r = list.find(m => m.id === +body.reply); if (r) msg.reply = { id: r.id, uid: r.uid, text: r.text.slice(0, 140) }; }
+      list.push(msg); if (list.length > CC_MAX_MSGS) list.splice(0, list.length - CC_MAX_MSGS);
+      stats(user.id).msgs++; checkAch(user.id);
+      ccTyping.delete(user.id + ':' + f.c.id);
+      ccEmit({ server: f.sv.id }, { type: 'msg', server: f.sv.id, channel: f.c.id, message: ccMsgView(msg), look: lookOf(user.id), lookName: user.name });
+      saveDbSoon();
+      return send(res, 200, { message: ccMsgView(msg) });
+    }
+    if (p === '/api/concord/edit' || p === '/api/concord/delete') {
+      const f = ccFindChannel(String(body.channel || ''));
+      if (!f || !f.sv.members[user.id]) return fail(res, 404, 'No such channel.');
+      const list = CC.msgs[f.c.id] || [], i = list.findIndex(m => m.id === +body.id);
+      if (i < 0) return fail(res, 404, 'That message is gone.');
+      const m = list[i];
+      if (p === '/api/concord/edit') {
+        if (m.uid !== user.id) return fail(res, 403, 'You can only edit your own messages.');
+        const text = String(body.text || '').replace(/\s+$/, '').slice(0, 2000);
+        if (!text.trim()) return fail(res, 400, 'Empty message.');
+        m.text = text; m.edited = Date.now();
+        ccEmit({ server: f.sv.id }, { type: 'edit', server: f.sv.id, channel: f.c.id, message: ccMsgView(m) });
+      } else {
+        if (m.uid !== user.id && !ccCanManage(f.sv, user)) return fail(res, 403, 'You can’t delete that.');
+        list.splice(i, 1);
+        ccEmit({ server: f.sv.id }, { type: 'del', server: f.sv.id, channel: f.c.id, id: m.id });
+      }
+      saveDbSoon();
+      return send(res, 200, { ok: true });
+    }
+    if (p === '/api/concord/typing') {
+      const f = ccFindChannel(String(body.channel || ''));
+      if (!f || !f.sv.members[user.id]) return send(res, 200, { ok: false });
+      const k = user.id + ':' + f.c.id, last = ccTyping.get(k) || 0;
+      if (Date.now() - last > 2500) { ccTyping.set(k, Date.now()); ccEmit({ server: f.sv.id }, { type: 'typing', server: f.sv.id, channel: f.c.id, name: user.name }); }
+      return send(res, 200, { ok: true });
+    }
+    if (p === '/api/concord/server/create') {
+      const owned = Object.values(CC.servers).filter(sv => sv.owner === user.id).length;
+      if (owned >= CC_MAX_OWNED) return fail(res, 400, 'You can own up to ' + CC_MAX_OWNED + ' servers.');
+      if (Object.values(CC.servers).filter(sv => sv.members[user.id]).length >= CC_MAX_JOINED) return fail(res, 400, 'You’re in too many servers.');
+      const name = ccCleanName(body.name, 40);
+      if (name.length < 2) return fail(res, 400, 'Give your server a name.');
+      const id = crypto.randomBytes(6).toString('base64url');
+      CC.servers[id] = { id, name, emoji: ccCleanName(body.emoji, 4), color: /^#[0-9a-f]{6}$/i.test(body.color) ? body.color : '#5865f2', owner: user.id, created: Date.now(),
+        members: { [user.id]: { role: 'owner', joined: Date.now() } }, invites: {}, channels: [ccChan('general', 'Say hi!'), ccChan('games', 'What are we playing?'), ccChan('clips', 'Share your best moments')] };
+      await saveDb();
+      ccEmit({ to: [user.id] }, { type: 'server', server: id });
+      return send(res, 200, { server: ccServerView(CC.servers[id], user) });
+    }
+    if (p === '/api/concord/join') {
+      const code = String(body.code || '').trim().replace(/^.*\//, '');
+      const sv = Object.values(CC.servers).find(x => x.invites && x.invites[code]);
+      if (!sv) return fail(res, 404, 'That invite is wrong or has expired.');
+      const inv = sv.invites[code];
+      if (inv.exp && inv.exp < Date.now()) { delete sv.invites[code]; return fail(res, 404, 'That invite has expired.'); }
+      if (sv.bans && sv.bans[user.id]) return fail(res, 403, 'You’re banned from that server.');
+      if (!sv.members[user.id]) {
+        if (Object.values(CC.servers).filter(x => x.members[user.id]).length >= CC_MAX_JOINED) return fail(res, 400, 'You’re in too many servers.');
+        sv.members[user.id] = { role: 'member', joined: Date.now() }; inv.uses = (inv.uses || 0) + 1;
+        if (sv.official) delete CC.left[user.id];
+        await saveDb();
+        ccEmit({ server: sv.id }, { type: 'member', server: sv.id, name: user.name, joined: true });
+      }
+      ccEmit({ to: [user.id] }, { type: 'server', server: sv.id });
+      return send(res, 200, { server: ccServerView(sv, user) });
+    }
+    const sv = svOf();
+    if (!sv) return fail(res, 404, 'No such server.');
+    if (p === '/api/concord/invite') {
+      if (sv.official && !ccCanManage(sv, user)) return send(res, 200, { code: 'lounge' });
+      const code = crypto.randomBytes(5).toString('base64url');
+      sv.invites = sv.invites || {};
+      for (const [k, v] of Object.entries(sv.invites)) if (v.exp && v.exp < Date.now()) delete sv.invites[k];
+      sv.invites[code] = { by: user.id, at: Date.now(), exp: Date.now() + 7 * 86400e3, uses: 0 };
+      saveDbSoon();
+      return send(res, 200, { code });
+    }
+    if (p === '/api/concord/leave') {
+      if (sv.owner === user.id) return fail(res, 400, 'You own this server. Delete it instead, or make someone else the owner first.');
+      delete sv.members[user.id];
+      if (sv.official) CC.left[user.id] = Date.now();
+      await saveDb();
+      ccEmit({ to: [user.id] }, { type: 'gone', server: sv.id });
+      ccEmit({ server: sv.id }, { type: 'member', server: sv.id, name: user.name, joined: false });
+      return send(res, 200, { ok: true });
+    }
+    if (!ccCanManage(sv, user)) return fail(res, 403, 'Only the server’s owner and admins can do that.');
+    if (p === '/api/concord/server/edit') {
+      if (body.name != null) { const nm = ccCleanName(body.name, 40); if (nm.length >= 2 && !sv.official) sv.name = nm; }
+      if (body.emoji != null) sv.emoji = ccCleanName(body.emoji, 4);
+      if (body.color && /^#[0-9a-f]{6}$/i.test(body.color)) sv.color = body.color;
+      saveDbSoon(); emitServer(sv);
+      return send(res, 200, { server: ccServerView(sv, user) });
+    }
+    if (p === '/api/concord/server/delete') {
+      if (sv.official) return fail(res, 400, 'The Mist Lounge can’t be deleted.');
+      if (sv.owner !== user.id && !isAdmin(user)) return fail(res, 403, 'Only the owner can delete this server.');
+      const members = Object.keys(sv.members);
+      sv.channels.forEach(c => delete CC.msgs[c.id]);
+      delete CC.servers[sv.id];
+      await saveDb();
+      ccEmit({ to: members }, { type: 'gone', server: sv.id, deleted: true });
+      return send(res, 200, { ok: true });
+    }
+    if (p === '/api/concord/channel/create') {
+      if (sv.channels.length >= CC_MAX_CHANNELS) return fail(res, 400, 'A server can have up to ' + CC_MAX_CHANNELS + ' channels.');
+      const nm = ccChanName(body.name); if (!nm) return fail(res, 400, 'Give the channel a name.');
+      const c = ccChan(nm, ccCleanName(body.topic, 120), !!body.readOnly);
+      sv.channels.push(c); saveDbSoon(); emitServer(sv);
+      return send(res, 200, { channel: c.id });
+    }
+    if (p === '/api/concord/channel/edit' || p === '/api/concord/channel/delete') {
+      const c = sv.channels.find(x => x.id === body.channel); if (!c) return fail(res, 404, 'No such channel.');
+      if (p.endsWith('delete')) {
+        if (sv.channels.length <= 1) return fail(res, 400, 'A server needs at least one channel.');
+        sv.channels = sv.channels.filter(x => x !== c); delete CC.msgs[c.id];
+      } else {
+        if (body.name != null) { const nm = ccChanName(body.name); if (nm) c.name = nm; }
+        if (body.topic != null) c.topic = ccCleanName(body.topic, 120);
+        if (body.readOnly != null) c.readOnly = !!body.readOnly;
+      }
+      saveDbSoon(); emitServer(sv);
+      return send(res, 200, { ok: true });
+    }
+    if (p === '/api/concord/kick' || p === '/api/concord/ban' || p === '/api/concord/role') {
+      const t = userByName(body.name);
+      if (!t || !sv.members[t.id]) return fail(res, 404, 'They aren’t in this server.');
+      if (t.id === sv.owner || (isAdmin(t) && !isAdmin(user))) return fail(res, 403, 'You can’t do that to them.');
+      if (p === '/api/concord/role') {
+        if (sv.owner !== user.id && !isAdmin(user)) return fail(res, 403, 'Only the owner can change roles.');
+        sv.members[t.id].role = body.role === 'admin' ? 'admin' : 'member';
+      } else {
+        if (sv.members[t.id].role === 'admin' && sv.owner !== user.id && !isAdmin(user)) return fail(res, 403, 'Only the owner can remove an admin.');
+        delete sv.members[t.id];
+        if (p.endsWith('ban')) { sv.bans = sv.bans || {}; sv.bans[t.id] = { by: user.id, at: Date.now() }; }
+        if (sv.official) CC.left[t.id] = Date.now();
+        ccEmit({ to: [t.id] }, { type: 'gone', server: sv.id, kicked: true });
+      }
+      await saveDb(); emitServer(sv);
+      return send(res, 200, { ok: true });
+    }
+    return fail(res, 404, 'Not found.');
+  }
 
   // Mist PC Connect: calls from Mist (the viewer)
   if (p.startsWith('/api/pc/')) {
@@ -2445,17 +2731,18 @@ async function handle(req, res) {
     if (!other) return fail(res, 404, 'No player with that name.');
     if (other.id === user.id) return fail(res, 400, 'That’s you!');
     const me = soc(user.id), them = soc(other.id);
+    const ping = () => ccEmit({ to: [user.id, other.id] }, { type: 'social' });   // Concord refreshes friends at once
     if (action === 'request') {
       if (me.friends.includes(other.id)) return fail(res, 409, 'You’re already friends.');
       if (me.incoming.includes(other.id)) { // they already asked: accept
         pull(me.incoming, other.id); pull(them.outgoing, user.id);
-        me.friends.push(other.id); them.friends.push(user.id); checkAch(user.id); checkAch(other.id); await saveDb();
+        me.friends.push(other.id); them.friends.push(user.id); checkAch(user.id); checkAch(other.id); await saveDb(); ping();
         return send(res, 200, { ok: true, accepted: true });
       }
       if (me.outgoing.includes(other.id)) return fail(res, 409, 'Request already sent.');
       if (me.friends.length >= MAX_FRIENDS) return fail(res, 400, 'Friend list is full.');
       if (them.incoming.length >= 100) return fail(res, 400, 'They have too many pending requests.');
-      me.outgoing.push(other.id); them.incoming.push(user.id); await saveDb();
+      me.outgoing.push(other.id); them.incoming.push(user.id); await saveDb(); ping();
       return send(res, 200, { ok: true });
     }
     if (action === 'accept') {
@@ -2464,13 +2751,13 @@ async function handle(req, res) {
       if (!me.friends.includes(other.id)) me.friends.push(other.id);
       if (!them.friends.includes(user.id)) them.friends.push(user.id);
       checkAch(user.id); checkAch(other.id);
-      await saveDb(); return send(res, 200, { ok: true });
+      await saveDb(); ping(); return send(res, 200, { ok: true });
     }
     if (action === 'decline' || action === 'cancel' || action === 'remove') {
       pull(me.incoming, other.id); pull(them.outgoing, user.id);
       pull(me.outgoing, other.id); pull(them.incoming, user.id);
       if (action === 'remove') { pull(me.friends, other.id); pull(them.friends, user.id); }
-      await saveDb(); return send(res, 200, { ok: true });
+      await saveDb(); ping(); return send(res, 200, { ok: true });
     }
     return fail(res, 404, 'Not found.');
   }
@@ -2654,6 +2941,8 @@ async function handle(req, res) {
       db.reads[user.id] = db.reads[user.id] || {}; db.reads[user.id][other.id] = msg.id;
       stats(user.id).msgs++; checkAch(user.id);
       await saveDb();
+      ccEmit({ to: [other.id] }, { type: 'dm', with: user.name, message: { id: msg.id, from: user.name, mine: false, text, at: msg.at } });
+      ccEmit({ to: [user.id] }, { type: 'dm', with: other.name, message: { id: msg.id, from: user.name, mine: true, text, at: msg.at } });
       return send(res, 200, { message: { id: msg.id, from: user.name, mine: true, text, at: msg.at } });
     }
   }

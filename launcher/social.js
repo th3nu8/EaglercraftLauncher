@@ -179,11 +179,12 @@ window.MistSocial = function (ctx) {
       seenIncoming = d.incoming.slice();
       d.friends.forEach(function (f) {
         var was = lastUnread[f.name] || 0;
-        if (f.unread > was && !(chat && chat.name === f.name)) toast('New message from ' + f.name);
+        if (f.unread > was && !(chat && chat.name === f.name) && !ctx.openChat) toast('New message from ' + f.name);
         lastUnread[f.name] = f.unread;
       });
       handleUnlocks(d);
       data = d; render();
+      if (ctx.onData) ctx.onData(d);
     }).catch(function () {});
   }
   function schedule() {
@@ -867,6 +868,7 @@ window.MistSocial = function (ctx) {
   /* ---------- chat ---------- */
   function friend(name) { if (!data) return null; for (var i = 0; i < data.friends.length; i++) if (data.friends[i].name === name) return data.friends[i]; return null; }
   function openChat(name) {
+    if (ctx.openChat) return ctx.openChat(name);    // the Mist desktop: DMs live in Concord
     if (chat && chat.name === name) { $('#chatWin input') && $('#chatWin input').focus(); return; }
     closeChat();
     chat = { name: name, lastId: 0, timer: null };
@@ -1413,6 +1415,6 @@ window.MistSocial = function (ctx) {
     openSupport: openSupport, maybeAskSupport: maybeAskSupport, renderSocial: renderSocial, openThread: openThread,
     start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
-    data: function () { return data; }
+    data: function () { return data; }, mergeLooks: mergeLooks
   };
 };
