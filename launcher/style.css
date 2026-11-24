@@ -811,3 +811,7 @@ body.pc-on .mb-strip,body.pc-on .mb-view,body.pc-on .friends,body.pc-on .chatwin
 .pcv-end:hover{background:#5a2620}
 .pcv-hint{position:absolute;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;max-width:80vw;padding:9px 16px;border-radius:6px;background:rgba(23,26,33,.92);color:#c7d5e0;font-size:13px;pointer-events:none;transition:opacity .25s,transform .25s;text-align:center}
 .pcv-hint.on{opacity:1;transform:translate(-50%,0)}
+/* rank headings when achievements are sorted by rarity */
+.ach-rankh{margin:16px 0 6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c6d0d8}
+.ach-rankh:first-child{margin-top:4px}
+.ach-rankh.r-rare{color:#7cc0ff}.ach-rankh.r-epic{color:#cfa7ff}.ach-rankh.r-legendary{color:#ffd54f}.ach-rankh.r-supporter{color:#ffe08a}.ach-rankh.r-impossible{color:#ffb3d1}

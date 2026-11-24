@@ -375,19 +375,15 @@ window.MistSocial = function (ctx) {
     return el('span', 'rank r-' + rank, rank.charAt(0).toUpperCase() + rank.slice(1) + ' · ' + RANK_XP[rank].toLocaleString() + ' XP');
   }
   /* One list per game: its own achievements first, then the playtime ones. */
-  // rarity: the share of players who have it (lower = rarer); without that, the rank (legendary is rarer than common)
-  function rarCmp(a, b) {
-    var ra = a.rarity, rb = b.rarity;
-    if (ra !== undefined && ra !== null && rb !== undefined && rb !== null && ra !== rb) return ra - rb;
-    return (RANK_XP[b.rank] || 100) - (RANK_XP[a.rank] || 100);
-  }
+  // rarity = the achievement's rank: common < rare < epic < legendary (< supporter < impossible)
+  function rarCmp(a, b) { return (RANK_XP[b.rank] || 100) - (RANK_XP[a.rank] || 100); }
   function rarSorted(list) {
     var m = achView.rsort; if (m !== 'rare' && m !== 'common') return list;
     return list.slice().sort(function (a, b) { return m === 'rare' ? rarCmp(a, b) : rarCmp(b, a); });
   }
   function raritySelect(onChange) {
     var sel = el('select', 'vselect'); sel.title = 'Sort achievements';
-    [['default', 'Default order'], ['rare', 'Rarest first'], ['common', 'Most common first']].forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; sel.appendChild(op); });
+    [['default', 'Default order'], ['rare', 'Legendary → Common'], ['common', 'Common → Legendary']].forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; sel.appendChild(op); });
     sel.value = achView.rsort || 'default';
     sel.onchange = function () { achView.rsort = sel.value; onChange(); };
     return sel;
@@ -638,7 +634,10 @@ window.MistSocial = function (ctx) {
       var gt = el('div', 'ach-tools'); gt.appendChild(el('small', 'psec-sub', 'Sort by'));
       gt.appendChild(raritySelect(function () { host.textContent = ''; buildAchPage(host, pr); })); host.appendChild(gt);
       var list = el('div', 'plist');
+      var lastRank = null, sorted = achView.rsort === 'rare' || achView.rsort === 'common';
       rarSorted(general).forEach(function (a) {
+        var rk = RANK_XP[a.rank] ? a.rank : 'common';
+        if (sorted && rk !== lastRank) { lastRank = rk; list.appendChild(el('h4', 'ach-rankh r-' + rk, rk.charAt(0).toUpperCase() + rk.slice(1))); }
         var row = el('div', 'pach' + (a.unlocked ? ' got' : ''));
         row.appendChild(el('span', 'ach-ico', a.icon));
         var tx = el('div', 'pach-tx'); tx.appendChild(el('b', null, a.name)); tx.appendChild(el('span', null, a.desc));
@@ -659,9 +658,9 @@ window.MistSocial = function (ctx) {
     var bar2 = el('div', 'ach-tools');
     var q = el('input', 'store-search'); q.placeholder = 'search games'; q.value = achView.q;
     var sortSel = el('select', 'vselect');
-    [['progress', 'Most unlocked'], ['name', 'A–Z'], ['rarest', 'Rarest unlocked']].forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; sortSel.appendChild(op); });
+    [['progress', 'Most unlocked'], ['name', 'A–Z']].forEach(function (o) { var op = el('option', null, o[1]); op.value = o[0]; sortSel.appendChild(op); });
     sortSel.value = achView.sort || 'progress';
-    var rsel = raritySelect(function () { draw(); }); rsel.title = 'Order of achievements inside each game';
+    var rsel = raritySelect(function () { draw(); }); rsel.title = 'Order of achievements inside each game, by rarity';
     bar2.appendChild(q); bar2.appendChild(sortSel); bar2.appendChild(rsel);
     bar2.appendChild(el('small', 'psec-sub', 'Every game: 🌱 5m · 🎈 15m · 🎯 30m · 🪝 1h · 🎮 2h · 💪 5h · 🛡️ 10h'));
     host.appendChild(bar2);
@@ -675,13 +674,7 @@ window.MistSocial = function (ctx) {
         var got = p ? p.tiers.filter(function (t) { return t.unlocked; }).length + (p.special || []).filter(function (t) { return t.unlocked; }).length : 0;
         return { name: n, p: p, got: got, total: perGame(n), sec: p ? p.seconds : 0, hooked: !!hookDefs[n] };
       });
-      if (achView.sort === 'rarest') rows.forEach(function (r) {   // the rarest thing you've unlocked in each game
-        var got = r.p ? r.p.tiers.concat(r.p.special || []).filter(function (t) { return t.unlocked; }) : [];
-        r.best = got.length ? got.sort(rarCmp)[0] : null;
-      });
-      rows.sort(achView.sort === 'name' ? function (a, b) { return a.name.localeCompare(b.name); }
-        : achView.sort === 'rarest' ? function (a, b) { return !a.best - !b.best || (a.best && b.best ? rarCmp(a.best, b.best) : 0) || a.name.localeCompare(b.name); }
-        : function (a, b) { return b.got - a.got || b.sec - a.sec || a.name.localeCompare(b.name); });
+      rows.sort(achView.sort === 'name' ? function (a, b) { return a.name.localeCompare(b.name); } : function (a, b) { return b.got - a.got || b.sec - a.sec || a.name.localeCompare(b.name); });
       rows.slice(0, achView.shown).forEach(function (r) {
         var card = el('div', 'pgame expandable');
         var ico = el('div', 'pgame-ico small'); var gg = ctx.gameByName(r.name); if (gg) ctx.artInto(ico, gg, 'capsule', false); card.appendChild(ico);
@@ -692,7 +685,6 @@ window.MistSocial = function (ctx) {
         var tiers = el('div', 'ptiers');
         (r.p ? r.p.tiers : staticTiers(r.name)).forEach(function (t) { var m = el('span', 'ptier' + (t.unlocked ? ' got' : ''), t.icon); m.title = t.name + ': play ' + t.label; tiers.appendChild(m); });
         card.appendChild(tiers);
-        if (achView.sort === 'rarest' && r.best) info.appendChild(el('small', 'pgame-count', 'Rarest: ' + r.best.icon + ' ' + r.best.name + (r.best.rarity !== undefined && r.best.rarity !== null ? ' · ' + (r.best.rarity < 1 ? '<1' : r.best.rarity) + '% of players' : '')));
         var tog = el('span', 'pgame-more', achView.open[r.name] ? '▴' : '▾'); card.appendChild(tog);
         var full = el('div', 'plist pgame-full' + (achView.open[r.name] ? ' open' : ''));
         function fill() {
