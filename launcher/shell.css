@@ -518,3 +518,32 @@ html.mist-logo .brand-ico{background:var(--mist-logo) center/contain no-repeat;b
 .l-side .st-tbar{left:0;right:auto;top:7%;bottom:0;width:9%;height:auto}
 .l-side .st-tw,.l-dock .st-tw{top:22%}
 .l-mbar .st-ttop{background:#ddd;border-bottom:1px solid #000}
+
+/* Concord images and GIFs */
+.cc-attb{flex:none;width:30px;height:30px;margin:2px 4px 2px -6px;border-radius:50%;background:var(--win-muted);color:var(--cc-in);font:700 20px/28px system-ui;opacity:.8}
+.cc-attb:hover{opacity:1}
+.cc-attb:disabled{opacity:.3}
+.cc-atts{display:none;gap:8px;flex-wrap:wrap;padding:10px 12px 8px;border-radius:8px 8px 0 0;background:var(--cc-in);border-bottom:1px solid var(--sh-line)}
+.cc-atts.on{display:flex}
+.cc-atts.on+.cc-crow{border-radius:0 0 8px 8px}
+.cc-cstate.on+.cc-atts.on{border-radius:0}
+.cc-pend{position:relative;width:112px;height:112px;border-radius:8px;overflow:hidden;background:var(--cc-side)}
+.cc-pend img{width:100%;height:100%;object-fit:cover;display:block}
+.cc-pend small{position:absolute;left:0;right:0;bottom:0;padding:3px 6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px}
+.cc-pend.err img{opacity:.35}.cc-pend.err small{background:#c42b1c}
+.cc-pend-pg{position:absolute;left:0;bottom:0;height:3px;background:var(--acc);transition:width .2s;z-index:1}
+.cc-pend-x{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:12px}
+.cc-pend-x:hover{background:#c42b1c}
+.cc-att{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px}
+.cc-att-i{position:relative;padding:0;border-radius:8px;overflow:hidden;background:var(--cc-in);line-height:0;cursor:zoom-in;max-width:100%}
+.cc-att-i img{display:block;max-width:min(420px,100%);max-height:320px;width:auto;height:auto;object-fit:contain}
+.cc-att.multi .cc-att-i img{max-width:260px;max-height:220px}
+.cc-gif{position:absolute;left:6px;bottom:6px;padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.6);color:#fff;font:700 10px/16px system-ui}
+.cc-att-gone{padding:10px 12px;border-radius:8px;background:var(--cc-in);color:var(--win-muted);font-size:12.5px}
+.cc-main.drop{box-shadow:inset 0 0 0 3px var(--acc)}
+.cc-main.drop::after{content:"Drop images or GIFs to send";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);padding:16px 24px;border-radius:10px;background:var(--acc);color:var(--acc-text);font-weight:700;pointer-events:none;z-index:5}
+.cc-main{position:relative}
+.cc-lb{position:absolute;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;background:rgba(0,0,0,.85)}
+.cc-lb img{max-width:100%;max-height:calc(100% - 60px);object-fit:contain;border-radius:4px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.cc-lb-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;color:#ddd;font-size:12.5px}
+.cc-lb-bar span{margin-right:6px}

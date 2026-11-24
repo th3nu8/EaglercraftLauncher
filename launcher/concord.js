@@ -30,7 +30,7 @@
       var my = gen;
       return api('GET', '/api/concord/state').then(function (r) {
         if (my !== gen) return;
-        S.servers = r.servers; S.cursor = r.cursor; S.me = r.me; S.admin = r.admin;
+        S.servers = r.servers; S.cursor = r.cursor; S.me = r.me; S.admin = r.admin; S.uploads = r.uploads || null;
         reads = o.storeGet(rkey(), {}) || {};
         // first time: everything already there counts as read
         S.servers.forEach(function (sv) { sv.channels.forEach(function (c) { if (reads[c.id] == null) reads[c.id] = c.last; }); });
@@ -76,7 +76,7 @@
         if (shown && box && box.loaded) appendMsg(ev.message);
         drawSide();
         drawRail();
-        if (!mine && !here) alert(ev.message.from + (sv ? ' in #' + (c ? c.name : '') + ' · ' + sv.name : ''), ev.message.text, mention, function () { openServer(ev.server, ev.channel); });
+        if (!mine && !here) alert(ev.message.from + (sv ? ' in #' + (c ? c.name : '') + ' · ' + sv.name : ''), preview(ev.message), mention, function () { openServer(ev.server, ev.channel); });
         badge();
       } else if (ev.type === 'edit' || ev.type === 'del') {
         var b = cache[ev.channel]; if (!b) return;
@@ -104,7 +104,7 @@
         var hereDm = view.kind === 'home' && view.dm && view.dm.toLowerCase() === ev.with.toLowerCase() && front();
         var shownDm = !!ui && view.kind === 'home' && view.dm && view.dm.toLowerCase() === ev.with.toLowerCase();
         if (shownDm && bx && bx.loaded) appendMsg(ev.message);
-        if (!hereDm && !ev.message.mine) { unreadDm[ev.with.toLowerCase()] = (unreadDm[ev.with.toLowerCase()] || 0) + 1; alert(ev.with, ev.message.text, true, function () { openDm(ev.with); }); }
+        if (!hereDm && !ev.message.mine) { unreadDm[ev.with.toLowerCase()] = (unreadDm[ev.with.toLowerCase()] || 0) + 1; alert(ev.with, preview(ev.message), true, function () { openDm(ev.with); }); }
         if (hereDm || ev.message.mine) markDmRead(ev.with);
         drawSide(); drawRail(); badge();
       }
@@ -147,6 +147,11 @@
       ui.rail = el('nav', 'cc-rail'); ui.side = el('aside', 'cc-side'); ui.main = el('section', 'cc-main'); ui.mem = el('aside', 'cc-mem');
       root.appendChild(ui.rail); root.appendChild(ui.side); root.appendChild(ui.main); root.appendChild(ui.mem);
       ui.modal = el('div', 'cc-modal'); root.appendChild(ui.modal);
+      // drop images anywhere on the chat to attach them
+      var hasFiles = function (e) { var t = e.dataTransfer && e.dataTransfer.types; return t && Array.prototype.indexOf.call(t, 'Files') >= 0; };
+      ui.main.addEventListener('dragover', function (e) { if (hasFiles(e) && ui.input) { e.preventDefault(); ui.main.classList.add('drop'); } });
+      ui.main.addEventListener('dragleave', function (e) { if (!ui.main.contains(e.relatedTarget)) ui.main.classList.remove('drop'); });
+      ui.main.addEventListener('drop', function (e) { ui.main.classList.remove('drop'); if (hasFiles(e) && ui.input) { e.preventDefault(); addFiles(e.dataTransfer.files); } });
       win.body.appendChild(root);
       ui.root = root;
       if (!S.me) load(); else draw();
@@ -347,6 +352,114 @@
       if (d.toDateString() === y.toDateString()) return 'Yesterday at ' + hm;
       return d.toLocaleDateString() + ' ' + hm;
     }
+    function preview(m) { return m.text || (m.att && m.att.length ? (m.att.some(function (a) { return a.type === 'image/gif'; }) ? '🎞️ GIF' : '🖼️ Image') : ''); }
+    function fmtSize(n) { return n >= 1048576 ? (n / 1048576).toFixed(n >= 10485760 ? 0 : 1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+    var fileBase = function () { var e = eng(); return e ? e.server : ''; };
+    // images and GIFs in a message; click one to see it full size
+    function attEl(list) {
+      var box = el('div', 'cc-att' + (list.length > 1 ? ' multi' : ''));
+      list.forEach(function (a) {
+        if (a.expired || !a.url) { box.appendChild(el('div', 'cc-att-gone', '🖼️ Image expired · images are kept for ' + ((S.uploads && S.uploads.days) || 7) + ' days')); return; }
+        var fig = el('button', 'cc-att-i'); fig.title = (a.name || 'Image') + ' · ' + fmtSize(a.size || 0);
+        var img = el('img'); img.alt = a.name || ''; img.loading = 'lazy'; img.decoding = 'async'; img.draggable = false;
+        if (a.w && a.h) { var sc = Math.min(1, (list.length > 1 ? 260 : 420) / a.w, (list.length > 1 ? 220 : 320) / a.h); img.width = Math.max(40, Math.round(a.w * sc)); img.height = Math.max(40, Math.round(a.h * sc)); }
+        img.onload = function () { if (ui && ui.list && ui.list.scrollHeight - ui.list.scrollTop - ui.list.clientHeight < 400) ui.list.scrollTop = ui.list.scrollHeight; };
+        img.onerror = function () { fig.replaceWith(el('div', 'cc-att-gone', '🖼️ Image expired')); };
+        img.src = fileBase() + a.url;
+        if (a.type === 'image/gif') fig.appendChild(el('span', 'cc-gif', 'GIF'));
+        fig.appendChild(img); fig.onclick = function () { lightbox(a); };
+        box.appendChild(fig);
+      });
+      return box;
+    }
+    function lightbox(a) {
+      if (!ui) return;
+      var url = fileBase() + a.url, lb = el('div', 'cc-lb'), big = el('img'); big.src = url; big.alt = a.name || '';
+      var bar = el('div', 'cc-lb-bar');
+      bar.appendChild(el('span', null, (a.name || 'Image') + ' · ' + fmtSize(a.size || 0) + (a.w ? ' · ' + a.w + '×' + a.h : '') + (a.expires ? ' · kept until ' + new Date(a.expires).toLocaleDateString() : '')));
+      var op = el('button', 'cc-btn', 'Open original'); op.onclick = function (e) { e.stopPropagation(); try { window.open(url, '_blank'); } catch (er) {} };
+      var cl = el('button', 'cc-btn', 'Copy link'); cl.onclick = function (e) { e.stopPropagation(); copy(url); };
+      var x = el('button', 'cc-btn', 'Close'); bar.appendChild(op); bar.appendChild(cl); bar.appendChild(x);
+      lb.appendChild(big); lb.appendChild(bar);
+      function close() { lb.remove(); document.removeEventListener('keydown', key, true); }
+      function key(e) { if (e.key === 'Escape') { e.stopPropagation(); close(); } }
+      lb.onclick = function (e) { if (e.target === lb || e.target === x) close(); };
+      document.addEventListener('keydown', key, true);
+      ui.root.appendChild(lb);
+    }
+
+    /* ---------- attaching: + button, paste, or drop onto the chat ---------- */
+    var pending = [];   // { file, name, type, size, thumb, pct, id, att, err, xhr }
+    function limits() { return S.uploads || { image: 8 * 1048576, gif: 10 * 1048576, count: 4, days: 7 }; }
+    var OK_TYPES = { 'image/png': 1, 'image/jpeg': 1, 'image/gif': 1, 'image/webp': 1 };
+    // big photos are scaled down (max 2560px) and re-encoded so they fit; GIFs are sent as they are
+    function shrink(file, max) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(file), im = new Image();
+        im.onload = function () {
+          var w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, 2560 / Math.max(w, h));
+          if (file.size <= max && k === 1) { URL.revokeObjectURL(url); return resolve(file); }
+          var cv = document.createElement('canvas'), tries = [[k, 0.88], [k, 0.75], [k * 0.75, 0.75], [k * 0.5, 0.7]], i = 0;
+          (function next() {
+            if (i >= tries.length) { URL.revokeObjectURL(url); return reject(new Error('That image is too big, even after shrinking it.')); }
+            var t = tries[i++]; cv.width = Math.max(1, Math.round(w * t[0])); cv.height = Math.max(1, Math.round(h * t[0]));
+            var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; if (file.type === 'image/jpeg') cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+            cv.toBlob(function (b) {
+              if (b && b.size <= max) { URL.revokeObjectURL(url); b.name = (file.name || 'image').replace(/\.\w+$/, '') + '.webp'; return resolve(b); }
+              next();
+            }, 'image/webp', t[1]);
+          })();
+        };
+        im.onerror = function () { URL.revokeObjectURL(url); reject(new Error('That file isn’t an image Concord can read.')); };
+        im.src = url;
+      });
+    }
+    function addFiles(files) {
+      if (!ui || !ui.input || ui.input.disabled) return;
+      if (editing) { toast('Finish editing first'); return; }
+      var L = limits();
+      Array.prototype.slice.call(files || []).forEach(function (f) {
+        if (!OK_TYPES[f.type]) { toast('Only PNG, JPEG, GIF and WebP images can be sent'); return; }
+        if (pending.length >= L.count) { toast('Up to ' + L.count + ' images per message'); return; }
+        if (f.type === 'image/gif' && f.size > L.gif) { toast('GIFs can be up to ' + fmtSize(L.gif) + ' (this one is ' + fmtSize(f.size) + ')'); return; }
+        var it = { name: f.name || 'image', type: f.type, size: f.size, thumb: URL.createObjectURL(f), pct: 0 };
+        pending.push(it); drawPending();
+        (f.type === 'image/gif' ? Promise.resolve(f) : shrink(f, L.image)).then(function (blob) { if (pending.indexOf(it) >= 0) upload(it, blob); },
+          function (e) { remove(it); toast(e.message); });
+      });
+    }
+    function upload(it, blob) {
+      var e = eng(); if (!e) return;
+      var x = new XMLHttpRequest(); it.xhr = x; it.size = blob.size;
+      x.open('POST', e.server + '/api/concord/upload?name=' + encodeURIComponent(blob.name || it.name));
+      x.setRequestHeader('Authorization', 'Bearer ' + e.token);
+      x.setRequestHeader('Content-Type', blob.type || it.type);
+      x.upload.onprogress = function (ev) { if (ev.lengthComputable) { it.pct = Math.round(100 * ev.loaded / ev.total); drawPending(); } };
+      x.onload = function () {
+        var r = null; try { r = JSON.parse(x.responseText); } catch (er) {}
+        if (x.status === 200 && r && r.upload) { it.id = r.upload.id; it.att = r.upload; it.pct = 100; }
+        else { it.err = (r && (r.error || r.message)) || (x.status === 413 ? 'That file is too big.' : 'Upload failed.'); toast(it.err); }
+        it.xhr = null; drawPending();
+      };
+      x.onerror = function () { it.err = 'Upload failed.'; it.xhr = null; drawPending(); toast('Upload failed'); };
+      x.send(blob);
+    }
+    function remove(it) { var i = pending.indexOf(it); if (i < 0) return; pending.splice(i, 1); if (it.xhr) it.xhr.abort(); try { URL.revokeObjectURL(it.thumb); } catch (e) {} drawPending(); }
+    function clearPending() { pending.slice().forEach(remove); }
+    function drawPending() {
+      if (!ui || !ui.atts) return;
+      ui.atts.textContent = ''; ui.atts.classList.toggle('on', pending.length > 0);
+      pending.forEach(function (it) {
+        var t = el('div', 'cc-pend' + (it.err ? ' err' : it.id ? ' ok' : ''));
+        var im = el('img'); im.src = it.thumb; im.alt = ''; t.appendChild(im);
+        if (!it.id && !it.err) { var pg = el('i', 'cc-pend-pg'); pg.style.width = it.pct + '%'; t.appendChild(pg); }
+        t.appendChild(el('small', null, it.err ? 'Failed' : it.id ? fmtSize(it.size) : it.pct ? it.pct + '%' : 'Preparing…'));
+        var x = el('button', 'cc-pend-x', '✕'); x.title = 'Remove'; x.onclick = function () { remove(it); }; t.appendChild(x);
+        ui.atts.appendChild(t);
+      });
+      var L = limits(); ui.atts.title = 'Images up to ' + fmtSize(L.image) + ', GIFs up to ' + fmtSize(L.gif) + '. Kept for ' + L.days + ' days.';
+    }
+
     function msgEl(m) {
       var prev = ui.list.lastElementChild;
       var grouped = prev && prev.dataset && prev.dataset.from === m.from && m.at - (+prev.dataset.at) < 7 * 60e3 && !m.reply;
@@ -360,14 +473,15 @@
         var h = el('div', 'cc-mh'); var nm = el('b', null, m.from); nm.onclick = function () { if (o.showProfile) o.showProfile(m.from); }; h.appendChild(nm);
         h.appendChild(el('small', null, fmtTime(m.at))); r.appendChild(h);
       } else r.appendChild(el('small', 'cc-gt', new Date(m.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })));
-      var body = el('div', 'cc-mt'); rich(body, m.text);
+      var body = el('div', 'cc-mt'); rich(body, m.text || '');
       if (m.edited) body.appendChild(el('small', 'cc-ed', ' (edited)'));
-      r.appendChild(body);
+      if (m.text || m.edited) r.appendChild(body);
+      if (m.att && m.att.length) r.appendChild(attEl(m.att));
       // actions
       var acts = el('div', 'cc-acts');
       var dm = curKey() && curKey().indexOf('dm:') === 0;
       if (!dm) { var rb = el('button', null, '↩'); rb.title = 'Reply'; rb.onclick = function () { replyTo = m; drawComposerState(); ui.input.focus(); }; acts.appendChild(rb); }
-      var cp = el('button', null, '⧉'); cp.title = 'Copy text'; cp.onclick = function () { copy(m.text); }; acts.appendChild(cp);
+      if (m.text) { var cp = el('button', null, '⧉'); cp.title = 'Copy text'; cp.onclick = function () { copy(m.text); }; acts.appendChild(cp); }
       var sv = server(view.server);
       if (!dm && m.from === S.me) { var eb = el('button', null, '✎'); eb.title = 'Edit'; eb.onclick = function () { editing = m; ui.input.value = m.text; drawComposerState(); ui.input.focus(); }; acts.appendChild(eb); }
       if (!dm && (m.from === S.me || (sv && sv.manage))) { var db = el('button', null, '🗑'); db.title = 'Delete'; db.onclick = function () { if (confirm('Delete this message?')) api('POST', '/api/concord/delete', { channel: view.channel, id: m.id }).catch(function (e) { toast(e.message); }); }; acts.appendChild(db); }
@@ -397,13 +511,22 @@
     function composer(key) {
       var wrap = el('div', 'cc-comp');
       ui.state = el('div', 'cc-cstate'); wrap.appendChild(ui.state);
+      ui.atts = el('div', 'cc-atts'); wrap.appendChild(ui.atts);
       var row = el('div', 'cc-crow');
+      var pick = el('input'); pick.type = 'file'; pick.accept = 'image/png,image/jpeg,image/gif,image/webp'; pick.multiple = true; pick.style.display = 'none';
+      pick.onchange = function () { addFiles(pick.files); pick.value = ''; };
+      var plus = el('button', 'cc-attb', '+'); plus.title = 'Add images or GIFs (or paste / drop them here)'; plus.onclick = function () { pick.click(); };
+      row.appendChild(plus); row.appendChild(pick);
       var ta = el('textarea', 'cc-in'); ta.rows = 1; ta.maxLength = 2000; ta.spellcheck = true;
       var ro = false;
       if (view.kind === 'server') { var c = chan(server(view.server), view.channel), sv = server(view.server); ta.placeholder = 'Message #' + (c ? c.name : ''); ro = c && c.readOnly && !(sv && sv.manage); }
       else ta.placeholder = 'Message @' + view.dm;
-      if (ro) { ta.disabled = true; ta.placeholder = 'Only admins can post in this channel.'; }
+      if (ro) { ta.disabled = true; ta.placeholder = 'Only admins can post in this channel.'; plus.disabled = true; }
       ui.input = ta;
+      ta.addEventListener('paste', function (e) {
+        var fs = e.clipboardData && e.clipboardData.files;
+        if (fs && fs.length) { e.preventDefault(); addFiles(fs); }
+      });
       var lastTyping = 0;
       ta.oninput = function () {
         ta.style.height = 'auto'; ta.style.height = Math.min(200, ta.scrollHeight) + 'px';
@@ -420,6 +543,7 @@
       row.appendChild(ta);
       var send = el('button', 'cc-send', '➤'); send.title = 'Send'; send.onclick = sendNow; if (ro) send.disabled = true; row.appendChild(send);
       wrap.appendChild(row);
+      clearPending(); drawPending();
       drawComposerState();
       setTimeout(function () { if (!ro && front()) ta.focus(); }, 40);
       return wrap;
@@ -433,7 +557,10 @@
       var x = el('button', null, '✕'); x.onclick = function () { if (editing) ui.input.value = ''; replyTo = null; editing = null; drawComposerState(); }; ui.state.appendChild(x);
     }
     function sendNow() {
-      var ta = ui.input, text = ta.value; if (!text.trim() || ta.disabled) return;
+      var ta = ui.input, text = ta.value; if (ta.disabled) return;
+      if (!editing && pending.some(function (it) { return !it.id && !it.err; })) { toast('Still uploading…'); return; }
+      var ready = editing ? [] : pending.filter(function (it) { return it.id; }), att = ready.map(function (it) { return it.id; });
+      if (!text.trim() && !att.length) return;
       if (editing) {
         var e0 = editing; editing = null; ta.value = ''; drawComposerState();
         api('POST', '/api/concord/edit', { channel: view.channel, id: e0.id, text: text }).catch(function (e) { toast(e.message); });
@@ -442,14 +569,17 @@
       ta.value = ''; ta.style.height = 'auto';
       if (view.kind === 'server') {
         var rp = replyTo; replyTo = null; drawComposerState();
-        api('POST', '/api/concord/send', { channel: view.channel, text: text, reply: rp ? rp.id : null }).then(function (r) {
+        var sentAtt = ready; ready.forEach(function (it) { pending.splice(pending.indexOf(it), 1); }); drawPending();
+        var back = function () { sentAtt.forEach(function (it) { pending.push(it); }); drawPending(); };
+        api('POST', '/api/concord/send', { channel: view.channel, text: text, reply: rp ? rp.id : null, att: att }).then(function (r) {
+          sentAtt.forEach(function (it) { try { URL.revokeObjectURL(it.thumb); } catch (e) {} });
           var box = cache[view.channel]; if (box && !box.list.some(function (m) { return m.id === r.message.id; })) { box.list.push(r.message); appendMsg(r.message); }
-        }, function (e) { toast(e.message); ta.value = text; });
+        }, function (e) { toast(e.message); ta.value = text; back(); });
       } else {
-        var who = view.dm;
-        api('POST', '/api/messages', { to: who, text: text }).then(function (r) {
+        var who = view.dm, sentD = ready; ready.forEach(function (it) { pending.splice(pending.indexOf(it), 1); }); drawPending();
+        api('POST', '/api/messages', { to: who, text: text, att: att }).then(function (r) {
           var box = cache['dm:' + who.toLowerCase()]; if (box && !box.list.some(function (m) { return m.id === r.message.id; })) { box.list.push(r.message); if (view.dm === who) appendMsg(r.message); }
-        }, function (e) { toast(e.message); ta.value = text; });
+        }, function (e) { toast(e.message); ta.value = text; sentD.forEach(function (it) { pending.push(it); }); drawPending(); });
       }
     }
     function drawTyping() {

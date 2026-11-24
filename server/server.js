@@ -2005,9 +2005,88 @@ function ccFindChannel(cid) {
   for (const sv of Object.values(CC.servers)) { const c = sv.channels.find(x => x.id === cid); if (c) return { sv, c }; }
   return null;
 }
+/* ---------------- Concord uploads: images and GIFs ----------------
+   Files live in DATA_DIR/uploads under a random name and are deleted after UPLOAD_DAYS (7) days to
+   save space; the messages stay and show "image expired". Uploads never sent are removed after an hour. */
+const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
+const UPLOAD_DAYS = Math.max(1, +process.env.UPLOAD_DAYS || 7);
+const UPLOAD_LIMITS = {   // bytes
+  image: +process.env.UPLOAD_MAX_IMAGE || 8 * 1048576, gif: +process.env.UPLOAD_MAX_GIF || 10 * 1048576,
+  imageSupporter: +process.env.UPLOAD_MAX_IMAGE_SUPPORTER || 20 * 1048576, gifSupporter: +process.env.UPLOAD_MAX_GIF_SUPPORTER || 25 * 1048576
+};
+const UPLOAD_TOTAL_MAX = (+process.env.UPLOAD_TOTAL_GB || 5) * 1073741824;   // oldest files go first past this
+const MAX_ATTACH = 4;
+db.uploads = db.uploads || {};   // id -> { uid, ext, type, size, w, h, name, at, used }
+try { fs.mkdirSync(UPLOAD_DIR, { recursive: true }); } catch (e) {}
+function uploadLimits(uid) { const s = isSupporter(uid); return { image: s ? UPLOAD_LIMITS.imageSupporter : UPLOAD_LIMITS.image, gif: s ? UPLOAD_LIMITS.gifSupporter : UPLOAD_LIMITS.gif, count: MAX_ATTACH, days: UPLOAD_DAYS }; }
+function sniffImage(b) {   // trust the bytes, not the browser's content type
+  if (b.length > 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return { ext: 'png', type: 'image/png', w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+  if (b.length > 10 && b.toString('latin1', 0, 4) === 'GIF8') return { ext: 'gif', type: 'image/gif', w: b.readUInt16LE(6), h: b.readUInt16LE(8) };
+  if (b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) {
+    let w = 0, h = 0;
+    for (let i = 2; i < b.length - 9;) {   // walk the JPEG segments to the frame header
+      if (b[i] !== 0xff) { i++; continue; }
+      const mk = b[i + 1], len = b.readUInt16BE(i + 2);
+      if (mk >= 0xc0 && mk <= 0xcf && mk !== 0xc4 && mk !== 0xc8 && mk !== 0xcc) { h = b.readUInt16BE(i + 5); w = b.readUInt16BE(i + 7); break; }
+      i += 2 + len;
+    }
+    return { ext: 'jpg', type: 'image/jpeg', w, h };
+  }
+  if (b.length > 30 && b.toString('latin1', 0, 4) === 'RIFF' && b.toString('latin1', 8, 12) === 'WEBP') {
+    const k = b.toString('latin1', 12, 16); let w = 0, h = 0;
+    if (k === 'VP8X') { w = 1 + b.readUIntLE(24, 3); h = 1 + b.readUIntLE(27, 3); }
+    else if (k === 'VP8 ') { w = b.readUInt16LE(26) & 0x3fff; h = b.readUInt16LE(28) & 0x3fff; }
+    else if (k === 'VP8L') { const v = b.readUInt32LE(21); w = 1 + (v & 0x3fff); h = 1 + ((v >> 14) & 0x3fff); }
+    return { ext: 'webp', type: 'image/webp', w, h };
+  }
+  return null;
+}
+function readRaw(req, limit) {
+  return new Promise((res, rej) => {
+    let size = 0; const chunks = [];
+    req.on('data', c => { size += c.length; if (size > limit) { const e = new Error('too large'); e.tooLarge = true; rej(e); req.destroy(); } else chunks.push(c); });
+    req.on('end', () => res(Buffer.concat(chunks))); req.on('error', rej);
+  });
+}
+const uploadFile = u => path.join(UPLOAD_DIR, u.id + '.' + u.ext);
+function attView(id) {
+  const u = db.uploads[id];
+  if (!u) return { id, expired: true };
+  return { id, url: '/api/concord/file/' + id + '.' + u.ext, type: u.type, size: u.size, w: u.w || 0, h: u.h || 0, name: u.name || '', expires: u.at + UPLOAD_DAYS * 864e5 };
+}
+// the user's own, not-yet-sent uploads named in a message
+function takeAttachments(uid, list) {
+  if (!Array.isArray(list)) return [];
+  const out = [];
+  for (const id of list.slice(0, MAX_ATTACH)) { const u = db.uploads[String(id)]; if (u && u.uid === uid && !u.used) { u.used = Date.now(); out.push(String(id)); } }
+  return out;
+}
+function deleteUpload(id) { const u = db.uploads[id]; if (!u) return; fs.promises.unlink(uploadFile(Object.assign({ id }, u))).catch(() => {}); delete db.uploads[id]; }
+function cleanUploads() {
+  const now = Date.now(), maxAge = UPLOAD_DAYS * 864e5; let n = 0, total = 0;
+  for (const [id, u] of Object.entries(db.uploads)) {
+    if (now - u.at > maxAge || (!u.used && now - u.at > 3600e3)) { deleteUpload(id); n++; } else total += u.size;
+  }
+  if (total > UPLOAD_TOTAL_MAX) {   // over the disk budget: drop the oldest first
+    for (const [id, u] of Object.entries(db.uploads).sort((a, b) => a[1].at - b[1].at)) { if (total <= UPLOAD_TOTAL_MAX * 0.9) break; total -= u.size; deleteUpload(id); n++; }
+  }
+  // files left behind with no record (e.g. after a crash)
+  fs.promises.readdir(UPLOAD_DIR).then(names => { for (const f of names) { const id = f.split('.')[0]; if (!db.uploads[id]) fs.promises.stat(path.join(UPLOAD_DIR, f)).then(st => { if (now - st.mtimeMs > 3600e3) fs.promises.unlink(path.join(UPLOAD_DIR, f)).catch(() => {}); }).catch(() => {}); } }).catch(() => {});
+  if (n) { console.log('Deleted ' + n + ' old upload(s)'); saveDbSoon(); }
+  return n;
+}
+setInterval(cleanUploads, 3600e3).unref();
+setTimeout(cleanUploads, 20e3).unref();
+const uploadHits = new Map();
+function uploadRateLimited(uid) {   // 30 files / 10 minutes
+  const now = Date.now(), h = (uploadHits.get(uid) || []).filter(t => now - t < 600e3);
+  if (h.length >= 30) { uploadHits.set(uid, h); return true; }
+  h.push(now); uploadHits.set(uid, h); return false;
+}
+
 function ccMsgView(m) {
   const r = m.reply ? (CC_reply(m)) : null;
-  return { id: m.id, from: ccName(m.uid), text: m.text, at: m.at, edited: m.edited || null, reply: r };
+  return { id: m.id, from: ccName(m.uid), text: m.text, at: m.at, edited: m.edited || null, reply: r, att: m.att && m.att.length ? m.att.map(attView) : undefined };
 }
 function CC_reply(m) { return m.reply ? { id: m.reply.id, from: ccName(m.reply.uid), text: m.reply.text } : null; }
 function ccServerView(sv, user) {
@@ -2189,6 +2268,19 @@ async function handle(req, res) {
     return pcWait(h, res, 25000);
   }
 
+  // Concord images/GIFs: public by their unguessable name (so <img> tags work), deleted after a week
+  if (req.method === 'GET' && p.startsWith('/api/concord/file/')) {
+    const m = /^\/api\/concord\/file\/([a-f0-9]{32})\.(png|jpg|gif|webp)$/.exec(p), u = m && db.uploads[m[1]];
+    if (!u || u.ext !== m[2]) return fail(res, 404, 'This image has expired.');
+    const file = path.join(UPLOAD_DIR, m[1] + '.' + u.ext);
+    let st; try { st = fs.statSync(file); } catch (e) { return fail(res, 404, 'This image has expired.'); }
+    const left = Math.max(60, Math.floor((u.at + UPLOAD_DAYS * 864e5 - Date.now()) / 1000));
+    res.writeHead(200, { 'Content-Type': u.type, 'Content-Length': st.size, 'Cache-Control': 'public, max-age=' + left + ', immutable',
+      'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox", 'Access-Control-Allow-Origin': '*', 'Cross-Origin-Resource-Policy': 'cross-origin' });
+    if (req.method === 'HEAD') return res.end();
+    return fs.createReadStream(file).pipe(res);
+  }
+
   const user = authUser(req);
   if (p.startsWith('/api/') && !user) return fail(res, 401, 'Signed out. Please sign in again.');
 
@@ -2213,7 +2305,26 @@ async function handle(req, res) {
     if (lounge && !lounge.members[user.id] && !CC.left[user.id]) { lounge.members[user.id] = { role: 'member', joined: Date.now() }; saveDbSoon(); }
     if (req.method === 'GET' && p === '/api/concord/state') {
       const mine = Object.values(CC.servers).filter(sv => sv.members[user.id]).sort((a, b) => (b.official ? 1 : 0) - (a.official ? 1 : 0) || a.created - b.created);
-      return send(res, 200, { cursor: ccEvSeq, me: user.name, admin: isAdmin(user), servers: mine.map(sv => ccServerView(sv, user)) });
+      return send(res, 200, { cursor: ccEvSeq, me: user.name, admin: isAdmin(user), servers: mine.map(sv => ccServerView(sv, user)), uploads: uploadLimits(user.id) });
+    }
+    // upload one image or GIF (raw bytes); returns an id to attach to the next message
+    if (req.method === 'POST' && p === '/api/concord/upload') {
+      const lim = uploadLimits(user.id), max = Math.max(lim.image, lim.gif);
+      const declared = +req.headers['content-length'] || 0;
+      if (declared > max) { req.resume(); return fail(res, 413, 'That file is too big. Images can be up to ' + Math.round(lim.image / 1048576) + ' MB and GIFs up to ' + Math.round(lim.gif / 1048576) + ' MB' + (isSupporter(user.id) ? '.' : ' (more for supporters).')); }
+      if (uploadRateLimited(user.id)) { req.resume(); return fail(res, 429, 'Too many uploads. Try again in a few minutes.'); }
+      if (storageError) { req.resume(); return fail(res, 503, 'The server can’t save files right now.'); }
+      let buf; try { buf = await readRaw(req, max); } catch (e) { return fail(res, e.tooLarge ? 413 : 400, e.tooLarge ? 'That file is too big.' : 'Upload failed.'); }
+      const info = sniffImage(buf);
+      if (!info) return fail(res, 415, 'Only PNG, JPEG, GIF and WebP images can be uploaded.');
+      const cap = info.ext === 'gif' ? lim.gif : lim.image;
+      if (buf.length > cap) return fail(res, 413, (info.ext === 'gif' ? 'GIFs' : 'Images') + ' can be up to ' + Math.round(cap / 1048576) + ' MB' + (isSupporter(user.id) ? '.' : ' (more for supporters).'));
+      const id = crypto.randomBytes(16).toString('hex');
+      const name = String(q.get('name') || '').replace(/[^\w.\- ()]/g, '').slice(0, 80);
+      const rec = { uid: user.id, ext: info.ext, type: info.type, size: buf.length, w: Math.min(info.w || 0, 20000), h: Math.min(info.h || 0, 20000), name, at: Date.now(), used: 0 };
+      try { await fs.promises.writeFile(path.join(UPLOAD_DIR, id + '.' + info.ext), buf); } catch (e) { return fail(res, 500, 'Couldn’t save the file.'); }
+      db.uploads[id] = rec; saveDbSoon();
+      return send(res, 200, { upload: attView(id) });
     }
     if (req.method === 'GET' && p === '/api/concord/members') {
       const sv = CC.servers[q.get('server')];
@@ -2247,9 +2358,11 @@ async function handle(req, res) {
       if (f.c.readOnly && !ccCanManage(f.sv, user)) return fail(res, 403, 'Only admins can post in #' + f.c.name + '.');
       if (ccRateLimited(user.id, 12, 10e3) || messageRateLimited(user.id)) return fail(res, 429, 'Slow down a little.');
       const text = String(body.text || '').replace(/\s+$/, '').slice(0, 2000);
-      if (!text.trim()) return fail(res, 400, 'Empty message.');
+      const att = takeAttachments(user.id, body.att);
+      if (!text.trim() && !att.length) return fail(res, 400, 'Empty message.');
       const list = CC.msgs[f.c.id] || (CC.msgs[f.c.id] = []);
       const msg = { id: ++CC.seq, uid: user.id, text, at: Date.now() };
+      if (att.length) msg.att = att;
       if (body.reply) { const r = list.find(m => m.id === +body.reply); if (r) msg.reply = { id: r.id, uid: r.uid, text: r.text.slice(0, 140) }; }
       list.push(msg); if (list.length > CC_MAX_MSGS) list.splice(0, list.length - CC_MAX_MSGS);
       stats(user.id).msgs++; checkAch(user.id);
@@ -2267,12 +2380,13 @@ async function handle(req, res) {
       if (p === '/api/concord/edit') {
         if (m.uid !== user.id) return fail(res, 403, 'You can only edit your own messages.');
         const text = String(body.text || '').replace(/\s+$/, '').slice(0, 2000);
-        if (!text.trim()) return fail(res, 400, 'Empty message.');
+        if (!text.trim() && !(m.att && m.att.length)) return fail(res, 400, 'Empty message.');
         m.text = text; m.edited = Date.now();
         ccEmit({ server: f.sv.id }, { type: 'edit', server: f.sv.id, channel: f.c.id, message: ccMsgView(m) });
       } else {
         if (m.uid !== user.id && !ccCanManage(f.sv, user)) return fail(res, 403, 'You can’t delete that.');
         list.splice(i, 1);
+        (m.att || []).forEach(deleteUpload);   // deleting a message deletes its images
         ccEmit({ server: f.sv.id }, { type: 'del', server: f.sv.id, channel: f.c.id, id: m.id });
       }
       saveDbSoon();
@@ -2947,7 +3061,7 @@ async function handle(req, res) {
       const list = (db.messages[pairKey(user.id, other.id)] || []).filter(m => m.id > after).slice(-100);
       const last = list.length ? list[list.length - 1].id : 0;
       if (last) { db.reads[user.id] = db.reads[user.id] || {}; if ((db.reads[user.id][other.id] || 0) < last) { db.reads[user.id][other.id] = last; saveDb(); } }
-      return send(res, 200, { messages: list.map(m => ({ id: m.id, from: m.from === user.id ? user.name : other.name, mine: m.from === user.id, text: m.text, at: m.at })) });
+      return send(res, 200, { messages: list.map(m => ({ id: m.id, from: m.from === user.id ? user.name : other.name, mine: m.from === user.id, text: m.text, at: m.at, att: m.att ? m.att.map(attView) : undefined })) });
     }
     if (req.method === 'POST') {
       if (messageRateLimited(user.id)) return fail(res, 429, 'Slow down a little.');
@@ -2955,16 +3069,19 @@ async function handle(req, res) {
       const other = userByName(body.to);
       if (!other || !soc(user.id).friends.includes(other.id)) return fail(res, 403, 'You can only chat with friends.');
       const text = String(body.text || '').replace(/\s+$/, '').slice(0, 500);
-      if (!text.trim()) return fail(res, 400, 'Empty message.');
+      const att = takeAttachments(user.id, body.att);
+      if (!text.trim() && !att.length) return fail(res, 400, 'Empty message.');
       const key = pairKey(user.id, other.id), list = db.messages[key] || (db.messages[key] = []);
       const msg = { id: ++db.msgSeq, from: user.id, text, at: Date.now() };
+      if (att.length) msg.att = att;
+      const av = att.length ? att.map(attView) : undefined;
       list.push(msg); if (list.length > MAX_MSGS_PER_CHAT) list.splice(0, list.length - MAX_MSGS_PER_CHAT);
       db.reads[user.id] = db.reads[user.id] || {}; db.reads[user.id][other.id] = msg.id;
       stats(user.id).msgs++; checkAch(user.id);
       await saveDb();
-      ccEmit({ to: [other.id] }, { type: 'dm', with: user.name, message: { id: msg.id, from: user.name, mine: false, text, at: msg.at } });
-      ccEmit({ to: [user.id] }, { type: 'dm', with: other.name, message: { id: msg.id, from: user.name, mine: true, text, at: msg.at } });
-      return send(res, 200, { message: { id: msg.id, from: user.name, mine: true, text, at: msg.at } });
+      ccEmit({ to: [other.id] }, { type: 'dm', with: user.name, message: { id: msg.id, from: user.name, mine: false, text, at: msg.at, att: av } });
+      ccEmit({ to: [user.id] }, { type: 'dm', with: other.name, message: { id: msg.id, from: user.name, mine: true, text, at: msg.at, att: av } });
+      return send(res, 200, { message: { id: msg.id, from: user.name, mine: true, text, at: msg.at, att: av } });
     }
   }
 
