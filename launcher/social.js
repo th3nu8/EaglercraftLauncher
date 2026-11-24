@@ -356,7 +356,6 @@ window.MistSocial = function (ctx) {
       ['streak', 'day in a row', 'days in a row'], ['days', 'day active', 'days active'], ['cloud', 'cloud backup', 'cloud backups']];
     if (id === 'welcome') return 'create an account';
     if (id === 'supporter') return 'an active Mist Supporter subscription';
-    if (id === 'caleb-gf') return 'a miracle';
     for (var i = 0; i < units.length; i++) if (id.indexOf(units[i][0]) === 0) return a.goal + ' ' + (a.goal === 1 ? units[i][1] : units[i][2]);
     return String(a.goal);
   }
@@ -372,13 +371,13 @@ window.MistSocial = function (ctx) {
   function extraCount(n) { return genericDefs.length + (hookDefs[n] ? hookDefs[n].length : 0); }
 
   /* Rarity: common / rare / epic / legendary, each worth a set amount of XP. */
-  var RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000, supporter: 2500, impossible: 1000000 };
+  var RANK_XP = { common: 100, rare: 250, epic: 500, legendary: 1000, supporter: 2500 };
   function rankEl(rank) {
     rank = RANK_XP[rank] ? rank : 'common';
     return el('span', 'rank r-' + rank, rank.charAt(0).toUpperCase() + rank.slice(1) + ' · ' + RANK_XP[rank].toLocaleString() + ' XP');
   }
   /* One list per game: its own achievements first, then the playtime ones. */
-  // rarity = the achievement's rank: common < rare < epic < legendary (< supporter < impossible)
+  // rarity = the achievement's rank: common < rare < epic < legendary (< supporter)
   function rarCmp(a, b) { return (RANK_XP[b.rank] || 100) - (RANK_XP[a.rank] || 100); }
   function rarSorted(list) {
     var m = achView.rsort; if (m !== 'rare' && m !== 'common') return list;
