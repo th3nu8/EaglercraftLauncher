@@ -248,6 +248,11 @@ The only apps are:
 | **Gleam** | The web browser: tabs, back/forward, address bar, through the Mist server (see below). |
 | **Settings** | Themes that make Panes look like Windows 1.0, 3.1, 95, 98, Me, 2000, XP, Vista, 7, 8, 10 and 11, Mac OS 9, Mac OS X Aqua, macOS, Ubuntu, GNOME or KDE Plasma (windows, buttons, taskbar or dock, Start, fonts and wallpaper); light/dark mode, accent colour, wallpaper (8 built-in, a solid colour, a gradient, your own photo or an image link), lock screen picture, transparency, animations, corners, size, taskbar position and alignment, auto-hide, clock, pinned apps, desktop icons, notifications, account, plus Mist's game and cloud-save settings. |
 
+Playtime has an AFK check: after 10 minutes with no keyboard, mouse, touch or controller input in a game,
+"Are you still there?" appears and playtime (and playtime achievements) pause until the player is back; friends
+see them as Away. Every 2 hours a "Still playing?" box needs a click within 5 minutes (45 minutes for games
+whose controls are in a frame Panes can't see into), so auto-clickers and mouse jigglers can't farm overnight.
+
 Concord can send images and GIFs (PNG, JPEG, GIF, WebP; up to 4 per message, via the + button, paste or
 drag and drop). Limits: images 8 MB and GIFs 10 MB, 20 MB / 25 MB for supporters; big photos are shrunk
 in the browser to fit. Files are kept for 7 days and then deleted (the message stays and shows "image

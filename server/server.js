@@ -2643,7 +2643,7 @@ async function handle(req, res) {
   if (req.method === 'GET' && p === '/api/social') {
     if (isOwnerId(user.id) ? ensureOwnerFriends() : ensureOwnerFriend(user.id)) saveDbSoon();
     const me = soc(user.id);
-    const order = { ingame: 0, online: 1, offline: 2 };
+    const order = { ingame: 0, online: 1, away: 1.5, offline: 2 };
     const friends = me.friends.map(id => friendView(user.id, id)).filter(Boolean)
       .sort((a, b) => order[a.state] - order[b.state] || (b.state === 'offline' ? b.lastSeen - a.lastSeen : 0) || a.name.localeCompare(b.name));
     const names = ids => ids.map(userById).filter(Boolean).map(u => u.name);
@@ -2835,17 +2835,18 @@ async function handle(req, res) {
     let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, 'Bad request.'); }
     const state = body.state === 'ingame' ? 'ingame' : body.state === 'offline' ? 'offline' : 'online';
     const game = state === 'ingame' ? String(body.game || '').slice(0, 60) : null;
+    const afk = state === 'ingame' && !!body.afk;   // the AFK check: game open but nobody there, so no playtime
     const me = soc(user.id), now = Date.now();
-    if (state === 'offline') presence.delete(user.id); else presence.set(user.id, { state, game, at: now });
+    if (state === 'offline') presence.delete(user.id); else presence.set(user.id, { state: afk ? 'away' : state, game, at: now });
     // playtime: count the time since the previous "playing" ping for the same game (pings come every minute)
     const prev = lastIngame.get(user.id);
     if (state === 'ingame' && game) {
-      if (prev && prev.game === game && now - prev.at < 150e3) {
+      if (prev && prev.game === game && now - prev.at < 150e3 && !afk && !prev.afk) {
         const sec = (now - prev.at) / 1000, st = stats(user.id);
         st.play += sec; st.perGame[game] = (st.perGame[game] || 0) + sec; saveDbSoon();
         checkGameAch(user.id, game);
       }
-      lastIngame.set(user.id, { game, at: now });
+      lastIngame.set(user.id, { game, at: now, afk });
     } else lastIngame.delete(user.id);
     if (state !== 'offline' && markActiveDay(user.id, now)) saveDbSoon();
     if (state !== 'offline') checkAch(user.id);

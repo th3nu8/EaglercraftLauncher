@@ -285,6 +285,7 @@
     if (!g || g.cloudSaves) startAutosave();
     if (social) social.setPlaying(g ? g.name : name);
     startHooks(g);
+    afkStart();
     if (social && g) social.maybeAskSupport();
     gameStart = Date.now();
     hookOverlayKeys();
@@ -352,11 +353,93 @@
     apply(); timer = setTimeout(tick, 300);
   }
 
+  /* ---------- AFK check ----------
+     Playtime (and the achievements that come from it) only counts while someone is there.
+     - No keyboard, mouse, touch or controller input in the game for 10 minutes: "Are you still there?",
+       and playtime pauses until they touch something.
+     - Every 2 hours of play, a "Still playing?" check that needs a click, so auto-clickers and mouse
+       jigglers can't run overnight; no click within 5 minutes and playtime pauses.
+     - Games whose controls are inside a frame Panes can't see into get the click check every 45 minutes instead. */
+  var AFK_IDLE = 10 * 60e3, AFK_EVERY = 2 * 3600e3, AFK_EVERY_BLIND = 45 * 60e3, AFK_GRACE = 5 * 60e3;
+  var afk = { last: 0, on: false, why: '', timer: null, checkAt: 0, checkShown: 0, checkEl: null, ovEl: null, pads: '', blind: false };
+  function afkInput() { afk.last = Date.now(); if (afk.on && afk.why === 'idle') afkSet(false); }
+  function afkHook(w) {
+    try {
+      if (!w || w.__panesAfk) return; w.__panesAfk = 1;
+      ['keydown', 'pointerdown', 'pointermove', 'mousedown', 'mousemove', 'wheel', 'touchstart'].forEach(function (t) { w.addEventListener(t, afkInput, { capture: true, passive: true }); });
+    } catch (e) {}
+  }
+  function afkBlind() {   // is the player's focus in a frame we can't read input from?
+    try {
+      var a = gameFrame.contentDocument.activeElement;
+      while (a && a.tagName === 'IFRAME') { var cd = null; try { cd = a.contentDocument; } catch (e) {} if (!cd) return true; afkHook(a.contentWindow); a = cd.activeElement; }
+    } catch (e) {}
+    return false;
+  }
+  function afkPads() {
+    try {
+      var s = '', ps = navigator.getGamepads ? navigator.getGamepads() : [];
+      for (var i = 0; i < ps.length; i++) if (ps[i]) {
+        ps[i].buttons.forEach(function (b) { s += b.pressed ? 1 : 0; });
+        ps[i].axes.forEach(function (x) { s += Math.round(x * 4); });
+      }
+      if (s !== afk.pads) { var first = afk.pads === ''; afk.pads = s; if (!first) afkInput(); }
+    } catch (e) {}
+  }
+  function afkHost() { return gameWin ? gameWin.body : document.body; }
+  function afkClearUi() { if (afk.checkEl) { afk.checkEl.remove(); afk.checkEl = null; } if (afk.ovEl) { afk.ovEl.remove(); afk.ovEl = null; } }
+  function afkSet(on, why) {
+    var now = Date.now();
+    afk.on = on; afk.why = on ? why : ''; afkClearUi();
+    if (social) social.setAfk(on);
+    if (on) {
+      var ov = el('div', 'afk-ov'), box = el('div', 'afk-box');
+      box.appendChild(el('div', 'afk-z', '💤'));
+      box.appendChild(el('b', null, 'Are you still there?'));
+      box.appendChild(el('p', null, why === 'idle' ? 'No one has touched the game for a while, so playtime and playtime achievements are paused. Move the mouse or press a key to carry on.'
+        : 'Playtime and playtime achievements are paused until you confirm you’re still playing.'));
+      var b = el('button', 'btn green', 'I’m back'); b.onclick = function () { afk.last = Date.now(); afkSet(false); try { gameFrame && gameFrame.focus(); } catch (e) {} };
+      box.appendChild(b); ov.appendChild(box); afkHost().appendChild(ov); afk.ovEl = ov;
+      toast('💤 AFK: playtime paused');
+    } else {
+      afk.last = now; afk.checkAt = now + (afk.blind ? AFK_EVERY_BLIND : AFK_EVERY);
+    }
+  }
+  function afkCheckin() {
+    var c = el('div', 'afk-check'), t = el('span'), b = el('button', 'btn green', 'I’m here');
+    c.appendChild(el('b', null, 'Still playing?')); c.appendChild(t); c.appendChild(b);
+    afk.checkShown = Date.now(); afk.checkEl = c; afkHost().appendChild(c);
+    function tick() { if (afk.checkEl !== c) return; var left = Math.max(0, AFK_GRACE - (Date.now() - afk.checkShown)); t.textContent = 'Playtime pauses in ' + Math.floor(left / 60e3) + ':' + ('0' + Math.floor(left / 1000) % 60).slice(-2) + ' unless you click.'; setTimeout(tick, 1000); }
+    tick();
+    // the button moves to a random spot so it takes a real click
+    var room = Math.max(0, afkHost().clientWidth - c.offsetWidth - 24); c.style.left = Math.round(12 + Math.random() * room) + 'px';
+    b.onclick = function () { afk.checkEl = null; c.remove(); afk.last = Date.now(); afk.checkAt = Date.now() + (afk.blind ? AFK_EVERY_BLIND : AFK_EVERY); try { gameFrame && gameFrame.focus(); } catch (e) {} };
+  }
+  function afkTick() {
+    if (!gameFrame) return;
+    afkHook(window); try { afkHook(gameFrame.contentWindow); } catch (e) {}
+    afkPads();
+    var now = Date.now(), blind = afkBlind();
+    if (blind && !afk.blind) afk.checkAt = Math.min(afk.checkAt, now + AFK_EVERY_BLIND);
+    afk.blind = blind;
+    if (afk.on) return;
+    if (!blind && now - afk.last > AFK_IDLE) afkSet(true, 'idle');
+    else if (afk.checkEl && now - afk.checkShown > AFK_GRACE) afkSet(true, 'check');
+    else if (!afk.checkEl && now >= afk.checkAt) afkCheckin();
+  }
+  function afkStart() {
+    afkStop();
+    afk.last = Date.now(); afk.checkAt = afk.last + AFK_EVERY; afk.pads = ''; afk.blind = false;
+    afk.timer = setInterval(afkTick, 5000);
+  }
+  function afkStop() { clearInterval(afk.timer); afk.timer = null; afkClearUi(); if (afk.on && social) social.setAfk(false); afk.on = false; }
+
   function closeGame(silent) {
     if (!gameFrame) return;
     if (!silent && !confirm((shell ? 'Close ' + (runningGame ? runningGame.name : 'the game') + '?' : 'Return to the library?') + ' Unsaved progress in the running game will be lost.')) return;
     var hadSaves = !runningGame || runningGame.cloudSaves;
     stopHooks();
+    afkStop();
     if (clips) clips.stop();
     closeMistOverlay(true);
     if (gameWin) { document.body.appendChild($('#mistOv')); document.body.appendChild($('#mistBtn')); if (gameWin._ro) gameWin._ro.disconnect(); }

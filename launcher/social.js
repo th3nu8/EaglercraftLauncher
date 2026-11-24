@@ -104,6 +104,7 @@ window.MistSocial = function (ctx) {
   }
   function stateText(f) {
     if (f.state === 'ingame') return 'Playing ' + (f.game || 'a game');
+    if (f.state === 'away') return 'Away' + (f.game ? ' · ' + f.game + ' open' : '');
     if (f.state === 'online') return 'Online';
     return f.lastSeen ? 'Last online ' + ago(f.lastSeen).toLowerCase() : 'Offline';
   }
@@ -165,10 +166,12 @@ window.MistSocial = function (ctx) {
   /* ---------- presence ---------- */
   function beat() {
     if (!eng()) return;
-    api('POST', '/api/presence', playing ? { state: 'ingame', game: playing } : { state: 'online' })
+    api('POST', '/api/presence', playing ? { state: 'ingame', game: playing, afk: afkNow } : { state: 'online' })
       .then(handleUnlocks, function () {});
   }
-  function setPlaying(gameName) { playing = gameName || null; beat(); }
+  var afkNow = false;
+  function setPlaying(gameName) { playing = gameName || null; afkNow = false; beat(); }
+  function setAfk(v) { v = !!v; if (v === afkNow) return; afkNow = v; beat(); }   // AFK: the game stays open, playtime stops
 
   /* ---------- polling ---------- */
   function refresh() {
@@ -1308,7 +1311,7 @@ window.MistSocial = function (ctx) {
       no.onclick = function () { api('POST', '/api/friends/decline', { username: n }).then(refresh); };
       r.appendChild(ok); r.appendChild(no); list.appendChild(r);
     });
-    var order = { ingame: 0, online: 1, offline: 2 };
+    var order = { ingame: 0, online: 1, away: 1.5, offline: 2 };
     var fs = data.friends.slice().sort(function (a, b) {
       var sa = a.state === 'ingame' && a.game === ovGame ? -1 : order[a.state], sb = b.state === 'ingame' && b.game === ovGame ? -1 : order[b.state];
       return sa - sb || a.name.localeCompare(b.name);
@@ -1438,7 +1441,7 @@ window.MistSocial = function (ctx) {
     showAchievements: showAchievements, lookKey: lookKey, renderLeaderboard: renderLeaderboard, handleUnlocks: handleUnlocks, levelBadge: levelBadge, hookDefs: function () { return hookDefs; },
     overlayMe: overlayMe, overlayFriends: overlayFriends, closeChat: closeChat,
     openSupport: openSupport, maybeAskSupport: maybeAskSupport, renderSocial: renderSocial, openThread: openThread,
-    start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, togglePanel: togglePanel,
+    start: start, refresh: refresh, onAuthChange: onAuthChange, setPlaying: setPlaying, setAfk: setAfk, togglePanel: togglePanel,
     openProfile: openProfile, openAddFriend: openAddFriend, friendsWhoPlay: friendsWhoPlay, avatar: avatar, stateText: stateText,
     data: function () { return data; }, mergeLooks: mergeLooks
   };
