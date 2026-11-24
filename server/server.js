@@ -3143,7 +3143,88 @@ const PATH_APPS = [
   a.portLinks = new RegExp('(?:(?:https?|wss?):)?//[A-Za-z0-9.-]+:(?:' + a.ports.join('|') + ')(?=[/"\'`?#\\s)]|$)', 'g');
   return a;
 });
-const MIST_ONLY = /^\/(api|browse|assets|pt|getmist|getpanes|overboost)(\/|$|\?)/;      // never handed to a game
+/* ---------------- Imitator (the emulator app in the Panes Store) ----------------
+ * /imitator/        the app (IMITATOR_DIR/app: library, BIOS files, player)
+ * /imitator/data/   EmulatorJS and its cores (RetroArch in WebAssembly). Served from IMITATOR_DIR/node_modules when
+ *                   server/imitator-setup.sh has installed them, otherwise fetched once from the EmulatorJS CDN and
+ *                   kept in DATA_DIR/imitator-cache, so players only ever talk to this server.
+ * Every response is cross-origin isolated (COOP/COEP) so PSP and DOS, which need threads, work in their own tab. */
+const IMITATOR_DIR = path.resolve(process.env.IMITATOR_DIR || path.join(__dirname, 'imitator'));
+const IMITATOR_CDN = (process.env.IMITATOR_CDN || 'https://cdn.emulatorjs.org/4.2.3/data/').replace(/\/?$/, '/');
+const IMITATOR_CACHE = path.join(DATA_DIR, 'imitator-cache');
+const IMI_TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json',
+  '.png': 'image/png', '.svg': 'image/svg+xml', '.wasm': 'application/wasm', '.data': 'application/octet-stream', '.zip': 'application/zip', '.7z': 'application/octet-stream', '.txt': 'text/plain; charset=utf-8' };
+const IMI_SCRIPTS = ['emulator.js', 'nipplejs.js', 'shaders.js', 'storage.js', 'gamepad.js', 'GameManager.js', 'socket.io.min.js', 'compression.js'];
+let imiMin = null;   // the npm package has no emulator.min.js: join its scripts in the same order the loader would
+const imiFetching = new Map();
+function imiHeaders(type, long, extra) {
+  return Object.assign({ 'Content-Type': type, 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp',
+    'Cross-Origin-Resource-Policy': 'same-origin', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': long ? 'public, max-age=604800' : 'no-cache' }, extra || {});
+}
+async function imiSendFile(req, res, file, type, long) {
+  let st; try { st = await fsp.stat(file); } catch (e) { return false; }
+  if (!st.isFile()) return false;
+  const etag = '"' + st.size.toString(36) + '-' + Math.floor(st.mtimeMs).toString(36) + '"';
+  if (req.headers['if-none-match'] === etag) { res.writeHead(304, imiHeaders(type, long, { ETag: etag })); res.end(); return true; }
+  res.writeHead(200, imiHeaders(type, long, { 'Content-Length': st.size, ETag: etag }));
+  if (req.method === 'HEAD') { res.end(); return true; }
+  fs.createReadStream(file).pipe(res); return true;
+}
+// where a data/ file lives in the npm install (@emulatorjs/emulatorjs + @emulatorjs/core-*)
+function imiLocal(rel) {
+  const nm = path.join(IMITATOR_DIR, 'node_modules', '@emulatorjs');
+  let m = /^cores\/reports\/([\w-]+)\.json$/.exec(rel); if (m) return path.join(nm, 'core-' + m[1], 'reports', m[1] + '.json');
+  m = /^cores\/([\w]+?)(-thread)?(-legacy)?-wasm\.data$/.exec(rel); if (m) return path.join(nm, 'core-' + m[1], rel.slice(6));
+  return path.join(nm, 'emulatorjs', 'data', rel);
+}
+async function imiData(req, res, rel) {
+  const type = IMI_TYPES[path.extname(rel).toLowerCase()] || 'application/octet-stream';
+  if (rel === 'emulator.min.js' || rel === 'emulator.min.css') {
+    const base = path.join(IMITATOR_DIR, 'node_modules', '@emulatorjs', 'emulatorjs', 'data');
+    if (fs.existsSync(path.join(base, 'src', 'emulator.js'))) {
+      if (rel === 'emulator.min.css') return imiSendFile(req, res, path.join(base, 'emulator.css'), type, true) || fail(res, 404, 'Not found.');
+      // (its update check calls a third-party site on every game start; Imitator is pinned to one version, so skip it)
+      if (!imiMin) imiMin = Buffer.from(IMI_SCRIPTS.map(f => fs.readFileSync(path.join(base, 'src', f), 'utf8')).join('\n;\n').replace('checkForUpdates() {', 'checkForUpdates() { return;'));
+      res.writeHead(200, imiHeaders(type, true, { 'Content-Length': imiMin.length })); return res.end(req.method === 'HEAD' ? undefined : imiMin);
+    }
+  }
+  if (await imiSendFile(req, res, imiLocal(rel), type, true)) return;
+  const cached = path.join(IMITATOR_CACHE, rel);
+  if (await imiSendFile(req, res, cached, type, true)) return;
+  if (!IMITATOR_CDN || process.env.IMITATOR_CDN === '') return fail(res, 404, 'Not installed on this server.');
+  // fetch it once from the CDN (one download shared by everyone asking at the same time), then serve from disk
+  let job = imiFetching.get(rel);
+  if (!job) {
+    job = (async () => {
+      const r = await fetch(IMITATOR_CDN + rel.split('/').map(encodeURIComponent).join('/'));
+      if (!r.ok) return r.status;
+      const buf = Buffer.from(await r.arrayBuffer());
+      await fsp.mkdir(path.dirname(cached), { recursive: true });
+      const tmp = cached + '.' + process.pid + '.tmp'; await fsp.writeFile(tmp, buf); await fsp.rename(tmp, cached);
+      return 200;
+    })().catch(e => { console.error('imitator cdn ' + rel + ': ' + e.message); return 502; }).finally(() => imiFetching.delete(rel));
+    imiFetching.set(rel, job);
+  }
+  const status = await job;
+  if (status === 200 && await imiSendFile(req, res, cached, type, true)) return;
+  return fail(res, status === 404 ? 404 : 502, status === 404 ? 'Not found.' : 'Couldn’t download the emulator files.');
+}
+async function serveImitator(req, res) {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return fail(res, 405, 'Method not allowed.');
+  const u = new URL(req.url, 'http://x');
+  let rel; try { rel = decodeURIComponent(u.pathname.slice('/imitator'.length)); } catch (e) { return fail(res, 400, 'Bad path.'); }
+  if (rel === '') { res.writeHead(301, { Location: '/imitator/' + u.search }); return res.end(); }
+  rel = rel.replace(/^\/+/, '');
+  if (rel.split('/').some(x => x === '..' || x.startsWith('.')) || rel.includes('\\') || rel.includes('\0')) return fail(res, 400, 'Bad path.');
+  if (rel.startsWith('data/')) return imiData(req, res, rel.slice(5));
+  if (rel === '') rel = 'index.html';
+  const type = IMI_TYPES[path.extname(rel).toLowerCase()];
+  if (type && await imiSendFile(req, res, path.join(IMITATOR_DIR, 'app', rel), type, false)) return;
+  if (rel === 'index.html') { res.writeHead(503, imiHeaders('text/html; charset=utf-8', false)); return res.end('<!doctype html><title>Imitator</title><body style="font:16px system-ui;background:#0e1015;color:#eee;display:grid;place-items:center;height:100vh;margin:0;text-align:center"><div><h2>Imitator isn’t set up on this server yet</h2><p>Run <code>server/imitator-setup.sh</code> on the Panes server.</p></div>'); }
+  return fail(res, 404, 'Not found.');
+}
+
+const MIST_ONLY = /^\/(api|browse|assets|pt|getmist|getpanes|overboost|imitator)(\/|$|\?)/;      // never handed to a game
 function pathAppFor(req) {
   const u = req.url || '';
   for (const a of PATH_APPS) {
@@ -3282,6 +3363,7 @@ async function appUpgrade(req, socket, head, m) {
 
 const mainServer = http.createServer((req, res) => {
   if (isBrowserPath(req.url)) return passToBrowser(req, res);
+  if (/^\/imitator(\/|$|\?)/.test(req.url || '')) return serveImitator(req, res).catch(e => { console.error('imitator:', e.message); if (!res.headersSent) fail(res, 500, 'Imitator error.'); else res.destroy(); });
   if (req.url === '/gta5/__status' || req.url === '/api/gta5-status') {
     // what /gta5 is doing: which address the game was found on, or what each one answered
     const a = PATH_APPS[0];

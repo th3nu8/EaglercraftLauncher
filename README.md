@@ -268,6 +268,27 @@ That friendship can't be removed and doesn't count towards friend achievements.
 Personalisation is saved to your account (`/api/prefs` on the Mist server), so it follows you to any
 computer. Guests' settings stay on that device.
 
+### Panes Store and Imitator (emulator)
+
+The **Panes Store** (orange bag on the taskbar) holds optional apps. Mist, Concord, Gleam and Settings are always
+installed; Store apps are installed per account (saved with your Panes settings) and get pinned to the taskbar.
+The first Store app is **Imitator**, an all-in-one emulator where players bring their own games:
+
+- Runs in the browser with [EmulatorJS](https://emulatorjs.org) (RetroArch cores in WebAssembly, GPL-3.0):
+  NES, SNES, N64, Game Boy / Color / Advance, DS, Virtual Boy, PlayStation, PSP, Master System, Genesis,
+  Game Gear, Sega CD, 32X, Saturn, PC Engine, PC-FX, Neo Geo Pocket, WonderSwan, Atari 2600/5200/7800/Lynx/Jaguar,
+  ColecoVision, 3DO, arcade (FinalBurn Neo, MAME 2003+), Commodore 64, Amiga and MS-DOS.
+- Games and BIOS files are kept in the browser (IndexedDB) and never uploaded. Imitator picks the console from
+  the file type and asks when it's ambiguous (.zip, .bin, .iso, .cue, .chd…). A .cue with its .bin tracks is kept
+  together as one game. In-game saves are written every 30 seconds and when you leave or close the window.
+- PS2, PS3, Xbox, Xbox 360, GameCube, Wii and Wii U can't run in any browser. Imitator's **Play on your PC**
+  page links the right PC emulator (PCSX2, RPCS3, xemu, Xenia, Dolphin, Cemu, Vita3K) and opens Mist PC Connect.
+- PSP and DOS need threads, which browsers only allow in a cross-origin isolated tab, so they run when Imitator
+  is opened in its own tab (`https://<server>/imitator/`), not inside the Panes window.
+- The server serves the app at `/imitator/` and the emulator at `/imitator/data/`. Install the cores (≈300 MB)
+  once with `bash server/imitator-setup.sh`; without them, files are fetched from the EmulatorJS CDN on first
+  use and cached in `DATA_DIR/imitator-cache`.
+
 ### Gleam (web browser)
 
 Gleam opens websites through the Mist server (Ultraviolet in the page, a wisp relay on the

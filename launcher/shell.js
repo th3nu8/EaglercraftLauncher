@@ -39,13 +39,23 @@
       osTheme: 'panes', theme: 'dark', accent: '#5b68f0', wallpaper: { type: 'preset', id: 'mist' }, lockWallpaper: 'same',
       transparency: true, animations: true, corners: 'round', scale: 100,
       taskbarPos: 'bottom', taskbarAlign: 'center', autoHide: false, clock24: false, clockSeconds: false, showDate: true,
-      iconSize: 'medium', gameIcons: true, iconLabels: true, iconPos: {}, windows: {}, pinned: ['mist', 'concord', 'gleam', 'settings'],
+      iconSize: 'medium', gameIcons: true, iconLabels: true, iconPos: {}, windows: {}, pinned: ['mist', 'concord', 'gleam', 'store', 'settings'],
       notifSound: false, dnd: false
     };
+    // apps added to Panes after someone set up their taskbar get pinned once (they can unpin them)
+    function addNewPins() {
+      var seen = prefs.pinSeen || [], add = ['store'].filter(function (id) { return seen.indexOf(id) < 0; });
+      if (!add.length) return;
+      var pin = (prefs.pinned || DEFAULTS.pinned).slice();
+      add.forEach(function (id) { if (pin.indexOf(id) < 0) { var at = pin.indexOf('settings'); pin.splice(at < 0 ? pin.length : at, 0, id); } });
+      prefs.pinned = pin; prefs.pinSeen = seen.concat(add);
+      ctx.storeSet(prefsKey(prefsUser), prefs);
+    }
     function prefsKey(u) { return 'shellPrefs:' + (u || 'guest'); }
     function loadPrefs(u) {
       prefsUser = u || null;
       prefs = Object.assign({}, DEFAULTS, ctx.storeGet(prefsKey(u), {}) || {});
+      addNewPins();
       applyPrefs();
       if (!u || !eng()) return Promise.resolve();
       return eng().api('GET', '/api/prefs').then(function (r) {
@@ -54,6 +64,7 @@
         if (!local._at || (r.prefs._at || 0) > local._at) {
           prefs = Object.assign({}, DEFAULTS, r.prefs);
           ctx.storeSet(prefsKey(u), prefs);
+          addNewPins();
           applyPrefs(); drawIcons(); drawBar();
         }
       }, function () {});
@@ -255,6 +266,7 @@
       mist: '<svg viewBox="0 0 48 48"><defs><linearGradient id="mi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7cc8ff"/><stop offset="1" stop-color="#1d4f8f"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="11" fill="url(#mi)"/><ellipse cx="25" cy="18" rx="13" ry="4.6" fill="#fff" opacity=".95"/><ellipse cx="20" cy="26" rx="12" ry="4.2" fill="#fff" opacity=".78"/><ellipse cx="27" cy="33.5" rx="10" ry="3.6" fill="#fff" opacity=".6"/></svg>',
       concord: '<svg viewBox="0 0 48 48"><defs><linearGradient id="ci" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f7bff"/><stop offset="1" stop-color="#4b2fd1"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="11" fill="url(#ci)"/><path d="M13 14h22a4 4 0 0 1 4 4v11a4 4 0 0 1-4 4H23l-7 6v-6h-3a4 4 0 0 1-4-4V18a4 4 0 0 1 4-4z" fill="#fff"/><circle cx="18" cy="23.5" r="2.3" fill="#5b3fe0"/><circle cx="24" cy="23.5" r="2.3" fill="#5b3fe0"/><circle cx="30" cy="23.5" r="2.3" fill="#5b3fe0"/></svg>',
       gleam: '<svg viewBox="0 0 48 48"><defs><linearGradient id="gi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f2a3d"/><stop offset="1" stop-color="#0c1320"/></linearGradient><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#45e3ff"/><stop offset=".5" stop-color="#7b8cff"/><stop offset="1" stop-color="#ff7ad9"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="11" fill="url(#gi)"/><circle cx="24" cy="24" r="12.5" fill="none" stroke="url(#gr)" stroke-width="5"/><path d="M33 9l1.6 3.6L38 14l-3.4 1.4L33 19l-1.6-3.6L28 14l3.4-1.4z" fill="#fff"/><circle cx="24" cy="24" r="4.5" fill="#bfe9ff"/></svg>',
+      store: '<svg viewBox="0 0 48 48"><defs><linearGradient id="psi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb84d"/><stop offset="1" stop-color="#ff5a7a"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="11" fill="url(#psi)"/><path d="M18 18v-2.5a6 6 0 0 1 12 0V18" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M12.5 18h23l-1.7 17.2a3 3 0 0 1-3 2.8H17.2a3 3 0 0 1-3-2.8z" fill="#fff"/><path d="M19.5 27.5l3.4 3.4 6-6.2" fill="none" stroke="#ff6f6a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       settings: '<svg viewBox="0 0 48 48"><defs><linearGradient id="si" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b7684"/><stop offset="1" stop-color="#2d333c"/></linearGradient></defs><rect x="2" y="2" width="44" height="44" rx="11" fill="url(#si)"/><path fill="#e8edf3" d="M24 13.5l2.4.3.8 3.1 1.9.8 2.8-1.6 1.7 1.7-1.6 2.8.8 1.9 3.1.8.3 2.4-.3 2.4-3.1.8-.8 1.9 1.6 2.8-1.7 1.7-2.8-1.6-1.9.8-.8 3.1-2.4.3-2.4-.3-.8-3.1-1.9-.8-2.8 1.6-1.7-1.7 1.6-2.8-.8-1.9-3.1-.8-.3-2.4.3-2.4 3.1-.8.8-1.9-1.6-2.8 1.7-1.7 2.8 1.6 1.9-.8.8-3.1z"/><circle cx="24" cy="24" r="4.6" fill="#3b424c"/></svg>'
     };
     function appIcon(id, size) {
@@ -459,8 +471,27 @@
 
     /* ================================================================ apps */
     function registerApp(a) { apps[a.id] = a; if (appOrder.indexOf(a.id) < 0) appOrder.push(a.id); drawIcons(); drawBar(); }
+    // Optional apps come from the Panes Store; the built-in ones are always there. Installs are saved with the
+    // person's settings, so they follow their account to every computer.
+    function installed(id) { var a = apps[id]; return !!a && (!a.optional || (prefs.installed || []).indexOf(id) >= 0); }
+    function listed(id) { return !!apps[id] && !apps[id].hidden && installed(id); }
+    function install(id) {
+      var a = apps[id]; if (!a || installed(id)) return;
+      setPref('installed', (prefs.installed || []).concat([id]), true);
+      var pin = (prefs.pinned || DEFAULTS.pinned).slice(); if (pin.indexOf(id) < 0) { pin.push(id); setPref('pinned', pin, true); }
+      drawIcons(); drawBar(); notify('apps');
+    }
+    function uninstall(id) {
+      var a = apps[id]; if (!a || !a.optional || !installed(id)) return;
+      wins.slice().forEach(function (w) { if (w.app === id) w.close(true); });
+      if (a.onUninstall) try { a.onUninstall(); } catch (e) {}
+      setPref('installed', (prefs.installed || []).filter(function (x) { return x !== id; }), true);
+      setPref('pinned', (prefs.pinned || DEFAULTS.pinned).filter(function (x) { return x !== id; }), true);
+      drawIcons(); drawBar(); notify('apps');
+    }
     function launch(id, arg) {
       var a = apps[id]; if (!a) return null;
+      if (!installed(id)) return apps.store && id !== 'store' ? launch('store', { app: id }) : null;
       closeStart();
       if (a.needsAccount && !eng()) { askSignIn(a); return null; }
       var w = findWin(id);
@@ -480,7 +511,7 @@
     /* ================================================================ desktop icons */
     var selIcon = null;
     function deskItems() {
-      var list = appOrder.filter(function (id) { return !apps[id].hidden; }).map(function (id) { return { key: 'app:' + id, name: apps[id].name, icon: function () { return appIcon(id, iconPx()); }, open: function () { launch(id); } }; });
+      var list = appOrder.filter(listed).map(function (id) { return { key: 'app:' + id, name: apps[id].name, icon: function () { return appIcon(id, iconPx()); }, open: function () { launch(id); } }; });
       if (prefs.gameIcons && ctx.games) ctx.games().forEach(function (g) {
         list.push({ key: 'game:' + g.id, name: g.name, game: g, icon: function () { var b = el('span', 'sh-ico sh-gico'); b.style.width = b.style.height = iconPx() + 'px'; g.iconInto(b); return b; }, open: function () { g.play(); } });
       });
@@ -601,7 +632,7 @@
       mid.appendChild(bStart); drawMbar();
       var shown = {};
       (prefs.pinned || DEFAULTS.pinned).concat(appOrder).forEach(function (id) {
-        if (shown[id] || !apps[id] || apps[id].hidden) return;
+        if (shown[id] || !listed(id)) return;
         var pinned = (prefs.pinned || DEFAULTS.pinned).indexOf(id) >= 0, w = findWin(id);
         if (!pinned && (!w || w.hidden)) return;
         shown[id] = 1;
@@ -666,7 +697,7 @@
       function draw() {
         body.textContent = '';
         var f = q.value.trim().toLowerCase();
-        var appList = appOrder.filter(function (id) { return !apps[id].hidden && (!f || apps[id].name.toLowerCase().indexOf(f) >= 0); });
+        var appList = appOrder.filter(function (id) { return listed(id) && (!f || apps[id].name.toLowerCase().indexOf(f) >= 0); });
         if (appList.length) {
           body.appendChild(el('div', 'sh-sh', f ? 'Apps' : 'Pinned'));
           var g = el('div', 'sh-sgrid');
@@ -879,7 +910,8 @@
     applyPrefs();
 
     return {
-      registerApp: registerApp, launch: launch, openWindow: openWindow, findWin: findWin, appIcon: appIcon,
+      registerApp: registerApp, launch: launch, apps: function () { return appOrder.map(function (id) { return apps[id]; }); },
+      installed: installed, install: install, uninstall: uninstall, openWindow: openWindow, findWin: findWin, appIcon: appIcon,
       notify: pushNotif, setBadge: setBadge, refreshDesktop: function () { drawIcons(); drawBar(); },
       prefs: function () { return prefs; }, setPref: setPref, onPrefs: function (f) { prefListeners.push(f); },
       walls: WALLS, wallCss: wallCss, defaults: DEFAULTS, themes: THEMES, theme: function () { return themeOf(); }, setTheme: setTheme,

@@ -1440,10 +1440,11 @@
       onDesktop: function () { if ((shell.prefs() || {}).openMist !== false) shell.launch('mist'); }
     });
     shell.registerApp({ id: 'mist', name: 'Mist',
-      open: function () {
+      open: function (arg) {
         mistWin = shell.openWindow({ app: 'mist', title: 'Mist', cls: 'win-mist', keepAlive: true, width: 1240, height: 780, minW: 560, minH: 400 });
         mistWin.body.appendChild($('#app'));
         renderAll();
+        if (arg && arg.page) go(arg.page, arg.game);
         return mistWin;
       },
       reopen: function (w, arg) { if (arg && arg.page) go(arg.page, arg.game); } });
@@ -1467,6 +1468,11 @@
     }) : null;
     if (settingsApp) shell.registerApp({ id: 'settings', name: 'Settings',
       open: function (pg) { return settingsApp.open(pg); }, reopen: function (w, pg) { if (pg) settingsApp.open(pg); } });
+    // the Panes Store and its apps (installed per account; the four above are always there)
+    var appStore = window.PanesStore ? PanesStore({ el: el, toast: toast, shell: shell }) : null;
+    if (appStore) shell.registerApp({ id: 'store', name: 'Panes Store', open: function (arg) { return appStore.open(arg); }, reopen: function (w, arg) { appStore.reopen(w, arg); } });
+    var imitator = window.PanesImitator ? PanesImitator({ el: el, toast: toast, shell: shell, server: function () { return engine ? engine.server : (settings.server || defaultServer()); } }) : null;
+    if (imitator) shell.registerApp({ id: 'imitator', name: 'Imitator', optional: true, multi: false, open: function () { return imitator.open(); } });
     if (concord) concord.start();
   }
 
