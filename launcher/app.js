@@ -237,7 +237,21 @@
     'var F=window.fetch;if(F)window.fetch=function(r){var d=track("fetch",r&&r.url||r);return F.apply(this,arguments).then(function(res){d(res.ok,"status "+res.status);return res},function(e){d(false,e&&e.message);throw e})};' +
     'var P=HTMLImageElement.prototype,sd=Object.getOwnPropertyDescriptor(P,"src");Object.defineProperty(P,"src",{configurable:true,enumerable:true,get:function(){return sd.get.call(this)},set:function(v){var im=this;if(v&&!im.__mt&&!/^data:/i.test(v)){im.__mt=1;var d=track("img",v);im.addEventListener("load",function(){d(true,im.naturalWidth+"x"+im.naturalHeight)});im.addEventListener("error",function(){d(false,"crossOrigin="+im.crossOrigin)})}sd.set.call(this,v)}});' +
     'document.addEventListener("DOMContentLoaded",ui);log("debug on")})();<\/script>';
+  /* Fixes for bugs inside particular games, applied as they load: [find, replace] pairs. Packed games that unzip
+     themselves and document.write() the real page are patched on the way through as well. */
+  var GAME_PATCHES = {
+    // Basketball Stars wipes the Hard/Normal choice when a tournament starts (resetAll), so Hard tournaments were
+    // played and saved as Normal - and the game's "win on Hard" cups could never be earned.
+    'basketball-stars': [['n.prototype.createNewTournament=function(A){this.resetAll(),this.team=A.teams[0]',
+      'n.prototype.createNewTournament=function(A){var __pd=this.difficulty;this.resetAll(),this.difficulty=__pd,this.team=A.teams[0]']]
+  };
+  function patchShim(list) {
+    return '<script>(function(P){function fix(s){if(typeof s!=="string"||s.length<2000)return s;P.forEach(function(p){if(s.indexOf(p[0])>=0)s=s.split(p[0]).join(p[1]);});return s;}' +
+      'var d=document,w=d.write;d.write=function(){var a=[].slice.call(arguments).map(fix);return w.apply(d,a);};})(' + JSON.stringify(list).replace(/</g, '\\u003c') + ');<\/script>';
+  }
   function withShim(html, g) {
+    var patches = g && GAME_PATCHES[g.id];
+    if (patches) patches.forEach(function (p) { if (html.indexOf(p[0]) >= 0) html = html.split(p[0]).join(p[1]); });
     var m = /<head(\s[^>]*)?>/i.exec(html) || /^\s*<!doctype[^>]*>/i.exec(html);   // keep <!DOCTYPE> first (no quirks mode)
     var srv = settings.server || defaultServer() || '';
     var mist = { MIST_SERVER: srv };
@@ -246,7 +260,7 @@
     if (g && g.mistApi && engine && engine.signedIn()) { mist.MIST_TOKEN = engine.token; mist.MIST_USER = engine.user; }
     else if (g && g.mistName && engine && engine.signedIn()) mist.MIST_USER = engine.user;   // just the name, e.g. to label the player's car
     var inject = '<script>' + Object.keys(mist).map(function (k) { return 'window.' + k + '=' + JSON.stringify(mist[k]).replace(/</g, '\\u003c') + ';'; }).join('') + '<\/script>' +
-      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM + (g && g.mistLeaderboards ? PT_SHIM : '') + (clips ? clips.shim() : '');
+      (settings.debug === 'on' ? DEBUG_SHIM : '') + GAME_SHIM + (patches ? patchShim(patches) : '') + (g && g.mistLeaderboards ? PT_SHIM : '') + (clips ? clips.shim() : '');
     if (m) return html.slice(0, m.index + m[0].length) + inject + html.slice(m.index + m[0].length);
     return inject + html;
   }
