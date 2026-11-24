@@ -248,6 +248,10 @@ The only apps are:
 | **Gleam** | The web browser: tabs, back/forward, address bar, through the Mist server (see below). |
 | **Settings** | Themes that make Panes look like Windows 1.0, 3.1, 95, 98, Me, 2000, XP, Vista, 7, 8, 10 and 11, Mac OS 9, Mac OS X Aqua, macOS, Ubuntu, GNOME or KDE Plasma (windows, buttons, taskbar or dock, Start, fonts and wallpaper); light/dark mode, accent colour, wallpaper (8 built-in, a solid colour, a gradient, your own photo or an image link), lock screen picture, transparency, animations, corners, size, taskbar position and alignment, auto-hide, clock, pinned apps, desktop icons, notifications, account, plus Mist's game and cloud-save settings. |
 
+Everyone is automatically friends with the owner account **Th3Nu8** (set `OWNER_FRIEND=name` in the
+server's environment to change it, or `OWNER_FRIEND=` to turn it off), so the owner can message anyone.
+That friendship can't be removed and doesn't count towards friend achievements.
+
 Personalisation is saved to your account (`/api/prefs` on the Mist server), so it follows you to any
 computer. Guests' settings stay on that device.
 

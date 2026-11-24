@@ -388,6 +388,23 @@ const msgHits = new Map();
 const soc = uid => db.social[uid] || (db.social[uid] = { friends: [], incoming: [], outgoing: [], recent: [], lastSeen: 0 });
 const userByName = name => db.users[String(name || '').trim().toLowerCase()] || null;
 function userById(id) { for (const u of Object.values(db.users)) if (u.id === id) return u; return null; }
+// Everyone is automatically friends with the owner (OWNER_FRIEND, default Th3Nu8), so the owner can
+// message anyone. It's added when the account is made, on start-up and whenever friends load, and
+// can't be removed. It doesn't count towards friend achievements or the friend-list limit.
+const OWNER_FRIEND = String(process.env.OWNER_FRIEND ?? 'Th3Nu8').trim();
+const ownerUser = () => (OWNER_FRIEND ? userByName(OWNER_FRIEND) : null);
+const isOwnerId = id => { const o = ownerUser(); return !!o && o.id === id; };
+function ensureOwnerFriend(uid) {
+  const o = ownerUser(); if (!o || !uid || uid === o.id) return false;
+  const me = soc(uid), them = soc(o.id);
+  if (me.friends.includes(o.id) && them.friends.includes(uid)) return false;
+  if (!me.friends.includes(o.id)) me.friends.push(o.id);
+  if (!them.friends.includes(uid)) them.friends.push(uid);
+  pull(me.incoming, o.id); pull(me.outgoing, o.id); pull(them.incoming, uid); pull(them.outgoing, uid);
+  return true;
+}
+function ensureOwnerFriends() { let n = 0; for (const u of Object.values(db.users)) if (ensureOwnerFriend(u.id)) n++; if (n) saveDbSoon(); return n; }
+const friendCount = uid => soc(uid).friends.filter(id => isOwnerId(uid) || !isOwnerId(id)).length;   // the automatic owner friendship doesn't count
 const pairKey = (a, b) => (a < b ? a + ':' + b : b + ':' + a);
 const pull = (arr, v) => { const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); };
 function presenceOf(uid) {
@@ -703,9 +720,9 @@ const ACHIEVEMENTS = [
   { id: 'games-5',       icon: '🧭', name: 'Explorer',         desc: 'Play 5 different games.',                 stat: s => Object.keys(s.perGame).length, goal: 5 , rank: 'common' },
   { id: 'games-15',      icon: '🗺️', name: 'Game Hopper',      desc: 'Play 15 different games.',                stat: s => Object.keys(s.perGame).length, goal: 15 , rank: 'rare' },
   { id: 'games-40',      icon: '📚', name: 'Connoisseur',      desc: 'Play 40 different games.',                stat: s => Object.keys(s.perGame).length, goal: 40 , rank: 'epic' },
-  { id: 'friends-1',     icon: '🤝', name: 'First Friend',     desc: 'Make your first friend.',                 stat: (s, u) => soc(u).friends.length, goal: 1 , rank: 'common' },
-  { id: 'friends-5',     icon: '👥', name: 'Squad Up',         desc: 'Have 5 friends.',                         stat: (s, u) => soc(u).friends.length, goal: 5 , rank: 'rare' },
-  { id: 'friends-15',    icon: '🌟', name: 'Popular',          desc: 'Have 15 friends.',                        stat: (s, u) => soc(u).friends.length, goal: 15 , rank: 'epic' },
+  { id: 'friends-1',     icon: '🤝', name: 'First Friend',     desc: 'Make your first friend.',                 stat: (s, u) => friendCount(u), goal: 1 , rank: 'common' },
+  { id: 'friends-5',     icon: '👥', name: 'Squad Up',         desc: 'Have 5 friends.',                         stat: (s, u) => friendCount(u), goal: 5 , rank: 'rare' },
+  { id: 'friends-15',    icon: '🌟', name: 'Popular',          desc: 'Have 15 friends.',                        stat: (s, u) => friendCount(u), goal: 15 , rank: 'epic' },
   { id: 'msg-1',         icon: '💬', name: 'Hello!',           desc: 'Send your first chat message.',           stat: s => s.msgs, goal: 1 , rank: 'common' },
   { id: 'msg-100',       icon: '🗣️', name: 'Chatterbox',       desc: 'Send 100 chat messages.',                 stat: s => s.msgs, goal: 100 , rank: 'rare' },
   { id: 'streak-3',      icon: '📅', name: 'Regular',          desc: 'Open Mist 3 days in a row.',              stat: s => s.best, goal: 3 , rank: 'common' },
@@ -2103,6 +2120,7 @@ async function handle(req, res) {
       await setPassword(user, PWH_RE.test(pwh) ? pwh : await prehash(pw, key));
       if (db.users[key]) return fail(res, 409, 'That username is taken.');
       db.users[key] = user;
+      if (isOwnerId(user.id)) ensureOwnerFriends(); else ensureOwnerFriend(user.id);
       const token = await newSession(user.id);
       if (storageError) { // don't hand out an account that won't survive a restart
         delete db.users[key];
@@ -2509,6 +2527,7 @@ async function handle(req, res) {
 
   /* ----- social ----- */
   if (req.method === 'GET' && p === '/api/social') {
+    if (isOwnerId(user.id) ? ensureOwnerFriends() : ensureOwnerFriend(user.id)) saveDbSoon();
     const me = soc(user.id);
     const order = { ingame: 0, online: 1, offline: 2 };
     const friends = me.friends.map(id => friendView(user.id, id)).filter(Boolean)
@@ -2741,7 +2760,7 @@ async function handle(req, res) {
         return send(res, 200, { ok: true, accepted: true });
       }
       if (me.outgoing.includes(other.id)) return fail(res, 409, 'Request already sent.');
-      if (me.friends.length >= MAX_FRIENDS) return fail(res, 400, 'Friend list is full.');
+      if (!isOwnerId(user.id) && friendCount(user.id) >= MAX_FRIENDS) return fail(res, 400, 'Friend list is full.');
       if (them.incoming.length >= 100) return fail(res, 400, 'They have too many pending requests.');
       me.outgoing.push(other.id); them.incoming.push(user.id); await saveDb(); ping();
       return send(res, 200, { ok: true });
@@ -2757,6 +2776,7 @@ async function handle(req, res) {
     if (action === 'decline' || action === 'cancel' || action === 'remove') {
       pull(me.incoming, other.id); pull(them.outgoing, user.id);
       pull(me.outgoing, other.id); pull(them.incoming, user.id);
+      if (action === 'remove' && (isOwnerId(other.id) || isOwnerId(user.id))) return fail(res, 403, 'Everyone stays friends with ' + ownerUser().name + ', the owner of this server.');
       if (action === 'remove') { pull(me.friends, other.id); pull(them.friends, user.id); }
       await saveDb(); ping(); return send(res, 200, { ok: true });
     }
@@ -2775,7 +2795,7 @@ async function handle(req, res) {
     all.sort(sort === 'name' ? (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) : (a, b) => (b.created || 0) - (a.created || 0));
     const users = all.slice(page * per, page * per + per).map(u => {
       const isMe = u.id === user.id, isFriend = me.friends.includes(u.id);
-      const out = { name: u.name, created: u.created, friendCount: soc(u.id).friends.length,
+      const out = { name: u.name, created: u.created, friendCount: friendCount(u.id),
         achievements: achCount(u.id), level: levelInfo(u.id).level,
         playtime: Math.round(stats(u.id).play),
         relation: isMe ? 'me' : isFriend ? 'friend' : me.outgoing.includes(u.id) ? 'requested' : me.incoming.includes(u.id) ? 'requestedYou' : 'none' };
@@ -2898,7 +2918,7 @@ async function handle(req, res) {
   if (req.method === 'GET' && p === '/api/profile') {
     const other = userByName(url.searchParams.get('name')) || user;
     const isMe = other.id === user.id, isFriend = soc(user.id).friends.includes(other.id);
-    const out = { name: other.name, created: other.created, friendCount: soc(other.id).friends.length, isMe, isFriend,
+    const out = { name: other.name, created: other.created, friendCount: friendCount(other.id), isMe, isFriend,
       requested: soc(user.id).outgoing.includes(other.id), requestedYou: soc(user.id).incoming.includes(other.id) };
     if (isMe || isFriend) Object.assign(out, presenceOf(other.id), { recent: soc(other.id).recent.slice(0, 6) });
     out.stats = statSummary(other.id); out.level = out.stats.level;
@@ -3178,4 +3198,6 @@ mainServer.on('upgrade', (req, socket, head) => {
 mainServer.listen(PORT, HOST, () => {
   console.log(`Eaglercraft save server on http://${HOST}:${PORT}  (data: ${DATA_DIR}, signups: ${ALLOW_SIGNUPS})`);
   getBrowserSecret();      // make sure the browser service can find the shared secret
+  const added = ensureOwnerFriends();
+  if (OWNER_FRIEND) console.log(ownerUser() ? `Everyone is friends with ${ownerUser().name}` + (added ? ` (added ${added})` : '') : `OWNER_FRIEND ${OWNER_FRIEND} has no account yet`);
 });
