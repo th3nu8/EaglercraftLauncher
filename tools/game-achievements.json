@@ -995,10 +995,10 @@
    "src": "ls",
    "key": "bb_test",
    "stats": {
-    "dunks": "invsav.achievs.dunks",
-    "threes": "invsav.achievs.points3",
-    "blocks": "invsav.achievs.blocks",
-    "steals": "invsav.achievs.steals",
+    "dunks": "invsav.stats.dunks",
+    "threes": "invsav.stats.points3",
+    "blocks": "invsav.stats.blocks",
+    "steals": "invsav.stats.steals",
     "cups": "invsav.achievs|truekeys:^(GC|SC|BC)\\d"
    }
   },
@@ -1043,7 +1043,7 @@
     "cup1",
     "🏆",
     "Cup Winner",
-    "Win a cup.",
+    "Win a cup (finish in the top 3 of a tournament).",
     "cups",
     1,
     "epic"
@@ -1052,7 +1052,7 @@
     "cup3",
     "👑",
     "Basketball Star",
-    "Win 3 cups.",
+    "Win 3 different cups. Each place (1st, 2nd, 3rd) in each tournament mode is its own cup, and so is winning on Hard; the same cup twice only counts once.",
     "cups",
     3,
     "legendary"

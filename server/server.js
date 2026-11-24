@@ -1293,8 +1293,8 @@ Object.assign(HOOK_ACH, {
     { id: "three25", icon: "🎯", name: "Downtown", desc: "Hit 25 three-pointers.", stat: "threes", goal: 25, rank: "rare" },
     { id: "block25", icon: "✋", name: "Rejected!", desc: "Block 25 shots.", stat: "blocks", goal: 25, rank: "rare" },
     { id: "steal25", icon: "🦊", name: "Pickpocket", desc: "Make 25 steals.", stat: "steals", goal: 25, rank: "rare" },
-    { id: "cup1", icon: "🏆", name: "Cup Winner", desc: "Win a cup.", stat: "cups", goal: 1, rank: "epic" },
-    { id: "cup3", icon: "👑", name: "Basketball Star", desc: "Win 3 cups.", stat: "cups", goal: 3, rank: "legendary" },
+    { id: "cup1", icon: "🏆", name: "Cup Winner", desc: "Win a cup (finish in the top 3 of a tournament).", stat: "cups", goal: 1, rank: "epic" },
+    { id: "cup3", icon: "👑", name: "Basketball Star", desc: "Win 3 different cups. Each place (1st, 2nd, 3rd) in each tournament mode is its own cup, and so is winning on Hard; the same cup twice only counts once.", stat: "cups", goal: 3, rank: "legendary" },
   ],
   "Bank Robbery 3": [
     { id: "l3", icon: "🏦", name: "Inside Job", desc: "Reach level 3.", stat: "level", goal: 3, rank: "common" },

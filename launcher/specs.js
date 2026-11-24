@@ -18,7 +18,7 @@ window.MIST_SPECS = {
   "Awesome Tanks": Object.assign({"src":"ls","stats":{"levels":"game.levels","done":"game.completed|bool","tanks":"stats.tanksDestroyed","coins":"stats.coinsCollected","ach":"achievements|true"}}, { key: "AWESOME-TANKS" }),
   "Big Tower Tiny Square": Object.assign({"src":"lf","stats":{"deaths":"TotalDeaths_key","jumps":"TotalJumps_key","time":"Gametime_key"}}, { key: /_key$/ }),
   "Big ICE Tower Tiny Square": Object.assign({"src":"lf","stats":{"deaths":"TotalDeaths_keyhs","jumps":"TotalJumps_keyhs","time":"Gametime_keyhs"}}, { key: /_keyhs$/ }),
-  "Basketball Stars": Object.assign({"src":"ls","stats":{"dunks":"invsav.achievs.dunks","threes":"invsav.achievs.points3","blocks":"invsav.achievs.blocks","steals":"invsav.achievs.steals","cups":"invsav.achievs|truekeys:^(GC|SC|BC)\\d"}}, { key: "bb_test" }),
+  "Basketball Stars": Object.assign({"src":"ls","stats":{"dunks":"invsav.stats.dunks","threes":"invsav.stats.points3","blocks":"invsav.stats.blocks","steals":"invsav.stats.steals","cups":"invsav.achievs|truekeys:^(GC|SC|BC)\\d"}}, { key: "bb_test" }),
   "Bank Robbery 3": Object.assign({"src":"ls","all":true,"session":true,"stats":{"level":"level","money":"money","escape":"escape"}}, { key: /^(level|money|escape)$/ }),
   "Bit Planes": Object.assign({"src":"ls","session":true,"stats":{"killed":"killed","missiles":"missiles","cows":"cowKilled"}}, { key: "stats" }),
   "Riddle School 4": Object.assign({"src":"flash","stats":{"beat":"beatgame|bool"}}, { key: "riddleschool4" }),
